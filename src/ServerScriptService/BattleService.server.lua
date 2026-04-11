@@ -1,5 +1,6 @@
 --!strict
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -25,6 +26,7 @@ local activeSessions = {}
 local playerToSession = {}
 local promptConnections = {}
 local startSession
+local COMBATANT_TAG = "BattleCombatant"
 
 for _, scenario in ipairs(BattleScenarios) do
     scenarioById[scenario.Id] = scenario
@@ -172,38 +174,51 @@ local function teleportCharacterToAnchor(character: Model, anchor: BasePart)
     character:PivotTo(anchor.CFrame * CFrame.new(0, 4, 0))
 end
 
-local function createDummy(parent: Instance, name: string, teamId: string, scenarioId: string, position: Vector3, accentColor: Color3): Model
+local function createDummy(parent: Instance, name: string, teamId: string, scenarioId: string, position: Vector3, accentColor: Color3, isCommander: boolean?, commanderHealth: number?): Model
+    local scale = isCommander and 1.45 or 1
     local model = Instance.new("Model")
     model.Name = name
     model:SetAttribute("BattleTeam", teamId)
     model:SetAttribute("ScenarioId", scenarioId)
+    model:SetAttribute("BattleCommander", isCommander == true)
     model.Parent = parent
 
     local root = Instance.new("Part")
     root.Name = "HumanoidRootPart"
-    root.Size = Vector3.new(2, 2, 1)
+    root.Size = Vector3.new(2, 2, 1) * scale
     root.Transparency = 1
     root.Anchored = true
     root.CanCollide = false
-    root.CFrame = CFrame.new(position + Vector3.new(0, 3, 0))
+    root.CFrame = CFrame.new(position + Vector3.new(0, 3 * scale, 0))
     root.Parent = model
 
     local torso = Instance.new("Part")
     torso.Name = "Torso"
-    torso.Size = Vector3.new(2, 2, 1)
+    torso.Size = Vector3.new(2.4, 2.8, 1.35) * scale
     torso.Anchored = true
     torso.Color = accentColor
     torso.Material = Enum.Material.Fabric
-    torso.CFrame = CFrame.new(position + Vector3.new(0, 3, 0))
+    torso.CFrame = CFrame.new(position + Vector3.new(0, 3.1 * scale, 0))
     torso.Parent = model
 
     local head = Instance.new("Part")
     head.Name = "Head"
-    head.Size = Vector3.new(2, 1, 1)
+    head.Shape = Enum.PartType.Ball
+    head.Size = Vector3.new(2, 2, 2) * scale
     head.Anchored = true
     head.Color = Color3.fromRGB(232, 201, 167)
-    head.CFrame = CFrame.new(position + Vector3.new(0, 4.5, 0))
+    head.CFrame = CFrame.new(position + Vector3.new(0, 5.2 * scale, 0))
     head.Parent = model
+
+    local wrap = Instance.new("Part")
+    wrap.Name = "HeadWrap"
+    wrap.Shape = Enum.PartType.Ball
+    wrap.Size = Vector3.new(2.15, 0.9, 2.15) * scale
+    wrap.Anchored = true
+    wrap.Color = isCommander and Color3.fromRGB(106, 58, 35) or accentColor
+    wrap.Material = Enum.Material.Fabric
+    wrap.CFrame = CFrame.new(position + Vector3.new(0, 5.88 * scale, 0))
+    wrap.Parent = model
 
     for partName, offset in pairs({
         ["Left Arm"] = Vector3.new(-1.5, 3, 0),
@@ -213,17 +228,39 @@ local function createDummy(parent: Instance, name: string, teamId: string, scena
     }) do
         local part = Instance.new("Part")
         part.Name = partName
-        part.Size = Vector3.new(1, 2, 1)
+        part.Shape = Enum.PartType.Cylinder
+        part.Size = Vector3.new(1, 2, 1) * scale
         part.Anchored = true
         part.Color = accentColor
         part.Material = Enum.Material.Fabric
-        part.CFrame = CFrame.new(position + offset)
+        part.CFrame = CFrame.new(position + offset * scale) * CFrame.Angles(0, 0, math.rad(90))
         part.Parent = model
     end
 
+    if isCommander then
+        local cape = Instance.new("Part")
+        cape.Name = "CommanderCape"
+        cape.Size = Vector3.new(3.4, 4.2, 0.4) * scale
+        cape.Anchored = true
+        cape.CanCollide = false
+        cape.Color = Color3.fromRGB(119, 60, 36)
+        cape.Material = Enum.Material.Fabric
+        cape.CFrame = CFrame.new(position + Vector3.new(0, 2.75 * scale, 0.95 * scale))
+        cape.Parent = model
+
+        local crest = Instance.new("Part")
+        crest.Name = "CommanderCrest"
+        crest.Size = Vector3.new(0.8, 1.6, 1.8) * scale
+        crest.Anchored = true
+        crest.Color = Color3.fromRGB(218, 173, 86)
+        crest.Material = Enum.Material.Metal
+        crest.CFrame = CFrame.new(position + Vector3.new(0, 6.45 * scale, 0))
+        crest.Parent = model
+    end
+
     local humanoid = Instance.new("Humanoid")
-    humanoid.MaxHealth = 90
-    humanoid.Health = 90
+    humanoid.MaxHealth = commanderHealth or (isCommander and 240 or 90)
+    humanoid.Health = humanoid.MaxHealth
     humanoid.DisplayName = name
     humanoid.Parent = model
 
@@ -269,6 +306,87 @@ local function setCharacterAttributes(character: Model, scenarioId: string?, tea
     character:SetAttribute("BattleTeam", teamId)
 end
 
+local function clearCommanderVisuals(character: Model)
+    local existingHighlight = character:FindFirstChild("CommanderHighlight")
+
+    if existingHighlight then
+        existingHighlight:Destroy()
+    end
+
+    local existingBadge = character:FindFirstChild("CommanderBadge")
+
+    if existingBadge then
+        existingBadge:Destroy()
+    end
+end
+
+local function clearCombatantTag(character: Model)
+    if CollectionService:HasTag(character, COMBATANT_TAG) then
+        CollectionService:RemoveTag(character, COMBATANT_TAG)
+    end
+
+    character:SetAttribute("BattleCommander", nil)
+    character:SetAttribute("BattleCommanderName", nil)
+    clearCommanderVisuals(character)
+end
+
+local function applyCommanderVisuals(character: Model, label: string, color: Color3)
+    clearCommanderVisuals(character)
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "CommanderHighlight"
+    highlight.FillColor = color
+    highlight.OutlineColor = Color3.fromRGB(255, 219, 128)
+    highlight.FillTransparency = 0.72
+    highlight.OutlineTransparency = 0.08
+    highlight.DepthMode = Enum.HighlightDepthMode.Occluded
+    highlight.Parent = character
+
+    local root = character:FindFirstChild("HumanoidRootPart")
+
+    if not root or not root:IsA("BasePart") then
+        return
+    end
+
+    local badge = Instance.new("BillboardGui")
+    badge.Name = "CommanderBadge"
+    badge.AlwaysOnTop = true
+    badge.Size = UDim2.fromOffset(210, 54)
+    badge.StudsOffset = Vector3.new(0, 7, 0)
+    badge.Parent = character
+    badge.Adornee = root
+
+    local labelGui = Instance.new("TextLabel")
+    labelGui.BackgroundColor3 = Color3.fromRGB(38, 28, 22)
+    labelGui.BackgroundTransparency = 0.12
+    labelGui.Size = UDim2.fromScale(1, 1)
+    labelGui.Font = Enum.Font.GothamBold
+    labelGui.Text = label
+    labelGui.TextColor3 = Color3.fromRGB(255, 235, 185)
+    labelGui.TextScaled = true
+    labelGui.TextWrapped = true
+    labelGui.Parent = badge
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = labelGui
+end
+
+local function tagCombatant(character: Model, isCommander: boolean?, commanderLabel: string?, color: Color3?)
+    if not CollectionService:HasTag(character, COMBATANT_TAG) then
+        CollectionService:AddTag(character, COMBATANT_TAG)
+    end
+
+    character:SetAttribute("BattleCommander", isCommander == true)
+    character:SetAttribute("BattleCommanderName", isCommander and commanderLabel or nil)
+
+    if isCommander then
+        applyCommanderVisuals(character, commanderLabel or "Commander", color or Color3.fromRGB(180, 114, 64))
+    else
+        clearCommanderVisuals(character)
+    end
+end
+
 local function clearPlayerBattleState(player: Player)
     playerToSession[player] = nil
     BattleLoadout.ClearForPlayer(player)
@@ -277,6 +395,7 @@ local function clearPlayerBattleState(player: Player)
     player:SetAttribute("CurrentBattleTeam", nil)
 
     if player.Character then
+        clearCombatantTag(player.Character)
         setCharacterAttributes(player.Character, nil, nil)
     end
 end
@@ -328,6 +447,7 @@ local function cleanupSession(session)
 
     for _, dummy in ipairs(session.Dummies) do
         if dummy.Parent then
+            clearCombatantTag(dummy)
             dummy:Destroy()
         end
     end
@@ -467,6 +587,7 @@ local function animateReenactment(session)
     local medinaSupport = getReenactmentActor(session.Arena, "MedinaSupport")
     local makkahLead = getReenactmentActor(session.Arena, "MakkahLead")
     local makkahSupport = getReenactmentActor(session.Arena, "MakkahSupport")
+    local makkahCommander = getReenactmentActor(session.Arena, "MakkahCommander")
 
     if not medinaLead or not medinaSupport or not makkahLead or not makkahSupport then
         return
@@ -480,6 +601,9 @@ local function animateReenactment(session)
     local makkahSupportStart = getReenactmentPart(session.Arena, "Marks", "MakkahSupportStart")
     local makkahLeadRetreat = getReenactmentPart(session.Arena, "Marks", "MakkahLeadRetreat")
     local makkahSupportRetreat = getReenactmentPart(session.Arena, "Marks", "MakkahSupportRetreat")
+    local makkahCommanderStart = getReenactmentPart(session.Arena, "Marks", "MakkahCommanderStart")
+    local makkahCommanderAdvance = getReenactmentPart(session.Arena, "Marks", "MakkahCommanderAdvance")
+    local makkahCommanderDefeat = getReenactmentPart(session.Arena, "Marks", "MakkahCommanderDefeat")
 
     if not medinaLeadStart or not medinaSupportStart or not medinaLeadAdvance or not medinaSupportAdvance or not makkahLeadStart or not makkahSupportStart or not makkahLeadRetreat or not makkahSupportRetreat then
         return
@@ -489,6 +613,10 @@ local function animateReenactment(session)
     medinaSupport:PivotTo(medinaSupportStart.CFrame)
     makkahLead:PivotTo(makkahLeadStart.CFrame)
     makkahSupport:PivotTo(makkahSupportStart.CFrame)
+
+    if makkahCommander and makkahCommanderStart then
+        makkahCommander:PivotTo(makkahCommanderStart.CFrame)
+    end
 
     local medinaRanks = getReenactmentActorsWithPrefix(session.Arena, "MedinaRank")
     local makkahRanks = getReenactmentActorsWithPrefix(session.Arena, "MakkahRank")
@@ -545,6 +673,15 @@ local function animateReenactment(session)
         task.spawn(function()
             task.wait(3.3)
             tweenModelTo(makkahSupport, makkahSupportRetreat.CFrame, 1.6)
+        end)
+    end
+
+    if makkahCommander and makkahCommanderAdvance and makkahCommanderDefeat then
+        task.spawn(function()
+            task.wait(2.2)
+            tweenModelTo(makkahCommander, makkahCommanderAdvance.CFrame, 2)
+            task.wait(2.8)
+            tweenModelTo(makkahCommander, makkahCommanderDefeat.CFrame * CFrame.Angles(0, 0, math.rad(68)), 1.8)
         end)
     end
 end
@@ -687,7 +824,9 @@ local function endSession(session, winnerTeamId: string?, reason: string)
 
     local winnerText = "Round complete."
 
-    if winnerTeamId then
+    if winnerTeamId and reason ~= "" then
+        winnerText = reason
+    elseif winnerTeamId then
         for _, team in ipairs(session.Scenario.Teams) do
             if team.Id == winnerTeamId then
                 winnerText = string.format("%s wins the round.", team.DisplayName)
@@ -754,11 +893,77 @@ local function evaluateVictory(session)
     end
 end
 
+local function getCommanderConfig(session)
+    return session.Scenario.Commander
+end
+
+local function shouldAssignCommander(session, teamId: string): boolean
+    local commander = getCommanderConfig(session)
+
+    if not commander then
+        return false
+    end
+
+    return commander.TeamId == teamId and not session.CommanderEntry
+end
+
+local function configureCommanderEntry(session, entry, teamAccentColor: Color3)
+    local commander = getCommanderConfig(session)
+
+    if not commander or not entry.IsCommander then
+        return
+    end
+
+    session.CommanderEntry = entry
+
+    if entry.Humanoid then
+        entry.Humanoid.MaxHealth = commander.Health or entry.Humanoid.MaxHealth
+        entry.Humanoid.Health = entry.Humanoid.MaxHealth
+        entry.Humanoid.DisplayName = commander.DisplayName or "Commander"
+    end
+
+    local character = entry.Model or (entry.Player and entry.Player.Character)
+
+    if character and character:IsA("Model") then
+        tagCombatant(character, true, commander.DisplayName or "Commander", teamAccentColor)
+    end
+
+    if entry.Player then
+        sendMessage({ entry.Player }, string.format("You are the %s boss. If you fall, the scenario ends.", commander.DisplayName or "opposing commander"), 6)
+    end
+end
+
 local function registerEntry(session, teamId: string, entry)
     table.insert(session.Teams[teamId], entry)
 
+    local teamAccentColor = Color3.fromRGB(180, 114, 64)
+
+    for _, team in ipairs(session.Scenario.Teams) do
+        if team.Id == teamId then
+            teamAccentColor = team.AccentColor
+            break
+        end
+    end
+
+    local character = entry.Model or (entry.Player and entry.Player.Character)
+
+    if character and character:IsA("Model") and not entry.IsCommander then
+        tagCombatant(character, false, nil, nil)
+    end
+
+    configureCommanderEntry(session, entry, teamAccentColor)
+
     local diedConnection = entry.Humanoid.Died:Connect(function()
         entry.Alive = false
+
+        if entry.IsCommander then
+            local commander = getCommanderConfig(session)
+            local winnerTeamId = commander and commander.DefeatedWinnerTeamId or nil
+            local message = commander and commander.DefeatedMessage or "The commander was defeated. The scenario is complete."
+
+            endSession(session, winnerTeamId, message)
+            return
+        end
 
         if entry.Kind == "Player" and entry.Player then
             sendMessage({ entry.Player }, "You fell in battle. You will watch the reenactment from the ridge.", 4)
@@ -808,6 +1013,7 @@ startSession = function(scenarioId: string)
         Dummies = {},
         Connections = {},
         Ended = false,
+        CommanderEntry = nil,
     }
 
     activeSessions[scenarioId] = session
@@ -849,8 +1055,10 @@ startSession = function(scenarioId: string)
                 registerEntry(session, team.Id, {
                     Kind = "Player",
                     Player = player,
+                    Model = character,
                     Humanoid = humanoid,
                     Alive = true,
+                    IsCommander = shouldAssignCommander(session, team.Id),
                 })
                 playerToSession[player] = session
             end
@@ -863,7 +1071,10 @@ startSession = function(scenarioId: string)
 
         while #session.Teams[team.Id] < scenario.PlayersPerTeam and dummyIndex <= #dummyAnchors do
             local dummyAnchor = dummyAnchors[dummyIndex]
-            local dummy = createDummy(arenaFolder, string.format("%s Dummy %d", team.DisplayName, dummyIndex), team.Id, scenario.Id, dummyAnchor.Position, team.AccentColor)
+            local isCommander = shouldAssignCommander(session, team.Id)
+            local commander = getCommanderConfig(session)
+            local dummyName = (isCommander and commander and commander.DisplayName) or string.format("%s Dummy %d", team.DisplayName, dummyIndex)
+            local dummy = createDummy(arenaFolder, dummyName, team.Id, scenario.Id, dummyAnchor.Position, team.AccentColor, isCommander, commander and commander.Health or nil)
             local humanoid = dummy:FindFirstChildOfClass("Humanoid")
 
             if humanoid then
@@ -872,6 +1083,7 @@ startSession = function(scenarioId: string)
                     Model = dummy,
                     Humanoid = humanoid,
                     Alive = true,
+                    IsCommander = isCommander,
                 })
                 table.insert(session.Dummies, dummy)
             end
@@ -904,6 +1116,10 @@ startSession = function(scenarioId: string)
 
         unfreezePlayersForBattle(queuedPlayers)
         sendMessage(queuedPlayers, string.format("%s begins now. Fight in first person with your sword and bow, then watch the reenactment at the end.", scenario.DisplayName), 6)
+
+        if scenario.Commander then
+            sendMessage(queuedPlayers, string.format("Boss objective: defeat the %s to end the scenario.", scenario.Commander.DisplayName), 6)
+        end
 
         task.delay(scenario.RoundDurationSeconds, function()
             if not session.Ended then

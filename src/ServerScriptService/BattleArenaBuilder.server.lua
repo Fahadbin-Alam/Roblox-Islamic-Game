@@ -90,25 +90,29 @@ local function createSafetyBounds(parent: Instance, center: Vector3, size: Vecto
     BuildUtils.CreatePart(parent, "EastBarrier", Vector3.new(thickness, wallHeight, size.Z + 180), CFrame.new(center + Vector3.new(size.X * 0.5 + 90, 22, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
 end
 
-local function createActorRig(parent: Instance, name: string, cframe: CFrame, outfitColor: Color3, accentColor: Color3): Model
+local function createActorRig(parent: Instance, name: string, cframe: CFrame, outfitColor: Color3, accentColor: Color3, scale: number?): Model
+    local s = scale or 1
     local model = Instance.new("Model")
     model.Name = name
     model.Parent = parent
 
-    local root = BuildUtils.CreatePart(model, "HumanoidRootPart", Vector3.new(2, 2, 1), cframe, Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
+    local root = BuildUtils.CreatePart(model, "HumanoidRootPart", Vector3.new(2, 2, 1) * s, cframe, Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
     root.CanCollide = false
 
-    BuildUtils.CreatePart(model, "Torso", Vector3.new(3.2, 4.2, 2.1), cframe * CFrame.new(0, 3.2, 0), outfitColor, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(model, "Head", Vector3.new(2, 2, 2), cframe * CFrame.new(0, 6.1, 0), Color3.fromRGB(229, 201, 171), Enum.Material.SmoothPlastic, nil, nil)
-    BuildUtils.CreatePart(model, "HeadWrap", Vector3.new(2.3, 1.1, 2.3), cframe * CFrame.new(0, 6.75, 0), accentColor, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(model, "LeftArm", Vector3.new(1.2, 3.6, 1.2), cframe * CFrame.new(-2.1, 3.1, 0), outfitColor, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(model, "RightArm", Vector3.new(1.2, 3.6, 1.2), cframe * CFrame.new(2.1, 3.1, 0), outfitColor, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(model, "LeftLeg", Vector3.new(1.2, 3.8, 1.2), cframe * CFrame.new(-0.8, 0.7, 0), accentColor, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(model, "RightLeg", Vector3.new(1.2, 3.8, 1.2), cframe * CFrame.new(0.8, 0.7, 0), accentColor, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(model, "SwordHandle", Vector3.new(0.28, 1.2, 0.28), cframe * CFrame.new(2.72, 3.6, -0.2), Color3.fromRGB(96, 62, 37), Enum.Material.Wood, nil, nil)
-    BuildUtils.CreatePart(model, "SwordBlade", Vector3.new(0.2, 4.2, 0.34), cframe * CFrame.new(2.72, 5.9, -0.2), Color3.fromRGB(214, 214, 210), Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(model, "Shield", Vector3.new(0.42, 2.5, 2.2), cframe * CFrame.new(-2.8, 3.3, -0.1), Color3.fromRGB(103, 78, 47), Enum.Material.Wood, nil, nil)
-    BuildUtils.CreatePart(model, "ShieldBoss", Vector3.new(0.5, 0.72, 0.72), cframe * CFrame.new(-3.04, 3.3, -0.1), Color3.fromRGB(179, 149, 87), Enum.Material.Metal, Enum.PartType.Ball, nil)
+    BuildUtils.CreatePart(model, "Torso", Vector3.new(3.2, 4.2, 2.1) * s, cframe * CFrame.new(0, 3.2 * s, 0), outfitColor, Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreatePart(model, "ChestSash", Vector3.new(3.55, 0.5, 2.25) * s, cframe * CFrame.new(0, 4.15 * s, -0.05 * s) * CFrame.Angles(0, 0, math.rad(-9)), accentColor, Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreateSphere(model, "Head", 2.05 * s, (cframe * CFrame.new(0, 6.1 * s, 0)).Position, Color3.fromRGB(229, 201, 171), Enum.Material.SmoothPlastic, nil)
+    BuildUtils.CreatePart(model, "HeadWrap", Vector3.new(2.45, 1.0, 2.45) * s, cframe * CFrame.new(0, 6.76 * s, 0), accentColor, Enum.Material.Fabric, Enum.PartType.Ball, nil)
+    BuildUtils.CreateVerticalCylinder(model, "LeftArm", 3.6 * s, 0.58 * s, (cframe * CFrame.new(-2.1 * s, 3.1 * s, 0)).Position, outfitColor, Enum.Material.Fabric, nil)
+    BuildUtils.CreateVerticalCylinder(model, "RightArm", 3.6 * s, 0.58 * s, (cframe * CFrame.new(2.1 * s, 3.1 * s, 0)).Position, outfitColor, Enum.Material.Fabric, nil)
+    BuildUtils.CreateSphere(model, "LeftShoulder", 1.2 * s, (cframe * CFrame.new(-2.05 * s, 4.8 * s, 0)).Position, outfitColor, Enum.Material.Fabric, nil)
+    BuildUtils.CreateSphere(model, "RightShoulder", 1.2 * s, (cframe * CFrame.new(2.05 * s, 4.8 * s, 0)).Position, outfitColor, Enum.Material.Fabric, nil)
+    BuildUtils.CreateVerticalCylinder(model, "LeftLeg", 3.8 * s, 0.58 * s, (cframe * CFrame.new(-0.8 * s, 0.7 * s, 0)).Position, accentColor, Enum.Material.Fabric, nil)
+    BuildUtils.CreateVerticalCylinder(model, "RightLeg", 3.8 * s, 0.58 * s, (cframe * CFrame.new(0.8 * s, 0.7 * s, 0)).Position, accentColor, Enum.Material.Fabric, nil)
+    BuildUtils.CreatePart(model, "SwordHandle", Vector3.new(0.28, 1.2, 0.28) * s, cframe * CFrame.new(2.72 * s, 3.6 * s, -0.2 * s), Color3.fromRGB(96, 62, 37), Enum.Material.Wood, nil, nil)
+    BuildUtils.CreatePart(model, "SwordBlade", Vector3.new(0.2, 4.2, 0.34) * s, cframe * CFrame.new(2.72 * s, 5.9 * s, -0.2 * s), Color3.fromRGB(214, 214, 210), Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(model, "Shield", Vector3.new(0.42, 2.5, 2.2) * s, cframe * CFrame.new(-2.8 * s, 3.3 * s, -0.1 * s), Color3.fromRGB(103, 78, 47), Enum.Material.Wood, nil, nil)
+    BuildUtils.CreatePart(model, "ShieldBoss", Vector3.new(0.5, 0.72, 0.72) * s, cframe * CFrame.new(-3.04 * s, 3.3 * s, -0.1 * s), Color3.fromRGB(179, 149, 87), Enum.Material.Metal, Enum.PartType.Ball, nil)
 
     model.PrimaryPart = root
 
@@ -142,8 +146,9 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
     local marks = BuildUtils.CreateFolder(reenactment, "Marks")
     local actors = BuildUtils.CreateFolder(reenactment, "Actors")
 
-    BuildUtils.CreatePart(geometry, "StageFloor", Vector3.new(120, 2, 90), CFrame.new(center + Vector3.new(0, 1.1, 0)), Color3.fromRGB(182, 154, 112), Enum.Material.Sandstone, nil, nil)
-    BuildUtils.CreatePart(geometry, "BackRock", Vector3.new(136, 28, 24), CFrame.new(center + Vector3.new(0, 14, -50)), Color3.fromRGB(147, 119, 83), Enum.Material.Rock, nil, nil)
+    BuildUtils.CreatePart(geometry, "StageFloor", Vector3.new(156, 2, 118), CFrame.new(center + Vector3.new(0, 1.1, 0)), Color3.fromRGB(182, 154, 112), Enum.Material.Sandstone, nil, nil)
+    BuildUtils.CreatePart(geometry, "BackRock", Vector3.new(168, 32, 28), CFrame.new(center + Vector3.new(0, 16, -64)), Color3.fromRGB(147, 119, 83), Enum.Material.Rock, nil, nil)
+    BuildUtils.CreatePart(geometry, "ForegroundRise", Vector3.new(142, 8, 22), CFrame.new(center + Vector3.new(0, 4.2, 52)), Color3.fromRGB(167, 137, 94), Enum.Material.Rock, nil, nil)
 
     local camera1 = BuildUtils.CreateTeleportAnchor(cameras, "Scene1", center + Vector3.new(-48, 22, 42))
     camera1.CFrame = CFrame.new(center + Vector3.new(-48, 22, 42), center + Vector3.new(0, 8, -4))
@@ -153,6 +158,8 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
     camera3.CFrame = CFrame.new(center + Vector3.new(52, 26, 36), center + Vector3.new(0, 10, -6))
     local camera4 = BuildUtils.CreateTeleportAnchor(cameras, "Scene4", center + Vector3.new(0, 30, -78))
     camera4.CFrame = CFrame.new(center + Vector3.new(0, 30, -78), center + Vector3.new(0, 9, 8))
+    local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "Scene5", center + Vector3.new(-18, 24, 86))
+    camera5.CFrame = CFrame.new(center + Vector3.new(-18, 24, 86), center + Vector3.new(0, 9, -8))
 
     local medinaLeadStart = BuildUtils.CreateTeleportAnchor(marks, "MedinaLeadStart", center + Vector3.new(-26, 0, 12))
     medinaLeadStart.CFrame = CFrame.new(medinaLeadStart.Position, center + Vector3.new(12, 0, 0))
@@ -173,11 +180,20 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
     local makkahSupportRetreatPosition = (scenarioId == "uhud") and (center + Vector3.new(34, 0, 6)) or (center + Vector3.new(60, 0, -2))
     local makkahSupportRetreat = BuildUtils.CreateTeleportAnchor(marks, "MakkahSupportRetreat", makkahSupportRetreatPosition)
     makkahSupportRetreat.CFrame = CFrame.new(makkahSupportRetreat.Position, center + Vector3.new(-22, 0, 0))
+    local makkahCommanderStart = BuildUtils.CreateTeleportAnchor(marks, "MakkahCommanderStart", center + Vector3.new(58, 0, 24))
+    makkahCommanderStart.CFrame = CFrame.new(makkahCommanderStart.Position, center + Vector3.new(-16, 0, -6))
+    local makkahCommanderAdvance = BuildUtils.CreateTeleportAnchor(marks, "MakkahCommanderAdvance", center + Vector3.new(16, 0, 18))
+    makkahCommanderAdvance.CFrame = CFrame.new(makkahCommanderAdvance.Position, center + Vector3.new(-22, 0, 0))
+    local makkahCommanderDefeat = BuildUtils.CreateTeleportAnchor(marks, "MakkahCommanderDefeat", center + Vector3.new(36, 0, 36))
+    makkahCommanderDefeat.CFrame = CFrame.new(makkahCommanderDefeat.Position, center + Vector3.new(-18, 0, -8))
 
     createActorRig(actors, "MedinaLead", medinaLeadStart.CFrame, medinaColor, Color3.fromRGB(40, 71, 48))
     createActorRig(actors, "MedinaSupport", medinaSupportStart.CFrame, medinaColor, Color3.fromRGB(40, 71, 48))
     createActorRig(actors, "MakkahLead", makkahLeadStart.CFrame, makkahColor, Color3.fromRGB(97, 67, 43))
     createActorRig(actors, "MakkahSupport", makkahSupportStart.CFrame, makkahColor, Color3.fromRGB(97, 67, 43))
+    createActorRig(actors, "MakkahCommander", makkahCommanderStart.CFrame, Color3.fromRGB(173, 108, 56), Color3.fromRGB(112, 63, 35), 1.35)
+    BuildUtils.CreateBanner(actors, "MakkahCommanderBanner", center + Vector3.new(63, 0, 30), Color3.fromRGB(146, 82, 48))
+    BuildUtils.CreateBanner(actors, "MedinaStandard", center + Vector3.new(-58, 0, 24), medinaColor)
 
     for index = 1, 3 do
         createActorRig(actors, string.format("MedinaRank%d", index), CFrame.new(center + Vector3.new(-48, 0, -26 + index * 12), center + Vector3.new(8, 0, 0)), medinaColor, Color3.fromRGB(40, 71, 48))
@@ -215,6 +231,8 @@ local function createBriefingSection(arenaFolder: Folder, center: Vector3, scena
     camera3.CFrame = CFrame.new(camera3.Position, center + Vector3.new(0, 7, 0))
     local camera4 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap4", center + Vector3.new(0, 30, -76))
     camera4.CFrame = CFrame.new(camera4.Position, center + Vector3.new(0, 8, 6))
+    local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap5", center + Vector3.new(-64, 30, -58))
+    camera5.CFrame = CFrame.new(camera5.Position, center + Vector3.new(4, 8, 4))
 
     if scenarioId == "badr" then
         createBriefingPath(markers, "RoutePath", CFrame.new(center + Vector3.new(-8, 8.1, 0)) * CFrame.Angles(0, math.rad(14), 0), Color3.fromRGB(246, 221, 143))

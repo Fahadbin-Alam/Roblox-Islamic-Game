@@ -1,5 +1,6 @@
 --!strict
 
+local CollectionService = game:GetService("CollectionService")
 local DataStoreService = game:GetService("DataStoreService")
 local Debris = game:GetService("Debris")
 local MarketplaceService = game:GetService("MarketplaceService")
@@ -35,6 +36,7 @@ local receiptStore = DataStoreService:GetDataStore("ProcessedReceipts_v1")
 local playerProfiles: { [Player]: { EquippedSkin: string, UltimateCharges: number, KnowledgeTokens: number, SupportPoints: number } } = {}
 local playerPassOwnership: { [Player]: { [string]: boolean } } = {}
 local ultimateCooldowns: { [Player]: number } = {}
+local COMBATANT_TAG = "BattleCombatant"
 
 local gamePassByKey = {}
 local gamePassByProductId = {}
@@ -385,25 +387,22 @@ local function useUltimateCharge(player: Player)
     tween:Play()
     Debris:AddItem(pulse, 0.6)
 
-    for _, descendant in ipairs(Workspace:GetDescendants()) do
-        if descendant:IsA("Humanoid") and descendant.Health > 0 then
-            local targetModel = descendant.Parent
+    for _, targetModel in ipairs(CollectionService:GetTagged(COMBATANT_TAG)) do
+        if targetModel:IsA("Model") and targetModel ~= character then
+            local targetHumanoid = targetModel:FindFirstChildOfClass("Humanoid")
+            local targetScenarioId = targetModel:GetAttribute("ScenarioId")
+            local targetTeamId = targetModel:GetAttribute("BattleTeam")
+            local targetRoot = targetModel:FindFirstChild("HumanoidRootPart")
 
-            if targetModel and targetModel:IsA("Model") and targetModel ~= character then
-                local targetScenarioId = targetModel:GetAttribute("ScenarioId")
-                local targetTeamId = targetModel:GetAttribute("BattleTeam")
-                local targetRoot = targetModel:FindFirstChild("HumanoidRootPart")
+            if targetHumanoid and targetHumanoid.Health > 0 and targetScenarioId == currentScenarioId and targetTeamId ~= currentBattleTeam and targetRoot and targetRoot:IsA("BasePart") then
+                local offset = targetRoot.Position - root.Position
+                local distance = offset.Magnitude
 
-                if targetScenarioId == currentScenarioId and targetTeamId ~= currentBattleTeam and targetRoot and targetRoot:IsA("BasePart") then
-                    local offset = targetRoot.Position - root.Position
-                    local distance = offset.Magnitude
+                if distance <= 22 then
+                    targetHumanoid:TakeDamage(30)
 
-                    if distance <= 22 then
-                        descendant:TakeDamage(30)
-
-                        if distance > 0.1 then
-                            targetRoot.AssemblyLinearVelocity += offset.Unit * 52
-                        end
+                    if distance > 0.1 then
+                        targetRoot.AssemblyLinearVelocity += offset.Unit * 52
                     end
                 end
             end

@@ -1,5 +1,6 @@
 --!strict
 
+local CollectionService = game:GetService("CollectionService")
 local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -22,6 +23,7 @@ local BLOCK_WINDOW_SECONDS = 1.1
 local BLOCK_COOLDOWN_SECONDS = 1.8
 local BLOCK_DAMAGE_MULTIPLIER = 0.28
 local blockCooldowns: { [Player]: number } = {}
+local COMBATANT_TAG = "BattleCombatant"
 
 local function getCharacterHumanoid(model: Instance): Humanoid?
     if not model:IsA("Model") then
@@ -54,23 +56,20 @@ local function findEnemyHumanoid(originCharacter: Model, maxDistance: number): H
     local bestHumanoid = nil
     local bestDistance = maxDistance
 
-    for _, candidate in ipairs(Workspace:GetDescendants()) do
-        if candidate:IsA("Humanoid") and candidate.Health > 0 then
-            local candidateModel = candidate.Parent
+    for _, candidateModel in ipairs(CollectionService:GetTagged(COMBATANT_TAG)) do
+        if candidateModel:IsA("Model") and candidateModel ~= originCharacter then
+            local candidate = candidateModel:FindFirstChildOfClass("Humanoid")
+            local candidateRoot = candidateModel:FindFirstChild("HumanoidRootPart")
 
-            if candidateModel and candidateModel:IsA("Model") and candidateModel ~= originCharacter then
-                local candidateRoot = candidateModel:FindFirstChild("HumanoidRootPart")
+            if candidate and candidate.Health > 0 and candidateRoot and candidateRoot:IsA("BasePart") then
+                local candidateTeam = candidateModel:GetAttribute("BattleTeam")
 
-                if candidateRoot and candidateRoot:IsA("BasePart") then
-                    local candidateTeam = candidateModel:GetAttribute("BattleTeam")
+                if candidateTeam and candidateTeam ~= originTeam then
+                    local distance = (candidateRoot.Position - root.Position).Magnitude
 
-                    if candidateTeam and candidateTeam ~= originTeam then
-                        local distance = (candidateRoot.Position - root.Position).Magnitude
-
-                        if distance < bestDistance then
-                            bestDistance = distance
-                            bestHumanoid = candidate
-                        end
+                    if distance < bestDistance then
+                        bestDistance = distance
+                        bestHumanoid = candidate
                     end
                 end
             end

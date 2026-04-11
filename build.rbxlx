@@ -83,6 +83,18 @@ local BattleScenarios = {
                 AccentColor = Color3.fromRGB(160, 109, 60),
             },
         },
+        Commander = {
+            TeamId = "makkah",
+            DisplayName = "Quraysh Commander",
+            RoleText = "A stronger opposing-side commander role. If a player is on this side, one player becomes the commander. If not, the game creates a boss dummy.",
+            Health = 260,
+            DefeatedWinnerTeamId = "medina",
+            DefeatedMessage = "Medina Side completes the scenario: the Quraysh commander was defeated.",
+        },
+        KeyFigures = {
+            Medina = "Medina side: Prophet Muhammad, peace be upon him, led the Muslims but is never depicted. Companions connected to this period include Abu Bakr, Umar, Ali, Hamzah, and Bilal, may Allah be pleased with them.",
+            Makkah = "Makkah Quraysh side: leaders remembered in the conflict include Abu Jahl, Umayyah ibn Khalaf, Utbah ibn Rabi'ah, and other chiefs of Quraysh.",
+        },
         SpawnPositions = {
             medina = {
                 Vector3.new(-1320, 10, 720),
@@ -117,30 +129,37 @@ local BattleScenarios = {
             Scenes = {
                 {
                     CameraName = "BriefingMap1",
-                    Title = "624 CE | 2 AH",
-                    Body = "Badr happened after the Hijrah, when the Muslims had settled in Medina and tension with the Quraysh of Makkah was still rising.",
+                    Title = "17 Ramadan, 2 AH | 624 CE",
+                    Body = "Badr happened after the Hijrah, when the Muslims had settled in Medina and conflict with the Quraysh of Makkah was still rising.",
                     DurationSeconds = 7,
                     FieldOfView = 62,
                 },
                 {
                     CameraName = "BriefingMap2",
-                    Title = "Why The Fight Happened",
-                    Body = "This briefing keeps the history simple: the young Muslim community and the Quraysh were in open conflict, and Badr became the first major battle between them.",
-                    DurationSeconds = 7,
+                    Title = "The Situation",
+                    Body = "The young Muslim community in Medina faced pressure from Quraysh power in Makkah. Badr became the first major battle between the two sides.",
+                    DurationSeconds = 8,
                     FieldOfView = 58,
                 },
                 {
                     CameraName = "BriefingMap3",
-                    Title = "The Valley And Wells",
-                    Body = "The map shows the valley, travel route, and wells. Players should notice that terrain and preparation mattered before the clash began.",
-                    DurationSeconds = 6,
+                    Title = "Main People To Know",
+                    Body = "Medina side: the Prophet, peace be upon him, led but is not depicted. Companions such as Abu Bakr, Umar, Ali, Hamzah, and Bilal, may Allah be pleased with them, are connected to this period.",
+                    DurationSeconds = 9,
                     FieldOfView = 64,
                 },
                 {
                     CameraName = "BriefingMap4",
+                    Title = "Opposing Commanders",
+                    Body = "Quraysh leaders remembered in this conflict include Abu Jahl, Umayyah ibn Khalaf, and Utbah ibn Rabi'ah. The boss role represents an opposing commander without making a sacred figure playable.",
+                    DurationSeconds = 8,
+                    FieldOfView = 60,
+                },
+                {
+                    CameraName = "BriefingMap5",
                     Title = "Your Objective",
-                    Body = "Fight the round for fun. The lesson is that Badr became a turning point remembered for courage, unity, preparation, and gratitude.",
-                    DurationSeconds = 6,
+                    Body = "Fight the round, look for the Quraysh Commander boss, then watch the reenactment to connect the action to courage, preparation, unity, and gratitude.",
+                    DurationSeconds = 7,
                     FieldOfView = 60,
                 },
             },
@@ -151,35 +170,41 @@ local BattleScenarios = {
                 {
                     CameraName = "Scene1",
                     Title = "The Wells Of Badr",
-                    Body = "The reenactment returns to the valley of Badr in 624 CE, where the battle became a defining moment for the early Muslim community.",
-                    DurationSeconds = 6,
+                    Body = "17 Ramadan, 2 AH. The valley and wells mattered because preparation and position shaped what happened before the clash.",
+                    DurationSeconds = 7,
                 },
                 {
                     CameraName = "Scene2",
                     Title = "Standing Together",
-                    Body = "The lesson is not just that a fight happened. It is that a small, vulnerable community stood together under pressure.",
-                    DurationSeconds = 6,
+                    Body = "The Medina side was a small, vulnerable community under pressure. The scene keeps the Prophet, peace be upon him, out of visual depiction.",
+                    DurationSeconds = 8,
                 },
                 {
                     CameraName = "Scene3",
-                    Title = "A Turning Point",
-                    Body = "Badr raised morale and changed how the community was seen. That is why the round ends with reflection, not just a scoreboard.",
-                    DurationSeconds = 6,
+                    Title = "The Opposing Command",
+                    Body = "The Quraysh side had powerful chiefs and confidence from Makkah. In gameplay, the commander boss gives players a clear objective.",
+                    DurationSeconds = 7,
                 },
                 {
                     CameraName = "Scene4",
+                    Title = "A Turning Point",
+                    Body = "Badr raised morale and changed how the community was seen. The ending should feel like a lesson, not only a scoreboard.",
+                    DurationSeconds = 7,
+                },
+                {
+                    CameraName = "Scene5",
                     Title = "What Players Should Remember",
                     Body = "In the game you fought for fun. In the lesson, remember preparation, unity, gratitude, and responsibility after victory.",
-                    DurationSeconds = 6,
+                    DurationSeconds = 7,
                 },
             },
         },
         StorySummary = {
             Title = "What Happened At Badr",
             Lines = {
-                "Badr took place in 624 CE and became a major victory for the early Muslim community.",
+                "Badr took place on 17 Ramadan, 2 AH / 624 CE and became a major victory for the early Muslim community.",
                 "The battle strengthened morale and marked a turning point in the public standing of the community.",
-                "This battle mode lets players have fun with the action while the reenactment keeps the historical meaning in view.",
+                "This battle mode uses a commander boss objective for gameplay while the reenactment keeps the historical meaning in view.",
             },
         },
         Rewards = {
@@ -213,6 +238,18 @@ local BattleScenarios = {
                 DisplayName = "Makkah Side",
                 AccentColor = Color3.fromRGB(143, 101, 68),
             },
+        },
+        Commander = {
+            TeamId = "makkah",
+            DisplayName = "Quraysh Cavalry Commander",
+            RoleText = "A stronger opposing-side commander role. If a player is on this side, one player becomes the commander. If not, the game creates a boss dummy.",
+            Health = 280,
+            DefeatedWinnerTeamId = "medina",
+            DefeatedMessage = "Medina Side completes the scenario: the Quraysh cavalry commander was defeated.",
+        },
+        KeyFigures = {
+            Medina = "Medina side: Prophet Muhammad, peace be upon him, led the Muslims but is never depicted. Companions connected to Uhud include Hamzah ibn Abd al-Muttalib, Mus'ab ibn Umayr, and Nusaybah bint Ka'b, may Allah be pleased with them.",
+            Makkah = "Makkah Quraysh side: leaders and commanders connected to Uhud include Abu Sufyan and Khalid ibn al-Walid before he accepted Islam. The game uses a generic commander role instead of making them playable.",
         },
         SpawnPositions = {
             medina = {
@@ -248,30 +285,37 @@ local BattleScenarios = {
             Scenes = {
                 {
                     CameraName = "BriefingMap1",
-                    Title = "625 CE | 3 AH",
+                    Title = "7 Shawwal, 3 AH | 625 CE",
                     Body = "Uhud happened the year after Badr, near Mount Uhud outside Medina, as the Quraysh came again after their earlier defeat.",
                     DurationSeconds = 7,
                     FieldOfView = 62,
                 },
                 {
                     CameraName = "BriefingMap2",
-                    Title = "Why The Fight Happened",
-                    Body = "The battle was connected to the continuing conflict between Makkah and Medina after Badr. The Quraysh wanted to answer that loss.",
-                    DurationSeconds = 7,
+                    Title = "The Situation",
+                    Body = "The battle was connected to the continuing conflict between Makkah and Medina after Badr. Quraysh wanted to answer that loss near Medina.",
+                    DurationSeconds = 8,
                     FieldOfView = 58,
                 },
                 {
                     CameraName = "BriefingMap3",
+                    Title = "Main People To Know",
+                    Body = "Medina side: the Prophet, peace be upon him, is not depicted. Companions connected to Uhud include Hamzah, Mus'ab ibn Umayr, and Nusaybah bint Ka'b, may Allah be pleased with them.",
+                    DurationSeconds = 9,
+                    FieldOfView = 60,
+                },
+                {
+                    CameraName = "BriefingMap4",
                     Title = "The Mountain And Ridge",
                     Body = "The map shows Mount Uhud, the pass, and the archer ridge. This battle teaches that position and discipline can change everything.",
                     DurationSeconds = 7,
                     FieldOfView = 60,
                 },
                 {
-                    CameraName = "BriefingMap4",
+                    CameraName = "BriefingMap5",
                     Title = "Your Objective",
-                    Body = "Fight the round with swords and bows, then watch the ending reenactment to connect the gameplay to the lesson.",
-                    DurationSeconds = 5,
+                    Body = "Fight the round, watch for the Quraysh Cavalry Commander boss, and then study how momentum shifted near the ridge.",
+                    DurationSeconds = 7,
                     FieldOfView = 60,
                 },
             },
@@ -282,35 +326,41 @@ local BattleScenarios = {
                 {
                     CameraName = "Scene1",
                     Title = "Mount Uhud And The Pass",
-                    Body = "The reenactment returns to 625 CE near Mount Uhud, where the terrain shaped the way the battle unfolded.",
-                    DurationSeconds = 6,
+                    Body = "7 Shawwal, 3 AH. The reenactment begins near Mount Uhud, where terrain and assigned positions shaped what happened next.",
+                    DurationSeconds = 7,
                 },
                 {
                     CameraName = "Scene2",
                     Title = "The Archer Ridge",
                     Body = "A major lesson of Uhud is to hold the assigned position even when the battle seems to be going your way.",
-                    DurationSeconds = 6,
+                    DurationSeconds = 7,
                 },
                 {
                     CameraName = "Scene3",
-                    Title = "A Hard Turn",
-                    Body = "Momentum changed during the fighting, and the community faced a painful test near the mountain.",
-                    DurationSeconds = 6,
+                    Title = "Opposing Cavalry Pressure",
+                    Body = "Quraysh cavalry pressure is represented by a commander boss in gameplay, while real historical figures are taught through text rather than made into avatars.",
+                    DurationSeconds = 8,
                 },
                 {
                     CameraName = "Scene4",
+                    Title = "A Hard Turn",
+                    Body = "Momentum changed during the fighting, and the community faced a painful test near the mountain.",
+                    DurationSeconds = 7,
+                },
+                {
+                    CameraName = "Scene5",
                     Title = "The Lesson Of Uhud",
                     Body = "In the game you fought for fun. In the lesson, remember that courage must stay joined to discipline and steady judgment.",
-                    DurationSeconds = 6,
+                    DurationSeconds = 7,
                 },
             },
         },
         StorySummary = {
             Title = "What Happened At Uhud",
             Lines = {
-                "Uhud took place in 625 CE near Mount Uhud and became a hard lesson about discipline and battlefield positioning.",
+                "Uhud took place on 7 Shawwal, 3 AH / 625 CE near Mount Uhud and became a hard lesson about discipline and battlefield positioning.",
                 "Early momentum shifted during the fighting, and the battle became a reminder that courage must stay tied to obedience and steady judgment.",
-                "This round lets players enjoy the action, while the reenactment keeps the historical lesson connected to the gameplay.",
+                "This round uses a commander boss objective for clarity, while the reenactment keeps the historical lesson connected to the gameplay.",
             },
         },
         Rewards = {
@@ -1108,25 +1158,29 @@ local function createSafetyBounds(parent: Instance, center: Vector3, size: Vecto
     BuildUtils.CreatePart(parent, "EastBarrier", Vector3.new(thickness, wallHeight, size.Z + 180), CFrame.new(center + Vector3.new(size.X * 0.5 + 90, 22, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
 end
 
-local function createActorRig(parent: Instance, name: string, cframe: CFrame, outfitColor: Color3, accentColor: Color3): Model
+local function createActorRig(parent: Instance, name: string, cframe: CFrame, outfitColor: Color3, accentColor: Color3, scale: number?): Model
+    local s = scale or 1
     local model = Instance.new("Model")
     model.Name = name
     model.Parent = parent
 
-    local root = BuildUtils.CreatePart(model, "HumanoidRootPart", Vector3.new(2, 2, 1), cframe, Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
+    local root = BuildUtils.CreatePart(model, "HumanoidRootPart", Vector3.new(2, 2, 1) * s, cframe, Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
     root.CanCollide = false
 
-    BuildUtils.CreatePart(model, "Torso", Vector3.new(3.2, 4.2, 2.1), cframe * CFrame.new(0, 3.2, 0), outfitColor, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(model, "Head", Vector3.new(2, 2, 2), cframe * CFrame.new(0, 6.1, 0), Color3.fromRGB(229, 201, 171), Enum.Material.SmoothPlastic, nil, nil)
-    BuildUtils.CreatePart(model, "HeadWrap", Vector3.new(2.3, 1.1, 2.3), cframe * CFrame.new(0, 6.75, 0), accentColor, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(model, "LeftArm", Vector3.new(1.2, 3.6, 1.2), cframe * CFrame.new(-2.1, 3.1, 0), outfitColor, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(model, "RightArm", Vector3.new(1.2, 3.6, 1.2), cframe * CFrame.new(2.1, 3.1, 0), outfitColor, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(model, "LeftLeg", Vector3.new(1.2, 3.8, 1.2), cframe * CFrame.new(-0.8, 0.7, 0), accentColor, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(model, "RightLeg", Vector3.new(1.2, 3.8, 1.2), cframe * CFrame.new(0.8, 0.7, 0), accentColor, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(model, "SwordHandle", Vector3.new(0.28, 1.2, 0.28), cframe * CFrame.new(2.72, 3.6, -0.2), Color3.fromRGB(96, 62, 37), Enum.Material.Wood, nil, nil)
-    BuildUtils.CreatePart(model, "SwordBlade", Vector3.new(0.2, 4.2, 0.34), cframe * CFrame.new(2.72, 5.9, -0.2), Color3.fromRGB(214, 214, 210), Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(model, "Shield", Vector3.new(0.42, 2.5, 2.2), cframe * CFrame.new(-2.8, 3.3, -0.1), Color3.fromRGB(103, 78, 47), Enum.Material.Wood, nil, nil)
-    BuildUtils.CreatePart(model, "ShieldBoss", Vector3.new(0.5, 0.72, 0.72), cframe * CFrame.new(-3.04, 3.3, -0.1), Color3.fromRGB(179, 149, 87), Enum.Material.Metal, Enum.PartType.Ball, nil)
+    BuildUtils.CreatePart(model, "Torso", Vector3.new(3.2, 4.2, 2.1) * s, cframe * CFrame.new(0, 3.2 * s, 0), outfitColor, Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreatePart(model, "ChestSash", Vector3.new(3.55, 0.5, 2.25) * s, cframe * CFrame.new(0, 4.15 * s, -0.05 * s) * CFrame.Angles(0, 0, math.rad(-9)), accentColor, Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreateSphere(model, "Head", 2.05 * s, (cframe * CFrame.new(0, 6.1 * s, 0)).Position, Color3.fromRGB(229, 201, 171), Enum.Material.SmoothPlastic, nil)
+    BuildUtils.CreatePart(model, "HeadWrap", Vector3.new(2.45, 1.0, 2.45) * s, cframe * CFrame.new(0, 6.76 * s, 0), accentColor, Enum.Material.Fabric, Enum.PartType.Ball, nil)
+    BuildUtils.CreateVerticalCylinder(model, "LeftArm", 3.6 * s, 0.58 * s, (cframe * CFrame.new(-2.1 * s, 3.1 * s, 0)).Position, outfitColor, Enum.Material.Fabric, nil)
+    BuildUtils.CreateVerticalCylinder(model, "RightArm", 3.6 * s, 0.58 * s, (cframe * CFrame.new(2.1 * s, 3.1 * s, 0)).Position, outfitColor, Enum.Material.Fabric, nil)
+    BuildUtils.CreateSphere(model, "LeftShoulder", 1.2 * s, (cframe * CFrame.new(-2.05 * s, 4.8 * s, 0)).Position, outfitColor, Enum.Material.Fabric, nil)
+    BuildUtils.CreateSphere(model, "RightShoulder", 1.2 * s, (cframe * CFrame.new(2.05 * s, 4.8 * s, 0)).Position, outfitColor, Enum.Material.Fabric, nil)
+    BuildUtils.CreateVerticalCylinder(model, "LeftLeg", 3.8 * s, 0.58 * s, (cframe * CFrame.new(-0.8 * s, 0.7 * s, 0)).Position, accentColor, Enum.Material.Fabric, nil)
+    BuildUtils.CreateVerticalCylinder(model, "RightLeg", 3.8 * s, 0.58 * s, (cframe * CFrame.new(0.8 * s, 0.7 * s, 0)).Position, accentColor, Enum.Material.Fabric, nil)
+    BuildUtils.CreatePart(model, "SwordHandle", Vector3.new(0.28, 1.2, 0.28) * s, cframe * CFrame.new(2.72 * s, 3.6 * s, -0.2 * s), Color3.fromRGB(96, 62, 37), Enum.Material.Wood, nil, nil)
+    BuildUtils.CreatePart(model, "SwordBlade", Vector3.new(0.2, 4.2, 0.34) * s, cframe * CFrame.new(2.72 * s, 5.9 * s, -0.2 * s), Color3.fromRGB(214, 214, 210), Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(model, "Shield", Vector3.new(0.42, 2.5, 2.2) * s, cframe * CFrame.new(-2.8 * s, 3.3 * s, -0.1 * s), Color3.fromRGB(103, 78, 47), Enum.Material.Wood, nil, nil)
+    BuildUtils.CreatePart(model, "ShieldBoss", Vector3.new(0.5, 0.72, 0.72) * s, cframe * CFrame.new(-3.04 * s, 3.3 * s, -0.1 * s), Color3.fromRGB(179, 149, 87), Enum.Material.Metal, Enum.PartType.Ball, nil)
 
     model.PrimaryPart = root
 
@@ -1160,8 +1214,9 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
     local marks = BuildUtils.CreateFolder(reenactment, "Marks")
     local actors = BuildUtils.CreateFolder(reenactment, "Actors")
 
-    BuildUtils.CreatePart(geometry, "StageFloor", Vector3.new(120, 2, 90), CFrame.new(center + Vector3.new(0, 1.1, 0)), Color3.fromRGB(182, 154, 112), Enum.Material.Sandstone, nil, nil)
-    BuildUtils.CreatePart(geometry, "BackRock", Vector3.new(136, 28, 24), CFrame.new(center + Vector3.new(0, 14, -50)), Color3.fromRGB(147, 119, 83), Enum.Material.Rock, nil, nil)
+    BuildUtils.CreatePart(geometry, "StageFloor", Vector3.new(156, 2, 118), CFrame.new(center + Vector3.new(0, 1.1, 0)), Color3.fromRGB(182, 154, 112), Enum.Material.Sandstone, nil, nil)
+    BuildUtils.CreatePart(geometry, "BackRock", Vector3.new(168, 32, 28), CFrame.new(center + Vector3.new(0, 16, -64)), Color3.fromRGB(147, 119, 83), Enum.Material.Rock, nil, nil)
+    BuildUtils.CreatePart(geometry, "ForegroundRise", Vector3.new(142, 8, 22), CFrame.new(center + Vector3.new(0, 4.2, 52)), Color3.fromRGB(167, 137, 94), Enum.Material.Rock, nil, nil)
 
     local camera1 = BuildUtils.CreateTeleportAnchor(cameras, "Scene1", center + Vector3.new(-48, 22, 42))
     camera1.CFrame = CFrame.new(center + Vector3.new(-48, 22, 42), center + Vector3.new(0, 8, -4))
@@ -1171,6 +1226,8 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
     camera3.CFrame = CFrame.new(center + Vector3.new(52, 26, 36), center + Vector3.new(0, 10, -6))
     local camera4 = BuildUtils.CreateTeleportAnchor(cameras, "Scene4", center + Vector3.new(0, 30, -78))
     camera4.CFrame = CFrame.new(center + Vector3.new(0, 30, -78), center + Vector3.new(0, 9, 8))
+    local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "Scene5", center + Vector3.new(-18, 24, 86))
+    camera5.CFrame = CFrame.new(center + Vector3.new(-18, 24, 86), center + Vector3.new(0, 9, -8))
 
     local medinaLeadStart = BuildUtils.CreateTeleportAnchor(marks, "MedinaLeadStart", center + Vector3.new(-26, 0, 12))
     medinaLeadStart.CFrame = CFrame.new(medinaLeadStart.Position, center + Vector3.new(12, 0, 0))
@@ -1191,11 +1248,20 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
     local makkahSupportRetreatPosition = (scenarioId == "uhud") and (center + Vector3.new(34, 0, 6)) or (center + Vector3.new(60, 0, -2))
     local makkahSupportRetreat = BuildUtils.CreateTeleportAnchor(marks, "MakkahSupportRetreat", makkahSupportRetreatPosition)
     makkahSupportRetreat.CFrame = CFrame.new(makkahSupportRetreat.Position, center + Vector3.new(-22, 0, 0))
+    local makkahCommanderStart = BuildUtils.CreateTeleportAnchor(marks, "MakkahCommanderStart", center + Vector3.new(58, 0, 24))
+    makkahCommanderStart.CFrame = CFrame.new(makkahCommanderStart.Position, center + Vector3.new(-16, 0, -6))
+    local makkahCommanderAdvance = BuildUtils.CreateTeleportAnchor(marks, "MakkahCommanderAdvance", center + Vector3.new(16, 0, 18))
+    makkahCommanderAdvance.CFrame = CFrame.new(makkahCommanderAdvance.Position, center + Vector3.new(-22, 0, 0))
+    local makkahCommanderDefeat = BuildUtils.CreateTeleportAnchor(marks, "MakkahCommanderDefeat", center + Vector3.new(36, 0, 36))
+    makkahCommanderDefeat.CFrame = CFrame.new(makkahCommanderDefeat.Position, center + Vector3.new(-18, 0, -8))
 
     createActorRig(actors, "MedinaLead", medinaLeadStart.CFrame, medinaColor, Color3.fromRGB(40, 71, 48))
     createActorRig(actors, "MedinaSupport", medinaSupportStart.CFrame, medinaColor, Color3.fromRGB(40, 71, 48))
     createActorRig(actors, "MakkahLead", makkahLeadStart.CFrame, makkahColor, Color3.fromRGB(97, 67, 43))
     createActorRig(actors, "MakkahSupport", makkahSupportStart.CFrame, makkahColor, Color3.fromRGB(97, 67, 43))
+    createActorRig(actors, "MakkahCommander", makkahCommanderStart.CFrame, Color3.fromRGB(173, 108, 56), Color3.fromRGB(112, 63, 35), 1.35)
+    BuildUtils.CreateBanner(actors, "MakkahCommanderBanner", center + Vector3.new(63, 0, 30), Color3.fromRGB(146, 82, 48))
+    BuildUtils.CreateBanner(actors, "MedinaStandard", center + Vector3.new(-58, 0, 24), medinaColor)
 
     for index = 1, 3 do
         createActorRig(actors, string.format("MedinaRank%d", index), CFrame.new(center + Vector3.new(-48, 0, -26 + index * 12), center + Vector3.new(8, 0, 0)), medinaColor, Color3.fromRGB(40, 71, 48))
@@ -1233,6 +1299,8 @@ local function createBriefingSection(arenaFolder: Folder, center: Vector3, scena
     camera3.CFrame = CFrame.new(camera3.Position, center + Vector3.new(0, 7, 0))
     local camera4 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap4", center + Vector3.new(0, 30, -76))
     camera4.CFrame = CFrame.new(camera4.Position, center + Vector3.new(0, 8, 6))
+    local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap5", center + Vector3.new(-64, 30, -58))
+    camera5.CFrame = CFrame.new(camera5.Position, center + Vector3.new(4, 8, 4))
 
     if scenarioId == "badr" then
         createBriefingPath(markers, "RoutePath", CFrame.new(center + Vector3.new(-8, 8.1, 0)) * CFrame.Angles(0, math.rad(14), 0), Color3.fromRGB(246, 221, 143))
@@ -1382,6 +1450,7 @@ end
         <token name="RunContext">0</token>
         <string name="Source"><![CDATA[--!strict
 
+local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -1407,6 +1476,7 @@ local activeSessions = {}
 local playerToSession = {}
 local promptConnections = {}
 local startSession
+local COMBATANT_TAG = "BattleCombatant"
 
 for _, scenario in ipairs(BattleScenarios) do
     scenarioById[scenario.Id] = scenario
@@ -1554,38 +1624,51 @@ local function teleportCharacterToAnchor(character: Model, anchor: BasePart)
     character:PivotTo(anchor.CFrame * CFrame.new(0, 4, 0))
 end
 
-local function createDummy(parent: Instance, name: string, teamId: string, scenarioId: string, position: Vector3, accentColor: Color3): Model
+local function createDummy(parent: Instance, name: string, teamId: string, scenarioId: string, position: Vector3, accentColor: Color3, isCommander: boolean?, commanderHealth: number?): Model
+    local scale = isCommander and 1.45 or 1
     local model = Instance.new("Model")
     model.Name = name
     model:SetAttribute("BattleTeam", teamId)
     model:SetAttribute("ScenarioId", scenarioId)
+    model:SetAttribute("BattleCommander", isCommander == true)
     model.Parent = parent
 
     local root = Instance.new("Part")
     root.Name = "HumanoidRootPart"
-    root.Size = Vector3.new(2, 2, 1)
+    root.Size = Vector3.new(2, 2, 1) * scale
     root.Transparency = 1
     root.Anchored = true
     root.CanCollide = false
-    root.CFrame = CFrame.new(position + Vector3.new(0, 3, 0))
+    root.CFrame = CFrame.new(position + Vector3.new(0, 3 * scale, 0))
     root.Parent = model
 
     local torso = Instance.new("Part")
     torso.Name = "Torso"
-    torso.Size = Vector3.new(2, 2, 1)
+    torso.Size = Vector3.new(2.4, 2.8, 1.35) * scale
     torso.Anchored = true
     torso.Color = accentColor
     torso.Material = Enum.Material.Fabric
-    torso.CFrame = CFrame.new(position + Vector3.new(0, 3, 0))
+    torso.CFrame = CFrame.new(position + Vector3.new(0, 3.1 * scale, 0))
     torso.Parent = model
 
     local head = Instance.new("Part")
     head.Name = "Head"
-    head.Size = Vector3.new(2, 1, 1)
+    head.Shape = Enum.PartType.Ball
+    head.Size = Vector3.new(2, 2, 2) * scale
     head.Anchored = true
     head.Color = Color3.fromRGB(232, 201, 167)
-    head.CFrame = CFrame.new(position + Vector3.new(0, 4.5, 0))
+    head.CFrame = CFrame.new(position + Vector3.new(0, 5.2 * scale, 0))
     head.Parent = model
+
+    local wrap = Instance.new("Part")
+    wrap.Name = "HeadWrap"
+    wrap.Shape = Enum.PartType.Ball
+    wrap.Size = Vector3.new(2.15, 0.9, 2.15) * scale
+    wrap.Anchored = true
+    wrap.Color = isCommander and Color3.fromRGB(106, 58, 35) or accentColor
+    wrap.Material = Enum.Material.Fabric
+    wrap.CFrame = CFrame.new(position + Vector3.new(0, 5.88 * scale, 0))
+    wrap.Parent = model
 
     for partName, offset in pairs({
         ["Left Arm"] = Vector3.new(-1.5, 3, 0),
@@ -1595,17 +1678,39 @@ local function createDummy(parent: Instance, name: string, teamId: string, scena
     }) do
         local part = Instance.new("Part")
         part.Name = partName
-        part.Size = Vector3.new(1, 2, 1)
+        part.Shape = Enum.PartType.Cylinder
+        part.Size = Vector3.new(1, 2, 1) * scale
         part.Anchored = true
         part.Color = accentColor
         part.Material = Enum.Material.Fabric
-        part.CFrame = CFrame.new(position + offset)
+        part.CFrame = CFrame.new(position + offset * scale) * CFrame.Angles(0, 0, math.rad(90))
         part.Parent = model
     end
 
+    if isCommander then
+        local cape = Instance.new("Part")
+        cape.Name = "CommanderCape"
+        cape.Size = Vector3.new(3.4, 4.2, 0.4) * scale
+        cape.Anchored = true
+        cape.CanCollide = false
+        cape.Color = Color3.fromRGB(119, 60, 36)
+        cape.Material = Enum.Material.Fabric
+        cape.CFrame = CFrame.new(position + Vector3.new(0, 2.75 * scale, 0.95 * scale))
+        cape.Parent = model
+
+        local crest = Instance.new("Part")
+        crest.Name = "CommanderCrest"
+        crest.Size = Vector3.new(0.8, 1.6, 1.8) * scale
+        crest.Anchored = true
+        crest.Color = Color3.fromRGB(218, 173, 86)
+        crest.Material = Enum.Material.Metal
+        crest.CFrame = CFrame.new(position + Vector3.new(0, 6.45 * scale, 0))
+        crest.Parent = model
+    end
+
     local humanoid = Instance.new("Humanoid")
-    humanoid.MaxHealth = 90
-    humanoid.Health = 90
+    humanoid.MaxHealth = commanderHealth or (isCommander and 240 or 90)
+    humanoid.Health = humanoid.MaxHealth
     humanoid.DisplayName = name
     humanoid.Parent = model
 
@@ -1651,6 +1756,87 @@ local function setCharacterAttributes(character: Model, scenarioId: string?, tea
     character:SetAttribute("BattleTeam", teamId)
 end
 
+local function clearCommanderVisuals(character: Model)
+    local existingHighlight = character:FindFirstChild("CommanderHighlight")
+
+    if existingHighlight then
+        existingHighlight:Destroy()
+    end
+
+    local existingBadge = character:FindFirstChild("CommanderBadge")
+
+    if existingBadge then
+        existingBadge:Destroy()
+    end
+end
+
+local function clearCombatantTag(character: Model)
+    if CollectionService:HasTag(character, COMBATANT_TAG) then
+        CollectionService:RemoveTag(character, COMBATANT_TAG)
+    end
+
+    character:SetAttribute("BattleCommander", nil)
+    character:SetAttribute("BattleCommanderName", nil)
+    clearCommanderVisuals(character)
+end
+
+local function applyCommanderVisuals(character: Model, label: string, color: Color3)
+    clearCommanderVisuals(character)
+
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "CommanderHighlight"
+    highlight.FillColor = color
+    highlight.OutlineColor = Color3.fromRGB(255, 219, 128)
+    highlight.FillTransparency = 0.72
+    highlight.OutlineTransparency = 0.08
+    highlight.DepthMode = Enum.HighlightDepthMode.Occluded
+    highlight.Parent = character
+
+    local root = character:FindFirstChild("HumanoidRootPart")
+
+    if not root or not root:IsA("BasePart") then
+        return
+    end
+
+    local badge = Instance.new("BillboardGui")
+    badge.Name = "CommanderBadge"
+    badge.AlwaysOnTop = true
+    badge.Size = UDim2.fromOffset(210, 54)
+    badge.StudsOffset = Vector3.new(0, 7, 0)
+    badge.Parent = character
+    badge.Adornee = root
+
+    local labelGui = Instance.new("TextLabel")
+    labelGui.BackgroundColor3 = Color3.fromRGB(38, 28, 22)
+    labelGui.BackgroundTransparency = 0.12
+    labelGui.Size = UDim2.fromScale(1, 1)
+    labelGui.Font = Enum.Font.GothamBold
+    labelGui.Text = label
+    labelGui.TextColor3 = Color3.fromRGB(255, 235, 185)
+    labelGui.TextScaled = true
+    labelGui.TextWrapped = true
+    labelGui.Parent = badge
+
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 8)
+    corner.Parent = labelGui
+end
+
+local function tagCombatant(character: Model, isCommander: boolean?, commanderLabel: string?, color: Color3?)
+    if not CollectionService:HasTag(character, COMBATANT_TAG) then
+        CollectionService:AddTag(character, COMBATANT_TAG)
+    end
+
+    character:SetAttribute("BattleCommander", isCommander == true)
+    character:SetAttribute("BattleCommanderName", isCommander and commanderLabel or nil)
+
+    if isCommander then
+        applyCommanderVisuals(character, commanderLabel or "Commander", color or Color3.fromRGB(180, 114, 64))
+    else
+        clearCommanderVisuals(character)
+    end
+end
+
 local function clearPlayerBattleState(player: Player)
     playerToSession[player] = nil
     BattleLoadout.ClearForPlayer(player)
@@ -1659,6 +1845,7 @@ local function clearPlayerBattleState(player: Player)
     player:SetAttribute("CurrentBattleTeam", nil)
 
     if player.Character then
+        clearCombatantTag(player.Character)
         setCharacterAttributes(player.Character, nil, nil)
     end
 end
@@ -1710,6 +1897,7 @@ local function cleanupSession(session)
 
     for _, dummy in ipairs(session.Dummies) do
         if dummy.Parent then
+            clearCombatantTag(dummy)
             dummy:Destroy()
         end
     end
@@ -1849,6 +2037,7 @@ local function animateReenactment(session)
     local medinaSupport = getReenactmentActor(session.Arena, "MedinaSupport")
     local makkahLead = getReenactmentActor(session.Arena, "MakkahLead")
     local makkahSupport = getReenactmentActor(session.Arena, "MakkahSupport")
+    local makkahCommander = getReenactmentActor(session.Arena, "MakkahCommander")
 
     if not medinaLead or not medinaSupport or not makkahLead or not makkahSupport then
         return
@@ -1862,6 +2051,9 @@ local function animateReenactment(session)
     local makkahSupportStart = getReenactmentPart(session.Arena, "Marks", "MakkahSupportStart")
     local makkahLeadRetreat = getReenactmentPart(session.Arena, "Marks", "MakkahLeadRetreat")
     local makkahSupportRetreat = getReenactmentPart(session.Arena, "Marks", "MakkahSupportRetreat")
+    local makkahCommanderStart = getReenactmentPart(session.Arena, "Marks", "MakkahCommanderStart")
+    local makkahCommanderAdvance = getReenactmentPart(session.Arena, "Marks", "MakkahCommanderAdvance")
+    local makkahCommanderDefeat = getReenactmentPart(session.Arena, "Marks", "MakkahCommanderDefeat")
 
     if not medinaLeadStart or not medinaSupportStart or not medinaLeadAdvance or not medinaSupportAdvance or not makkahLeadStart or not makkahSupportStart or not makkahLeadRetreat or not makkahSupportRetreat then
         return
@@ -1871,6 +2063,10 @@ local function animateReenactment(session)
     medinaSupport:PivotTo(medinaSupportStart.CFrame)
     makkahLead:PivotTo(makkahLeadStart.CFrame)
     makkahSupport:PivotTo(makkahSupportStart.CFrame)
+
+    if makkahCommander and makkahCommanderStart then
+        makkahCommander:PivotTo(makkahCommanderStart.CFrame)
+    end
 
     local medinaRanks = getReenactmentActorsWithPrefix(session.Arena, "MedinaRank")
     local makkahRanks = getReenactmentActorsWithPrefix(session.Arena, "MakkahRank")
@@ -1927,6 +2123,15 @@ local function animateReenactment(session)
         task.spawn(function()
             task.wait(3.3)
             tweenModelTo(makkahSupport, makkahSupportRetreat.CFrame, 1.6)
+        end)
+    end
+
+    if makkahCommander and makkahCommanderAdvance and makkahCommanderDefeat then
+        task.spawn(function()
+            task.wait(2.2)
+            tweenModelTo(makkahCommander, makkahCommanderAdvance.CFrame, 2)
+            task.wait(2.8)
+            tweenModelTo(makkahCommander, makkahCommanderDefeat.CFrame * CFrame.Angles(0, 0, math.rad(68)), 1.8)
         end)
     end
 end
@@ -2069,7 +2274,9 @@ local function endSession(session, winnerTeamId: string?, reason: string)
 
     local winnerText = "Round complete."
 
-    if winnerTeamId then
+    if winnerTeamId and reason ~= "" then
+        winnerText = reason
+    elseif winnerTeamId then
         for _, team in ipairs(session.Scenario.Teams) do
             if team.Id == winnerTeamId then
                 winnerText = string.format("%s wins the round.", team.DisplayName)
@@ -2136,11 +2343,77 @@ local function evaluateVictory(session)
     end
 end
 
+local function getCommanderConfig(session)
+    return session.Scenario.Commander
+end
+
+local function shouldAssignCommander(session, teamId: string): boolean
+    local commander = getCommanderConfig(session)
+
+    if not commander then
+        return false
+    end
+
+    return commander.TeamId == teamId and not session.CommanderEntry
+end
+
+local function configureCommanderEntry(session, entry, teamAccentColor: Color3)
+    local commander = getCommanderConfig(session)
+
+    if not commander or not entry.IsCommander then
+        return
+    end
+
+    session.CommanderEntry = entry
+
+    if entry.Humanoid then
+        entry.Humanoid.MaxHealth = commander.Health or entry.Humanoid.MaxHealth
+        entry.Humanoid.Health = entry.Humanoid.MaxHealth
+        entry.Humanoid.DisplayName = commander.DisplayName or "Commander"
+    end
+
+    local character = entry.Model or (entry.Player and entry.Player.Character)
+
+    if character and character:IsA("Model") then
+        tagCombatant(character, true, commander.DisplayName or "Commander", teamAccentColor)
+    end
+
+    if entry.Player then
+        sendMessage({ entry.Player }, string.format("You are the %s boss. If you fall, the scenario ends.", commander.DisplayName or "opposing commander"), 6)
+    end
+end
+
 local function registerEntry(session, teamId: string, entry)
     table.insert(session.Teams[teamId], entry)
 
+    local teamAccentColor = Color3.fromRGB(180, 114, 64)
+
+    for _, team in ipairs(session.Scenario.Teams) do
+        if team.Id == teamId then
+            teamAccentColor = team.AccentColor
+            break
+        end
+    end
+
+    local character = entry.Model or (entry.Player and entry.Player.Character)
+
+    if character and character:IsA("Model") and not entry.IsCommander then
+        tagCombatant(character, false, nil, nil)
+    end
+
+    configureCommanderEntry(session, entry, teamAccentColor)
+
     local diedConnection = entry.Humanoid.Died:Connect(function()
         entry.Alive = false
+
+        if entry.IsCommander then
+            local commander = getCommanderConfig(session)
+            local winnerTeamId = commander and commander.DefeatedWinnerTeamId or nil
+            local message = commander and commander.DefeatedMessage or "The commander was defeated. The scenario is complete."
+
+            endSession(session, winnerTeamId, message)
+            return
+        end
 
         if entry.Kind == "Player" and entry.Player then
             sendMessage({ entry.Player }, "You fell in battle. You will watch the reenactment from the ridge.", 4)
@@ -2190,6 +2463,7 @@ startSession = function(scenarioId: string)
         Dummies = {},
         Connections = {},
         Ended = false,
+        CommanderEntry = nil,
     }
 
     activeSessions[scenarioId] = session
@@ -2231,8 +2505,10 @@ startSession = function(scenarioId: string)
                 registerEntry(session, team.Id, {
                     Kind = "Player",
                     Player = player,
+                    Model = character,
                     Humanoid = humanoid,
                     Alive = true,
+                    IsCommander = shouldAssignCommander(session, team.Id),
                 })
                 playerToSession[player] = session
             end
@@ -2245,7 +2521,10 @@ startSession = function(scenarioId: string)
 
         while #session.Teams[team.Id] < scenario.PlayersPerTeam and dummyIndex <= #dummyAnchors do
             local dummyAnchor = dummyAnchors[dummyIndex]
-            local dummy = createDummy(arenaFolder, string.format("%s Dummy %d", team.DisplayName, dummyIndex), team.Id, scenario.Id, dummyAnchor.Position, team.AccentColor)
+            local isCommander = shouldAssignCommander(session, team.Id)
+            local commander = getCommanderConfig(session)
+            local dummyName = (isCommander and commander and commander.DisplayName) or string.format("%s Dummy %d", team.DisplayName, dummyIndex)
+            local dummy = createDummy(arenaFolder, dummyName, team.Id, scenario.Id, dummyAnchor.Position, team.AccentColor, isCommander, commander and commander.Health or nil)
             local humanoid = dummy:FindFirstChildOfClass("Humanoid")
 
             if humanoid then
@@ -2254,6 +2533,7 @@ startSession = function(scenarioId: string)
                     Model = dummy,
                     Humanoid = humanoid,
                     Alive = true,
+                    IsCommander = isCommander,
                 })
                 table.insert(session.Dummies, dummy)
             end
@@ -2286,6 +2566,10 @@ startSession = function(scenarioId: string)
 
         unfreezePlayersForBattle(queuedPlayers)
         sendMessage(queuedPlayers, string.format("%s begins now. Fight in first person with your sword and bow, then watch the reenactment at the end.", scenario.DisplayName), 6)
+
+        if scenario.Commander then
+            sendMessage(queuedPlayers, string.format("Boss objective: defeat the %s to end the scenario.", scenario.Commander.DisplayName), 6)
+        end
 
         task.delay(scenario.RoundDurationSeconds, function()
             if not session.Ended then
@@ -3336,87 +3620,159 @@ local function buildParkourCourse(parent: Instance, center: Vector3)
         180,
         nil
     )
-    createLightPost(district, "ParkourLightWest", center + Vector3.new(-62, 0, 32))
-    createLightPost(district, "ParkourLightEast", center + Vector3.new(62, 0, 32))
+createLightPost(district, "ParkourLightWest", center + Vector3.new(-62, 0, 32))
+createLightPost(district, "ParkourLightEast", center + Vector3.new(62, 0, 32))
+end
+
+local function createDetailedKaaba(parent: Instance, center: Vector3)
+    local baseY = 7.8
+    local bodyHeight = 56
+    local bodyHalf = 31
+    local bodyCenterY = baseY + bodyHeight * 0.5
+    local bandY = baseY + bodyHeight - 11
+    local topY = baseY + bodyHeight
+    local blackCloth = Color3.fromRGB(12, 12, 12)
+    local blackPanel = Color3.fromRGB(22, 21, 20)
+    local deepPanel = Color3.fromRGB(7, 7, 7)
+
+    BuildUtils.CreatePart(parent, "KaabaFoundation", Vector3.new(84, 3, 84), CFrame.new(center + Vector3.new(0, 6.9, 0)), Color3.fromRGB(48, 46, 43), Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaRaisedMarbleStep", Vector3.new(76, 1.4, 76), CFrame.new(center + Vector3.new(0, 9.1, 0)), Color3.fromRGB(224, 217, 201), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaMainBody", Vector3.new(bodyHalf * 2, bodyHeight, bodyHalf * 2), CFrame.new(center + Vector3.new(0, bodyCenterY, 0)), blackCloth, Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaRoofLip", Vector3.new(66, 3.2, 66), CFrame.new(center + Vector3.new(0, topY + 1.6, 0)), Color3.fromRGB(18, 18, 17), Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaTopTrim", Vector3.new(70, 1.2, 70), CFrame.new(center + Vector3.new(0, topY + 4, 0)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+
+    BuildUtils.CreatePart(parent, "KaabaFrontClothPanel", Vector3.new(58, bodyHeight - 5, 0.7), CFrame.new(center + Vector3.new(0, bodyCenterY - 1, -bodyHalf - 0.45)), blackPanel, Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaBackClothPanel", Vector3.new(58, bodyHeight - 5, 0.7), CFrame.new(center + Vector3.new(0, bodyCenterY - 1, bodyHalf + 0.45)), deepPanel, Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaLeftClothPanel", Vector3.new(0.7, bodyHeight - 5, 58), CFrame.new(center + Vector3.new(-bodyHalf - 0.45, bodyCenterY - 1, 0)), blackPanel, Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaRightClothPanel", Vector3.new(0.7, bodyHeight - 5, 58), CFrame.new(center + Vector3.new(bodyHalf + 0.45, bodyCenterY - 1, 0)), deepPanel, Enum.Material.Fabric, nil, nil)
+
+    for _, side in ipairs({
+        { Name = "Front", Size = Vector3.new(67, 3.2, 1), Offset = Vector3.new(0, bandY, -bodyHalf - 1) },
+        { Name = "Back", Size = Vector3.new(67, 3.2, 1), Offset = Vector3.new(0, bandY, bodyHalf + 1) },
+        { Name = "Left", Size = Vector3.new(1, 3.2, 67), Offset = Vector3.new(-bodyHalf - 1, bandY, 0) },
+        { Name = "Right", Size = Vector3.new(1, 3.2, 67), Offset = Vector3.new(bodyHalf + 1, bandY, 0) },
+    }) do
+        BuildUtils.CreatePart(parent, string.format("KaabaKiswahBand%s", side.Name), side.Size, CFrame.new(center + side.Offset), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+    end
+
+    for _, x in ipairs({ -22, -11, 11, 22 }) do
+        BuildUtils.CreatePart(parent, string.format("KaabaFrontSeam_%d", x), Vector3.new(0.7, bodyHeight - 9, 0.82), CFrame.new(center + Vector3.new(x, bodyCenterY - 2, -bodyHalf - 1.05)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
+        BuildUtils.CreatePart(parent, string.format("KaabaBackSeam_%d", x), Vector3.new(0.7, bodyHeight - 9, 0.82), CFrame.new(center + Vector3.new(x, bodyCenterY - 2, bodyHalf + 1.05)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
+    end
+
+    for _, z in ipairs({ -22, -11, 11, 22 }) do
+        BuildUtils.CreatePart(parent, string.format("KaabaLeftSeam_%d", z), Vector3.new(0.82, bodyHeight - 9, 0.7), CFrame.new(center + Vector3.new(-bodyHalf - 1.05, bodyCenterY - 2, z)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
+        BuildUtils.CreatePart(parent, string.format("KaabaRightSeam_%d", z), Vector3.new(0.82, bodyHeight - 9, 0.7), CFrame.new(center + Vector3.new(bodyHalf + 1.05, bodyCenterY - 2, z)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
+    end
+
+    BuildUtils.CreatePart(parent, "KaabaDoorGoldFrame", Vector3.new(12, 23, 1.4), CFrame.new(center + Vector3.new(0, baseY + 15.8, -bodyHalf - 1.8)), Color3.fromRGB(191, 151, 62), Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaDoorInset", Vector3.new(8.5, 18, 1.6), CFrame.new(center + Vector3.new(0, baseY + 15, -bodyHalf - 2.2)), Color3.fromRGB(145, 104, 37), Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaDoorCenterPattern", Vector3.new(1.2, 17, 1.8), CFrame.new(center + Vector3.new(0, baseY + 15, -bodyHalf - 2.5)), Color3.fromRGB(229, 197, 112), Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaDoorUpperPanel", Vector3.new(9.5, 4.4, 1.8), CFrame.new(center + Vector3.new(0, baseY + 23.2, -bodyHalf - 2.55)), Color3.fromRGB(230, 192, 90), Enum.Material.Metal, nil, nil)
+
+    BuildUtils.CreateSphere(parent, "HajarAswadSilverFrame", 7.2, center + Vector3.new(bodyHalf + 0.6, baseY + 10.4, -bodyHalf - 0.6), Color3.fromRGB(205, 207, 203), Enum.Material.Metal, nil)
+    BuildUtils.CreateSphere(parent, "HajarAswadMarker", 4.6, center + Vector3.new(bodyHalf + 1.1, baseY + 10.4, -bodyHalf - 1.1), Color3.fromRGB(8, 8, 8), Enum.Material.Slate, nil)
+    BuildUtils.CreatePart(parent, "KaabaGoldSpoutMarker", Vector3.new(17, 1.3, 1.8), CFrame.new(center + Vector3.new(-bodyHalf - 8, topY + 0.4, 18)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+
+    for index = 1, 8 do
+        local angle = (math.pi * 2) * (index / 8)
+        createLowBollard(parent, string.format("KaabaInnerLamp_%d", index), center + Vector3.new(math.cos(angle) * 54, 0, math.sin(angle) * 54), Color3.fromRGB(255, 226, 170))
+    end
+end
+
+local function createGrandArcadeAccent(parent: Instance, center: Vector3, name: string, radius: number, count: number)
+    for index = 1, count do
+        local angle = (math.pi * 2) * (index / count)
+        local position = center + Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
+
+        BuildUtils.CreateVerticalCylinder(parent, string.format("%s_Column_%d", name, index), 26, 2.6, position + Vector3.new(0, 17, 0), MECCA_MARBLE, Enum.Material.Marble, nil)
+
+        if index % 2 == 0 then
+            BuildUtils.CreatePart(parent, string.format("%s_Lantern_%d", name, index), Vector3.new(3.2, 5.2, 3.2), CFrame.new(position + Vector3.new(0, 33.5, 0)), Color3.fromRGB(255, 228, 175), Enum.Material.Neon, nil, 0.08)
+        end
+    end
 end
 
 local function buildKaabaHub(parent: Instance, center: Vector3)
     local district = BuildUtils.CreateFolder(parent, "KaabaHub")
 
-    BuildUtils.CreatePart(district, "SafetyPlate", Vector3.new(1100, 12, 1100), CFrame.new(center + Vector3.new(0, -10, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
-    BuildUtils.CreatePart(district, "ExpansionDeck", Vector3.new(960, 4, 960), CFrame.new(center + Vector3.new(0, 1.5, 0)), Color3.fromRGB(207, 196, 176), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "StonePlaza", Vector3.new(760, 4, 760), CFrame.new(center + Vector3.new(0, 2.3, 0)), MECCA_STONE, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "OuterWalk", Vector3.new(570, 1, 570), CFrame.new(center + Vector3.new(0, 4.85, 0)), MECCA_MARBLE, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "InnerCourt", Vector3.new(342, 1, 342), CFrame.new(center + Vector3.new(0, 5.95, 0)), Color3.fromRGB(246, 241, 231), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "SafetyPlate", Vector3.new(1420, 12, 1420), CFrame.new(center + Vector3.new(0, -10, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
+    BuildUtils.CreatePart(district, "ExpansionDeck", Vector3.new(1260, 4, 1260), CFrame.new(center + Vector3.new(0, 1.5, 0)), Color3.fromRGB(207, 196, 176), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "StonePlaza", Vector3.new(1040, 4, 1040), CFrame.new(center + Vector3.new(0, 2.3, 0)), MECCA_STONE, Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "OuterWalk", Vector3.new(760, 1, 760), CFrame.new(center + Vector3.new(0, 4.85, 0)), MECCA_MARBLE, Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "InnerCourt", Vector3.new(520, 1, 520), CFrame.new(center + Vector3.new(0, 5.95, 0)), Color3.fromRGB(246, 241, 231), Enum.Material.Marble, nil, nil)
 
-    createArcadeBlock(district, "NorthArcade", center + Vector3.new(0, 0, -204), 470, 84, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createArcadeBlock(district, "SouthArcade", center + Vector3.new(0, 0, 204), 470, 84, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createArcadeBlock(district, "WestArcade", center + Vector3.new(-204, 0, 0), 84, 346, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createArcadeBlock(district, "EastArcade", center + Vector3.new(204, 0, 0), 84, 346, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createArcadeBlock(district, "NorthOuterArcade", center + Vector3.new(0, 0, -386), 720, 86, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createArcadeBlock(district, "SouthOuterArcade", center + Vector3.new(0, 0, 386), 720, 86, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createArcadeBlock(district, "WestOuterArcade", center + Vector3.new(-386, 0, 0), 86, 720, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createArcadeBlock(district, "EastOuterArcade", center + Vector3.new(386, 0, 0), 86, 720, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
+    createArcadeBlock(district, "NorthArcade", center + Vector3.new(0, 0, -292), 650, 92, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
+    createArcadeBlock(district, "SouthArcade", center + Vector3.new(0, 0, 292), 650, 92, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
+    createArcadeBlock(district, "WestArcade", center + Vector3.new(-292, 0, 0), 92, 530, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
+    createArcadeBlock(district, "EastArcade", center + Vector3.new(292, 0, 0), 92, 530, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
+    createArcadeBlock(district, "NorthOuterArcade", center + Vector3.new(0, 0, -560), 1020, 92, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
+    createArcadeBlock(district, "SouthOuterArcade", center + Vector3.new(0, 0, 560), 1020, 92, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
+    createArcadeBlock(district, "WestOuterArcade", center + Vector3.new(-560, 0, 0), 92, 1020, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
+    createArcadeBlock(district, "EastOuterArcade", center + Vector3.new(560, 0, 0), 92, 1020, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
+    createGrandArcadeAccent(district, center, "InnerColonnade", 238, 28)
+    createGrandArcadeAccent(district, center, "OuterColonnade", 420, 36)
 
-    BuildUtils.CreatePart(district, "NorthGate", Vector3.new(132, 34, 18), CFrame.new(center + Vector3.new(0, 17, -470)), MECCA_DARK, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "SouthGate", Vector3.new(132, 34, 18), CFrame.new(center + Vector3.new(0, 17, 470)), MECCA_DARK, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "EastGate", Vector3.new(18, 34, 132), CFrame.new(center + Vector3.new(470, 17, 0)), MECCA_DARK, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "WestGate", Vector3.new(18, 34, 132), CFrame.new(center + Vector3.new(-470, 17, 0)), MECCA_DARK, Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "NorthGate", Vector3.new(184, 42, 22), CFrame.new(center + Vector3.new(0, 21, -660)), MECCA_DARK, Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "SouthGate", Vector3.new(184, 42, 22), CFrame.new(center + Vector3.new(0, 21, 660)), MECCA_DARK, Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "EastGate", Vector3.new(22, 42, 184), CFrame.new(center + Vector3.new(660, 21, 0)), MECCA_DARK, Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "WestGate", Vector3.new(22, 42, 184), CFrame.new(center + Vector3.new(-660, 21, 0)), MECCA_DARK, Enum.Material.Marble, nil, nil)
 
-    BuildUtils.CreatePart(district, "KaabaPlinth", Vector3.new(42, 2, 42), CFrame.new(center + Vector3.new(0, 6, 0)), Color3.fromRGB(51, 49, 47), Enum.Material.Slate, nil, nil)
-    BuildUtils.CreatePart(district, "KaabaBase", Vector3.new(30, 32, 30), CFrame.new(center + Vector3.new(0, 22, 0)), Color3.fromRGB(17, 17, 17), Enum.Material.Slate, nil, nil)
-    BuildUtils.CreatePart(district, "KaabaBand", Vector3.new(32, 2, 32), CFrame.new(center + Vector3.new(0, 31, 0)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(district, "KaabaDoor", Vector3.new(4, 10, 1), CFrame.new(center + Vector3.new(0, 11, -15.5)), Color3.fromRGB(190, 154, 76), Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(district, "KaabaGoldPanelFront", Vector3.new(8, 7, 0.8), CFrame.new(center + Vector3.new(0, 21, -15.8)), Color3.fromRGB(188, 150, 67), Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(district, "KaabaGoldPanelSideA", Vector3.new(0.8, 5, 7), CFrame.new(center + Vector3.new(-15.8, 23, 0)), Color3.fromRGB(170, 136, 61), Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(district, "KaabaGoldPanelSideB", Vector3.new(0.8, 5, 7), CFrame.new(center + Vector3.new(15.8, 23, 0)), Color3.fromRGB(170, 136, 61), Enum.Material.Metal, nil, nil)
+    createDetailedKaaba(district, center)
 
-    createFloorInlayGrid(district, "MeccaMarbleInlay", center, 126, 42, Color3.fromRGB(213, 204, 184), 6.28)
-    createRingTiles(district, "TawafGuideInner", center, 58, 36, Color3.fromRGB(216, 205, 180), 6.34)
-    createRingTiles(district, "TawafGuideOuter", center, 96, 52, Color3.fromRGB(226, 218, 202), 6.36)
-    createRingTiles(district, "TawafGuideWide", center, 142, 72, Color3.fromRGB(238, 231, 216), 6.38)
+    createFloorInlayGrid(district, "MeccaMarbleInlay", center, 216, 36, Color3.fromRGB(213, 204, 184), 6.28)
+    createRingTiles(district, "TawafGuideInner", center, 82, 48, Color3.fromRGB(216, 205, 180), 6.34)
+    createRingTiles(district, "TawafGuideOuter", center, 132, 68, Color3.fromRGB(226, 218, 202), 6.36)
+    createRingTiles(district, "TawafGuideWide", center, 196, 96, Color3.fromRGB(238, 231, 216), 6.38)
     createMaqamIbrahimMarker(district, center)
     createHijrIsmailMarker(district, center)
-    createPrayerMatRows(district, "NorthPrayerMat", center + Vector3.new(0, 6.48, -250), 5, 18, 0, Color3.fromRGB(83, 118, 88))
-    createPrayerMatRows(district, "SouthPrayerMat", center + Vector3.new(0, 6.48, 220), 5, 18, math.rad(180), Color3.fromRGB(83, 118, 88))
-    createPrayerMatRows(district, "EastPrayerMat", center + Vector3.new(252, 6.48, -72), 5, 11, math.rad(90), Color3.fromRGB(98, 121, 96))
-    createPrayerMatRows(district, "WestPrayerMat", center + Vector3.new(-252, 6.48, 72), 5, 11, math.rad(-90), Color3.fromRGB(98, 121, 96))
+    createPrayerMatRows(district, "NorthPrayerMat", center + Vector3.new(0, 6.48, -386), 7, 24, 0, Color3.fromRGB(83, 118, 88))
+    createPrayerMatRows(district, "SouthPrayerMat", center + Vector3.new(0, 6.48, 344), 7, 24, math.rad(180), Color3.fromRGB(83, 118, 88))
+    createPrayerMatRows(district, "EastPrayerMat", center + Vector3.new(390, 6.48, -104), 7, 15, math.rad(90), Color3.fromRGB(98, 121, 96))
+    createPrayerMatRows(district, "WestPrayerMat", center + Vector3.new(-390, 6.48, 104), 7, 15, math.rad(-90), Color3.fromRGB(98, 121, 96))
 
-    for index = 1, 24 do
-        local angle = (math.pi * 2) * (index / 24)
+    for index = 1, 40 do
+        local angle = (math.pi * 2) * (index / 40)
         createLowBollard(
             district,
             string.format("KaabaBollard_%d", index),
-            center + Vector3.new(math.cos(angle) * 128, 0, math.sin(angle) * 128),
+            center + Vector3.new(math.cos(angle) * 172, 0, math.sin(angle) * 172),
             Color3.fromRGB(255, 234, 185)
         )
     end
 
     for _, offset in ipairs({
-        Vector3.new(-224, 0, -104),
-        Vector3.new(224, 0, -104),
-        Vector3.new(-224, 0, 104),
-        Vector3.new(224, 0, 104),
-        Vector3.new(-104, 0, -224),
-        Vector3.new(104, 0, -224),
-        Vector3.new(-104, 0, 224),
-        Vector3.new(104, 0, 224),
+        Vector3.new(-308, 0, -146),
+        Vector3.new(308, 0, -146),
+        Vector3.new(-308, 0, 146),
+        Vector3.new(308, 0, 146),
+        Vector3.new(-146, 0, -308),
+        Vector3.new(146, 0, -308),
+        Vector3.new(-146, 0, 308),
+        Vector3.new(146, 0, 308),
+        Vector3.new(-430, 0, 0),
+        Vector3.new(430, 0, 0),
+        Vector3.new(0, 0, -430),
+        Vector3.new(0, 0, 430),
     }) do
         createLightPost(district, string.format("MeccaLight_%d_%d", offset.X, offset.Z), center + offset, Color3.fromRGB(128, 112, 89))
     end
 
-    BuildUtils.CreateModernTower(district, "MakkahTowerWest", center + Vector3.new(-320, 0, -560), Vector2.new(44, 38), 142, Color3.fromRGB(210, 201, 186), GLASS_TINT)
-    BuildUtils.CreateModernTower(district, "MakkahTowerCenter", center + Vector3.new(0, 0, -596), Vector2.new(72, 54), 218, Color3.fromRGB(217, 209, 195), GLASS_TINT)
-    BuildUtils.CreateModernTower(district, "MakkahTowerEast", center + Vector3.new(320, 0, -560), Vector2.new(44, 38), 142, Color3.fromRGB(210, 201, 186), GLASS_TINT)
-    BuildUtils.CreateModernTower(district, "MakkahHotelSouthWest", center + Vector3.new(-520, 0, 430), Vector2.new(52, 44), 128, Color3.fromRGB(215, 208, 194), GLASS_TINT)
-    BuildUtils.CreateModernTower(district, "MakkahHotelSouthEast", center + Vector3.new(520, 0, 430), Vector2.new(52, 44), 128, Color3.fromRGB(215, 208, 194), GLASS_TINT)
-    BuildUtils.CreateMinaret(district, "MakkahNorthWestMinaret", center + Vector3.new(-286, 0, -286), 92, MECCA_MARBLE, GOLD_ACCENT)
-    BuildUtils.CreateMinaret(district, "MakkahNorthEastMinaret", center + Vector3.new(286, 0, -286), 92, MECCA_MARBLE, GOLD_ACCENT)
-    BuildUtils.CreateMinaret(district, "MakkahSouthWestMinaret", center + Vector3.new(-286, 0, 286), 78, MECCA_MARBLE, GOLD_ACCENT)
-    BuildUtils.CreateMinaret(district, "MakkahSouthEastMinaret", center + Vector3.new(286, 0, 286), 78, MECCA_MARBLE, GOLD_ACCENT)
+    BuildUtils.CreateModernTower(district, "MakkahTowerWest", center + Vector3.new(-500, 0, -760), Vector2.new(58, 48), 184, Color3.fromRGB(210, 201, 186), GLASS_TINT)
+    BuildUtils.CreateModernTower(district, "MakkahTowerCenter", center + Vector3.new(0, 0, -812), Vector2.new(92, 64), 278, Color3.fromRGB(217, 209, 195), GLASS_TINT)
+    BuildUtils.CreateModernTower(district, "MakkahTowerEast", center + Vector3.new(500, 0, -760), Vector2.new(58, 48), 184, Color3.fromRGB(210, 201, 186), GLASS_TINT)
+    BuildUtils.CreateModernTower(district, "MakkahHotelSouthWest", center + Vector3.new(-720, 0, 600), Vector2.new(64, 54), 164, Color3.fromRGB(215, 208, 194), GLASS_TINT)
+    BuildUtils.CreateModernTower(district, "MakkahHotelSouthEast", center + Vector3.new(720, 0, 600), Vector2.new(64, 54), 164, Color3.fromRGB(215, 208, 194), GLASS_TINT)
+    BuildUtils.CreateModernTower(district, "MakkahClockHotelMarker", center + Vector3.new(0, 0, -930), Vector2.new(116, 70), 326, Color3.fromRGB(205, 198, 184), GLASS_TINT)
+    BuildUtils.CreateMinaret(district, "MakkahNorthWestMinaret", center + Vector3.new(-386, 0, -386), 128, MECCA_MARBLE, GOLD_ACCENT)
+    BuildUtils.CreateMinaret(district, "MakkahNorthEastMinaret", center + Vector3.new(386, 0, -386), 128, MECCA_MARBLE, GOLD_ACCENT)
+    BuildUtils.CreateMinaret(district, "MakkahSouthWestMinaret", center + Vector3.new(-386, 0, 386), 112, MECCA_MARBLE, GOLD_ACCENT)
+    BuildUtils.CreateMinaret(district, "MakkahSouthEastMinaret", center + Vector3.new(386, 0, 386), 112, MECCA_MARBLE, GOLD_ACCENT)
+    BuildUtils.CreateMinaret(district, "MakkahFarNorthWestMinaret", center + Vector3.new(-610, 0, -610), 96, MECCA_MARBLE, GOLD_ACCENT)
+    BuildUtils.CreateMinaret(district, "MakkahFarNorthEastMinaret", center + Vector3.new(610, 0, -610), 96, MECCA_MARBLE, GOLD_ACCENT)
 
-    for rowIndex, z in ipairs({-148, 148}) do
-        for columnIndex, x in ipairs({-148, -74, 74, 148}) do
+    for rowIndex, z in ipairs({-226, 226}) do
+        for columnIndex, x in ipairs({-226, -150, -74, 74, 150, 226}) do
             BuildUtils.CreateCourtyardCanopy(district, string.format("MeccaShade_%d_%d", rowIndex, columnIndex), center + Vector3.new(x, 0, z), Color3.fromRGB(244, 238, 224), Color3.fromRGB(158, 149, 134))
         end
     end
@@ -3424,7 +3780,7 @@ local function buildKaabaHub(parent: Instance, center: Vector3)
     createWallPanel(
         district,
         "BadrWallPanel",
-        center + Vector3.new(-72, 0, -126),
+        center + Vector3.new(-124, 0, -212),
         Vector3.new(54, 13, 2.5),
         "Battle of Badr",
         "Join Badr from the wall sign, fight the round, and then see the real story summary.",
@@ -3443,7 +3799,7 @@ local function buildKaabaHub(parent: Instance, center: Vector3)
     createWallPanel(
         district,
         "UhudWallPanel",
-        center + Vector3.new(72, 0, -126),
+        center + Vector3.new(124, 0, -212),
         Vector3.new(54, 13, 2.5),
         "Battle of Uhud",
         "Join Uhud from the wall sign, fight the pass, and end with the history lesson.",
@@ -3462,7 +3818,7 @@ local function buildKaabaHub(parent: Instance, center: Vector3)
     createWallPanel(
         district,
         "MedinaTravelPanel",
-        center + Vector3.new(-72, 0, 126),
+        center + Vector3.new(-124, 0, 212),
         Vector3.new(54, 13, 2.5),
         "Travel To Medina",
         "Teleport to the Medina district or walk the full desert stretch between the two sacred cities.",
@@ -3481,7 +3837,7 @@ local function buildKaabaHub(parent: Instance, center: Vector3)
     createWallPanel(
         district,
         "DesertTravelPanel",
-        center + Vector3.new(72, 0, 126),
+        center + Vector3.new(124, 0, 212),
         Vector3.new(54, 13, 2.5),
         "Desert Route",
         "Jump to the mid-route desert camp or walk the road to experience more space between Makkah and Medina.",
@@ -3744,6 +4100,7 @@ end)
           <string name="Name">BattleLoadout</string>
           <string name="Source"><![CDATA[--!strict
 
+local CollectionService = game:GetService("CollectionService")
 local Debris = game:GetService("Debris")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
@@ -3766,6 +4123,7 @@ local BLOCK_WINDOW_SECONDS = 1.1
 local BLOCK_COOLDOWN_SECONDS = 1.8
 local BLOCK_DAMAGE_MULTIPLIER = 0.28
 local blockCooldowns: { [Player]: number } = {}
+local COMBATANT_TAG = "BattleCombatant"
 
 local function getCharacterHumanoid(model: Instance): Humanoid?
     if not model:IsA("Model") then
@@ -3798,23 +4156,20 @@ local function findEnemyHumanoid(originCharacter: Model, maxDistance: number): H
     local bestHumanoid = nil
     local bestDistance = maxDistance
 
-    for _, candidate in ipairs(Workspace:GetDescendants()) do
-        if candidate:IsA("Humanoid") and candidate.Health > 0 then
-            local candidateModel = candidate.Parent
+    for _, candidateModel in ipairs(CollectionService:GetTagged(COMBATANT_TAG)) do
+        if candidateModel:IsA("Model") and candidateModel ~= originCharacter then
+            local candidate = candidateModel:FindFirstChildOfClass("Humanoid")
+            local candidateRoot = candidateModel:FindFirstChild("HumanoidRootPart")
 
-            if candidateModel and candidateModel:IsA("Model") and candidateModel ~= originCharacter then
-                local candidateRoot = candidateModel:FindFirstChild("HumanoidRootPart")
+            if candidate and candidate.Health > 0 and candidateRoot and candidateRoot:IsA("BasePart") then
+                local candidateTeam = candidateModel:GetAttribute("BattleTeam")
 
-                if candidateRoot and candidateRoot:IsA("BasePart") then
-                    local candidateTeam = candidateModel:GetAttribute("BattleTeam")
+                if candidateTeam and candidateTeam ~= originTeam then
+                    local distance = (candidateRoot.Position - root.Position).Magnitude
 
-                    if candidateTeam and candidateTeam ~= originTeam then
-                        local distance = (candidateRoot.Position - root.Position).Magnitude
-
-                        if distance < bestDistance then
-                            bestDistance = distance
-                            bestHumanoid = candidate
-                        end
+                    if distance < bestDistance then
+                        bestDistance = distance
+                        bestHumanoid = candidate
                     end
                 end
             end
@@ -4812,6 +5167,7 @@ return BuildUtils
         <token name="RunContext">0</token>
         <string name="Source"><![CDATA[--!strict
 
+local CollectionService = game:GetService("CollectionService")
 local DataStoreService = game:GetService("DataStoreService")
 local Debris = game:GetService("Debris")
 local MarketplaceService = game:GetService("MarketplaceService")
@@ -4847,6 +5203,7 @@ local receiptStore = DataStoreService:GetDataStore("ProcessedReceipts_v1")
 local playerProfiles: { [Player]: { EquippedSkin: string, UltimateCharges: number, KnowledgeTokens: number, SupportPoints: number } } = {}
 local playerPassOwnership: { [Player]: { [string]: boolean } } = {}
 local ultimateCooldowns: { [Player]: number } = {}
+local COMBATANT_TAG = "BattleCombatant"
 
 local gamePassByKey = {}
 local gamePassByProductId = {}
@@ -5197,25 +5554,22 @@ local function useUltimateCharge(player: Player)
     tween:Play()
     Debris:AddItem(pulse, 0.6)
 
-    for _, descendant in ipairs(Workspace:GetDescendants()) do
-        if descendant:IsA("Humanoid") and descendant.Health > 0 then
-            local targetModel = descendant.Parent
+    for _, targetModel in ipairs(CollectionService:GetTagged(COMBATANT_TAG)) do
+        if targetModel:IsA("Model") and targetModel ~= character then
+            local targetHumanoid = targetModel:FindFirstChildOfClass("Humanoid")
+            local targetScenarioId = targetModel:GetAttribute("ScenarioId")
+            local targetTeamId = targetModel:GetAttribute("BattleTeam")
+            local targetRoot = targetModel:FindFirstChild("HumanoidRootPart")
 
-            if targetModel and targetModel:IsA("Model") and targetModel ~= character then
-                local targetScenarioId = targetModel:GetAttribute("ScenarioId")
-                local targetTeamId = targetModel:GetAttribute("BattleTeam")
-                local targetRoot = targetModel:FindFirstChild("HumanoidRootPart")
+            if targetHumanoid and targetHumanoid.Health > 0 and targetScenarioId == currentScenarioId and targetTeamId ~= currentBattleTeam and targetRoot and targetRoot:IsA("BasePart") then
+                local offset = targetRoot.Position - root.Position
+                local distance = offset.Magnitude
 
-                if targetScenarioId == currentScenarioId and targetTeamId ~= currentBattleTeam and targetRoot and targetRoot:IsA("BasePart") then
-                    local offset = targetRoot.Position - root.Position
-                    local distance = offset.Magnitude
+                if distance <= 22 then
+                    targetHumanoid:TakeDamage(30)
 
-                    if distance <= 22 then
-                        descendant:TakeDamage(30)
-
-                        if distance > 0.1 then
-                            targetRoot.AssemblyLinearVelocity += offset.Unit * 52
-                        end
+                    if distance > 0.1 then
+                        targetRoot.AssemblyLinearVelocity += offset.Unit * 52
                     end
                 end
             end
@@ -6225,7 +6579,7 @@ cinematicTop.Parent = cutsceneFrame
 local cinematicBottom = Instance.new("Frame")
 cinematicBottom.AnchorPoint = Vector2.new(0, 1)
 cinematicBottom.Position = UDim2.new(0, 0, 1, 0)
-cinematicBottom.Size = UDim2.new(1, 0, 0, 168)
+cinematicBottom.Size = UDim2.new(1, 0, 0, 214)
 cinematicBottom.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
 cinematicBottom.BackgroundTransparency = 0.08
 cinematicBottom.Parent = cutsceneFrame
@@ -6299,7 +6653,7 @@ cutsceneWinner.Parent = cinematicTop
 
 local sceneTitle = Instance.new("TextLabel")
 sceneTitle.BackgroundTransparency = 1
-sceneTitle.Position = UDim2.new(0, 30, 1, -132)
+sceneTitle.Position = UDim2.new(0, 30, 1, -178)
 sceneTitle.Size = UDim2.new(1, -60, 0, 34)
 sceneTitle.Font = Enum.Font.GothamBold
 sceneTitle.Text = ""
@@ -6310,8 +6664,8 @@ sceneTitle.Parent = cinematicBottom
 
 local sceneBody = Instance.new("TextLabel")
 sceneBody.BackgroundTransparency = 1
-sceneBody.Position = UDim2.new(0, 30, 1, -92)
-sceneBody.Size = UDim2.new(1, -60, 0, 58)
+sceneBody.Position = UDim2.new(0, 30, 1, -136)
+sceneBody.Size = UDim2.new(1, -60, 0, 100)
 sceneBody.Font = Enum.Font.Gotham
 sceneBody.Text = ""
 sceneBody.TextColor3 = Color3.fromRGB(220, 214, 199)
