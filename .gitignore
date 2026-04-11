@@ -1,0 +1,6 @@
+# Local tool downloads
+.tools/
+
+# Roblox Studio / Rojo runtime files
+*.rbxlx.lock
+*.log
