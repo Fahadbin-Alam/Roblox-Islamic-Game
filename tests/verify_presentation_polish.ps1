@@ -42,6 +42,8 @@ $weaponChecks = @(
     'local BattleAnimationLibrary = require(Shared.Config.BattleAnimationLibrary)',
     'local function getAnimatorFromTool(tool: Tool): Animator?',
     'local function playConfiguredTrack(tool: Tool, key: string, entry)',
+    'track:AdjustSpeed(entry.Speed or 1)',
+    'drawTrack:AdjustSpeed(0.72 + clamped * 0.4)',
     'playConfiguredTrack(tool, "SwordSlash", swordConfig.Slash)',
     'playConfiguredTrack(tool, "BowDrawLoop", bowConfig.DrawLoop)'
 )

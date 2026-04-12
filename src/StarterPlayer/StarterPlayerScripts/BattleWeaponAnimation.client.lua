@@ -196,7 +196,8 @@ local function playConfiguredTrack(tool: Tool, key: string, entry)
     end
 
     track.TimePosition = 0
-    track:Play(entry.FadeTime or 0.08, 1, entry.Speed or 1)
+    track:Play(entry.FadeTime or 0.08, 1, 1)
+    track:AdjustSpeed(entry.Speed or 1)
 
     return track
 end
@@ -395,6 +396,13 @@ local function attachBowAnimation(tool: Tool)
 
         if displayArrowWeld then
             displayArrowWeld.C0 = arrowIdle:Lerp(arrowDraw, clamped)
+        end
+
+        local state = toolAnimationStates[tool]
+        local drawTrack = state and state.Tracks["BowDrawLoop"] or nil
+
+        if drawTrack and drawTrack.IsPlaying then
+            drawTrack:AdjustSpeed(0.72 + clamped * 0.4)
         end
     end
 
