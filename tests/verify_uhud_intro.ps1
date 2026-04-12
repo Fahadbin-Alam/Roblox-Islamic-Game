@@ -43,7 +43,9 @@ $builderChecks = @(
     'BriefingUhudMass',
     'BriefingArcherShelf',
     'BriefingMedinaLead',
-    'BriefingMakkahLead'
+    'BriefingMakkahLead',
+    'local camera6 = BuildUtils.CreateTeleportAnchor(cameras, "Scene6"',
+    'string.format("UhudArcher%d", index)'
 )
 
 $serviceChecks = @(
@@ -51,12 +53,18 @@ $serviceChecks = @(
     'local function getBriefingActorsWithPrefix',
     'BriefingMedinaLeadAdvance',
     'BriefingMakkahLeadAdvance',
-    'Reference = scene.Reference'
+    'Reference = scene.Reference',
+    'local function playCinematicArrow',
+    'playCinematicArrow(arrowOrigin, arrowTarget',
+    'playCinematicArrow((actor:GetPivot() * CFrame.new(0, 5.8, -2.4)).Position, secondTarget'
 )
 
 $hudChecks = @(
     'local sceneReference = Instance.new("TextLabel")',
-    'sceneReference.Text = scene.Reference or ""'
+    'sceneReference.Text = scene.Reference or ""',
+    'local function setCoreGuiVisibility',
+    'StarterGui:SetCore("TopbarEnabled", isVisible)',
+    'local function setCutscenePostProcessing'
 )
 
 foreach ($check in $scenarioChecks) {

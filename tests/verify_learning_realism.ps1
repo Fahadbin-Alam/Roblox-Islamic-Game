@@ -91,6 +91,7 @@ $uhudChecks = @(
     'FillEmptySlotsWithBots = false',
     'BriefingUhudMass',
     'BriefingMedinaLead',
+    'local camera6 = BuildUtils.CreateTeleportAnchor(cameras, "Scene6"',
     'LastStandShelfTerrain',
     'Steadfast Ground',
     'UhudFinalStandStory'
@@ -102,7 +103,9 @@ $hudChecks = @(
     'REFERENCE_SPEAKER_COLOR',
     'local function tweenSceneText',
     'sceneTextPlate',
-    'local sceneReference = Instance.new("TextLabel")'
+    'local sceneReference = Instance.new("TextLabel")',
+    'local function setCoreGuiVisibility',
+    'local function setCutscenePostProcessing'
 )
 
 foreach ($needle in $hubChecks) {

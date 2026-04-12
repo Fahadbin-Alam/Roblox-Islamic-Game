@@ -1,6 +1,7 @@
 --!strict
 
 local CollectionService = game:GetService("CollectionService")
+local Debris = game:GetService("Debris")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -636,6 +637,59 @@ local function tweenModelTo(model: Model, targetCFrame: CFrame, duration: number
     end
 end
 
+local function playCinematicArrow(origin: Vector3, target: Vector3, color: Color3, duration: number)
+    local arrow = Instance.new("Part")
+    arrow.Name = "CinematicArrow"
+    arrow.Size = Vector3.new(0.18, 0.18, 3.8)
+    arrow.Color = Color3.fromRGB(118, 79, 45)
+    arrow.Material = Enum.Material.Wood
+    arrow.Anchored = true
+    arrow.CanCollide = false
+    arrow.CanTouch = false
+    arrow.CanQuery = false
+    arrow.CFrame = CFrame.lookAt(origin, target)
+    arrow.Parent = Workspace
+
+    local headAttachment = Instance.new("Attachment")
+    headAttachment.Position = Vector3.new(0, 0, -1.9)
+    headAttachment.Parent = arrow
+
+    local tailAttachment = Instance.new("Attachment")
+    tailAttachment.Position = Vector3.new(0, 0, 1.9)
+    tailAttachment.Parent = arrow
+
+    local trail = Instance.new("Trail")
+    trail.Attachment0 = headAttachment
+    trail.Attachment1 = tailAttachment
+    trail.Color = ColorSequence.new(color, Color3.fromRGB(236, 214, 164))
+    trail.Transparency = NumberSequence.new({
+        NumberSequenceKeypoint.new(0, 0.08),
+        NumberSequenceKeypoint.new(1, 1),
+    })
+    trail.Lifetime = 0.14
+    trail.MinLength = 0.12
+    trail.Parent = arrow
+
+    Debris:AddItem(arrow, duration + 0.5)
+
+    task.spawn(function()
+        local elapsed = 0
+
+        while elapsed < duration and arrow.Parent do
+            elapsed += RunService.Heartbeat:Wait()
+            local alpha = smoothStep(elapsed / duration)
+            local position = origin:Lerp(target, alpha)
+            local nextAlpha = math.min(alpha + 0.02, 1)
+            local lookTarget = origin:Lerp(target, nextAlpha)
+            arrow.CFrame = CFrame.lookAt(position, lookTarget)
+        end
+
+        if arrow.Parent then
+            arrow:Destroy()
+        end
+    end)
+end
+
 local function getReenactmentPart(arenaFolder: Folder, folderName: string, partName: string): BasePart?
     local reenactmentFolder = arenaFolder:FindFirstChild("Reenactment")
     local innerFolder = reenactmentFolder and reenactmentFolder:FindFirstChild(folderName)
@@ -759,6 +813,7 @@ local function animateBriefing(session)
         local makkahSupportAdvance = getBriefingPart(session.Arena, "Markers", "BriefingMakkahSupportAdvance")
         local medinaRanks = getBriefingActorsWithPrefix(session.Arena, "BriefingMedinaRank")
         local makkahRanks = getBriefingActorsWithPrefix(session.Arena, "BriefingMakkahRank")
+        local briefingArchers = getBriefingActorsWithPrefix(session.Arena, "BriefingArcher")
 
         if medinaLead and medinaSupport and makkahLead and makkahSupport and medinaLeadStart and medinaLeadAdvance and medinaSupportStart and medinaSupportAdvance and makkahLeadStart and makkahLeadAdvance and makkahSupportStart and makkahSupportAdvance then
             medinaLead:PivotTo(medinaLeadStart.CFrame)
@@ -783,6 +838,23 @@ local function animateBriefing(session)
                 task.spawn(function()
                     task.wait(4.1 + index * 0.14)
                     tweenModelTo(actor, startCFrame * CFrame.new(-20, -8, (index % 2 == 0) and 3 or -3), 2.2)
+                end)
+            end
+
+            for index, actor in ipairs(briefingArchers) do
+                local startCFrame = actor:GetPivot()
+                actor:PivotTo(startCFrame)
+
+                task.spawn(function()
+                    task.wait(2.4 + index * 0.14)
+                    tweenModelTo(actor, startCFrame * CFrame.new(1.2, 0, 0), 0.24)
+                    task.wait(0.12)
+                    local arrowOrigin = (actor:GetPivot() * CFrame.new(0, 5.8, -2.2)).Position
+                    local baseTarget = ((index % 2 == 0) and makkahLeadAdvance or makkahSupportAdvance).Position
+                    local arrowTarget = baseTarget + Vector3.new(index * 2, 4, (index % 2 == 0) and 6 or -6)
+                    playCinematicArrow(arrowOrigin, arrowTarget, Color3.fromRGB(96, 151, 108), 0.48)
+                    task.wait(0.18)
+                    tweenModelTo(actor, startCFrame, 0.22)
                 end)
             end
 
@@ -879,6 +951,7 @@ local function animateReenactment(session)
 
     local medinaRanks = getReenactmentActorsWithPrefix(session.Arena, "MedinaRank")
     local makkahRanks = getReenactmentActorsWithPrefix(session.Arena, "MakkahRank")
+    local uhudArchers = (scenarioId == "uhud") and getReenactmentActorsWithPrefix(session.Arena, "UhudArcher") or {}
 
     for index, actor in ipairs(medinaRanks) do
         local startCFrame = actor:GetPivot()
@@ -917,6 +990,30 @@ local function animateReenactment(session)
 
             tweenModelTo(actor, startCFrame, 1.2)
         end)
+    end
+
+    if scenarioId == "uhud" then
+        for index, actor in ipairs(uhudArchers) do
+            local startCFrame = actor:GetPivot()
+            actor:PivotTo(startCFrame)
+
+            task.spawn(function()
+                task.wait(1.2 + index * 0.16)
+                tweenModelTo(actor, startCFrame * CFrame.new(1.8, 0, (index % 2 == 0) and -0.6 or 0.6), 0.35)
+                task.wait(0.18)
+
+                local arrowOrigin = (actor:GetPivot() * CFrame.new(0, 5.8, -2.4)).Position
+                local arrowTarget = ((index % 2 == 0) and makkahLeadRetreat or makkahSupportRetreat).Position + Vector3.new(index * 2, 4, (index % 2 == 0) and 8 or -8)
+                playCinematicArrow(arrowOrigin, arrowTarget, Color3.fromRGB(96, 151, 108), 0.52)
+
+                task.wait(0.26)
+                tweenModelTo(actor, startCFrame, 0.28)
+                task.wait(1.2)
+
+                local secondTarget = ((index % 2 == 0) and makkahLeadStart or makkahSupportStart).Position + Vector3.new(index * 2, 5, (index % 2 == 0) and 3 or -3)
+                playCinematicArrow((actor:GetPivot() * CFrame.new(0, 5.8, -2.4)).Position, secondTarget, Color3.fromRGB(96, 151, 108), 0.5)
+            end)
+        end
     end
 
     task.spawn(function()

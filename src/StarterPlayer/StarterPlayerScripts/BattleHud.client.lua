@@ -2,7 +2,9 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
+local Lighting = game:GetService("Lighting")
 local Workspace = game:GetService("Workspace")
 
 local battleFolder = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Battle")
@@ -12,6 +14,32 @@ local playReenactment = battleFolder:WaitForChild("PlayReenactment") :: RemoteEv
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
+
+local existingCutsceneBlur = Lighting:FindFirstChild("BattleHudCutsceneBlur")
+local cutsceneBlur: BlurEffect
+if existingCutsceneBlur and existingCutsceneBlur:IsA("BlurEffect") then
+    cutsceneBlur = existingCutsceneBlur
+else
+    cutsceneBlur = Instance.new("BlurEffect")
+    cutsceneBlur.Name = "BattleHudCutsceneBlur"
+    cutsceneBlur.Size = 0
+    cutsceneBlur.Enabled = false
+    cutsceneBlur.Parent = Lighting
+end
+
+local existingCutsceneColor = Lighting:FindFirstChild("BattleHudCutsceneColor")
+local cutsceneColor: ColorCorrectionEffect
+if existingCutsceneColor and existingCutsceneColor:IsA("ColorCorrectionEffect") then
+    cutsceneColor = existingCutsceneColor
+else
+    cutsceneColor = Instance.new("ColorCorrectionEffect")
+    cutsceneColor.Name = "BattleHudCutsceneColor"
+    cutsceneColor.Enabled = false
+    cutsceneColor.Brightness = 0
+    cutsceneColor.Contrast = 0
+    cutsceneColor.Saturation = 0
+    cutsceneColor.Parent = Lighting
+end
 
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "BattleHud"
@@ -276,6 +304,46 @@ sceneCounter.Parent = cinematicBottom
 local toastToken = 0
 local cutsceneToken = 0
 
+local function setCoreGuiVisibility(isVisible: boolean)
+    for _, coreGuiType in ipairs({
+        Enum.CoreGuiType.Backpack,
+        Enum.CoreGuiType.Chat,
+        Enum.CoreGuiType.PlayerList,
+        Enum.CoreGuiType.Health,
+    }) do
+        pcall(function()
+            StarterGui:SetCoreGuiEnabled(coreGuiType, isVisible)
+        end)
+    end
+
+    pcall(function()
+        StarterGui:SetCore("TopbarEnabled", isVisible)
+    end)
+end
+
+local function setCutscenePostProcessing(isEnabled: boolean)
+    cutsceneBlur.Enabled = true
+    TweenService:Create(cutsceneBlur, TweenInfo.new(isEnabled and 0.32 or 0.24, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Size = isEnabled and 10 or 0,
+    }):Play()
+
+    cutsceneColor.Enabled = true
+    TweenService:Create(cutsceneColor, TweenInfo.new(isEnabled and 0.32 or 0.24, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        Brightness = isEnabled and -0.03 or 0,
+        Contrast = isEnabled and 0.12 or 0,
+        Saturation = isEnabled and -0.08 or 0,
+    }):Play()
+
+    if not isEnabled then
+        task.delay(0.26, function()
+            if cutsceneToken == 0 then
+                cutsceneColor.Enabled = false
+                cutsceneBlur.Enabled = false
+            end
+        end)
+    end
+end
+
 local function showToast(text: string, duration: number)
     toastToken += 1
     local currentToken = toastToken
@@ -312,6 +380,9 @@ local function restoreCamera(cameraState)
         return
     end
 
+    cutsceneToken = 0
+    setCoreGuiVisibility(true)
+    setCutscenePostProcessing(false)
     camera.CameraType = Enum.CameraType.Custom
     camera.FieldOfView = cameraState.FieldOfView or 70
 
@@ -325,10 +396,10 @@ end
 
 local function getKindLabel(kind: string?): string
     if kind == "Briefing" then
-        return "Animated Battle Briefing"
+        return "Cinematic Battlefield Briefing"
     end
 
-    return "Historical Reenactment"
+    return "Cinematic Historical Reenactment"
 end
 
 local function tweenCutsceneFrameIn()
@@ -400,6 +471,8 @@ playReenactment.OnClientEvent:Connect(function(payload)
 
     summaryFrame.Visible = false
     cutsceneFrame.Visible = true
+    setCoreGuiVisibility(false)
+    setCutscenePostProcessing(true)
     tweenCutsceneFrameIn()
     introLabel.Text = string.format("%s | %s", getKindLabel(payload.Kind), payload.IntroTitle or "")
     cutsceneScenario.Text = payload.ScenarioName or ""
@@ -458,5 +531,7 @@ playReenactment.OnClientEvent:Connect(function(payload)
 end)
 
 closeButton.MouseButton1Click:Connect(function()
+    setCoreGuiVisibility(true)
+    setCutscenePostProcessing(false)
     summaryFrame.Visible = false
 end)

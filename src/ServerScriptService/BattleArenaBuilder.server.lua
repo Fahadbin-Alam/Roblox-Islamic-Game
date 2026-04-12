@@ -276,6 +276,11 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
     if scenarioId == "uhud" then
         createTacticalRidge(geometry, "UhudBackdropMass", center + Vector3.new(0, 8, -50), -2, 138, 34, 30, Color3.fromRGB(132, 104, 74))
         createTacticalRidge(geometry, "UhudBackdropRidge", center + Vector3.new(-34, 7.2, -12), -18, 54, 18, 20, Color3.fromRGB(111, 90, 66))
+        BuildUtils.CreateMountain(geometry, "UhudBackdropWestCliff", center + Vector3.new(-66, 0, -24), 122, 62, 56, Color3.fromRGB(126, 101, 75), -20)
+        BuildUtils.CreateMountain(geometry, "UhudBackdropEastCliff", center + Vector3.new(64, 0, -30), 136, 68, 64, Color3.fromRGB(133, 108, 78), 14)
+        createMountainFaceDetails(geometry, "UhudBackdropWestFaces", center + Vector3.new(-66, 0, -20), -20, 122, 62, 56, Color3.fromRGB(126, 101, 75))
+        createMountainFaceDetails(geometry, "UhudBackdropEastFaces", center + Vector3.new(64, 0, -24), 14, 136, 68, 64, Color3.fromRGB(133, 108, 78))
+        BuildUtils.CreateDune(geometry, "UhudBackdropDustRise", center + Vector3.new(0, 0, 32), Vector3.new(156, 24, 40), Color3.fromRGB(210, 186, 144))
         BuildUtils.CreatePart(geometry, "UhudRidgeShelf", Vector3.new(58, 2.2, 18), CFrame.new(center + Vector3.new(-30, 10, -10)) * CFrame.Angles(0, math.rad(-18), 0), Color3.fromRGB(122, 98, 73), Enum.Material.Slate, nil, nil)
         BuildUtils.CreatePart(geometry, "UhudDustBand", Vector3.new(120, 0.3, 20), CFrame.new(center + Vector3.new(8, 2.5, 20)), Color3.fromRGB(216, 193, 151), Enum.Material.Sand, nil, 0.2)
         createArenaTorch(geometry, "ReenactmentTorchWest", center + Vector3.new(-58, 0, 36))
@@ -292,6 +297,8 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
     camera4.CFrame = CFrame.new(center + Vector3.new(0, 30, -78), center + Vector3.new(0, 9, 8))
     local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "Scene5", center + Vector3.new(-18, 24, 86))
     camera5.CFrame = CFrame.new(center + Vector3.new(-18, 24, 86), center + Vector3.new(0, 9, -8))
+    local camera6 = BuildUtils.CreateTeleportAnchor(cameras, "Scene6", center + Vector3.new(18, 34, -92))
+    camera6.CFrame = CFrame.new(center + Vector3.new(18, 34, -92), center + Vector3.new(-10, 8, -8))
 
     local medinaLeadStart = BuildUtils.CreateTeleportAnchor(marks, "MedinaLeadStart", center + Vector3.new(-26, 0, 12))
     medinaLeadStart.CFrame = CFrame.new(medinaLeadStart.Position, center + Vector3.new(12, 0, 0))
@@ -334,6 +341,20 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
         createActorRig(actors, string.format("MakkahRank%d", index), CFrame.new(center + Vector3.new(52, 0, -28 + index * 12), center + Vector3.new(-8, 0, 0)), makkahColor, Color3.fromRGB(97, 67, 43))
     end
 
+    if scenarioId == "uhud" then
+        for index = 1, 4 do
+            local archerPosition = center + Vector3.new(-54 + index * 10, 10.2, -8 + ((index % 2 == 0) and -1 or 1))
+            createActorRig(
+                actors,
+                string.format("UhudArcher%d", index),
+                CFrame.new(archerPosition, center + Vector3.new(26, 4, 8)),
+                medinaColor,
+                Color3.fromRGB(51, 83, 58),
+                0.92
+            )
+        end
+    end
+
     local spectatorAnchor = BuildUtils.CreateTeleportAnchor(arenaFolder, "SpectatorAnchor", center + Vector3.new(0, 34, 176))
     spectatorAnchor.CFrame = CFrame.new(spectatorAnchor.Position, center)
 end
@@ -367,8 +388,6 @@ local function createBriefingSection(arenaFolder: Folder, center: Vector3, scena
         BuildUtils.CreateBanner(geometry, "BriefingBannerEast", center + Vector3.new(78, 0, 24), makkahColor)
         createArenaTorch(geometry, "BriefingTorchWest", center + Vector3.new(-74, 0, 52))
         createArenaTorch(geometry, "BriefingTorchEast", center + Vector3.new(76, 0, 52))
-        createArenaStorySign(geometry, "BriefingRidgeSign", center + Vector3.new(-58, 0, -8), 150, "Archer Ridge", "The ridge is shown as a real shelf above the pass so the command to hold it feels physical, not abstract.", Color3.fromRGB(77, 96, 72))
-        createArenaStorySign(geometry, "BriefingPassSign", center + Vector3.new(24, 0, 54), 0, "The Pass", "This route lets players see how one opening could reshape the whole battle.", Color3.fromRGB(108, 80, 55))
 
         local camera1 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap1", center + Vector3.new(-116, 40, 88))
         camera1.CFrame = CFrame.new(camera1.Position, center + Vector3.new(-12, 16, 2))
