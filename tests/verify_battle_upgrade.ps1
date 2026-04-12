@@ -38,7 +38,9 @@ $scenarioChecks = @(
     "RecommendedPlayers = 60",
     "PlayersPerTeam = 30",
     "RoundDurationSeconds = 240",
-    "RoundDurationSeconds = 250"
+    "RoundDurationSeconds = 250",
+    "FillEmptySlotsWithBots = false",
+    "FinalBossPhase = {"
 )
 
 foreach ($check in $scenarioChecks) {
@@ -50,9 +52,12 @@ $serviceChecks = @(
     "local BattleBots = require(script.Parent.Modules.BattleBots)",
     "local function buildFormationPositions",
     "local function getDummyBotStyle",
+    "local function getFinalBossConfig",
+    "startFinalBossPhase = function",
     'BotStyle = botStyle',
     "BattleBots.Start(session)",
-    "Field strength: up to %d fighters per side"
+    "Field strength: up to %d fighters per side",
+    "Uhud now runs without filler bots during the main fight"
 )
 
 foreach ($check in $serviceChecks) {

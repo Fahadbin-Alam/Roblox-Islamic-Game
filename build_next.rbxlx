@@ -224,9 +224,10 @@ local BattleScenarios = {
         RecommendedPlayers = 60,
         MinPlayersToLaunch = 1,
         PlayersPerTeam = 30,
+        FillEmptySlotsWithBots = false,
         CountdownSeconds = 8,
         RoundDurationSeconds = 250,
-        LearningGoal = "Teach discipline, positioning, and how quickly momentum can change in battle.",
+        LearningGoal = "Teach discipline, the cost of leaving an assigned post, sacrifice under pressure, and the emotional weight of Uhud.",
         Teams = {
             {
                 Id = "medina",
@@ -239,13 +240,15 @@ local BattleScenarios = {
                 AccentColor = Color3.fromRGB(143, 101, 68),
             },
         },
-        Commander = {
-            TeamId = "makkah",
-            DisplayName = "Quraysh Cavalry Commander",
-            RoleText = "A stronger opposing-side commander role. If a player is on this side, one player becomes the commander. If not, the game creates a boss dummy.",
-            Health = 280,
-            DefeatedWinnerTeamId = "medina",
-            DefeatedMessage = "Medina Side completes the scenario: the Quraysh cavalry commander was defeated.",
+        FinalBossPhase = {
+            Enabled = true,
+            Health = 420,
+            DisplayNames = {
+                medina = "Final Medina Defender",
+                makkah = "Final Quraysh Cavalry Commander",
+            },
+            StartMessageTemplate = "Final phase: the %s enters the field. The surviving team must finish the battle by defeating this boss.",
+            DefeatedMessageTemplate = "%s defeated the %s and secured the field at Uhud.",
         },
         KeyFigures = {
             Medina = "Medina side: Prophet Muhammad, peace be upon him, led the Muslims but is never depicted. Companions connected to Uhud include Hamzah ibn Abd al-Muttalib, Mus'ab ibn Umayr, and Nusaybah bint Ka'b, may Allah be pleased with them.",
@@ -286,36 +289,36 @@ local BattleScenarios = {
                 {
                     CameraName = "BriefingMap1",
                     Title = "7 Shawwal, 3 AH | 625 CE",
-                    Body = "Uhud happened the year after Badr, near Mount Uhud outside Medina, as the Quraysh came again after their earlier defeat.",
-                    DurationSeconds = 7,
+                    Body = "Uhud happened the year after Badr, north of Medina near Mount Uhud, when Quraysh returned looking for a hard answer to their defeat at Badr.",
+                    DurationSeconds = 8,
                     FieldOfView = 62,
                 },
                 {
                     CameraName = "BriefingMap2",
-                    Title = "The Situation",
-                    Body = "The battle was connected to the continuing conflict between Makkah and Medina after Badr. Quraysh wanted to answer that loss near Medina.",
-                    DurationSeconds = 8,
+                    Title = "The Archer Order",
+                    Body = "Sunan Abi Dawud 2662 reports that 'Abd Allah ibn Jubayr led fifty archers with a clear order: do not leave the ridge even if victory looks certain.",
+                    DurationSeconds = 9,
                     FieldOfView = 58,
                 },
                 {
                     CameraName = "BriefingMap3",
-                    Title = "Main People To Know",
-                    Body = "Medina side: the Prophet, peace be upon him, is not depicted. Companions connected to Uhud include Hamzah, Mus'ab ibn Umayr, and Nusaybah bint Ka'b, may Allah be pleased with them.",
+                    Title = "People And Sacrifice",
+                    Body = "The route around Uhud is tied to companions remembered in the reports of this battle, including Hamzah, Mus'ab ibn Umayr, and the defenders who stood firm when the field became confused.",
                     DurationSeconds = 9,
                     FieldOfView = 60,
                 },
                 {
                     CameraName = "BriefingMap4",
-                    Title = "The Mountain And Ridge",
-                    Body = "The map shows Mount Uhud, the pass, and the archer ridge. This battle teaches that position and discipline can change everything.",
-                    DurationSeconds = 7,
+                    Title = "The Hard Turn",
+                    Body = "Sahih Muslim 1789 describes the pressure of the late battle, when only a few defenders remained in a desperate stand. Uhud teaches that one broken position can change the whole field.",
+                    DurationSeconds = 9,
                     FieldOfView = 60,
                 },
                 {
                     CameraName = "BriefingMap5",
                     Title = "Your Objective",
-                    Body = "Fight the round, watch for the Quraysh Cavalry Commander boss, and then study how momentum shifted near the ridge.",
-                    DurationSeconds = 7,
+                    Body = "Fight for control of the pass. When one side breaks, a final boss enters the field and the surviving team must finish the battle there.",
+                    DurationSeconds = 8,
                     FieldOfView = 60,
                 },
             },
@@ -325,42 +328,42 @@ local BattleScenarios = {
             Scenes = {
                 {
                     CameraName = "Scene1",
-                    Title = "Mount Uhud And The Pass",
-                    Body = "7 Shawwal, 3 AH. The reenactment begins near Mount Uhud, where terrain and assigned positions shaped what happened next.",
-                    DurationSeconds = 7,
-                },
-                {
-                    CameraName = "Scene2",
-                    Title = "The Archer Ridge",
-                    Body = "A major lesson of Uhud is to hold the assigned position even when the battle seems to be going your way.",
-                    DurationSeconds = 7,
-                },
-                {
-                    CameraName = "Scene3",
-                    Title = "Opposing Cavalry Pressure",
-                    Body = "Quraysh cavalry pressure is represented by a commander boss in gameplay, while real historical figures are taught through text rather than made into avatars.",
+                    Title = "A Mountain With Meaning",
+                    Body = "Sahih al-Bukhari 4422 preserves the line that Uhud is a mountain that loves us and is loved by us. The place itself became part of the memory of the battle.",
                     DurationSeconds = 8,
                 },
                 {
+                    CameraName = "Scene2",
+                    Title = "The Ridge Must Hold",
+                    Body = "Sunan Abi Dawud 2662 ties Uhud to the order given to the archers not to leave their place, even when the field looked won and the temptation of booty appeared.",
+                    DurationSeconds = 9,
+                },
+                {
+                    CameraName = "Scene3",
+                    Title = "The Last Stand",
+                    Body = "Sahih Muslim 1789 describes a terrible moment when only seven Ansar and two Qurashi defenders remained close in protection while the enemy pressed forward.",
+                    DurationSeconds = 9,
+                },
+                {
                     CameraName = "Scene4",
-                    Title = "A Hard Turn",
-                    Body = "Momentum changed during the fighting, and the community faced a painful test near the mountain.",
-                    DurationSeconds = 7,
+                    Title = "Wounds And Rescue",
+                    Body = "Sahih Muslim 1790a records the injuries suffered that day and the urgent effort to stop the bleeding. The battle was not a simple victory story. It was pain, rescue, and endurance.",
+                    DurationSeconds = 9,
                 },
                 {
                     CameraName = "Scene5",
-                    Title = "The Lesson Of Uhud",
-                    Body = "In the game you fought for fun. In the lesson, remember that courage must stay joined to discipline and steady judgment.",
-                    DurationSeconds = 7,
+                    Title = "What Uhud Leaves Behind",
+                    Body = "Sahih Muslim 940a remembers Mus'ab ibn Umayr among the martyrs of Uhud, and Sahih al-Bukhari 4081 preserves the dream of the broken sword as a sign of the believers' losses.",
+                    DurationSeconds = 9,
                 },
             },
         },
         StorySummary = {
             Title = "What Happened At Uhud",
             Lines = {
-                "Uhud took place on 7 Shawwal, 3 AH / 625 CE near Mount Uhud and became a hard lesson about discipline and battlefield positioning.",
-                "Early momentum shifted during the fighting, and the battle became a reminder that courage must stay tied to obedience and steady judgment.",
-                "This round uses a commander boss objective for clarity, while the reenactment keeps the historical lesson connected to the gameplay.",
+                "Uhud took place on 7 Shawwal, 3 AH / 625 CE near Mount Uhud and became a hard lesson in discipline and battlefield positioning.",
+                "Sunan Abi Dawud 2662 preserves the order to the archers to hold their post, while Sahih Muslim 1789 records the fierce pressure of the late battle.",
+                "This mode ends with a single final boss instead of filler bots, so the finish feels like one decisive last stand.",
             },
         },
         Rewards = {
@@ -1725,6 +1728,15 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
     BuildUtils.CreatePart(geometry, "BackRock", Vector3.new(168, 32, 28), CFrame.new(center + Vector3.new(0, 16, -64)), Color3.fromRGB(147, 119, 83), Enum.Material.Rock, nil, nil)
     BuildUtils.CreatePart(geometry, "ForegroundRise", Vector3.new(142, 8, 22), CFrame.new(center + Vector3.new(0, 4.2, 52)), Color3.fromRGB(167, 137, 94), Enum.Material.Rock, nil, nil)
 
+    if scenarioId == "uhud" then
+        createTacticalRidge(geometry, "UhudBackdropMass", center + Vector3.new(0, 8, -50), -2, 138, 34, 30, Color3.fromRGB(132, 104, 74))
+        createTacticalRidge(geometry, "UhudBackdropRidge", center + Vector3.new(-34, 7.2, -12), -18, 54, 18, 20, Color3.fromRGB(111, 90, 66))
+        BuildUtils.CreatePart(geometry, "UhudRidgeShelf", Vector3.new(58, 2.2, 18), CFrame.new(center + Vector3.new(-30, 10, -10)) * CFrame.Angles(0, math.rad(-18), 0), Color3.fromRGB(122, 98, 73), Enum.Material.Slate, nil, nil)
+        BuildUtils.CreatePart(geometry, "UhudDustBand", Vector3.new(120, 0.3, 20), CFrame.new(center + Vector3.new(8, 2.5, 20)), Color3.fromRGB(216, 193, 151), Enum.Material.Sand, nil, 0.2)
+        createArenaTorch(geometry, "ReenactmentTorchWest", center + Vector3.new(-58, 0, 36))
+        createArenaTorch(geometry, "ReenactmentTorchEast", center + Vector3.new(58, 0, 30))
+    end
+
     local camera1 = BuildUtils.CreateTeleportAnchor(cameras, "Scene1", center + Vector3.new(-48, 22, 42))
     camera1.CFrame = CFrame.new(center + Vector3.new(-48, 22, 42), center + Vector3.new(0, 8, -4))
     local camera2 = BuildUtils.CreateTeleportAnchor(cameras, "Scene2", center + Vector3.new(0, 18, 58))
@@ -1770,7 +1782,9 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
     BuildUtils.CreateBanner(actors, "MakkahCommanderBanner", center + Vector3.new(63, 0, 30), Color3.fromRGB(146, 82, 48))
     BuildUtils.CreateBanner(actors, "MedinaStandard", center + Vector3.new(-58, 0, 24), medinaColor)
 
-    for index = 1, 3 do
+    local rankCount = (scenarioId == "uhud") and 5 or 3
+
+    for index = 1, rankCount do
         createActorRig(actors, string.format("MedinaRank%d", index), CFrame.new(center + Vector3.new(-48, 0, -26 + index * 12), center + Vector3.new(8, 0, 0)), medinaColor, Color3.fromRGB(40, 71, 48))
         createActorRig(actors, string.format("MakkahRank%d", index), CFrame.new(center + Vector3.new(52, 0, -28 + index * 12), center + Vector3.new(-8, 0, 0)), makkahColor, Color3.fromRGB(97, 67, 43))
     end
@@ -1900,27 +1914,38 @@ local function buildUhudArena(parent: Instance, scenario)
         parent,
         scenario.Id,
         Vector3.new(-1150, 0, 1180),
-        Vector3.new(820, 2, 500),
+        Vector3.new(860, 2, 540),
         Color3.fromRGB(198, 169, 127)
     )
 
-    createMountain(geometry, "UhudRidgeWest", Vector3.new(-1428, 0, 996), 300, 188, 178, Color3.fromRGB(147, 118, 84))
-    createMountain(geometry, "UhudMainMass", Vector3.new(-1150, 0, 956), 460, 228, 220, Color3.fromRGB(144, 116, 82))
-    createMountain(geometry, "UhudRidgeEast", Vector3.new(-892, 0, 1004), 284, 178, 180, Color3.fromRGB(149, 121, 86))
-    createMountain(geometry, "UhudRearSlope", Vector3.new(-1152, 0, 860), 360, 124, 120, Color3.fromRGB(145, 118, 86))
-    createMountainFaceDetails(geometry, "UhudWestRidgeFaces", Vector3.new(-1428, 0, 1008), 2, 300, 188, 178, Color3.fromRGB(147, 118, 84))
-    createMountainFaceDetails(geometry, "UhudMainMassFaces", Vector3.new(-1150, 0, 972), 0, 460, 228, 220, Color3.fromRGB(144, 116, 82))
-    createMountainFaceDetails(geometry, "UhudEastRidgeFaces", Vector3.new(-892, 0, 1014), -3, 284, 178, 180, Color3.fromRGB(149, 121, 86))
-    createMountainFaceDetails(geometry, "UhudRearSlopeFaces", Vector3.new(-1152, 0, 858), 180, 360, 124, 120, Color3.fromRGB(145, 118, 86))
-    BuildUtils.CreateDune(geometry, "SouthSlope", Vector3.new(-1180, 0, 1398), Vector3.new(360, 54, 122), Color3.fromRGB(194, 164, 122))
-    BuildUtils.CreatePart(geometry, "BattlePass", Vector3.new(446, 1, 74), CFrame.new(-1150, 2.05, 1180), Color3.fromRGB(173, 142, 101), Enum.Material.Sandstone, nil, nil)
-    BuildUtils.CreateMountain(geometry, "ArcherRidgeTerrain", Vector3.new(-1292, 0, 1112), 210, 74, 120, Color3.fromRGB(132, 108, 82), -8)
-    BuildUtils.CreateMountain(geometry, "SouthShelfTerrain", Vector3.new(-1002, 0, 1242), 184, 56, 92, Color3.fromRGB(137, 112, 84), 18)
-    BuildUtils.CreatePart(geometry, "ArcherRidgeLookout", Vector3.new(94, 2.4, 28), CFrame.new(-1292, 42, 1112) * CFrame.Angles(0, math.rad(-8), 0), Color3.fromRGB(125, 103, 80), Enum.Material.Slate, nil, nil)
-    BuildUtils.CreatePart(geometry, "SouthShelfPath", Vector3.new(80, 2, 22), CFrame.new(-1002, 31, 1242) * CFrame.Angles(0, math.rad(18), 0), Color3.fromRGB(134, 111, 84), Enum.Material.Slate, nil, nil)
+    createMountain(geometry, "UhudRidgeWest", Vector3.new(-1458, 0, 990), 344, 214, 196, Color3.fromRGB(147, 118, 84))
+    createMountain(geometry, "UhudMainMass", Vector3.new(-1150, 0, 944), 548, 272, 246, Color3.fromRGB(144, 116, 82))
+    createMountain(geometry, "UhudRidgeEast", Vector3.new(-854, 0, 1002), 338, 206, 194, Color3.fromRGB(149, 121, 86))
+    createMountain(geometry, "UhudRearSlope", Vector3.new(-1152, 0, 842), 420, 146, 136, Color3.fromRGB(145, 118, 86))
+    createMountain(geometry, "UhudNorthWall", Vector3.new(-1152, 0, 730), 626, 178, 110, Color3.fromRGB(132, 106, 77))
+    createMountain(geometry, "UhudPassShelfWest", Vector3.new(-1360, 0, 1168), 228, 84, 122, Color3.fromRGB(136, 110, 81))
+    createMountain(geometry, "UhudPassShelfEast", Vector3.new(-964, 0, 1108), 224, 72, 116, Color3.fromRGB(141, 115, 84))
+    createMountainFaceDetails(geometry, "UhudWestRidgeFaces", Vector3.new(-1458, 0, 1002), 2, 344, 214, 196, Color3.fromRGB(147, 118, 84))
+    createMountainFaceDetails(geometry, "UhudMainMassFaces", Vector3.new(-1150, 0, 962), 0, 548, 272, 246, Color3.fromRGB(144, 116, 82))
+    createMountainFaceDetails(geometry, "UhudEastRidgeFaces", Vector3.new(-854, 0, 1010), -3, 338, 206, 194, Color3.fromRGB(149, 121, 86))
+    createMountainFaceDetails(geometry, "UhudRearSlopeFaces", Vector3.new(-1152, 0, 842), 180, 420, 146, 136, Color3.fromRGB(145, 118, 86))
+    createMountainFaceDetails(geometry, "UhudNorthWallFaces", Vector3.new(-1152, 0, 734), 180, 626, 178, 110, Color3.fromRGB(132, 106, 77))
+    BuildUtils.CreateDune(geometry, "SouthSlope", Vector3.new(-1180, 0, 1416), Vector3.new(404, 58, 144), Color3.fromRGB(194, 164, 122))
+    BuildUtils.CreateDune(geometry, "SouthFlankRise", Vector3.new(-982, 0, 1298), Vector3.new(232, 46, 104), Color3.fromRGB(188, 159, 118))
+    BuildUtils.CreatePart(geometry, "BattlePass", Vector3.new(470, 1, 82), CFrame.new(-1150, 2.05, 1180), Color3.fromRGB(173, 142, 101), Enum.Material.Sandstone, nil, nil)
+    BuildUtils.CreatePart(geometry, "BattlePassDustBand", Vector3.new(456, 0.26, 48), CFrame.new(-1150, 2.68, 1182), Color3.fromRGB(210, 186, 145), Enum.Material.Sand, nil, 0.18)
+    BuildUtils.CreateMountain(geometry, "ArcherRidgeTerrain", Vector3.new(-1298, 0, 1112), 242, 86, 132, Color3.fromRGB(132, 108, 82), -8)
+    BuildUtils.CreateMountain(geometry, "SouthShelfTerrain", Vector3.new(-990, 0, 1244), 214, 64, 110, Color3.fromRGB(137, 112, 84), 18)
+    BuildUtils.CreatePart(geometry, "ArcherRidgeLookout", Vector3.new(108, 2.8, 30), CFrame.new(-1298, 48, 1112) * CFrame.Angles(0, math.rad(-8), 0), Color3.fromRGB(125, 103, 80), Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(geometry, "ArcherRidgeTrail", Vector3.new(94, 1.4, 16), CFrame.new(-1332, 22, 1156) * CFrame.Angles(0, math.rad(32), 0), Color3.fromRGB(137, 114, 88), Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(geometry, "SouthShelfPath", Vector3.new(98, 2.2, 22), CFrame.new(-990, 34, 1244) * CFrame.Angles(0, math.rad(18), 0), Color3.fromRGB(134, 111, 84), Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(geometry, "FinalStandPlatform", Vector3.new(96, 2.4, 64), CFrame.new(-958, 18, 1182) * CFrame.Angles(0, math.rad(-16), 0), Color3.fromRGB(122, 102, 79), Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(geometry, "FinalStandPlinth", Vector3.new(72, 5.2, 40), CFrame.new(-958, 10, 1182) * CFrame.Angles(0, math.rad(-16), 0), Color3.fromRGB(116, 95, 72), Enum.Material.Rock, nil, nil)
     BuildUtils.CreateRockCluster(geometry, "PassRocksWest", Vector3.new(-1324, 0, 1238))
     BuildUtils.CreateRockCluster(geometry, "PassRocksEast", Vector3.new(-990, 0, 1124))
     BuildUtils.CreateRockCluster(geometry, "PassRocksCenter", Vector3.new(-1156, 0, 1210))
+    BuildUtils.CreateRockCluster(geometry, "FinalStandRocks", Vector3.new(-954, 0, 1182))
+    BuildUtils.CreateRockCluster(geometry, "RidgeFootRocks", Vector3.new(-1258, 0, 1088))
     createCampShelter(geometry, "UhudCampWest", Vector3.new(-1376, 0, 1190), Color3.fromRGB(74, 121, 82))
     createCampShelter(geometry, "UhudCampEast", Vector3.new(-932, 0, 1190), Color3.fromRGB(143, 101, 66))
     BuildUtils.CreateBanner(geometry, "UhudBannerWest", Vector3.new(-1338, 0, 1158), Color3.fromRGB(62, 125, 82))
@@ -1931,9 +1956,12 @@ local function buildUhudArena(parent: Instance, scenario)
     createArenaTorch(geometry, "UhudTorchPassB", Vector3.new(-1060, 0, 1134))
     createArenaTorch(geometry, "UhudTorchCampMedina", Vector3.new(-1376, 0, 1254))
     createArenaTorch(geometry, "UhudTorchCampMakkah", Vector3.new(-932, 0, 1254))
-    createArenaStorySign(geometry, "UhudMountainStory", Vector3.new(-1150, 0, 1048), 180, "Mount Uhud", "Uhud happened in 3 AH / 625 CE near this mountain. The arena now uses the ridge and pass as the main lesson.", Color3.fromRGB(89, 75, 56))
-    createArenaStorySign(geometry, "UhudArcherRidgeStory", Vector3.new(-1328, 0, 1078), 150, "The Archer Ridge", "Hold the assigned position. The archer ridge teaches discipline and how one position can change the whole battle.", Color3.fromRGB(68, 91, 66))
-    createArenaStorySign(geometry, "UhudFlankStory", Vector3.new(-1000, 0, 1290), 320, "The Flank Route", "The map marks the route where momentum changed. This keeps the story clear without depicting the Prophet, peace be upon him.", Color3.fromRGB(112, 76, 51))
+    createArenaTorch(geometry, "UhudTorchFinalStandA", Vector3.new(-988, 18, 1160))
+    createArenaTorch(geometry, "UhudTorchFinalStandB", Vector3.new(-924, 18, 1202))
+    createArenaStorySign(geometry, "UhudMountainStory", Vector3.new(-1150, 0, 1048), 180, "Mount Uhud", "Sahih al-Bukhari 4422 preserves the words that Uhud is a mountain that loves us and is loved by us.", Color3.fromRGB(89, 75, 56))
+    createArenaStorySign(geometry, "UhudArcherRidgeStory", Vector3.new(-1328, 0, 1078), 150, "The Archer Ridge", "Sunan Abi Dawud 2662 records the order to hold this position and not leave it even if victory seemed clear.", Color3.fromRGB(68, 91, 66))
+    createArenaStorySign(geometry, "UhudFlankStory", Vector3.new(-1000, 0, 1290), 320, "The Hard Turn", "Sahih Muslim 1789 remembers the pressure of the late battle when only a few defenders remained in the last stand.", Color3.fromRGB(112, 76, 51))
+    createArenaStorySign(geometry, "UhudFinalStandStory", Vector3.new(-946, 18, 1130), 210, "Final Stand", "This mode now ends here with one boss instead of filler bots so the finish feels decisive.", Color3.fromRGB(101, 72, 52))
 
     addSpawnAnchors(spawns, "medina", scenario.SpawnPositions.medina)
     addSpawnAnchors(spawns, "makkah", scenario.SpawnPositions.makkah)
@@ -1943,9 +1971,9 @@ local function buildUhudArena(parent: Instance, scenario)
         Vector3.new(-1286, 10, 1184),
     })
     addSpawnAnchors(dummies, "makkah", {
-        Vector3.new(-980, 10, 1246),
-        Vector3.new(-1000, 10, 1110),
-        Vector3.new(-1014, 10, 1184),
+        Vector3.new(-958, 22, 1182),
+        Vector3.new(-1000, 18, 1110),
+        Vector3.new(-1014, 10, 1240),
     })
 
     createReenactmentSection(arenaFolder, Vector3.new(-1150, 0, 1394), scenario.Id, Color3.fromRGB(71, 127, 86), Color3.fromRGB(149, 102, 61))
@@ -2007,6 +2035,7 @@ local activeSessions = {}
 local playerToSession = {}
 local promptConnections = {}
 local startSession
+local startFinalBossPhase
 local COMBATANT_TAG = "BattleCombatant"
 
 for _, scenario in ipairs(BattleScenarios) do
@@ -2550,6 +2579,16 @@ local function getTeamDisplayName(session, teamId: string): string
     return teamId
 end
 
+local function getTeamAccentColor(session, teamId: string): Color3
+    for _, team in ipairs(session.Scenario.Teams) do
+        if team.Id == teamId then
+            return team.AccentColor
+        end
+    end
+
+    return Color3.fromRGB(180, 114, 64)
+end
+
 local function getHumanLivingCount(session, teamId: string): number
     local living = 0
 
@@ -2754,8 +2793,16 @@ local function animateReenactment(session)
         actor:PivotTo(startCFrame)
         task.spawn(function()
             task.wait(1.5 + index * 0.25)
-            tweenModelTo(actor, startCFrame * CFrame.new(22, 0, index % 2 == 0 and -3 or 3), 2.2)
-            task.wait(4)
+            if scenarioId == "uhud" then
+                tweenModelTo(actor, startCFrame * CFrame.new(14, 0, index % 2 == 0 and -5 or 5), 1.8)
+                task.wait(1.7)
+                tweenModelTo(actor, startCFrame * CFrame.new(-6, 0, index % 2 == 0 and -16 or 16), 1.5)
+                task.wait(1.7)
+            else
+                tweenModelTo(actor, startCFrame * CFrame.new(22, 0, index % 2 == 0 and -3 or 3), 2.2)
+                task.wait(4)
+            end
+
             tweenModelTo(actor, startCFrame, 1.2)
         end)
     end
@@ -2765,9 +2812,17 @@ local function animateReenactment(session)
         actor:PivotTo(startCFrame)
         task.spawn(function()
             task.wait(3 + index * 0.18)
-            local retreatX = scenarioId == "uhud" and -18 or 24
-            tweenModelTo(actor, startCFrame * CFrame.new(retreatX, 0, index % 2 == 0 and 8 or -8), 2.4)
-            task.wait(3)
+            if scenarioId == "uhud" then
+                tweenModelTo(actor, startCFrame * CFrame.new(-22, 0, index % 2 == 0 and 14 or -14), 2)
+                task.wait(1.4)
+                tweenModelTo(actor, startCFrame * CFrame.new(-8, 0, index % 2 == 0 and 20 or -20), 1.3)
+                task.wait(1.2)
+            else
+                local retreatX = 24
+                tweenModelTo(actor, startCFrame * CFrame.new(retreatX, 0, index % 2 == 0 and 8 or -8), 2.4)
+                task.wait(3)
+            end
+
             tweenModelTo(actor, startCFrame, 1.2)
         end)
     end
@@ -3010,9 +3065,37 @@ local function evaluateVictory(session)
     local secondTeamId = session.Scenario.Teams[2].Id
     local firstStartedHumans = session.InitialHumanCounts[firstTeamId] or 0
     local secondStartedHumans = session.InitialHumanCounts[secondTeamId] or 0
+    local finalBossConfig = getFinalBossConfig(session)
 
     local firstLivingHumans = getHumanLivingCount(session, firstTeamId)
     local secondLivingHumans = getHumanLivingCount(session, secondTeamId)
+
+    if finalBossConfig and session.FinalBossPhaseStarted then
+        local winningTeamId = session.FinalBossWinningTeamId
+        local defeatedTeamId = session.FinalBossDefeatedTeamId
+
+        if winningTeamId and getHumanLivingCount(session, winningTeamId) <= 0 then
+            endSession(
+                session,
+                defeatedTeamId,
+                string.format("%s lost the final push before defeating the boss.", getTeamDisplayName(session, winningTeamId))
+            )
+        end
+
+        return
+    end
+
+    if finalBossConfig then
+        if firstLivingHumans <= 0 and secondLivingHumans <= 0 then
+            endSession(session, nil, "Both player teams fell before the final stand.")
+        elseif firstLivingHumans > 0 and secondLivingHumans <= 0 then
+            startFinalBossPhase(session, firstTeamId, secondTeamId)
+        elseif secondLivingHumans > 0 and firstLivingHumans <= 0 then
+            startFinalBossPhase(session, secondTeamId, firstTeamId)
+        end
+
+        return
+    end
 
     if firstStartedHumans > 0 and secondStartedHumans > 0 then
         if firstLivingHumans <= 0 and secondLivingHumans <= 0 then
@@ -3040,7 +3123,21 @@ local function getCommanderConfig(session)
     return session.Scenario.Commander
 end
 
+local function getFinalBossConfig(session)
+    local finalBossPhase = session.Scenario.FinalBossPhase
+
+    if not finalBossPhase or finalBossPhase.Enabled ~= true then
+        return nil
+    end
+
+    return finalBossPhase
+end
+
 local function shouldAssignCommander(session, teamId: string): boolean
+    if getFinalBossConfig(session) then
+        return false
+    end
+
     local commander = getCommanderConfig(session)
 
     if not commander then
@@ -3053,41 +3150,35 @@ end
 local function configureCommanderEntry(session, entry, teamAccentColor: Color3)
     local commander = getCommanderConfig(session)
 
-    if not commander or not entry.IsCommander then
+    if not entry.IsCommander then
         return
     end
 
     session.CommanderEntry = entry
+    local displayName = entry.BossName or (commander and commander.DisplayName) or "Commander"
+    local bossHealth = entry.BossHealth or (commander and commander.Health) or nil
 
     if entry.Humanoid then
-        entry.Humanoid.MaxHealth = commander.Health or entry.Humanoid.MaxHealth
+        entry.Humanoid.MaxHealth = bossHealth or entry.Humanoid.MaxHealth
         entry.Humanoid.Health = entry.Humanoid.MaxHealth
-        entry.Humanoid.DisplayName = commander.DisplayName or "Commander"
+        entry.Humanoid.DisplayName = displayName
     end
 
     local character = entry.Model or (entry.Player and entry.Player.Character)
 
     if character and character:IsA("Model") then
-        tagCombatant(character, true, commander.DisplayName or "Commander", teamAccentColor)
+        tagCombatant(character, true, displayName, teamAccentColor)
     end
 
     if entry.Player then
-        sendMessage({ entry.Player }, string.format("You are the %s boss. If you fall, the scenario ends.", commander.DisplayName or "opposing commander"), 6)
+        sendMessage({ entry.Player }, string.format("You are the %s boss. If you fall, the scenario ends.", displayName), 6)
     end
 end
 
 local function registerEntry(session, teamId: string, entry)
     entry.TeamId = teamId
     table.insert(session.Teams[teamId], entry)
-
-    local teamAccentColor = Color3.fromRGB(180, 114, 64)
-
-    for _, team in ipairs(session.Scenario.Teams) do
-        if team.Id == teamId then
-            teamAccentColor = team.AccentColor
-            break
-        end
-    end
+    local teamAccentColor = getTeamAccentColor(session, teamId)
 
     local character = entry.Model or (entry.Player and entry.Player.Character)
 
@@ -3102,8 +3193,8 @@ local function registerEntry(session, teamId: string, entry)
 
         if entry.IsCommander then
             local commander = getCommanderConfig(session)
-            local winnerTeamId = commander and commander.DefeatedWinnerTeamId or nil
-            local message = commander and commander.DefeatedMessage or "The commander was defeated. The scenario is complete."
+            local winnerTeamId = entry.DefeatedWinnerTeamId or (commander and commander.DefeatedWinnerTeamId) or nil
+            local message = entry.DefeatedMessage or (commander and commander.DefeatedMessage) or "The commander was defeated. The scenario is complete."
 
             endSession(session, winnerTeamId, message)
             return
@@ -3121,6 +3212,73 @@ local function registerEntry(session, teamId: string, entry)
     end)
 
     table.insert(session.Connections, diedConnection)
+end
+
+startFinalBossPhase = function(session, winningTeamId: string, defeatedTeamId: string)
+    if session.Ended or session.FinalBossPhaseStarted then
+        return
+    end
+
+    local finalBossConfig = getFinalBossConfig(session)
+
+    if not finalBossConfig then
+        return
+    end
+
+    local bossDisplayName = (finalBossConfig.DisplayNames and finalBossConfig.DisplayNames[defeatedTeamId]) or finalBossConfig.DisplayName or "Final Commander"
+    local dummyAnchors = session.DummyAnchors[defeatedTeamId] or {}
+    local spawnAnchors = session.SpawnAnchors[defeatedTeamId] or {}
+    local spawnPart = dummyAnchors[1] or spawnAnchors[1]
+
+    if not spawnPart then
+        return
+    end
+
+    local bossPosition = spawnPart.Position + Vector3.new(0, 0, 0)
+    local boss = createDummy(
+        session.Arena,
+        bossDisplayName,
+        defeatedTeamId,
+        session.Scenario.Id,
+        bossPosition,
+        getTeamAccentColor(session, defeatedTeamId),
+        true,
+        finalBossConfig.Health or 420,
+        "Melee"
+    )
+    local humanoid = boss:FindFirstChildOfClass("Humanoid")
+
+    if not humanoid then
+        boss:Destroy()
+        return
+    end
+
+    session.FinalBossPhaseStarted = true
+    session.FinalBossWinningTeamId = winningTeamId
+    session.FinalBossDefeatedTeamId = defeatedTeamId
+
+    local winningTeamName = getTeamDisplayName(session, winningTeamId)
+    local defeatedMessage = string.format(finalBossConfig.DefeatedMessageTemplate or "%s defeated the %s.", winningTeamName, bossDisplayName)
+    local entry = {
+        Kind = "Dummy",
+        Model = boss,
+        Humanoid = humanoid,
+        Alive = true,
+        IsCommander = true,
+        BotStyle = "Melee",
+        FormationIndex = 1,
+        LastAttackAt = 0,
+        BossName = bossDisplayName,
+        BossHealth = finalBossConfig.Health or 420,
+        DefeatedWinnerTeamId = winningTeamId,
+        DefeatedMessage = defeatedMessage,
+    }
+
+    registerEntry(session, defeatedTeamId, entry)
+    table.insert(session.Dummies, boss)
+    session.FinalBossEntry = entry
+
+    sendMessage(session.Players, string.format(finalBossConfig.StartMessageTemplate or "Final phase: defeat the %s.", bossDisplayName), 6)
 end
 
 startSession = function(scenarioId: string)
@@ -3158,10 +3316,16 @@ startSession = function(scenarioId: string)
             [scenario.Teams[1].Id] = 0,
             [scenario.Teams[2].Id] = 0,
         },
+        SpawnAnchors = {},
+        DummyAnchors = {},
         Dummies = {},
         Connections = {},
         Ended = false,
         CommanderEntry = nil,
+        FinalBossPhaseStarted = false,
+        FinalBossWinningTeamId = nil,
+        FinalBossDefeatedTeamId = nil,
+        FinalBossEntry = nil,
     }
 
     activeSessions[scenarioId] = session
@@ -3178,6 +3342,13 @@ startSession = function(scenarioId: string)
         [scenario.Teams[1].Id] = getAnchors(spawnFolder, scenario.Teams[1].Id),
         [scenario.Teams[2].Id] = getAnchors(spawnFolder, scenario.Teams[2].Id),
     }
+    local teamDummyAnchors = {
+        [scenario.Teams[1].Id] = dummySpawnFolder and getAnchors(dummySpawnFolder, scenario.Teams[1].Id) or {},
+        [scenario.Teams[2].Id] = dummySpawnFolder and getAnchors(dummySpawnFolder, scenario.Teams[2].Id) or {},
+    }
+
+    session.SpawnAnchors = teamSpawnAnchors
+    session.DummyAnchors = teamDummyAnchors
 
     for index, player in ipairs(queuedPlayers) do
         local team = scenario.Teams[((index - 1) % #scenario.Teams) + 1]
@@ -3220,10 +3391,10 @@ startSession = function(scenarioId: string)
     end
 
     for _, team in ipairs(scenario.Teams) do
-        local dummyAnchors = dummySpawnFolder and getAnchors(dummySpawnFolder, team.Id) or {}
+        local dummyAnchors = teamDummyAnchors[team.Id]
         local formationPositions = buildFormationPositions(scenario, team.Id, scenario.PlayersPerTeam, dummyAnchors, teamSpawnAnchors[team.Id])
 
-        while #session.Teams[team.Id] < scenario.PlayersPerTeam do
+        while scenario.FillEmptySlotsWithBots ~= false and #session.Teams[team.Id] < scenario.PlayersPerTeam do
             local formationIndex = #session.Teams[team.Id] + 1
             local dummyPosition = formationPositions[formationIndex]
 
@@ -3281,11 +3452,18 @@ startSession = function(scenarioId: string)
 
         if scenario.Commander then
             sendMessage(queuedPlayers, string.format("Boss objective: defeat the %s to end the scenario.", scenario.Commander.DisplayName), 6)
+        elseif getFinalBossConfig(session) then
+            sendMessage(queuedPlayers, "Win the player fight first. Then the mode shifts into one final boss stand.", 6)
         end
 
-        sendMessage(queuedPlayers, string.format("Field strength: up to %d fighters per side. AI fills empty slots, but players still decide the round.", scenario.PlayersPerTeam), 6)
+        if scenario.FillEmptySlotsWithBots == false then
+            sendMessage(queuedPlayers, "Uhud now runs without filler bots during the main fight so the field stays clear and readable.", 6)
+        else
+            sendMessage(queuedPlayers, string.format("Field strength: up to %d fighters per side. AI fills empty slots, but players still decide the round.", scenario.PlayersPerTeam), 6)
+        end
         sendMessage(queuedPlayers, "Combat tips: left click to attack, hold and release the bow to fire, and right click to raise your shield block.", 6)
         BattleBots.Start(session)
+        evaluateVictory(session)
 
         task.delay(scenario.RoundDurationSeconds, function()
             if not session.Ended then
@@ -9891,7 +10069,7 @@ cinematicTop.Parent = cutsceneFrame
 local cinematicBottom = Instance.new("Frame")
 cinematicBottom.AnchorPoint = Vector2.new(0, 1)
 cinematicBottom.Position = UDim2.new(0, 0, 1, 0)
-cinematicBottom.Size = UDim2.new(1, 0, 0, 158)
+cinematicBottom.Size = UDim2.new(1, 0, 0, 184)
 cinematicBottom.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
 cinematicBottom.BackgroundTransparency = 0.3
 cinematicBottom.Parent = cutsceneFrame
@@ -9910,7 +10088,7 @@ vignetteCorner.Parent = vignette
 
 local accentBar = Instance.new("Frame")
 accentBar.Position = UDim2.fromOffset(28, 98)
-accentBar.Size = UDim2.new(0, 4, 1, -252)
+accentBar.Size = UDim2.new(0, 4, 1, -280)
 accentBar.BackgroundColor3 = Color3.fromRGB(205, 169, 94)
 accentBar.BackgroundTransparency = 0.32
 accentBar.Parent = cutsceneFrame
@@ -9929,6 +10107,17 @@ progressBar.Size = UDim2.fromScale(0, 1)
 progressBar.BackgroundColor3 = Color3.fromRGB(218, 184, 104)
 progressBar.BorderSizePixel = 0
 progressBar.Parent = progressTrack
+
+local sceneTextPlate = Instance.new("Frame")
+sceneTextPlate.Position = UDim2.new(0, 18, 1, -166)
+sceneTextPlate.Size = UDim2.new(1, -36, 0, 130)
+sceneTextPlate.BackgroundColor3 = Color3.fromRGB(15, 14, 12)
+sceneTextPlate.BackgroundTransparency = 0.26
+sceneTextPlate.Parent = cinematicBottom
+
+local sceneTextPlateCorner = Instance.new("UICorner")
+sceneTextPlateCorner.CornerRadius = UDim.new(0, 18)
+sceneTextPlateCorner.Parent = sceneTextPlate
 
 local introLabel = Instance.new("TextLabel")
 introLabel.BackgroundTransparency = 1
@@ -9966,23 +10155,23 @@ cutsceneWinner.Parent = cinematicTop
 
 local sceneTitle = Instance.new("TextLabel")
 sceneTitle.BackgroundTransparency = 1
-sceneTitle.Position = UDim2.new(0, 30, 1, -132)
+sceneTitle.Position = UDim2.new(0, 38, 1, -152)
 sceneTitle.Size = UDim2.new(1, -60, 0, 30)
 sceneTitle.Font = Enum.Font.GothamBold
 sceneTitle.Text = ""
 sceneTitle.TextColor3 = Color3.fromRGB(251, 243, 225)
-sceneTitle.TextSize = 24
+sceneTitle.TextSize = 25
 sceneTitle.TextXAlignment = Enum.TextXAlignment.Left
 sceneTitle.Parent = cinematicBottom
 
 local sceneBody = Instance.new("TextLabel")
 sceneBody.BackgroundTransparency = 1
-sceneBody.Position = UDim2.new(0, 30, 1, -96)
-sceneBody.Size = UDim2.new(1, -60, 0, 68)
+sceneBody.Position = UDim2.new(0, 38, 1, -112)
+sceneBody.Size = UDim2.new(1, -76, 0, 84)
 sceneBody.Font = Enum.Font.Gotham
 sceneBody.Text = ""
 sceneBody.TextColor3 = Color3.fromRGB(220, 214, 199)
-sceneBody.TextSize = 16
+sceneBody.TextSize = 17
 sceneBody.TextWrapped = true
 sceneBody.TextXAlignment = Enum.TextXAlignment.Left
 sceneBody.TextYAlignment = Enum.TextYAlignment.Top
@@ -9990,7 +10179,7 @@ sceneBody.Parent = cinematicBottom
 
 local sceneCounter = Instance.new("TextLabel")
 sceneCounter.BackgroundTransparency = 1
-sceneCounter.Position = UDim2.new(0, 30, 1, -26)
+sceneCounter.Position = UDim2.new(0, 38, 1, -20)
 sceneCounter.Size = UDim2.new(1, -60, 0, 20)
 sceneCounter.Font = Enum.Font.GothamMedium
 sceneCounter.Text = ""
@@ -10073,7 +10262,7 @@ local function tweenCutsceneFrameOut()
 end
 
 local function tweenCameraTo(camera: Camera, cframe: CFrame, fieldOfView: number?, duration: number)
-    local tweenDuration = math.min(1.35, math.max(0.45, duration * 0.28))
+    local tweenDuration = math.min(1.9, math.max(0.6, duration * 0.38))
     local tween = TweenService:Create(camera, TweenInfo.new(tweenDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
         CFrame = cframe,
         FieldOfView = fieldOfView or 66,
@@ -10082,6 +10271,18 @@ local function tweenCameraTo(camera: Camera, cframe: CFrame, fieldOfView: number
     tween.Completed:Wait()
 
     return tweenDuration
+end
+
+local function tweenSceneText(sceneTitleTransparency: number, sceneBodyTransparency: number, sceneCounterTransparency: number, duration: number)
+    TweenService:Create(sceneTitle, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        TextTransparency = sceneTitleTransparency,
+    }):Play()
+    TweenService:Create(sceneBody, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        TextTransparency = sceneBodyTransparency,
+    }):Play()
+    TweenService:Create(sceneCounter, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        TextTransparency = sceneCounterTransparency,
+    }):Play()
 end
 
 showBattleMessage.OnClientEvent:Connect(function(payload)
@@ -10121,6 +10322,9 @@ playReenactment.OnClientEvent:Connect(function(payload)
 
     local scenes = payload.Scenes or {}
     local totalDuration = 0
+    sceneTitle.TextTransparency = 1
+    sceneBody.TextTransparency = 1
+    sceneCounter.TextTransparency = 1
 
     for _, scene in ipairs(scenes) do
         totalDuration += scene.DurationSeconds or 5
@@ -10136,6 +10340,7 @@ playReenactment.OnClientEvent:Connect(function(payload)
         sceneTitle.Text = scene.Title or ""
         sceneBody.Text = scene.Body or ""
         sceneCounter.Text = string.format("%s %d of %d", payload.Kind == "Briefing" and "Briefing" or "Scene", index, #scenes)
+        tweenSceneText(0, 0, 0, 0.22)
 
         local sceneDuration = scene.DurationSeconds or 5
         local cameraTweenDuration = 0
@@ -10149,7 +10354,9 @@ playReenactment.OnClientEvent:Connect(function(payload)
             cameraTweenDuration = tweenCameraTo(camera, scene.CameraCFrame, scene.FieldOfView, sceneDuration)
         end
 
-        task.wait(math.max(0, sceneDuration - cameraTweenDuration))
+        task.wait(math.max(0, sceneDuration - cameraTweenDuration - 0.18))
+        tweenSceneText(1, 1, 1, 0.18)
+        task.wait(0.18)
         elapsedDuration += sceneDuration
     end
 

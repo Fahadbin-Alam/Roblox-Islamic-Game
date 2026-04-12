@@ -141,7 +141,7 @@ cinematicTop.Parent = cutsceneFrame
 local cinematicBottom = Instance.new("Frame")
 cinematicBottom.AnchorPoint = Vector2.new(0, 1)
 cinematicBottom.Position = UDim2.new(0, 0, 1, 0)
-cinematicBottom.Size = UDim2.new(1, 0, 0, 158)
+cinematicBottom.Size = UDim2.new(1, 0, 0, 184)
 cinematicBottom.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
 cinematicBottom.BackgroundTransparency = 0.3
 cinematicBottom.Parent = cutsceneFrame
@@ -160,7 +160,7 @@ vignetteCorner.Parent = vignette
 
 local accentBar = Instance.new("Frame")
 accentBar.Position = UDim2.fromOffset(28, 98)
-accentBar.Size = UDim2.new(0, 4, 1, -252)
+accentBar.Size = UDim2.new(0, 4, 1, -280)
 accentBar.BackgroundColor3 = Color3.fromRGB(205, 169, 94)
 accentBar.BackgroundTransparency = 0.32
 accentBar.Parent = cutsceneFrame
@@ -179,6 +179,17 @@ progressBar.Size = UDim2.fromScale(0, 1)
 progressBar.BackgroundColor3 = Color3.fromRGB(218, 184, 104)
 progressBar.BorderSizePixel = 0
 progressBar.Parent = progressTrack
+
+local sceneTextPlate = Instance.new("Frame")
+sceneTextPlate.Position = UDim2.new(0, 18, 1, -166)
+sceneTextPlate.Size = UDim2.new(1, -36, 0, 130)
+sceneTextPlate.BackgroundColor3 = Color3.fromRGB(15, 14, 12)
+sceneTextPlate.BackgroundTransparency = 0.26
+sceneTextPlate.Parent = cinematicBottom
+
+local sceneTextPlateCorner = Instance.new("UICorner")
+sceneTextPlateCorner.CornerRadius = UDim.new(0, 18)
+sceneTextPlateCorner.Parent = sceneTextPlate
 
 local introLabel = Instance.new("TextLabel")
 introLabel.BackgroundTransparency = 1
@@ -216,23 +227,23 @@ cutsceneWinner.Parent = cinematicTop
 
 local sceneTitle = Instance.new("TextLabel")
 sceneTitle.BackgroundTransparency = 1
-sceneTitle.Position = UDim2.new(0, 30, 1, -132)
+sceneTitle.Position = UDim2.new(0, 38, 1, -152)
 sceneTitle.Size = UDim2.new(1, -60, 0, 30)
 sceneTitle.Font = Enum.Font.GothamBold
 sceneTitle.Text = ""
 sceneTitle.TextColor3 = Color3.fromRGB(251, 243, 225)
-sceneTitle.TextSize = 24
+sceneTitle.TextSize = 25
 sceneTitle.TextXAlignment = Enum.TextXAlignment.Left
 sceneTitle.Parent = cinematicBottom
 
 local sceneBody = Instance.new("TextLabel")
 sceneBody.BackgroundTransparency = 1
-sceneBody.Position = UDim2.new(0, 30, 1, -96)
-sceneBody.Size = UDim2.new(1, -60, 0, 68)
+sceneBody.Position = UDim2.new(0, 38, 1, -112)
+sceneBody.Size = UDim2.new(1, -76, 0, 84)
 sceneBody.Font = Enum.Font.Gotham
 sceneBody.Text = ""
 sceneBody.TextColor3 = Color3.fromRGB(220, 214, 199)
-sceneBody.TextSize = 16
+sceneBody.TextSize = 17
 sceneBody.TextWrapped = true
 sceneBody.TextXAlignment = Enum.TextXAlignment.Left
 sceneBody.TextYAlignment = Enum.TextYAlignment.Top
@@ -240,7 +251,7 @@ sceneBody.Parent = cinematicBottom
 
 local sceneCounter = Instance.new("TextLabel")
 sceneCounter.BackgroundTransparency = 1
-sceneCounter.Position = UDim2.new(0, 30, 1, -26)
+sceneCounter.Position = UDim2.new(0, 38, 1, -20)
 sceneCounter.Size = UDim2.new(1, -60, 0, 20)
 sceneCounter.Font = Enum.Font.GothamMedium
 sceneCounter.Text = ""
@@ -323,7 +334,7 @@ local function tweenCutsceneFrameOut()
 end
 
 local function tweenCameraTo(camera: Camera, cframe: CFrame, fieldOfView: number?, duration: number)
-    local tweenDuration = math.min(1.35, math.max(0.45, duration * 0.28))
+    local tweenDuration = math.min(1.9, math.max(0.6, duration * 0.38))
     local tween = TweenService:Create(camera, TweenInfo.new(tweenDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
         CFrame = cframe,
         FieldOfView = fieldOfView or 66,
@@ -332,6 +343,18 @@ local function tweenCameraTo(camera: Camera, cframe: CFrame, fieldOfView: number
     tween.Completed:Wait()
 
     return tweenDuration
+end
+
+local function tweenSceneText(sceneTitleTransparency: number, sceneBodyTransparency: number, sceneCounterTransparency: number, duration: number)
+    TweenService:Create(sceneTitle, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        TextTransparency = sceneTitleTransparency,
+    }):Play()
+    TweenService:Create(sceneBody, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        TextTransparency = sceneBodyTransparency,
+    }):Play()
+    TweenService:Create(sceneCounter, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        TextTransparency = sceneCounterTransparency,
+    }):Play()
 end
 
 showBattleMessage.OnClientEvent:Connect(function(payload)
@@ -371,6 +394,9 @@ playReenactment.OnClientEvent:Connect(function(payload)
 
     local scenes = payload.Scenes or {}
     local totalDuration = 0
+    sceneTitle.TextTransparency = 1
+    sceneBody.TextTransparency = 1
+    sceneCounter.TextTransparency = 1
 
     for _, scene in ipairs(scenes) do
         totalDuration += scene.DurationSeconds or 5
@@ -386,6 +412,7 @@ playReenactment.OnClientEvent:Connect(function(payload)
         sceneTitle.Text = scene.Title or ""
         sceneBody.Text = scene.Body or ""
         sceneCounter.Text = string.format("%s %d of %d", payload.Kind == "Briefing" and "Briefing" or "Scene", index, #scenes)
+        tweenSceneText(0, 0, 0, 0.22)
 
         local sceneDuration = scene.DurationSeconds or 5
         local cameraTweenDuration = 0
@@ -399,7 +426,9 @@ playReenactment.OnClientEvent:Connect(function(payload)
             cameraTweenDuration = tweenCameraTo(camera, scene.CameraCFrame, scene.FieldOfView, sceneDuration)
         end
 
-        task.wait(math.max(0, sceneDuration - cameraTweenDuration))
+        task.wait(math.max(0, sceneDuration - cameraTweenDuration - 0.18))
+        tweenSceneText(1, 1, 1, 0.18)
+        task.wait(0.18)
         elapsedDuration += sceneDuration
     end
 

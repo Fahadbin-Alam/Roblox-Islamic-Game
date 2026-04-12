@@ -273,6 +273,15 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
     BuildUtils.CreatePart(geometry, "BackRock", Vector3.new(168, 32, 28), CFrame.new(center + Vector3.new(0, 16, -64)), Color3.fromRGB(147, 119, 83), Enum.Material.Rock, nil, nil)
     BuildUtils.CreatePart(geometry, "ForegroundRise", Vector3.new(142, 8, 22), CFrame.new(center + Vector3.new(0, 4.2, 52)), Color3.fromRGB(167, 137, 94), Enum.Material.Rock, nil, nil)
 
+    if scenarioId == "uhud" then
+        createTacticalRidge(geometry, "UhudBackdropMass", center + Vector3.new(0, 8, -50), -2, 138, 34, 30, Color3.fromRGB(132, 104, 74))
+        createTacticalRidge(geometry, "UhudBackdropRidge", center + Vector3.new(-34, 7.2, -12), -18, 54, 18, 20, Color3.fromRGB(111, 90, 66))
+        BuildUtils.CreatePart(geometry, "UhudRidgeShelf", Vector3.new(58, 2.2, 18), CFrame.new(center + Vector3.new(-30, 10, -10)) * CFrame.Angles(0, math.rad(-18), 0), Color3.fromRGB(122, 98, 73), Enum.Material.Slate, nil, nil)
+        BuildUtils.CreatePart(geometry, "UhudDustBand", Vector3.new(120, 0.3, 20), CFrame.new(center + Vector3.new(8, 2.5, 20)), Color3.fromRGB(216, 193, 151), Enum.Material.Sand, nil, 0.2)
+        createArenaTorch(geometry, "ReenactmentTorchWest", center + Vector3.new(-58, 0, 36))
+        createArenaTorch(geometry, "ReenactmentTorchEast", center + Vector3.new(58, 0, 30))
+    end
+
     local camera1 = BuildUtils.CreateTeleportAnchor(cameras, "Scene1", center + Vector3.new(-48, 22, 42))
     camera1.CFrame = CFrame.new(center + Vector3.new(-48, 22, 42), center + Vector3.new(0, 8, -4))
     local camera2 = BuildUtils.CreateTeleportAnchor(cameras, "Scene2", center + Vector3.new(0, 18, 58))
@@ -318,7 +327,9 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
     BuildUtils.CreateBanner(actors, "MakkahCommanderBanner", center + Vector3.new(63, 0, 30), Color3.fromRGB(146, 82, 48))
     BuildUtils.CreateBanner(actors, "MedinaStandard", center + Vector3.new(-58, 0, 24), medinaColor)
 
-    for index = 1, 3 do
+    local rankCount = (scenarioId == "uhud") and 5 or 3
+
+    for index = 1, rankCount do
         createActorRig(actors, string.format("MedinaRank%d", index), CFrame.new(center + Vector3.new(-48, 0, -26 + index * 12), center + Vector3.new(8, 0, 0)), medinaColor, Color3.fromRGB(40, 71, 48))
         createActorRig(actors, string.format("MakkahRank%d", index), CFrame.new(center + Vector3.new(52, 0, -28 + index * 12), center + Vector3.new(-8, 0, 0)), makkahColor, Color3.fromRGB(97, 67, 43))
     end
@@ -448,27 +459,38 @@ local function buildUhudArena(parent: Instance, scenario)
         parent,
         scenario.Id,
         Vector3.new(-1150, 0, 1180),
-        Vector3.new(820, 2, 500),
+        Vector3.new(860, 2, 540),
         Color3.fromRGB(198, 169, 127)
     )
 
-    createMountain(geometry, "UhudRidgeWest", Vector3.new(-1428, 0, 996), 300, 188, 178, Color3.fromRGB(147, 118, 84))
-    createMountain(geometry, "UhudMainMass", Vector3.new(-1150, 0, 956), 460, 228, 220, Color3.fromRGB(144, 116, 82))
-    createMountain(geometry, "UhudRidgeEast", Vector3.new(-892, 0, 1004), 284, 178, 180, Color3.fromRGB(149, 121, 86))
-    createMountain(geometry, "UhudRearSlope", Vector3.new(-1152, 0, 860), 360, 124, 120, Color3.fromRGB(145, 118, 86))
-    createMountainFaceDetails(geometry, "UhudWestRidgeFaces", Vector3.new(-1428, 0, 1008), 2, 300, 188, 178, Color3.fromRGB(147, 118, 84))
-    createMountainFaceDetails(geometry, "UhudMainMassFaces", Vector3.new(-1150, 0, 972), 0, 460, 228, 220, Color3.fromRGB(144, 116, 82))
-    createMountainFaceDetails(geometry, "UhudEastRidgeFaces", Vector3.new(-892, 0, 1014), -3, 284, 178, 180, Color3.fromRGB(149, 121, 86))
-    createMountainFaceDetails(geometry, "UhudRearSlopeFaces", Vector3.new(-1152, 0, 858), 180, 360, 124, 120, Color3.fromRGB(145, 118, 86))
-    BuildUtils.CreateDune(geometry, "SouthSlope", Vector3.new(-1180, 0, 1398), Vector3.new(360, 54, 122), Color3.fromRGB(194, 164, 122))
-    BuildUtils.CreatePart(geometry, "BattlePass", Vector3.new(446, 1, 74), CFrame.new(-1150, 2.05, 1180), Color3.fromRGB(173, 142, 101), Enum.Material.Sandstone, nil, nil)
-    BuildUtils.CreateMountain(geometry, "ArcherRidgeTerrain", Vector3.new(-1292, 0, 1112), 210, 74, 120, Color3.fromRGB(132, 108, 82), -8)
-    BuildUtils.CreateMountain(geometry, "SouthShelfTerrain", Vector3.new(-1002, 0, 1242), 184, 56, 92, Color3.fromRGB(137, 112, 84), 18)
-    BuildUtils.CreatePart(geometry, "ArcherRidgeLookout", Vector3.new(94, 2.4, 28), CFrame.new(-1292, 42, 1112) * CFrame.Angles(0, math.rad(-8), 0), Color3.fromRGB(125, 103, 80), Enum.Material.Slate, nil, nil)
-    BuildUtils.CreatePart(geometry, "SouthShelfPath", Vector3.new(80, 2, 22), CFrame.new(-1002, 31, 1242) * CFrame.Angles(0, math.rad(18), 0), Color3.fromRGB(134, 111, 84), Enum.Material.Slate, nil, nil)
+    createMountain(geometry, "UhudRidgeWest", Vector3.new(-1458, 0, 990), 344, 214, 196, Color3.fromRGB(147, 118, 84))
+    createMountain(geometry, "UhudMainMass", Vector3.new(-1150, 0, 944), 548, 272, 246, Color3.fromRGB(144, 116, 82))
+    createMountain(geometry, "UhudRidgeEast", Vector3.new(-854, 0, 1002), 338, 206, 194, Color3.fromRGB(149, 121, 86))
+    createMountain(geometry, "UhudRearSlope", Vector3.new(-1152, 0, 842), 420, 146, 136, Color3.fromRGB(145, 118, 86))
+    createMountain(geometry, "UhudNorthWall", Vector3.new(-1152, 0, 730), 626, 178, 110, Color3.fromRGB(132, 106, 77))
+    createMountain(geometry, "UhudPassShelfWest", Vector3.new(-1360, 0, 1168), 228, 84, 122, Color3.fromRGB(136, 110, 81))
+    createMountain(geometry, "UhudPassShelfEast", Vector3.new(-964, 0, 1108), 224, 72, 116, Color3.fromRGB(141, 115, 84))
+    createMountainFaceDetails(geometry, "UhudWestRidgeFaces", Vector3.new(-1458, 0, 1002), 2, 344, 214, 196, Color3.fromRGB(147, 118, 84))
+    createMountainFaceDetails(geometry, "UhudMainMassFaces", Vector3.new(-1150, 0, 962), 0, 548, 272, 246, Color3.fromRGB(144, 116, 82))
+    createMountainFaceDetails(geometry, "UhudEastRidgeFaces", Vector3.new(-854, 0, 1010), -3, 338, 206, 194, Color3.fromRGB(149, 121, 86))
+    createMountainFaceDetails(geometry, "UhudRearSlopeFaces", Vector3.new(-1152, 0, 842), 180, 420, 146, 136, Color3.fromRGB(145, 118, 86))
+    createMountainFaceDetails(geometry, "UhudNorthWallFaces", Vector3.new(-1152, 0, 734), 180, 626, 178, 110, Color3.fromRGB(132, 106, 77))
+    BuildUtils.CreateDune(geometry, "SouthSlope", Vector3.new(-1180, 0, 1416), Vector3.new(404, 58, 144), Color3.fromRGB(194, 164, 122))
+    BuildUtils.CreateDune(geometry, "SouthFlankRise", Vector3.new(-982, 0, 1298), Vector3.new(232, 46, 104), Color3.fromRGB(188, 159, 118))
+    BuildUtils.CreatePart(geometry, "BattlePass", Vector3.new(470, 1, 82), CFrame.new(-1150, 2.05, 1180), Color3.fromRGB(173, 142, 101), Enum.Material.Sandstone, nil, nil)
+    BuildUtils.CreatePart(geometry, "BattlePassDustBand", Vector3.new(456, 0.26, 48), CFrame.new(-1150, 2.68, 1182), Color3.fromRGB(210, 186, 145), Enum.Material.Sand, nil, 0.18)
+    BuildUtils.CreateMountain(geometry, "ArcherRidgeTerrain", Vector3.new(-1298, 0, 1112), 242, 86, 132, Color3.fromRGB(132, 108, 82), -8)
+    BuildUtils.CreateMountain(geometry, "SouthShelfTerrain", Vector3.new(-990, 0, 1244), 214, 64, 110, Color3.fromRGB(137, 112, 84), 18)
+    BuildUtils.CreatePart(geometry, "ArcherRidgeLookout", Vector3.new(108, 2.8, 30), CFrame.new(-1298, 48, 1112) * CFrame.Angles(0, math.rad(-8), 0), Color3.fromRGB(125, 103, 80), Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(geometry, "ArcherRidgeTrail", Vector3.new(94, 1.4, 16), CFrame.new(-1332, 22, 1156) * CFrame.Angles(0, math.rad(32), 0), Color3.fromRGB(137, 114, 88), Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(geometry, "SouthShelfPath", Vector3.new(98, 2.2, 22), CFrame.new(-990, 34, 1244) * CFrame.Angles(0, math.rad(18), 0), Color3.fromRGB(134, 111, 84), Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(geometry, "FinalStandPlatform", Vector3.new(96, 2.4, 64), CFrame.new(-958, 18, 1182) * CFrame.Angles(0, math.rad(-16), 0), Color3.fromRGB(122, 102, 79), Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(geometry, "FinalStandPlinth", Vector3.new(72, 5.2, 40), CFrame.new(-958, 10, 1182) * CFrame.Angles(0, math.rad(-16), 0), Color3.fromRGB(116, 95, 72), Enum.Material.Rock, nil, nil)
     BuildUtils.CreateRockCluster(geometry, "PassRocksWest", Vector3.new(-1324, 0, 1238))
     BuildUtils.CreateRockCluster(geometry, "PassRocksEast", Vector3.new(-990, 0, 1124))
     BuildUtils.CreateRockCluster(geometry, "PassRocksCenter", Vector3.new(-1156, 0, 1210))
+    BuildUtils.CreateRockCluster(geometry, "FinalStandRocks", Vector3.new(-954, 0, 1182))
+    BuildUtils.CreateRockCluster(geometry, "RidgeFootRocks", Vector3.new(-1258, 0, 1088))
     createCampShelter(geometry, "UhudCampWest", Vector3.new(-1376, 0, 1190), Color3.fromRGB(74, 121, 82))
     createCampShelter(geometry, "UhudCampEast", Vector3.new(-932, 0, 1190), Color3.fromRGB(143, 101, 66))
     BuildUtils.CreateBanner(geometry, "UhudBannerWest", Vector3.new(-1338, 0, 1158), Color3.fromRGB(62, 125, 82))
@@ -479,9 +501,12 @@ local function buildUhudArena(parent: Instance, scenario)
     createArenaTorch(geometry, "UhudTorchPassB", Vector3.new(-1060, 0, 1134))
     createArenaTorch(geometry, "UhudTorchCampMedina", Vector3.new(-1376, 0, 1254))
     createArenaTorch(geometry, "UhudTorchCampMakkah", Vector3.new(-932, 0, 1254))
-    createArenaStorySign(geometry, "UhudMountainStory", Vector3.new(-1150, 0, 1048), 180, "Mount Uhud", "Uhud happened in 3 AH / 625 CE near this mountain. The arena now uses the ridge and pass as the main lesson.", Color3.fromRGB(89, 75, 56))
-    createArenaStorySign(geometry, "UhudArcherRidgeStory", Vector3.new(-1328, 0, 1078), 150, "The Archer Ridge", "Hold the assigned position. The archer ridge teaches discipline and how one position can change the whole battle.", Color3.fromRGB(68, 91, 66))
-    createArenaStorySign(geometry, "UhudFlankStory", Vector3.new(-1000, 0, 1290), 320, "The Flank Route", "The map marks the route where momentum changed. This keeps the story clear without depicting the Prophet, peace be upon him.", Color3.fromRGB(112, 76, 51))
+    createArenaTorch(geometry, "UhudTorchFinalStandA", Vector3.new(-988, 18, 1160))
+    createArenaTorch(geometry, "UhudTorchFinalStandB", Vector3.new(-924, 18, 1202))
+    createArenaStorySign(geometry, "UhudMountainStory", Vector3.new(-1150, 0, 1048), 180, "Mount Uhud", "Sahih al-Bukhari 4422 preserves the words that Uhud is a mountain that loves us and is loved by us.", Color3.fromRGB(89, 75, 56))
+    createArenaStorySign(geometry, "UhudArcherRidgeStory", Vector3.new(-1328, 0, 1078), 150, "The Archer Ridge", "Sunan Abi Dawud 2662 records the order to hold this position and not leave it even if victory seemed clear.", Color3.fromRGB(68, 91, 66))
+    createArenaStorySign(geometry, "UhudFlankStory", Vector3.new(-1000, 0, 1290), 320, "The Hard Turn", "Sahih Muslim 1789 remembers the pressure of the late battle when only a few defenders remained in the last stand.", Color3.fromRGB(112, 76, 51))
+    createArenaStorySign(geometry, "UhudFinalStandStory", Vector3.new(-946, 18, 1130), 210, "Final Stand", "This mode now ends here with one boss instead of filler bots so the finish feels decisive.", Color3.fromRGB(101, 72, 52))
 
     addSpawnAnchors(spawns, "medina", scenario.SpawnPositions.medina)
     addSpawnAnchors(spawns, "makkah", scenario.SpawnPositions.makkah)
@@ -491,9 +516,9 @@ local function buildUhudArena(parent: Instance, scenario)
         Vector3.new(-1286, 10, 1184),
     })
     addSpawnAnchors(dummies, "makkah", {
-        Vector3.new(-980, 10, 1246),
-        Vector3.new(-1000, 10, 1110),
-        Vector3.new(-1014, 10, 1184),
+        Vector3.new(-958, 22, 1182),
+        Vector3.new(-1000, 18, 1110),
+        Vector3.new(-1014, 10, 1240),
     })
 
     createReenactmentSection(arenaFolder, Vector3.new(-1150, 0, 1394), scenario.Id, Color3.fromRGB(71, 127, 86), Color3.fromRGB(149, 102, 61))

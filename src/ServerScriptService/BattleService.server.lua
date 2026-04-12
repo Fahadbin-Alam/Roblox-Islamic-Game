@@ -27,6 +27,7 @@ local activeSessions = {}
 local playerToSession = {}
 local promptConnections = {}
 local startSession
+local startFinalBossPhase
 local COMBATANT_TAG = "BattleCombatant"
 
 for _, scenario in ipairs(BattleScenarios) do
@@ -570,6 +571,16 @@ local function getTeamDisplayName(session, teamId: string): string
     return teamId
 end
 
+local function getTeamAccentColor(session, teamId: string): Color3
+    for _, team in ipairs(session.Scenario.Teams) do
+        if team.Id == teamId then
+            return team.AccentColor
+        end
+    end
+
+    return Color3.fromRGB(180, 114, 64)
+end
+
 local function getHumanLivingCount(session, teamId: string): number
     local living = 0
 
@@ -774,8 +785,16 @@ local function animateReenactment(session)
         actor:PivotTo(startCFrame)
         task.spawn(function()
             task.wait(1.5 + index * 0.25)
-            tweenModelTo(actor, startCFrame * CFrame.new(22, 0, index % 2 == 0 and -3 or 3), 2.2)
-            task.wait(4)
+            if scenarioId == "uhud" then
+                tweenModelTo(actor, startCFrame * CFrame.new(14, 0, index % 2 == 0 and -5 or 5), 1.8)
+                task.wait(1.7)
+                tweenModelTo(actor, startCFrame * CFrame.new(-6, 0, index % 2 == 0 and -16 or 16), 1.5)
+                task.wait(1.7)
+            else
+                tweenModelTo(actor, startCFrame * CFrame.new(22, 0, index % 2 == 0 and -3 or 3), 2.2)
+                task.wait(4)
+            end
+
             tweenModelTo(actor, startCFrame, 1.2)
         end)
     end
@@ -785,9 +804,17 @@ local function animateReenactment(session)
         actor:PivotTo(startCFrame)
         task.spawn(function()
             task.wait(3 + index * 0.18)
-            local retreatX = scenarioId == "uhud" and -18 or 24
-            tweenModelTo(actor, startCFrame * CFrame.new(retreatX, 0, index % 2 == 0 and 8 or -8), 2.4)
-            task.wait(3)
+            if scenarioId == "uhud" then
+                tweenModelTo(actor, startCFrame * CFrame.new(-22, 0, index % 2 == 0 and 14 or -14), 2)
+                task.wait(1.4)
+                tweenModelTo(actor, startCFrame * CFrame.new(-8, 0, index % 2 == 0 and 20 or -20), 1.3)
+                task.wait(1.2)
+            else
+                local retreatX = 24
+                tweenModelTo(actor, startCFrame * CFrame.new(retreatX, 0, index % 2 == 0 and 8 or -8), 2.4)
+                task.wait(3)
+            end
+
             tweenModelTo(actor, startCFrame, 1.2)
         end)
     end
@@ -1030,9 +1057,37 @@ local function evaluateVictory(session)
     local secondTeamId = session.Scenario.Teams[2].Id
     local firstStartedHumans = session.InitialHumanCounts[firstTeamId] or 0
     local secondStartedHumans = session.InitialHumanCounts[secondTeamId] or 0
+    local finalBossConfig = getFinalBossConfig(session)
 
     local firstLivingHumans = getHumanLivingCount(session, firstTeamId)
     local secondLivingHumans = getHumanLivingCount(session, secondTeamId)
+
+    if finalBossConfig and session.FinalBossPhaseStarted then
+        local winningTeamId = session.FinalBossWinningTeamId
+        local defeatedTeamId = session.FinalBossDefeatedTeamId
+
+        if winningTeamId and getHumanLivingCount(session, winningTeamId) <= 0 then
+            endSession(
+                session,
+                defeatedTeamId,
+                string.format("%s lost the final push before defeating the boss.", getTeamDisplayName(session, winningTeamId))
+            )
+        end
+
+        return
+    end
+
+    if finalBossConfig then
+        if firstLivingHumans <= 0 and secondLivingHumans <= 0 then
+            endSession(session, nil, "Both player teams fell before the final stand.")
+        elseif firstLivingHumans > 0 and secondLivingHumans <= 0 then
+            startFinalBossPhase(session, firstTeamId, secondTeamId)
+        elseif secondLivingHumans > 0 and firstLivingHumans <= 0 then
+            startFinalBossPhase(session, secondTeamId, firstTeamId)
+        end
+
+        return
+    end
 
     if firstStartedHumans > 0 and secondStartedHumans > 0 then
         if firstLivingHumans <= 0 and secondLivingHumans <= 0 then
@@ -1060,7 +1115,21 @@ local function getCommanderConfig(session)
     return session.Scenario.Commander
 end
 
+local function getFinalBossConfig(session)
+    local finalBossPhase = session.Scenario.FinalBossPhase
+
+    if not finalBossPhase or finalBossPhase.Enabled ~= true then
+        return nil
+    end
+
+    return finalBossPhase
+end
+
 local function shouldAssignCommander(session, teamId: string): boolean
+    if getFinalBossConfig(session) then
+        return false
+    end
+
     local commander = getCommanderConfig(session)
 
     if not commander then
@@ -1073,41 +1142,35 @@ end
 local function configureCommanderEntry(session, entry, teamAccentColor: Color3)
     local commander = getCommanderConfig(session)
 
-    if not commander or not entry.IsCommander then
+    if not entry.IsCommander then
         return
     end
 
     session.CommanderEntry = entry
+    local displayName = entry.BossName or (commander and commander.DisplayName) or "Commander"
+    local bossHealth = entry.BossHealth or (commander and commander.Health) or nil
 
     if entry.Humanoid then
-        entry.Humanoid.MaxHealth = commander.Health or entry.Humanoid.MaxHealth
+        entry.Humanoid.MaxHealth = bossHealth or entry.Humanoid.MaxHealth
         entry.Humanoid.Health = entry.Humanoid.MaxHealth
-        entry.Humanoid.DisplayName = commander.DisplayName or "Commander"
+        entry.Humanoid.DisplayName = displayName
     end
 
     local character = entry.Model or (entry.Player and entry.Player.Character)
 
     if character and character:IsA("Model") then
-        tagCombatant(character, true, commander.DisplayName or "Commander", teamAccentColor)
+        tagCombatant(character, true, displayName, teamAccentColor)
     end
 
     if entry.Player then
-        sendMessage({ entry.Player }, string.format("You are the %s boss. If you fall, the scenario ends.", commander.DisplayName or "opposing commander"), 6)
+        sendMessage({ entry.Player }, string.format("You are the %s boss. If you fall, the scenario ends.", displayName), 6)
     end
 end
 
 local function registerEntry(session, teamId: string, entry)
     entry.TeamId = teamId
     table.insert(session.Teams[teamId], entry)
-
-    local teamAccentColor = Color3.fromRGB(180, 114, 64)
-
-    for _, team in ipairs(session.Scenario.Teams) do
-        if team.Id == teamId then
-            teamAccentColor = team.AccentColor
-            break
-        end
-    end
+    local teamAccentColor = getTeamAccentColor(session, teamId)
 
     local character = entry.Model or (entry.Player and entry.Player.Character)
 
@@ -1122,8 +1185,8 @@ local function registerEntry(session, teamId: string, entry)
 
         if entry.IsCommander then
             local commander = getCommanderConfig(session)
-            local winnerTeamId = commander and commander.DefeatedWinnerTeamId or nil
-            local message = commander and commander.DefeatedMessage or "The commander was defeated. The scenario is complete."
+            local winnerTeamId = entry.DefeatedWinnerTeamId or (commander and commander.DefeatedWinnerTeamId) or nil
+            local message = entry.DefeatedMessage or (commander and commander.DefeatedMessage) or "The commander was defeated. The scenario is complete."
 
             endSession(session, winnerTeamId, message)
             return
@@ -1141,6 +1204,73 @@ local function registerEntry(session, teamId: string, entry)
     end)
 
     table.insert(session.Connections, diedConnection)
+end
+
+startFinalBossPhase = function(session, winningTeamId: string, defeatedTeamId: string)
+    if session.Ended or session.FinalBossPhaseStarted then
+        return
+    end
+
+    local finalBossConfig = getFinalBossConfig(session)
+
+    if not finalBossConfig then
+        return
+    end
+
+    local bossDisplayName = (finalBossConfig.DisplayNames and finalBossConfig.DisplayNames[defeatedTeamId]) or finalBossConfig.DisplayName or "Final Commander"
+    local dummyAnchors = session.DummyAnchors[defeatedTeamId] or {}
+    local spawnAnchors = session.SpawnAnchors[defeatedTeamId] or {}
+    local spawnPart = dummyAnchors[1] or spawnAnchors[1]
+
+    if not spawnPart then
+        return
+    end
+
+    local bossPosition = spawnPart.Position + Vector3.new(0, 0, 0)
+    local boss = createDummy(
+        session.Arena,
+        bossDisplayName,
+        defeatedTeamId,
+        session.Scenario.Id,
+        bossPosition,
+        getTeamAccentColor(session, defeatedTeamId),
+        true,
+        finalBossConfig.Health or 420,
+        "Melee"
+    )
+    local humanoid = boss:FindFirstChildOfClass("Humanoid")
+
+    if not humanoid then
+        boss:Destroy()
+        return
+    end
+
+    session.FinalBossPhaseStarted = true
+    session.FinalBossWinningTeamId = winningTeamId
+    session.FinalBossDefeatedTeamId = defeatedTeamId
+
+    local winningTeamName = getTeamDisplayName(session, winningTeamId)
+    local defeatedMessage = string.format(finalBossConfig.DefeatedMessageTemplate or "%s defeated the %s.", winningTeamName, bossDisplayName)
+    local entry = {
+        Kind = "Dummy",
+        Model = boss,
+        Humanoid = humanoid,
+        Alive = true,
+        IsCommander = true,
+        BotStyle = "Melee",
+        FormationIndex = 1,
+        LastAttackAt = 0,
+        BossName = bossDisplayName,
+        BossHealth = finalBossConfig.Health or 420,
+        DefeatedWinnerTeamId = winningTeamId,
+        DefeatedMessage = defeatedMessage,
+    }
+
+    registerEntry(session, defeatedTeamId, entry)
+    table.insert(session.Dummies, boss)
+    session.FinalBossEntry = entry
+
+    sendMessage(session.Players, string.format(finalBossConfig.StartMessageTemplate or "Final phase: defeat the %s.", bossDisplayName), 6)
 end
 
 startSession = function(scenarioId: string)
@@ -1178,10 +1308,16 @@ startSession = function(scenarioId: string)
             [scenario.Teams[1].Id] = 0,
             [scenario.Teams[2].Id] = 0,
         },
+        SpawnAnchors = {},
+        DummyAnchors = {},
         Dummies = {},
         Connections = {},
         Ended = false,
         CommanderEntry = nil,
+        FinalBossPhaseStarted = false,
+        FinalBossWinningTeamId = nil,
+        FinalBossDefeatedTeamId = nil,
+        FinalBossEntry = nil,
     }
 
     activeSessions[scenarioId] = session
@@ -1198,6 +1334,13 @@ startSession = function(scenarioId: string)
         [scenario.Teams[1].Id] = getAnchors(spawnFolder, scenario.Teams[1].Id),
         [scenario.Teams[2].Id] = getAnchors(spawnFolder, scenario.Teams[2].Id),
     }
+    local teamDummyAnchors = {
+        [scenario.Teams[1].Id] = dummySpawnFolder and getAnchors(dummySpawnFolder, scenario.Teams[1].Id) or {},
+        [scenario.Teams[2].Id] = dummySpawnFolder and getAnchors(dummySpawnFolder, scenario.Teams[2].Id) or {},
+    }
+
+    session.SpawnAnchors = teamSpawnAnchors
+    session.DummyAnchors = teamDummyAnchors
 
     for index, player in ipairs(queuedPlayers) do
         local team = scenario.Teams[((index - 1) % #scenario.Teams) + 1]
@@ -1240,10 +1383,10 @@ startSession = function(scenarioId: string)
     end
 
     for _, team in ipairs(scenario.Teams) do
-        local dummyAnchors = dummySpawnFolder and getAnchors(dummySpawnFolder, team.Id) or {}
+        local dummyAnchors = teamDummyAnchors[team.Id]
         local formationPositions = buildFormationPositions(scenario, team.Id, scenario.PlayersPerTeam, dummyAnchors, teamSpawnAnchors[team.Id])
 
-        while #session.Teams[team.Id] < scenario.PlayersPerTeam do
+        while scenario.FillEmptySlotsWithBots ~= false and #session.Teams[team.Id] < scenario.PlayersPerTeam do
             local formationIndex = #session.Teams[team.Id] + 1
             local dummyPosition = formationPositions[formationIndex]
 
@@ -1301,11 +1444,18 @@ startSession = function(scenarioId: string)
 
         if scenario.Commander then
             sendMessage(queuedPlayers, string.format("Boss objective: defeat the %s to end the scenario.", scenario.Commander.DisplayName), 6)
+        elseif getFinalBossConfig(session) then
+            sendMessage(queuedPlayers, "Win the player fight first. Then the mode shifts into one final boss stand.", 6)
         end
 
-        sendMessage(queuedPlayers, string.format("Field strength: up to %d fighters per side. AI fills empty slots, but players still decide the round.", scenario.PlayersPerTeam), 6)
+        if scenario.FillEmptySlotsWithBots == false then
+            sendMessage(queuedPlayers, "Uhud now runs without filler bots during the main fight so the field stays clear and readable.", 6)
+        else
+            sendMessage(queuedPlayers, string.format("Field strength: up to %d fighters per side. AI fills empty slots, but players still decide the round.", scenario.PlayersPerTeam), 6)
+        end
         sendMessage(queuedPlayers, "Combat tips: left click to attack, hold and release the bow to fire, and right click to raise your shield block.", 6)
         BattleBots.Start(session)
+        evaluateVictory(session)
 
         task.delay(scenario.RoundDurationSeconds, function()
             if not session.Ended then

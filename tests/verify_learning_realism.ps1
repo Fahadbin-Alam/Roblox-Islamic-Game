@@ -10,9 +10,12 @@ $hubWorldBuilderPath = Join-Path $root "src\ServerScriptService\HubWorldBuilder.
 $mannersLessonsPath = Join-Path $root "src\ReplicatedStorage\Shared\Data\MannersLessons.lua"
 $companionStoriesPath = Join-Path $root "src\ReplicatedStorage\Shared\Data\CompanionStories.lua"
 $battleServicePath = Join-Path $root "src\ServerScriptService\BattleService.server.lua"
+$battleScenariosPath = Join-Path $root "src\ReplicatedStorage\Shared\Data\BattleScenarios.lua"
+$battleArenaBuilderPath = Join-Path $root "src\ServerScriptService\BattleArenaBuilder.server.lua"
 $battleBotsPath = Join-Path $root "src\ServerScriptService\Modules\BattleBots.lua"
 $mannersHudPath = Join-Path $root "src\StarterPlayer\StarterPlayerScripts\MannersHud.client.lua"
 $storyHudPath = Join-Path $root "src\StarterPlayer\StarterPlayerScripts\StoryHud.client.lua"
+$battleHudPath = Join-Path $root "src\StarterPlayer\StarterPlayerScripts\BattleHud.client.lua"
 $buildPath = if ($BuildPath) { $BuildPath } else { Join-Path $root "build.rbxlx" }
 
 function Assert-Contains {
@@ -31,9 +34,12 @@ $hubWorldBuilder = Get-Content -LiteralPath $hubWorldBuilderPath -Raw
 $mannersLessons = Get-Content -LiteralPath $mannersLessonsPath -Raw
 $companionStories = Get-Content -LiteralPath $companionStoriesPath -Raw
 $battleService = Get-Content -LiteralPath $battleServicePath -Raw
+$battleScenarios = Get-Content -LiteralPath $battleScenariosPath -Raw
+$battleArenaBuilder = Get-Content -LiteralPath $battleArenaBuilderPath -Raw
 $battleBots = Get-Content -LiteralPath $battleBotsPath -Raw
 $mannersHud = Get-Content -LiteralPath $mannersHudPath -Raw
 $storyHud = Get-Content -LiteralPath $storyHudPath -Raw
+$battleHud = Get-Content -LiteralPath $battleHudPath -Raw
 $build = Get-Content -LiteralPath $buildPath -Raw
 
 $hubChecks = @(
@@ -71,10 +77,24 @@ $battleChecks = @(
     'BOT_STEP_SECONDS = 0.08'
 )
 
+$uhudChecks = @(
+    'Sunan Abi Dawud 2662',
+    'Sahih Muslim 1789',
+    'Sahih Muslim 1790a',
+    'Sahih al-Bukhari 4081',
+    'Sahih al-Bukhari 4422',
+    'FillEmptySlotsWithBots = false',
+    'FinalBossPhase = {',
+    'FinalStandPlatform',
+    'UhudFinalStandStory'
+)
+
 $hudChecks = @(
     'AutomaticCanvasSize = Enum.AutomaticSize.Y',
     'local function getLineDuration',
-    'REFERENCE_SPEAKER_COLOR'
+    'REFERENCE_SPEAKER_COLOR',
+    'local function tweenSceneText',
+    'sceneTextPlate'
 )
 
 foreach ($needle in $hubChecks) {
@@ -97,8 +117,26 @@ foreach ($needle in $battleChecks) {
     Assert-Contains $source $needle "battle source"
 }
 
+foreach ($needle in $uhudChecks) {
+    $source = if ($battleScenarios.Contains($needle)) {
+        $battleScenarios
+    } elseif ($battleArenaBuilder.Contains($needle)) {
+        $battleArenaBuilder
+    } else {
+        $battleService
+    }
+    Assert-Contains $source $needle "uhud source"
+    Assert-Contains $build $needle "rebuilt uhud text"
+}
+
 foreach ($needle in $hudChecks) {
-    $source = if ($mannersHud.Contains($needle)) { $mannersHud } else { $storyHud }
+    $source = if ($mannersHud.Contains($needle)) {
+        $mannersHud
+    } elseif ($storyHud.Contains($needle)) {
+        $storyHud
+    } else {
+        $battleHud
+    }
     Assert-Contains $source $needle "hud source"
 }
 
