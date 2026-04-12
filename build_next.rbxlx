@@ -1259,8 +1259,8 @@ local destinations = {
         DisplayName = "Desert Route Camp",
         Description = "A long desert route stop between Makkah and Medina with dunes, camp structures, and reflection signs.",
         Theme = "Reflection",
-        Position = Vector3.new(0, 4, 760),
-        TeleportPosition = Vector3.new(0, 4, 704),
+        Position = Vector3.new(0, 4, 980),
+        TeleportPosition = Vector3.new(0, 4, 924),
         AccentColor = Color3.fromRGB(118, 92, 58),
     },
     {
@@ -1268,8 +1268,8 @@ local destinations = {
         DisplayName = "Prophet's Mosque Courtyard",
         Description = "A larger Medina district inspired by Al-Masjid an-Nabawi, with gate names, a green dome, and a visitation route.",
         Theme = "Medina",
-        Position = Vector3.new(0, 4, 1500),
-        TeleportPosition = Vector3.new(0, 4, 1636),
+        Position = Vector3.new(0, 4, 1620),
+        TeleportPosition = Vector3.new(0, 4, 1756),
         AccentColor = Color3.fromRGB(69, 121, 77),
     },
     {
@@ -1277,8 +1277,8 @@ local destinations = {
         DisplayName = "Sahabi Story Court",
         Description = "Choose a sahabi playthrough and learn through guided NPC story scenes.",
         Theme = "Stories",
-        Position = Vector3.new(346, 4, 214),
-        TeleportPosition = Vector3.new(346, 4, 270),
+        Position = Vector3.new(920, 4, 220),
+        TeleportPosition = Vector3.new(920, 4, 290),
         AccentColor = Color3.fromRGB(73, 96, 77),
     },
     {
@@ -1286,8 +1286,8 @@ local destinations = {
         DisplayName = "Manners Court",
         Description = "A kid-friendly learning area for adab, respect, honesty, mercy, and good speech.",
         Theme = "Manners",
-        Position = Vector3.new(-346, 4, -360),
-        TeleportPosition = Vector3.new(-346, 4, -302),
+        Position = Vector3.new(-920, 4, -240),
+        TeleportPosition = Vector3.new(-920, 4, -170),
         AccentColor = Color3.fromRGB(98, 119, 76),
     },
     {
@@ -1295,8 +1295,8 @@ local destinations = {
         DisplayName = "Trivia Court",
         Description = "A live Islamic trivia area where everyone on the server can compete through harder and harder questions.",
         Theme = "Trivia",
-        Position = Vector3.new(346, 4, -438),
-        TeleportPosition = Vector3.new(346, 4, -366),
+        Position = Vector3.new(920, 4, -240),
+        TeleportPosition = Vector3.new(920, 4, -170),
         AccentColor = Color3.fromRGB(63, 98, 88),
     },
     {
@@ -1304,8 +1304,8 @@ local destinations = {
         DisplayName = "Lobby Parkour Tower",
         Description = "A climbing challenge in the lobby for players waiting between stories and battles.",
         Theme = "Parkour",
-        Position = Vector3.new(-358, 4, 196),
-        TeleportPosition = Vector3.new(-416, 8, 196),
+        Position = Vector3.new(-920, 4, 220),
+        TeleportPosition = Vector3.new(-980, 8, 220),
         AccentColor = Color3.fromRGB(182, 152, 84),
     },
     {
@@ -1313,8 +1313,8 @@ local destinations = {
         DisplayName = "Badr Gate",
         Description = "The battle gate and staging point for the Battle of Badr scenario.",
         Theme = "BattleGate",
-        Position = Vector3.new(-520, 4, -140),
-        TeleportPosition = Vector3.new(-520, 4, -98),
+        Position = Vector3.new(-1090, 4, -560),
+        TeleportPosition = Vector3.new(-1090, 4, -500),
         AccentColor = Color3.fromRGB(141, 107, 58),
     },
     {
@@ -1322,8 +1322,8 @@ local destinations = {
         DisplayName = "Uhud Gate",
         Description = "The battle gate and staging point for the Battle of Uhud scenario.",
         Theme = "BattleGate",
-        Position = Vector3.new(-520, 4, 120),
-        TeleportPosition = Vector3.new(-520, 4, 162),
+        Position = Vector3.new(-1090, 4, 520),
+        TeleportPosition = Vector3.new(-1090, 4, 580),
         AccentColor = Color3.fromRGB(114, 92, 71),
     },
 }
@@ -1773,6 +1773,53 @@ local function createTacticalRidge(parent: Instance, name: string, center: Vecto
     end
 end
 
+local function createMesaMass(parent: Instance, name: string, center: Vector3, yawDegrees: number, length: number, height: number, depth: number, color: Color3)
+    local mass = BuildUtils.CreateFolder(parent, name)
+    local baseCFrame = CFrame.new(center) * CFrame.Angles(0, math.rad(yawDegrees), 0)
+
+    BuildUtils.CreatePart(
+        mass,
+        "MassCore",
+        Vector3.new(length * 0.94, height * 0.34, depth * 0.84),
+        baseCFrame * CFrame.new(0, height * 0.17, 0),
+        scaleColor(color, 0.9),
+        Enum.Material.Rock,
+        nil,
+        nil
+    )
+    BuildUtils.CreatePart(
+        mass,
+        "UpperShelf",
+        Vector3.new(length * 0.72, height * 0.18, depth * 0.58),
+        baseCFrame * CFrame.new(0, height * 0.38, -depth * 0.03),
+        scaleColor(color, 1.02),
+        Enum.Material.Slate,
+        nil,
+        nil
+    )
+
+    createTacticalRidge(mass, "Face", center + Vector3.new(0, height * 0.1, 0), yawDegrees, length, height * 0.44, depth * 0.78, color)
+
+    for layer = 1, 3 do
+        BuildUtils.CreatePart(
+            mass,
+            string.format("MesaStrata_%d", layer),
+            Vector3.new(length * (0.82 - layer * 0.12), 0.3, 1.4),
+            baseCFrame * CFrame.new(0, height * (0.2 + layer * 0.16), depth * (-0.28 + layer * 0.14)) * CFrame.Angles(0, math.rad((layer % 2 == 0) and -4 or 5), 0),
+            scaleColor(color, 0.62 + layer * 0.08),
+            Enum.Material.Slate,
+            nil,
+            0.04
+        )
+    end
+
+    return mass
+end
+
+local function createStoneShelf(parent: Instance, name: string, cframe: CFrame, size: Vector3, color: Color3)
+    return BuildUtils.CreatePart(parent, name, size, cframe, color, Enum.Material.Slate, nil, nil)
+end
+
 local function createSafetyBounds(parent: Instance, center: Vector3, size: Vector3)
     local wallHeight = 90
     local thickness = 10
@@ -1845,17 +1892,15 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
     BuildUtils.CreatePart(geometry, "ForegroundRise", Vector3.new(142, 8, 22), CFrame.new(center + Vector3.new(0, 4.2, 52)), Color3.fromRGB(167, 137, 94), Enum.Material.Rock, nil, nil)
 
     if scenarioId == "uhud" then
-        createTacticalRidge(geometry, "UhudBackdropMass", center + Vector3.new(0, 8, -50), -2, 138, 34, 30, Color3.fromRGB(132, 104, 74))
-        createTacticalRidge(geometry, "UhudBackdropRidge", center + Vector3.new(-34, 7.2, -12), -18, 54, 18, 20, Color3.fromRGB(111, 90, 66))
-        BuildUtils.CreateMountain(geometry, "UhudBackdropWestCliff", center + Vector3.new(-66, 0, -24), 122, 62, 56, Color3.fromRGB(126, 101, 75), -20)
-        BuildUtils.CreateMountain(geometry, "UhudBackdropEastCliff", center + Vector3.new(64, 0, -30), 136, 68, 64, Color3.fromRGB(133, 108, 78), 14)
-        createMountainFaceDetails(geometry, "UhudBackdropWestFaces", center + Vector3.new(-66, 0, -20), -20, 122, 62, 56, Color3.fromRGB(126, 101, 75))
-        createMountainFaceDetails(geometry, "UhudBackdropEastFaces", center + Vector3.new(64, 0, -24), 14, 136, 68, 64, Color3.fromRGB(133, 108, 78))
-        BuildUtils.CreateDune(geometry, "UhudBackdropDustRise", center + Vector3.new(0, 0, 32), Vector3.new(156, 24, 40), Color3.fromRGB(210, 186, 144))
-        BuildUtils.CreatePart(geometry, "UhudRidgeShelf", Vector3.new(58, 2.2, 18), CFrame.new(center + Vector3.new(-30, 10, -10)) * CFrame.Angles(0, math.rad(-18), 0), Color3.fromRGB(122, 98, 73), Enum.Material.Slate, nil, nil)
+        createMesaMass(geometry, "UhudBackdropMass", center + Vector3.new(0, 0, -54), -2, 212, 92, 96, Color3.fromRGB(132, 104, 74))
+        createMesaMass(geometry, "UhudBackdropRidge", center + Vector3.new(-38, 0, -16), -18, 108, 42, 52, Color3.fromRGB(111, 90, 66))
+        createMesaMass(geometry, "UhudBackdropWestCliff", center + Vector3.new(-78, 0, -26), -20, 158, 86, 78, Color3.fromRGB(126, 101, 75))
+        createMesaMass(geometry, "UhudBackdropEastCliff", center + Vector3.new(76, 0, -30), 14, 166, 88, 82, Color3.fromRGB(133, 108, 78))
+        createStoneShelf(geometry, "UhudBackdropDustRise", CFrame.new(center + Vector3.new(0, 5.5, 32)) * CFrame.Angles(0, math.rad(-4), 0), Vector3.new(164, 10, 44), Color3.fromRGB(206, 182, 142))
+        createStoneShelf(geometry, "UhudRidgeShelf", CFrame.new(center + Vector3.new(-32, 10, -10)) * CFrame.Angles(0, math.rad(-18), 0), Vector3.new(66, 2.4, 20), Color3.fromRGB(122, 98, 73))
         BuildUtils.CreatePart(geometry, "UhudDustBand", Vector3.new(120, 0.3, 20), CFrame.new(center + Vector3.new(8, 2.5, 20)), Color3.fromRGB(216, 193, 151), Enum.Material.Sand, nil, 0.2)
-        BuildUtils.CreatePart(geometry, "UhudViewShelfWest", Vector3.new(44, 2.4, 16), CFrame.new(center + Vector3.new(-74, 20, 18)) * CFrame.Angles(0, math.rad(-26), 0), Color3.fromRGB(129, 104, 77), Enum.Material.Slate, nil, nil)
-        BuildUtils.CreatePart(geometry, "UhudViewShelfEast", Vector3.new(42, 2.4, 16), CFrame.new(center + Vector3.new(76, 22, 14)) * CFrame.Angles(0, math.rad(22), 0), Color3.fromRGB(132, 107, 80), Enum.Material.Slate, nil, nil)
+        createStoneShelf(geometry, "UhudViewShelfWest", CFrame.new(center + Vector3.new(-76, 20, 18)) * CFrame.Angles(0, math.rad(-26), 0), Vector3.new(44, 2.4, 16), Color3.fromRGB(129, 104, 77))
+        createStoneShelf(geometry, "UhudViewShelfEast", CFrame.new(center + Vector3.new(78, 22, 14)) * CFrame.Angles(0, math.rad(22), 0), Vector3.new(42, 2.4, 16), Color3.fromRGB(132, 107, 80))
         createArenaTorch(geometry, "ReenactmentTorchWest", center + Vector3.new(-58, 0, 36))
         createArenaTorch(geometry, "ReenactmentTorchEast", center + Vector3.new(58, 0, 30))
     end
@@ -1963,20 +2008,17 @@ local function createBriefingSection(arenaFolder: Folder, center: Vector3, scena
 
     if scenarioId == "uhud" then
         BuildUtils.CreatePart(geometry, "BriefingGround", Vector3.new(176, 2, 128), CFrame.new(center + Vector3.new(0, 1, 0)), Color3.fromRGB(188, 160, 120), Enum.Material.Sand, nil, nil)
-        BuildUtils.CreateDune(geometry, "BriefingFrontRise", center + Vector3.new(0, 0, 46), Vector3.new(164, 34, 56), Color3.fromRGB(198, 170, 126))
-        BuildUtils.CreateDune(geometry, "BriefingRearSlope", center + Vector3.new(0, 0, -34), Vector3.new(146, 28, 44), Color3.fromRGB(186, 156, 118))
-        BuildUtils.CreateMountain(geometry, "BriefingUhudMass", center + Vector3.new(8, 0, -34), 216, 112, 84, Color3.fromRGB(145, 116, 83), -4)
-        BuildUtils.CreateMountain(geometry, "BriefingUhudWestRidge", center + Vector3.new(-50, 0, 10), 132, 54, 54, Color3.fromRGB(132, 106, 79), -18)
-        BuildUtils.CreateMountain(geometry, "BriefingUhudFlankShelf", center + Vector3.new(48, 0, 20), 120, 44, 48, Color3.fromRGB(139, 112, 82), 16)
-        createMountainFaceDetails(geometry, "BriefingUhudMassFaces", center + Vector3.new(8, 0, -28), -4, 216, 112, 84, Color3.fromRGB(145, 116, 83))
-        createMountainFaceDetails(geometry, "BriefingUhudWestFaces", center + Vector3.new(-50, 0, 14), -18, 132, 54, 54, Color3.fromRGB(132, 106, 79))
-        createMountainFaceDetails(geometry, "BriefingUhudFlankFaces", center + Vector3.new(48, 0, 24), 16, 120, 44, 48, Color3.fromRGB(139, 112, 82))
+        createStoneShelf(geometry, "BriefingFrontRise", CFrame.new(center + Vector3.new(0, 6, 48)) * CFrame.Angles(0, math.rad(-4), 0), Vector3.new(170, 12, 58), Color3.fromRGB(198, 170, 126))
+        createStoneShelf(geometry, "BriefingRearSlope", CFrame.new(center + Vector3.new(0, 5, -38)) * CFrame.Angles(0, math.rad(6), 0), Vector3.new(152, 10, 46), Color3.fromRGB(186, 156, 118))
+        createMesaMass(geometry, "BriefingUhudMass", center + Vector3.new(8, 0, -40), -4, 254, 126, 104, Color3.fromRGB(145, 116, 83))
+        createMesaMass(geometry, "BriefingUhudWestRidge", center + Vector3.new(-56, 0, 8), -18, 160, 64, 64, Color3.fromRGB(132, 106, 79))
+        createMesaMass(geometry, "BriefingUhudFlankShelf", center + Vector3.new(52, 0, 18), 16, 148, 56, 58, Color3.fromRGB(139, 112, 82))
         BuildUtils.CreatePart(geometry, "BriefingPass", Vector3.new(122, 1, 26), CFrame.new(center + Vector3.new(-2, 2.05, 10)) * CFrame.Angles(0, math.rad(-8), 0), Color3.fromRGB(170, 141, 102), Enum.Material.Sandstone, nil, nil)
-        BuildUtils.CreatePart(geometry, "BriefingArcherShelf", Vector3.new(78, 2.2, 18), CFrame.new(center + Vector3.new(-44, 18, -2)) * CFrame.Angles(0, math.rad(-18), 0), Color3.fromRGB(127, 103, 79), Enum.Material.Slate, nil, nil)
-        BuildUtils.CreatePart(geometry, "BriefingFlankPath", Vector3.new(72, 1.2, 18), CFrame.new(center + Vector3.new(38, 14, 18)) * CFrame.Angles(0, math.rad(18), 0), Color3.fromRGB(142, 117, 90), Enum.Material.Slate, nil, nil)
-        BuildUtils.CreateRockCluster(geometry, "BriefingPassRocksWest", center + Vector3.new(-46, 0, 24))
-        BuildUtils.CreateRockCluster(geometry, "BriefingPassRocksCenter", center + Vector3.new(2, 0, 18))
-        BuildUtils.CreateRockCluster(geometry, "BriefingPassRocksEast", center + Vector3.new(40, 0, 26))
+        createStoneShelf(geometry, "BriefingArcherShelf", CFrame.new(center + Vector3.new(-44, 18, -2)) * CFrame.Angles(0, math.rad(-18), 0), Vector3.new(82, 2.4, 18), Color3.fromRGB(127, 103, 79))
+        createStoneShelf(geometry, "BriefingFlankPath", CFrame.new(center + Vector3.new(38, 14, 18)) * CFrame.Angles(0, math.rad(18), 0), Vector3.new(72, 1.4, 18), Color3.fromRGB(142, 117, 90))
+        createStoneShelf(geometry, "BriefingPassRocksWest", CFrame.new(center + Vector3.new(-46, 7, 24)) * CFrame.Angles(0, math.rad(-18), 0), Vector3.new(28, 14, 20), Color3.fromRGB(138, 112, 82))
+        createStoneShelf(geometry, "BriefingPassRocksCenter", CFrame.new(center + Vector3.new(2, 6, 18)) * CFrame.Angles(0, math.rad(-6), 0), Vector3.new(30, 12, 18), Color3.fromRGB(142, 116, 84))
+        createStoneShelf(geometry, "BriefingPassRocksEast", CFrame.new(center + Vector3.new(40, 6.5, 26)) * CFrame.Angles(0, math.rad(12), 0), Vector3.new(28, 13, 20), Color3.fromRGB(140, 114, 84))
         createCampShelter(geometry, "BriefingCampWest", center + Vector3.new(-64, 0, 34), Color3.fromRGB(74, 121, 82))
         createCampShelter(geometry, "BriefingCampEast", center + Vector3.new(66, 0, 34), Color3.fromRGB(143, 101, 66))
         BuildUtils.CreateBanner(geometry, "BriefingBannerWest", center + Vector3.new(-76, 0, 16), medinaColor)
@@ -2160,36 +2202,30 @@ local function buildUhudArena(parent: Instance, scenario)
         Color3.fromRGB(198, 169, 127)
     )
 
-    createMountain(geometry, "UhudRidgeWest", Vector3.new(-1458, 0, 990), 344, 214, 196, Color3.fromRGB(147, 118, 84))
-    createMountain(geometry, "UhudMainMass", Vector3.new(-1150, 0, 944), 548, 272, 246, Color3.fromRGB(144, 116, 82))
-    createMountain(geometry, "UhudRidgeEast", Vector3.new(-854, 0, 1002), 338, 206, 194, Color3.fromRGB(149, 121, 86))
-    createMountain(geometry, "UhudRearSlope", Vector3.new(-1152, 0, 842), 420, 146, 136, Color3.fromRGB(145, 118, 86))
-    createMountain(geometry, "UhudNorthWall", Vector3.new(-1152, 0, 730), 626, 178, 110, Color3.fromRGB(132, 106, 77))
-    createMountain(geometry, "UhudPassShelfWest", Vector3.new(-1360, 0, 1168), 228, 84, 122, Color3.fromRGB(136, 110, 81))
-    createMountain(geometry, "UhudPassShelfEast", Vector3.new(-964, 0, 1108), 224, 72, 116, Color3.fromRGB(141, 115, 84))
-    createMountainFaceDetails(geometry, "UhudWestRidgeFaces", Vector3.new(-1458, 0, 1002), 2, 344, 214, 196, Color3.fromRGB(147, 118, 84))
-    createMountainFaceDetails(geometry, "UhudMainMassFaces", Vector3.new(-1150, 0, 962), 0, 548, 272, 246, Color3.fromRGB(144, 116, 82))
-    createMountainFaceDetails(geometry, "UhudEastRidgeFaces", Vector3.new(-854, 0, 1010), -3, 338, 206, 194, Color3.fromRGB(149, 121, 86))
-    createMountainFaceDetails(geometry, "UhudRearSlopeFaces", Vector3.new(-1152, 0, 842), 180, 420, 146, 136, Color3.fromRGB(145, 118, 86))
-    createMountainFaceDetails(geometry, "UhudNorthWallFaces", Vector3.new(-1152, 0, 734), 180, 626, 178, 110, Color3.fromRGB(132, 106, 77))
-    BuildUtils.CreateDune(geometry, "SouthSlope", Vector3.new(-1180, 0, 1416), Vector3.new(404, 58, 144), Color3.fromRGB(194, 164, 122))
-    BuildUtils.CreateDune(geometry, "SouthFlankRise", Vector3.new(-982, 0, 1298), Vector3.new(232, 46, 104), Color3.fromRGB(188, 159, 118))
+    createMesaMass(geometry, "UhudRidgeWest", Vector3.new(-1458, 0, 992), 6, 402, 220, 210, Color3.fromRGB(147, 118, 84))
+    createMesaMass(geometry, "UhudMainMass", Vector3.new(-1150, 0, 948), 0, 640, 286, 282, Color3.fromRGB(144, 116, 82))
+    createMesaMass(geometry, "UhudRidgeEast", Vector3.new(-854, 0, 1004), -6, 392, 212, 204, Color3.fromRGB(149, 121, 86))
+    createMesaMass(geometry, "UhudRearSlope", Vector3.new(-1152, 0, 846), 180, 474, 142, 136, Color3.fromRGB(145, 118, 86))
+    createMesaMass(geometry, "UhudNorthWall", Vector3.new(-1152, 0, 732), 180, 716, 196, 124, Color3.fromRGB(132, 106, 77))
+    createMesaMass(geometry, "UhudPassShelfWest", Vector3.new(-1360, 0, 1168), -18, 278, 92, 134, Color3.fromRGB(136, 110, 81))
+    createMesaMass(geometry, "UhudPassShelfEast", Vector3.new(-964, 0, 1108), 16, 270, 84, 126, Color3.fromRGB(141, 115, 84))
+    createStoneShelf(geometry, "SouthSlope", CFrame.new(-1180, 9, 1416) * CFrame.Angles(0, math.rad(2), 0), Vector3.new(412, 18, 148), Color3.fromRGB(194, 164, 122))
+    createStoneShelf(geometry, "SouthFlankRise", CFrame.new(-982, 8, 1298) * CFrame.Angles(0, math.rad(18), 0), Vector3.new(238, 16, 108), Color3.fromRGB(188, 159, 118))
     BuildUtils.CreatePart(geometry, "BattlePass", Vector3.new(470, 1, 82), CFrame.new(-1150, 2.05, 1180), Color3.fromRGB(173, 142, 101), Enum.Material.Sandstone, nil, nil)
     BuildUtils.CreatePart(geometry, "BattlePassDustBand", Vector3.new(456, 0.26, 48), CFrame.new(-1150, 2.68, 1182), Color3.fromRGB(210, 186, 145), Enum.Material.Sand, nil, 0.18)
-    BuildUtils.CreateMountain(geometry, "ArcherRidgeTerrain", Vector3.new(-1298, 0, 1112), 242, 86, 132, Color3.fromRGB(132, 108, 82), -8)
-    BuildUtils.CreateMountain(geometry, "SouthShelfTerrain", Vector3.new(-990, 0, 1244), 214, 64, 110, Color3.fromRGB(137, 112, 84), 18)
-    BuildUtils.CreateMountain(geometry, "LastStandShelfTerrain", Vector3.new(-956, 0, 1176), 174, 76, 126, Color3.fromRGB(134, 109, 82), -16)
-    createMountainFaceDetails(geometry, "LastStandShelfFaces", Vector3.new(-956, 0, 1182), -16, 174, 76, 126, Color3.fromRGB(134, 109, 82))
+    createMesaMass(geometry, "ArcherRidgeTerrain", Vector3.new(-1298, 0, 1112), -8, 286, 96, 146, Color3.fromRGB(132, 108, 82))
+    createMesaMass(geometry, "SouthShelfTerrain", Vector3.new(-990, 0, 1244), 18, 252, 76, 122, Color3.fromRGB(137, 112, 84))
+    createMesaMass(geometry, "LastStandShelfTerrain", Vector3.new(-956, 0, 1176), -16, 226, 88, 136, Color3.fromRGB(134, 109, 82))
     BuildUtils.CreatePart(geometry, "ArcherRidgeLookout", Vector3.new(108, 2.8, 30), CFrame.new(-1298, 48, 1112) * CFrame.Angles(0, math.rad(-8), 0), Color3.fromRGB(125, 103, 80), Enum.Material.Slate, nil, nil)
     BuildUtils.CreatePart(geometry, "ArcherRidgeTrail", Vector3.new(94, 1.4, 16), CFrame.new(-1332, 22, 1156) * CFrame.Angles(0, math.rad(32), 0), Color3.fromRGB(137, 114, 88), Enum.Material.Slate, nil, nil)
     BuildUtils.CreatePart(geometry, "SouthShelfPath", Vector3.new(98, 2.2, 22), CFrame.new(-990, 34, 1244) * CFrame.Angles(0, math.rad(18), 0), Color3.fromRGB(134, 111, 84), Enum.Material.Slate, nil, nil)
     BuildUtils.CreatePart(geometry, "LastStandPath", Vector3.new(114, 1.6, 20), CFrame.new(-958, 24, 1184) * CFrame.Angles(0, math.rad(-16), 0), Color3.fromRGB(132, 109, 84), Enum.Material.Slate, nil, nil)
-    BuildUtils.CreateRockCluster(geometry, "PassRocksWest", Vector3.new(-1324, 0, 1238))
-    BuildUtils.CreateRockCluster(geometry, "PassRocksEast", Vector3.new(-990, 0, 1124))
-    BuildUtils.CreateRockCluster(geometry, "PassRocksCenter", Vector3.new(-1156, 0, 1210))
-    BuildUtils.CreateRockCluster(geometry, "FinalStandRocks", Vector3.new(-954, 0, 1182))
-    BuildUtils.CreateRockCluster(geometry, "RidgeFootRocks", Vector3.new(-1258, 0, 1088))
-    BuildUtils.CreateRockCluster(geometry, "LastStandOuterRocks", Vector3.new(-898, 0, 1210))
+    createStoneShelf(geometry, "PassRocksWest", CFrame.new(-1324, 8, 1238) * CFrame.Angles(0, math.rad(-20), 0), Vector3.new(42, 16, 28), Color3.fromRGB(134, 109, 81))
+    createStoneShelf(geometry, "PassRocksEast", CFrame.new(-990, 7.5, 1124) * CFrame.Angles(0, math.rad(20), 0), Vector3.new(40, 15, 28), Color3.fromRGB(138, 112, 83))
+    createStoneShelf(geometry, "PassRocksCenter", CFrame.new(-1156, 7, 1210) * CFrame.Angles(0, math.rad(-8), 0), Vector3.new(54, 14, 30), Color3.fromRGB(140, 114, 84))
+    createStoneShelf(geometry, "FinalStandRocks", CFrame.new(-954, 10, 1182) * CFrame.Angles(0, math.rad(-16), 0), Vector3.new(46, 20, 32), Color3.fromRGB(132, 107, 80))
+    createStoneShelf(geometry, "RidgeFootRocks", CFrame.new(-1258, 8, 1088) * CFrame.Angles(0, math.rad(10), 0), Vector3.new(42, 16, 28), Color3.fromRGB(136, 111, 81))
+    createStoneShelf(geometry, "LastStandOuterRocks", CFrame.new(-898, 9, 1210) * CFrame.Angles(0, math.rad(-14), 0), Vector3.new(50, 18, 30), Color3.fromRGB(136, 111, 82))
     createCampShelter(geometry, "UhudCampWest", Vector3.new(-1376, 0, 1190), Color3.fromRGB(74, 121, 82))
     createCampShelter(geometry, "UhudCampEast", Vector3.new(-932, 0, 1190), Color3.fromRGB(143, 101, 66))
     BuildUtils.CreateBanner(geometry, "UhudBannerWest", Vector3.new(-1338, 0, 1158), Color3.fromRGB(62, 125, 82))
@@ -5176,6 +5212,142 @@ local GOLD_ACCENT = Color3.fromRGB(193, 162, 86)
 local GLASS_TINT = Color3.fromRGB(108, 119, 132)
 local DARK_PANEL = Color3.fromRGB(42, 45, 49)
 
+local function scaleColor(color: Color3, scale: number): Color3
+    return Color3.fromRGB(
+        math.clamp(math.floor(color.R * 255 * scale), 0, 255),
+        math.clamp(math.floor(color.G * 255 * scale), 0, 255),
+        math.clamp(math.floor(color.B * 255 * scale), 0, 255)
+    )
+end
+
+local function makeDecorativePart(part: BasePart): BasePart
+    part.CanCollide = false
+    part.CanTouch = false
+    part.CanQuery = false
+    part.CastShadow = true
+
+    return part
+end
+
+local function createStylizedRidge(parent: Instance, name: string, center: Vector3, yawDegrees: number, length: number, height: number, depth: number, color: Color3)
+    local ridge = BuildUtils.CreateFolder(parent, name)
+    local baseCFrame = CFrame.new(center) * CFrame.Angles(0, math.rad(yawDegrees), 0)
+
+    makeDecorativePart(BuildUtils.CreatePart(
+        ridge,
+        "MassCore",
+        Vector3.new(length * 0.94, height * 0.34, depth * 0.82),
+        baseCFrame * CFrame.new(0, height * 0.17, 0),
+        scaleColor(color, 0.9),
+        Enum.Material.Rock,
+        nil,
+        nil
+    ))
+
+    makeDecorativePart(BuildUtils.CreatePart(
+        ridge,
+        "MesaShelf",
+        Vector3.new(length * 0.72, height * 0.18, depth * 0.58),
+        baseCFrame * CFrame.new(0, height * 0.38, -depth * 0.02),
+        scaleColor(color, 1.03),
+        Enum.Material.Slate,
+        nil,
+        nil
+    ))
+
+    for segment = 1, 7 do
+        local alpha = (segment - 4) / 3
+        local widthFactor = 1 - math.abs(alpha) * 0.3
+        local segmentLength = length * (0.13 + widthFactor * 0.035)
+        local segmentHeight = height * (0.62 + widthFactor * 0.22)
+        local segmentDepth = depth * (0.52 + widthFactor * 0.16)
+        local x = alpha * length * 0.37
+        local z = math.sin(segment * 1.11) * depth * 0.06
+        local cframe = baseCFrame
+            * CFrame.new(x, segmentHeight * 0.38, z)
+            * CFrame.Angles(math.rad((segment % 3 - 1) * 3), math.rad((segment % 2 == 0) and -5 or 6), math.rad((segment % 4 - 1.5) * 2))
+
+        makeDecorativePart(BuildUtils.CreateWedge(
+            ridge,
+            string.format("Face_%d", segment),
+            Vector3.new(segmentLength, segmentHeight, segmentDepth),
+            cframe,
+            scaleColor(color, 0.8 + widthFactor * 0.18),
+            Enum.Material.Rock,
+            nil
+        ))
+    end
+
+    for layer = 1, 3 do
+        makeDecorativePart(BuildUtils.CreatePart(
+            ridge,
+            string.format("Strata_%d", layer),
+            Vector3.new(length * (0.82 - layer * 0.12), 0.3, 1.4),
+            baseCFrame * CFrame.new(0, height * (0.2 + layer * 0.17), depth * (-0.26 + layer * 0.14)) * CFrame.Angles(0, math.rad((layer % 2 == 0) and -4 or 5), 0),
+            scaleColor(color, 0.6 + layer * 0.08),
+            Enum.Material.Slate,
+            nil,
+            0.04
+        ))
+    end
+
+    return ridge
+end
+
+local function createPromenadePath(parent: Instance, name: string, startPosition: Vector3, endPosition: Vector3, width: number, baseColor: Color3, edgeColor: Color3)
+    local difference = endPosition - startPosition
+    local length = difference.Magnitude
+
+    if length < 1 then
+        return
+    end
+
+    local midpoint = startPosition:Lerp(endPosition, 0.5)
+    local yaw = math.atan2(difference.X, difference.Z)
+    local baseY = math.max(startPosition.Y, endPosition.Y) + 4.3
+
+    BuildUtils.CreatePart(
+        parent,
+        string.format("%s_Base", name),
+        Vector3.new(width, 0.9, length),
+        CFrame.new(midpoint.X, baseY, midpoint.Z) * CFrame.Angles(0, yaw, 0),
+        baseColor,
+        Enum.Material.Sandstone,
+        nil,
+        nil
+    )
+    BuildUtils.CreatePart(
+        parent,
+        string.format("%s_EdgeWest", name),
+        Vector3.new(2.2, 0.24, length),
+        CFrame.new(midpoint.X, baseY + 0.48, midpoint.Z) * CFrame.Angles(0, yaw, 0) * CFrame.new(width * -0.5 + 1.1, 0, 0),
+        edgeColor,
+        Enum.Material.Slate,
+        nil,
+        nil
+    ).CanCollide = false
+    BuildUtils.CreatePart(
+        parent,
+        string.format("%s_EdgeEast", name),
+        Vector3.new(2.2, 0.24, length),
+        CFrame.new(midpoint.X, baseY + 0.48, midpoint.Z) * CFrame.Angles(0, yaw, 0) * CFrame.new(width * 0.5 - 1.1, 0, 0),
+        edgeColor,
+        Enum.Material.Slate,
+        nil,
+        nil
+    ).CanCollide = false
+    BuildUtils.CreatePart(
+        parent,
+        string.format("%s_Inlay", name),
+        Vector3.new(6, 0.22, length - 18),
+        CFrame.new(midpoint.X, baseY + 0.5, midpoint.Z) * CFrame.Angles(0, yaw, 0),
+        Color3.fromRGB(231, 216, 181),
+        Enum.Material.Marble,
+        nil,
+        nil
+    ).CanCollide = false
+end
+
 local function createSafetyBounds(parent: Instance, namePrefix: string, center: Vector3, footprint: Vector3)
     local barrierHeight = 110
     local thickness = 12
@@ -5371,83 +5543,59 @@ end
 local function createDistrictTerrainBand(parent: Instance, namePrefix: string, center: Vector3, radiusX: number, radiusZ: number, rockColor: Color3)
     local band = BuildUtils.CreateFolder(parent, string.format("%sTerrainBand", namePrefix))
 
-    for index, offset in ipairs({
-        Vector3.new(-radiusX, 0, -radiusZ * 0.6),
-        Vector3.new(radiusX, 0, -radiusZ * 0.52),
-        Vector3.new(-radiusX * 0.94, 0, radiusZ * 0.58),
-        Vector3.new(radiusX * 0.98, 0, radiusZ * 0.62),
-        Vector3.new(-radiusX * 0.58, 0, -radiusZ),
-        Vector3.new(radiusX * 0.54, 0, -radiusZ * 1.04),
-        Vector3.new(-radiusX * 0.46, 0, radiusZ),
-        Vector3.new(radiusX * 0.5, 0, radiusZ * 1.02),
+    for index, ridge in ipairs({
+        { Name = "WestNorthFrame", Offset = Vector3.new(-radiusX * 1.02, 0, -radiusZ * 0.52), Yaw = -20, Length = 360, Height = 122, Depth = 136 },
+        { Name = "EastNorthFrame", Offset = Vector3.new(radiusX * 1.02, 0, -radiusZ * 0.48), Yaw = 18, Length = 350, Height = 118, Depth = 132 },
+        { Name = "WestSouthFrame", Offset = Vector3.new(-radiusX * 0.98, 0, radiusZ * 0.58), Yaw = -16, Length = 374, Height = 126, Depth = 142 },
+        { Name = "EastSouthFrame", Offset = Vector3.new(radiusX * 1.04, 0, radiusZ * 0.62), Yaw = 16, Length = 366, Height = 124, Depth = 140 },
+        { Name = "NorthFrame", Offset = Vector3.new(0, 0, -radiusZ * 1.08), Yaw = 0, Length = 470, Height = 136, Depth = 108 },
+        { Name = "SouthFrame", Offset = Vector3.new(0, 0, radiusZ * 1.12), Yaw = 180, Length = 500, Height = 142, Depth = 112 },
     }) do
-        local scale = 1 + (index % 3) * 0.16
-        BuildUtils.CreateMountain(
+        createStylizedRidge(
             band,
-            string.format("%sMass_%d", namePrefix, index),
-            center + offset,
-            180 * scale,
-            84 * scale,
-            110 * scale,
-            rockColor,
-            (index % 2 == 0) and 18 or -22
+            string.format("%s_%s_%d", namePrefix, ridge.Name, index),
+            center + ridge.Offset,
+            ridge.Yaw,
+            ridge.Length,
+            ridge.Height,
+            ridge.Depth,
+            rockColor
         )
     end
 
-    for index, offset in ipairs({
-        Vector3.new(-radiusX * 0.72, 0, -radiusZ * 0.18),
-        Vector3.new(radiusX * 0.68, 0, -radiusZ * 0.14),
-        Vector3.new(-radiusX * 0.64, 0, radiusZ * 0.24),
-        Vector3.new(radiusX * 0.62, 0, radiusZ * 0.2),
-        Vector3.new(0, 0, -radiusZ * 0.92),
-        Vector3.new(0, 0, radiusZ * 0.96),
+    for index, apron in ipairs({
+        { Offset = Vector3.new(-radiusX * 0.86, 5, 0), Size = Vector3.new(224, 12, 164), Yaw = -10 },
+        { Offset = Vector3.new(radiusX * 0.86, 5, 0), Size = Vector3.new(224, 12, 164), Yaw = 10 },
+        { Offset = Vector3.new(0, 4, -radiusZ * 0.94), Size = Vector3.new(300, 10, 118), Yaw = 0 },
+        { Offset = Vector3.new(0, 4, radiusZ * 0.98), Size = Vector3.new(320, 10, 122), Yaw = 0 },
     }) do
-        BuildUtils.CreateDune(
+        makeDecorativePart(BuildUtils.CreatePart(
             band,
-            string.format("%sDune_%d", namePrefix, index),
-            center + offset,
-            Vector3.new(170 + index * 12, 34 + (index % 2) * 8, 84 + (index % 3) * 10),
-            Color3.fromRGB(205, 181, 133)
-        )
-    end
-
-    for index, offset in ipairs({
-        Vector3.new(-radiusX * 0.78, 0, -radiusZ * 0.34),
-        Vector3.new(radiusX * 0.76, 0, -radiusZ * 0.28),
-        Vector3.new(-radiusX * 0.8, 0, radiusZ * 0.36),
-        Vector3.new(radiusX * 0.74, 0, radiusZ * 0.32),
-        Vector3.new(-radiusX * 0.22, 0, -radiusZ * 0.96),
-        Vector3.new(radiusX * 0.24, 0, radiusZ * 0.98),
-    }) do
-        BuildUtils.CreateRockCluster(band, string.format("%sRockCluster_%d", namePrefix, index), center + offset)
+            string.format("%sApron_%d", namePrefix, index),
+            apron.Size,
+            CFrame.new(center + apron.Offset) * CFrame.Angles(0, math.rad(apron.Yaw), 0),
+            scaleColor(rockColor, 1.08),
+            Enum.Material.Sandstone,
+            nil,
+            nil
+        ))
     end
 end
 
 local function createWorldBackdrop(parent: Instance, center: Vector3)
     local backdrop = BuildUtils.CreateFolder(parent, "WorldBackdrop")
 
-    for index, mountain in ipairs({
-        { Name = "FarNorthWest", Position = center + Vector3.new(-980, 0, -1120), Width = 420, Height = 176, Depth = 210, Yaw = 12, Color = DESERT_ROCK },
-        { Name = "FarNorth", Position = center + Vector3.new(0, 0, -1280), Width = 540, Height = 214, Depth = 230, Yaw = -4, Color = Color3.fromRGB(142, 114, 83) },
-        { Name = "FarNorthEast", Position = center + Vector3.new(1020, 0, -1100), Width = 436, Height = 182, Depth = 214, Yaw = -18, Color = DESERT_ROCK },
-        { Name = "FarWest", Position = center + Vector3.new(-1240, 0, 160), Width = 368, Height = 152, Depth = 206, Yaw = 26, Color = Color3.fromRGB(136, 108, 79) },
-        { Name = "FarEast", Position = center + Vector3.new(1260, 0, 180), Width = 392, Height = 158, Depth = 214, Yaw = -24, Color = Color3.fromRGB(140, 112, 81) },
-        { Name = "FarSouthWest", Position = center + Vector3.new(-1040, 0, 1480), Width = 404, Height = 164, Depth = 224, Yaw = 20, Color = DESERT_ROCK },
-        { Name = "FarSouth", Position = center + Vector3.new(40, 0, 1600), Width = 576, Height = 226, Depth = 244, Yaw = 0, Color = Color3.fromRGB(146, 118, 86) },
-        { Name = "FarSouthEast", Position = center + Vector3.new(1100, 0, 1460), Width = 424, Height = 170, Depth = 228, Yaw = -16, Color = DESERT_ROCK },
+    for index, ridge in ipairs({
+        { Name = "FarNorthWest", Position = center + Vector3.new(-1120, 0, -1180), Length = 560, Height = 196, Depth = 194, Yaw = 16, Color = DESERT_ROCK },
+        { Name = "FarNorth", Position = center + Vector3.new(0, 0, -1300), Length = 760, Height = 228, Depth = 186, Yaw = -2, Color = Color3.fromRGB(142, 114, 83) },
+        { Name = "FarNorthEast", Position = center + Vector3.new(1120, 0, -1160), Length = 560, Height = 192, Depth = 190, Yaw = -16, Color = DESERT_ROCK },
+        { Name = "FarWest", Position = center + Vector3.new(-1320, 0, 260), Length = 470, Height = 182, Depth = 214, Yaw = 26, Color = Color3.fromRGB(136, 108, 79) },
+        { Name = "FarEast", Position = center + Vector3.new(1320, 0, 260), Length = 470, Height = 182, Depth = 214, Yaw = -24, Color = Color3.fromRGB(140, 112, 81) },
+        { Name = "FarSouthWest", Position = center + Vector3.new(-1080, 0, 1290), Length = 540, Height = 184, Depth = 166, Yaw = 18, Color = DESERT_ROCK },
+        { Name = "FarSouth", Position = center + Vector3.new(0, 0, 1360), Length = 760, Height = 208, Depth = 154, Yaw = 0, Color = Color3.fromRGB(146, 118, 86) },
+        { Name = "FarSouthEast", Position = center + Vector3.new(1080, 0, 1290), Length = 540, Height = 184, Depth = 166, Yaw = -18, Color = DESERT_ROCK },
     }) do
-        BuildUtils.CreateMountain(backdrop, string.format("%sBackdrop_%d", mountain.Name, index), mountain.Position, mountain.Width, mountain.Height, mountain.Depth, mountain.Color, mountain.Yaw)
-    end
-
-    for index, offset in ipairs({
-        Vector3.new(-820, 0, -760),
-        Vector3.new(860, 0, -820),
-        Vector3.new(-940, 0, 1120),
-        Vector3.new(980, 0, 1180),
-        Vector3.new(0, 0, -980),
-        Vector3.new(-220, 0, 1360),
-    }) do
-        BuildUtils.CreateDune(backdrop, string.format("BackdropDune_%d", index), center + offset, Vector3.new(260, 52, 122), Color3.fromRGB(203, 179, 130))
+        createStylizedRidge(backdrop, string.format("%sBackdrop_%d", ridge.Name, index), ridge.Position, ridge.Yaw, ridge.Length, ridge.Height, ridge.Depth, ridge.Color)
     end
 end
 
@@ -5660,8 +5808,9 @@ end
 
 local function buildDesertRoute(parent: Instance, startPosition: Vector3, stopPosition: Vector3, endPosition: Vector3)
     local district = BuildUtils.CreateFolder(parent, "DesertRoute")
-    local routeCenter = (startPosition + endPosition) * 0.5
-    local routeLength = math.abs(endPosition.Z - startPosition.Z) + 420
+    local routeEntryPosition = Vector3.new(startPosition.X, startPosition.Y, startPosition.Z + 820)
+    local routeCenter = (routeEntryPosition + endPosition) * 0.5
+    local routeLength = math.abs(endPosition.Z - routeEntryPosition.Z) + 220
 
     BuildUtils.CreatePart(district, "SafetyPlate", Vector3.new(1020, 10, routeLength + 260), CFrame.new(routeCenter + Vector3.new(0, -9, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
     BuildUtils.CreatePart(district, "DesertBase", Vector3.new(860, 4, routeLength), CFrame.new(routeCenter + Vector3.new(0, 2, 0)), DESERT_SAND, Enum.Material.Sand, nil, nil)
@@ -5673,36 +5822,45 @@ local function buildDesertRoute(parent: Instance, startPosition: Vector3, stopPo
     BuildUtils.CreatePart(district, "TravelPathEastEdge", Vector3.new(3, 0.24, routeLength - 180), CFrame.new(routeCenter + Vector3.new(51, 5.18, 0)), Color3.fromRGB(133, 108, 76), Enum.Material.Slate, nil, nil).CanCollide = false
 
     local camelFolder = BuildUtils.CreateFolder(district, "RouteCamels")
-    createRideableCamel(camelFolder, "MakkahRouteCamel", startPosition + Vector3.new(-78, 0, 226), 0)
+    createRideableCamel(camelFolder, "MakkahRouteCamel", routeEntryPosition + Vector3.new(-78, 0, 186), 0)
     createRideableCamel(camelFolder, "DesertRouteCamel", stopPosition + Vector3.new(98, 0, -96), 180)
     createRideableCamel(camelFolder, "MedinaRouteCamel", endPosition + Vector3.new(82, 0, -206), 180)
 
     local mountainFolder = BuildUtils.CreateFolder(district, "RouteMountainWalls")
     local mountainIndex = 0
 
-    for z = startPosition.Z + 260, endPosition.Z - 260, 420 do
+    for z = routeEntryPosition.Z + 220, endPosition.Z - 260, 460 do
         mountainIndex += 1
         local heightOffset = (mountainIndex % 3) * 12
-        BuildUtils.CreateMountain(mountainFolder, string.format("WestRouteMountain_%d", mountainIndex), Vector3.new(-350, 0, z), 170 + heightOffset, 82 + heightOffset, 82, DESERT_ROCK, 24)
-        BuildUtils.CreateMountain(mountainFolder, string.format("EastRouteMountain_%d", mountainIndex), Vector3.new(350, 0, z + 90), 190 + heightOffset, 92 + heightOffset, 90, Color3.fromRGB(157, 126, 88), -28)
-        BuildUtils.CreateMountain(mountainFolder, string.format("RouteMidRidge_%d", mountainIndex), Vector3.new(((mountainIndex % 2 == 0) and -1 or 1) * 248, 0, z - 120), 126 + heightOffset, 58 + heightOffset * 0.5, 76, Color3.fromRGB(145, 117, 85), (mountainIndex % 2 == 0) and -10 or 10)
+        createStylizedRidge(mountainFolder, string.format("WestRouteMountain_%d", mountainIndex), Vector3.new(-356, 0, z), 22, 238 + heightOffset * 1.8, 98 + heightOffset, 98, DESERT_ROCK)
+        createStylizedRidge(mountainFolder, string.format("EastRouteMountain_%d", mountainIndex), Vector3.new(356, 0, z + 88), -24, 252 + heightOffset * 1.8, 104 + heightOffset, 102, Color3.fromRGB(157, 126, 88))
+        createStylizedRidge(mountainFolder, string.format("RouteMidRidge_%d", mountainIndex), Vector3.new(((mountainIndex % 2 == 0) and -1 or 1) * 252, 0, z - 128), (mountainIndex % 2 == 0) and -10 or 10, 170 + heightOffset, 54 + heightOffset * 0.45, 74, Color3.fromRGB(145, 117, 85))
     end
 
     local lampIndex = 0
 
-    for z = startPosition.Z + 210, endPosition.Z - 210, 280 do
+    for z = routeEntryPosition.Z + 170, endPosition.Z - 210, 280 do
         lampIndex += 1
         createLowBollard(district, string.format("RouteGuideLampWest_%d", lampIndex), Vector3.new(-66, 0, z), Color3.fromRGB(255, 229, 170))
         createLowBollard(district, string.format("RouteGuideLampEast_%d", lampIndex), Vector3.new(66, 0, z), Color3.fromRGB(255, 229, 170))
     end
 
     local stepIndex = 0
-    for z = startPosition.Z + 180, endPosition.Z - 160, 180 do
+    for z = routeEntryPosition.Z + 160, endPosition.Z - 160, 220 do
         stepIndex += 1
         local xShift = (stepIndex % 2 == 0) and 190 or -190
         BuildUtils.CreateDune(district, string.format("RouteDuneA_%d", stepIndex), Vector3.new(xShift, 0, z), Vector3.new(180, 40, 90), Color3.fromRGB(219, 190, 136))
         BuildUtils.CreateDune(district, string.format("RouteDuneB_%d", stepIndex), Vector3.new(xShift * -0.65, 0, z + 60), Vector3.new(130, 34, 82), Color3.fromRGB(211, 181, 129))
-        BuildUtils.CreateRockCluster(district, string.format("RouteRocks_%d", stepIndex), Vector3.new(xShift * 0.58, 0, z - 32))
+        makeDecorativePart(BuildUtils.CreatePart(
+            district,
+            string.format("RouteShoulder_%d", stepIndex),
+            Vector3.new(78, 12, 34),
+            CFrame.new(Vector3.new(xShift * 0.58, 8, z - 28)) * CFrame.Angles(0, math.rad((stepIndex % 2 == 0) and -18 or 18), 0),
+            Color3.fromRGB(165, 136, 96),
+            Enum.Material.Sandstone,
+            nil,
+            nil
+        ))
     end
 
     BuildUtils.CreatePart(district, "CampCourt", Vector3.new(210, 3, 170), CFrame.new(stopPosition + Vector3.new(0, 1.5, 0)), Color3.fromRGB(196, 173, 130), Enum.Material.Sandstone, nil, nil)
@@ -5714,7 +5872,7 @@ local function buildDesertRoute(parent: Instance, startPosition: Vector3, stopPo
     BuildUtils.CreatePalmTree(district, "OasisPalmEast", stopPosition + Vector3.new(18, 0, -40))
     createLightPost(district, "CampLightWest", stopPosition + Vector3.new(-78, 0, -28))
     createLightPost(district, "CampLightEast", stopPosition + Vector3.new(78, 0, -28))
-    createWallPanel(district, "MakkahRouteStartSign", startPosition + Vector3.new(0, 0, 132), Vector3.new(76, 12, 2.5), "Makkah To Medina Route", "Ride a camel or follow the lamp markers. This long path teaches distance and migration without depicting the Prophet.", Color3.fromRGB(105, 83, 55), 0, nil)
+    createWallPanel(district, "MakkahRouteStartSign", routeEntryPosition + Vector3.new(0, 0, 96), Vector3.new(76, 12, 2.5), "Makkah To Medina Route", "Ride a camel or follow the lamp markers. This long path teaches distance and migration without depicting the Prophet.", Color3.fromRGB(105, 83, 55), 0, nil)
     createWallPanel(district, "CampSign", stopPosition + Vector3.new(0, 0, -76), Vector3.new(72, 12, 2.5), "Desert Route Camp", "A longer travel stretch now separates Makkah and Medina, with a mid-route camp for reflection and story stops.", Color3.fromRGB(111, 88, 58), 0, nil)
     createWallPanel(district, "MedinaRouteArrivalSign", endPosition + Vector3.new(0, 0, -132), Vector3.new(76, 12, 2.5), "Medina Approach", "The route ends at a green-and-white Medina district with gates, courtyard markers, and a respectful visitation path.", Color3.fromRGB(58, 91, 66), 180, nil)
 end
@@ -6313,14 +6471,14 @@ end
 local function createHaramLearningTrail(parent: Instance, center: Vector3)
     local trailFolder = BuildUtils.CreateFolder(parent, "HaramLearningTrail")
     local stationPositions = {
-        center + Vector3.new(0, 0, 250),
-        center + Vector3.new(112, 0, 118),
-        center + Vector3.new(-206, 0, 0),
-        center + Vector3.new(86, 0, -92),
-        center + Vector3.new(-34, 0, 142),
-        center + Vector3.new(0, 0, -420),
+        center + Vector3.new(0, 0, 520),
+        center + Vector3.new(314, 0, 404),
+        center + Vector3.new(-522, 0, 76),
+        center + Vector3.new(454, 0, -236),
+        center + Vector3.new(-338, 0, 432),
+        center + Vector3.new(0, 0, -558),
     }
-    local stationOrientations = { 0, 225, 90, 210, 0, 180 }
+    local stationOrientations = { 0, 230, 90, 212, 12, 180 }
 
     for index, step in ipairs(HaramLearningTrail.Steps) do
         local position = stationPositions[index]
@@ -6440,6 +6598,15 @@ local function buildKaabaHub(parent: Instance, center: Vector3)
     BuildUtils.CreatePart(district, "StonePlaza", Vector3.new(1420, 4, 1420), CFrame.new(center + Vector3.new(0, 2.3, 0)), Color3.fromRGB(228, 223, 212), Enum.Material.Marble, nil, nil)
     BuildUtils.CreatePart(district, "OuterWalk", Vector3.new(1010, 1, 1010), CFrame.new(center + Vector3.new(0, 4.85, 0)), MECCA_MARBLE, Enum.Material.Marble, nil, nil)
     BuildUtils.CreatePart(district, "InnerCourt", Vector3.new(660, 1, 660), CFrame.new(center + Vector3.new(0, 5.95, 0)), Color3.fromRGB(232, 228, 218), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "CentralFocusCourt", Vector3.new(560, 1, 560), CFrame.new(center + Vector3.new(0, 6.08, 0)), Color3.fromRGB(238, 233, 224), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "NorthFocusBorder", Vector3.new(570, 0.26, 8), CFrame.new(center + Vector3.new(0, 6.62, -284)), Color3.fromRGB(193, 183, 163), Enum.Material.Slate, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "SouthFocusBorder", Vector3.new(570, 0.26, 8), CFrame.new(center + Vector3.new(0, 6.62, 284)), Color3.fromRGB(193, 183, 163), Enum.Material.Slate, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "WestFocusBorder", Vector3.new(8, 0.26, 570), CFrame.new(center + Vector3.new(-284, 6.62, 0)), Color3.fromRGB(193, 183, 163), Enum.Material.Slate, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "EastFocusBorder", Vector3.new(8, 0.26, 570), CFrame.new(center + Vector3.new(284, 6.62, 0)), Color3.fromRGB(193, 183, 163), Enum.Material.Slate, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "NorthProcessionalWalk", Vector3.new(94, 0.24, 200), CFrame.new(center + Vector3.new(0, 6.5, -392)), Color3.fromRGB(228, 219, 200), Enum.Material.Marble, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "SouthProcessionalWalk", Vector3.new(94, 0.24, 200), CFrame.new(center + Vector3.new(0, 6.5, 392)), Color3.fromRGB(228, 219, 200), Enum.Material.Marble, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "WestProcessionalWalk", Vector3.new(200, 0.24, 94), CFrame.new(center + Vector3.new(-392, 6.5, 0)), Color3.fromRGB(228, 219, 200), Enum.Material.Marble, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "EastProcessionalWalk", Vector3.new(200, 0.24, 94), CFrame.new(center + Vector3.new(392, 6.5, 0)), Color3.fromRGB(228, 219, 200), Enum.Material.Marble, nil, nil).CanCollide = false
 
     createArcadeBlock(district, "NorthArcade", center + Vector3.new(0, 0, -334), 760, 100, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
     createArcadeBlock(district, "SouthArcade", center + Vector3.new(0, 0, 334), 760, 100, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
@@ -6484,29 +6651,25 @@ local function buildKaabaHub(parent: Instance, center: Vector3)
     createPrayerMatRows(district, "EastPrayerMat", center + Vector3.new(390, 6.48, -104), 7, 15, math.rad(90), Color3.fromRGB(98, 121, 96))
     createPrayerMatRows(district, "WestPrayerMat", center + Vector3.new(-390, 6.48, 104), 7, 15, math.rad(-90), Color3.fromRGB(98, 121, 96))
 
-    for index = 1, 40 do
-        local angle = (math.pi * 2) * (index / 40)
+    for index = 1, 24 do
+        local angle = (math.pi * 2) * (index / 24)
         createLowBollard(
             district,
             string.format("KaabaBollard_%d", index),
-            center + Vector3.new(math.cos(angle) * 172, 0, math.sin(angle) * 172),
+            center + Vector3.new(math.cos(angle) * 214, 0, math.sin(angle) * 214),
             Color3.fromRGB(255, 234, 185)
         )
     end
 
     for _, offset in ipairs({
-        Vector3.new(-308, 0, -146),
-        Vector3.new(308, 0, -146),
-        Vector3.new(-308, 0, 146),
-        Vector3.new(308, 0, 146),
-        Vector3.new(-146, 0, -308),
-        Vector3.new(146, 0, -308),
-        Vector3.new(-146, 0, 308),
-        Vector3.new(146, 0, 308),
-        Vector3.new(-430, 0, 0),
-        Vector3.new(430, 0, 0),
-        Vector3.new(0, 0, -430),
-        Vector3.new(0, 0, 430),
+        Vector3.new(-472, 0, -176),
+        Vector3.new(472, 0, -176),
+        Vector3.new(-472, 0, 176),
+        Vector3.new(472, 0, 176),
+        Vector3.new(-176, 0, -472),
+        Vector3.new(176, 0, -472),
+        Vector3.new(-176, 0, 472),
+        Vector3.new(176, 0, 472),
     }) do
         createLightPost(district, string.format("MeccaLight_%d_%d", offset.X, offset.Z), center + offset, Color3.fromRGB(128, 112, 89))
     end
@@ -6532,88 +6695,6 @@ local function buildKaabaHub(parent: Instance, center: Vector3)
     BuildUtils.CreateMinaret(district, "MakkahNorthCentralMinaret", center + Vector3.new(0, 0, -760), 118, MECCA_MARBLE, GOLD_ACCENT)
     BuildUtils.CreateMinaret(district, "MakkahSouthCentralMinaret", center + Vector3.new(0, 0, 760), 110, MECCA_MARBLE, GOLD_ACCENT)
 
-    for rowIndex, z in ipairs({-310, -226, 226, 310}) do
-        for columnIndex, x in ipairs({-310, -226, -150, -74, 74, 150, 226, 310}) do
-            BuildUtils.CreateCourtyardCanopy(district, string.format("MeccaShade_%d_%d", rowIndex, columnIndex), center + Vector3.new(x, 0, z), Color3.fromRGB(244, 238, 224), Color3.fromRGB(158, 149, 134))
-        end
-    end
-
-    local camelFolder = BuildUtils.CreateFolder(district, "HubCamels")
-    createRideableCamel(camelFolder, "SouthCourtyardCamel", center + Vector3.new(-210, 0, 360), 25)
-    createRideableCamel(camelFolder, "StoryCourtCamel", center + Vector3.new(254, 0, 306), -40)
-    createRideableCamel(camelFolder, "MannersCourtCamel", center + Vector3.new(-276, 0, -238), 130)
-
-    createFloorPlaque(
-        district,
-        "BadrFloorPlaque",
-        CFrame.new(center + Vector3.new(-124, 7.1, -212)) * CFrame.Angles(0, math.rad(180), 0),
-        Vector3.new(44, 0.5, 16),
-        "Battle of Badr",
-        "Join Badr and see the story summary.",
-        DARK_PANEL,
-        {
-            ActionText = "Join Badr",
-            ObjectText = "Battle Sign",
-            Attributes = {
-                PromptAction = "JoinBattle",
-                ScenarioId = "badr",
-            },
-        }
-    )
-
-    createFloorPlaque(
-        district,
-        "UhudFloorPlaque",
-        CFrame.new(center + Vector3.new(124, 7.1, -212)) * CFrame.Angles(0, math.rad(180), 0),
-        Vector3.new(44, 0.5, 16),
-        "Battle of Uhud",
-        "Join Uhud and study the mountain pass.",
-        DARK_PANEL,
-        {
-            ActionText = "Join Uhud",
-            ObjectText = "Battle Sign",
-            Attributes = {
-                PromptAction = "JoinBattle",
-                ScenarioId = "uhud",
-            },
-        }
-    )
-
-    createFloorPlaque(
-        district,
-        "MedinaTravelPlaque",
-        CFrame.new(center + Vector3.new(-124, 7.1, 212)),
-        Vector3.new(44, 0.5, 16),
-        "Travel To Medina",
-        "Teleport to the Medina district.",
-        Color3.fromRGB(57, 94, 62),
-        {
-            ActionText = "Go To Medina",
-            ObjectText = "Travel Sign",
-            Attributes = {
-                PromptAction = "Teleport",
-                DestinationId = "medina_courtyard",
-            },
-        }
-    )
-
-    createFloorPlaque(
-        district,
-        "DesertTravelPlaque",
-        CFrame.new(center + Vector3.new(124, 7.1, 212)),
-        Vector3.new(44, 0.5, 16),
-        "Desert Route",
-        "Jump to the mid-route desert camp.",
-        Color3.fromRGB(114, 90, 60),
-        {
-            ActionText = "Open Desert Camp",
-            ObjectText = "Travel Sign",
-            Attributes = {
-                PromptAction = "Teleport",
-                DestinationId = "journey_reflection",
-            },
-        }
-    )
 end
 
 local function buildMedinaDistrict(parent: Instance, center: Vector3)
@@ -6679,18 +6760,24 @@ end
 local function buildBattleGate(parent: Instance, name: string, center: Vector3, accentColor: Color3, scenarioId: string, title: string)
     local district = BuildUtils.CreateFolder(parent, string.format("%sDistrict", name))
 
-    BuildUtils.CreatePart(district, "SafetyPlate", Vector3.new(250, 12, 190), CFrame.new(center + Vector3.new(0, -10, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
-    BuildUtils.CreatePart(district, "Floor", Vector3.new(190, 4, 150), CFrame.new(center + Vector3.new(0, 2, 0)), Color3.fromRGB(205, 182, 141), Enum.Material.Sandstone, nil, nil)
+    BuildUtils.CreatePart(district, "SafetyPlate", Vector3.new(300, 12, 240), CFrame.new(center + Vector3.new(0, -10, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
+    BuildUtils.CreatePart(district, "Forecourt", Vector3.new(244, 4, 176), CFrame.new(center + Vector3.new(0, 2, 0)), Color3.fromRGB(205, 182, 141), Enum.Material.Sandstone, nil, nil)
+    BuildUtils.CreatePart(district, "QueuePad", Vector3.new(136, 1, 62), CFrame.new(center + Vector3.new(0, 4.55, -24)), Color3.fromRGB(225, 213, 190), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "QueuePadInset", Vector3.new(10, 0.2, 56), CFrame.new(center + Vector3.new(0, 5.16, -24)), GOLD_ACCENT, Enum.Material.Metal, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "EntryPath", Vector3.new(74, 1, 104), CFrame.new(center + Vector3.new(0, 4.52, 58)), Color3.fromRGB(187, 159, 118), Enum.Material.Sandstone, nil, nil)
+    BuildUtils.CreatePart(district, "EntryPathInset", Vector3.new(6, 0.2, 94), CFrame.new(center + Vector3.new(0, 5.14, 58)), Color3.fromRGB(229, 212, 180), Enum.Material.Marble, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "LeftWall", Vector3.new(18, 26, 86), CFrame.new(center + Vector3.new(-92, 13, 16)), Color3.fromRGB(187, 166, 132), Enum.Material.Sandstone, nil, nil)
+    BuildUtils.CreatePart(district, "RightWall", Vector3.new(18, 26, 86), CFrame.new(center + Vector3.new(92, 13, 16)), Color3.fromRGB(187, 166, 132), Enum.Material.Sandstone, nil, nil)
     BuildUtils.CreatePart(district, "LeftTower", Vector3.new(20, 30, 20), CFrame.new(center + Vector3.new(-58, 15, 0)), Color3.fromRGB(189, 167, 131), Enum.Material.Sandstone, nil, nil)
     BuildUtils.CreatePart(district, "RightTower", Vector3.new(20, 30, 20), CFrame.new(center + Vector3.new(58, 15, 0)), Color3.fromRGB(189, 167, 131), Enum.Material.Sandstone, nil, nil)
     BuildUtils.CreatePart(district, "GateBeam", Vector3.new(94, 9, 16), CFrame.new(center + Vector3.new(0, 25, 0)), accentColor, Enum.Material.Sandstone, nil, nil)
-    createLightPost(district, string.format("%sLightLeft", name), center + Vector3.new(-20, 0, -34), Color3.fromRGB(120, 103, 80))
-    createLightPost(district, string.format("%sLightRight", name), center + Vector3.new(20, 0, -34), Color3.fromRGB(120, 103, 80))
+    createLightPost(district, string.format("%sLightLeft", name), center + Vector3.new(-38, 0, -52), Color3.fromRGB(120, 103, 80))
+    createLightPost(district, string.format("%sLightRight", name), center + Vector3.new(38, 0, -52), Color3.fromRGB(120, 103, 80))
 
     createWallPanel(
         district,
         string.format("%sBoard", name),
-        center + Vector3.new(0, 0, -54),
+        center + Vector3.new(0, 0, -70),
         Vector3.new(76, 12, 2.5),
         title,
         "Use this sign or the main menu to queue for the battle arena.",
@@ -6732,17 +6819,32 @@ end
 local meccaCenter = TravelRoute.GetDestinationById("kaaba_courtyard").Position
 local desertCenter = TravelRoute.GetDestinationById("journey_reflection").Position
 local medinaCenter = TravelRoute.GetDestinationById("medina_courtyard").Position
+local storyCenter = TravelRoute.GetDestinationById("story_court").Position
+local mannersCenter = TravelRoute.GetDestinationById("manners_court").Position
+local triviaCenter = TravelRoute.GetDestinationById("trivia_court").Position
+local parkourCenter = TravelRoute.GetDestinationById("parkour_tower").Position
+local badrGateCenter = TravelRoute.GetDestinationById("badr_gate").Position
+local uhudGateCenter = TravelRoute.GetDestinationById("uhud_gate").Position
+local supportCenter = Vector3.new(920, 0, -560)
 
 buildDesertRoute(geometryFolder, meccaCenter, desertCenter, medinaCenter)
 buildKaabaHub(geometryFolder, meccaCenter)
-buildSupportLounge(geometryFolder, meccaCenter + Vector3.new(338, 0, -172))
-buildStoryCourt(geometryFolder, meccaCenter + Vector3.new(346, 0, 214))
-buildMannersCourt(geometryFolder, meccaCenter + Vector3.new(-346, 0, -360))
-buildTriviaCourt(geometryFolder, TravelRoute.GetDestinationById("trivia_court").Position)
-buildParkourCourse(geometryFolder, meccaCenter + Vector3.new(-358, 0, 196))
+buildSupportLounge(geometryFolder, supportCenter)
+buildStoryCourt(geometryFolder, storyCenter)
+buildMannersCourt(geometryFolder, mannersCenter)
+buildTriviaCourt(geometryFolder, triviaCenter)
+buildParkourCourse(geometryFolder, parkourCenter)
 buildMedinaDistrict(geometryFolder, medinaCenter)
-buildBattleGate(geometryFolder, "BadrGate", TravelRoute.GetDestinationById("badr_gate").Position, Color3.fromRGB(141, 107, 58), "badr", "Badr Gate")
-buildBattleGate(geometryFolder, "UhudGate", TravelRoute.GetDestinationById("uhud_gate").Position, Color3.fromRGB(114, 92, 71), "uhud", "Uhud Gate")
+buildBattleGate(geometryFolder, "BadrGate", badrGateCenter, Color3.fromRGB(141, 107, 58), "badr", "Badr Gate")
+buildBattleGate(geometryFolder, "UhudGate", uhudGateCenter, Color3.fromRGB(114, 92, 71), "uhud", "Uhud Gate")
+createPromenadePath(geometryFolder, "StoryPromenade", meccaCenter + Vector3.new(714, 0, 220), storyCenter + Vector3.new(-122, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
+createPromenadePath(geometryFolder, "TriviaPromenade", meccaCenter + Vector3.new(714, 0, -240), triviaCenter + Vector3.new(-122, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
+createPromenadePath(geometryFolder, "MannersPromenade", meccaCenter + Vector3.new(-714, 0, -240), mannersCenter + Vector3.new(122, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
+createPromenadePath(geometryFolder, "ParkourPromenade", meccaCenter + Vector3.new(-714, 0, 220), parkourCenter + Vector3.new(122, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
+createPromenadePath(geometryFolder, "SupportPromenade", meccaCenter + Vector3.new(714, 0, -560), supportCenter + Vector3.new(-84, 0, 0), 54, Color3.fromRGB(199, 184, 156), Color3.fromRGB(128, 109, 82))
+createPromenadePath(geometryFolder, "BadrGatePromenade", meccaCenter + Vector3.new(-714, 0, -560), badrGateCenter + Vector3.new(98, 0, 0), 62, Color3.fromRGB(191, 171, 136), Color3.fromRGB(118, 96, 70))
+createPromenadePath(geometryFolder, "UhudGatePromenade", meccaCenter + Vector3.new(-714, 0, 520), uhudGateCenter + Vector3.new(98, 0, 0), 62, Color3.fromRGB(191, 171, 136), Color3.fromRGB(118, 96, 70))
+createPromenadePath(geometryFolder, "JourneyPromenade", meccaCenter + Vector3.new(0, 0, 714), desertCenter + Vector3.new(0, 0, -152), 70, Color3.fromRGB(202, 187, 159), Color3.fromRGB(128, 109, 82))
 createDistrictTerrainBand(geometryFolder, "MeccaWorld", meccaCenter, 980, 940, DESERT_ROCK)
 createDistrictTerrainBand(geometryFolder, "MedinaWorld", medinaCenter, 640, 540, Color3.fromRGB(133, 110, 84))
 createDistrictTerrainBand(geometryFolder, "JourneyWorld", desertCenter, 520, 720, Color3.fromRGB(141, 114, 84))
