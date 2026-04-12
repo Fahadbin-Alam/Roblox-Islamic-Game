@@ -343,13 +343,108 @@ local function createBriefingSection(arenaFolder: Folder, center: Vector3, scena
     local geometry = BuildUtils.CreateFolder(briefing, "Geometry")
     local cameras = BuildUtils.CreateFolder(briefing, "Cameras")
     local markers = BuildUtils.CreateFolder(briefing, "Markers")
+    local actors = BuildUtils.CreateFolder(briefing, "Actors")
+
+    if scenarioId == "uhud" then
+        BuildUtils.CreatePart(geometry, "BriefingGround", Vector3.new(176, 2, 128), CFrame.new(center + Vector3.new(0, 1, 0)), Color3.fromRGB(188, 160, 120), Enum.Material.Sand, nil, nil)
+        BuildUtils.CreateDune(geometry, "BriefingFrontRise", center + Vector3.new(0, 0, 46), Vector3.new(164, 34, 56), Color3.fromRGB(198, 170, 126))
+        BuildUtils.CreateDune(geometry, "BriefingRearSlope", center + Vector3.new(0, 0, -34), Vector3.new(146, 28, 44), Color3.fromRGB(186, 156, 118))
+        BuildUtils.CreateMountain(geometry, "BriefingUhudMass", center + Vector3.new(8, 0, -34), 216, 112, 84, Color3.fromRGB(145, 116, 83), -4)
+        BuildUtils.CreateMountain(geometry, "BriefingUhudWestRidge", center + Vector3.new(-50, 0, 10), 132, 54, 54, Color3.fromRGB(132, 106, 79), -18)
+        BuildUtils.CreateMountain(geometry, "BriefingUhudFlankShelf", center + Vector3.new(48, 0, 20), 120, 44, 48, Color3.fromRGB(139, 112, 82), 16)
+        createMountainFaceDetails(geometry, "BriefingUhudMassFaces", center + Vector3.new(8, 0, -28), -4, 216, 112, 84, Color3.fromRGB(145, 116, 83))
+        createMountainFaceDetails(geometry, "BriefingUhudWestFaces", center + Vector3.new(-50, 0, 14), -18, 132, 54, 54, Color3.fromRGB(132, 106, 79))
+        createMountainFaceDetails(geometry, "BriefingUhudFlankFaces", center + Vector3.new(48, 0, 24), 16, 120, 44, 48, Color3.fromRGB(139, 112, 82))
+        BuildUtils.CreatePart(geometry, "BriefingPass", Vector3.new(122, 1, 26), CFrame.new(center + Vector3.new(-2, 2.05, 10)) * CFrame.Angles(0, math.rad(-8), 0), Color3.fromRGB(170, 141, 102), Enum.Material.Sandstone, nil, nil)
+        BuildUtils.CreatePart(geometry, "BriefingArcherShelf", Vector3.new(78, 2.2, 18), CFrame.new(center + Vector3.new(-44, 18, -2)) * CFrame.Angles(0, math.rad(-18), 0), Color3.fromRGB(127, 103, 79), Enum.Material.Slate, nil, nil)
+        BuildUtils.CreatePart(geometry, "BriefingFlankPath", Vector3.new(72, 1.2, 18), CFrame.new(center + Vector3.new(38, 14, 18)) * CFrame.Angles(0, math.rad(18), 0), Color3.fromRGB(142, 117, 90), Enum.Material.Slate, nil, nil)
+        BuildUtils.CreateRockCluster(geometry, "BriefingPassRocksWest", center + Vector3.new(-46, 0, 24))
+        BuildUtils.CreateRockCluster(geometry, "BriefingPassRocksCenter", center + Vector3.new(2, 0, 18))
+        BuildUtils.CreateRockCluster(geometry, "BriefingPassRocksEast", center + Vector3.new(40, 0, 26))
+        createCampShelter(geometry, "BriefingCampWest", center + Vector3.new(-64, 0, 34), Color3.fromRGB(74, 121, 82))
+        createCampShelter(geometry, "BriefingCampEast", center + Vector3.new(66, 0, 34), Color3.fromRGB(143, 101, 66))
+        BuildUtils.CreateBanner(geometry, "BriefingBannerWest", center + Vector3.new(-76, 0, 16), medinaColor)
+        BuildUtils.CreateBanner(geometry, "BriefingBannerEast", center + Vector3.new(78, 0, 24), makkahColor)
+        createArenaTorch(geometry, "BriefingTorchWest", center + Vector3.new(-74, 0, 52))
+        createArenaTorch(geometry, "BriefingTorchEast", center + Vector3.new(76, 0, 52))
+        createArenaStorySign(geometry, "BriefingRidgeSign", center + Vector3.new(-58, 0, -8), 150, "Archer Ridge", "The ridge is shown as a real shelf above the pass so the command to hold it feels physical, not abstract.", Color3.fromRGB(77, 96, 72))
+        createArenaStorySign(geometry, "BriefingPassSign", center + Vector3.new(24, 0, 54), 0, "The Pass", "This route lets players see how one opening could reshape the whole battle.", Color3.fromRGB(108, 80, 55))
+
+        local camera1 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap1", center + Vector3.new(-116, 40, 88))
+        camera1.CFrame = CFrame.new(camera1.Position, center + Vector3.new(-12, 16, 2))
+        local camera2 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap2", center + Vector3.new(-74, 34, 34))
+        camera2.CFrame = CFrame.new(camera2.Position, center + Vector3.new(-46, 22, -2))
+        local camera3 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap3", center + Vector3.new(-8, 30, 80))
+        camera3.CFrame = CFrame.new(camera3.Position, center + Vector3.new(-4, 10, 10))
+        local camera4 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap4", center + Vector3.new(70, 36, 58))
+        camera4.CFrame = CFrame.new(camera4.Position, center + Vector3.new(28, 16, 18))
+        local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap5", center + Vector3.new(26, 24, -66))
+        camera5.CFrame = CFrame.new(camera5.Position, center + Vector3.new(4, 12, 8))
+        local camera6 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap6", center + Vector3.new(-12, 46, -28))
+        camera6.CFrame = CFrame.new(camera6.Position, center + Vector3.new(-6, 10, 12))
+
+        local medinaLeadStart = BuildUtils.CreateTeleportAnchor(markers, "BriefingMedinaLeadStart", center + Vector3.new(-62, 0, 10))
+        medinaLeadStart.CFrame = CFrame.new(medinaLeadStart.Position, center + Vector3.new(-6, 0, 8))
+        local medinaLeadAdvance = BuildUtils.CreateTeleportAnchor(markers, "BriefingMedinaLeadAdvance", center + Vector3.new(-12, 0, 12))
+        medinaLeadAdvance.CFrame = CFrame.new(medinaLeadAdvance.Position, center + Vector3.new(18, 0, 8))
+        local medinaSupportStart = BuildUtils.CreateTeleportAnchor(markers, "BriefingMedinaSupportStart", center + Vector3.new(-80, 0, 24))
+        medinaSupportStart.CFrame = CFrame.new(medinaSupportStart.Position, center + Vector3.new(-18, 0, 12))
+        local medinaSupportAdvance = BuildUtils.CreateTeleportAnchor(markers, "BriefingMedinaSupportAdvance", center + Vector3.new(-30, 0, 16))
+        medinaSupportAdvance.CFrame = CFrame.new(medinaSupportAdvance.Position, center + Vector3.new(12, 0, 8))
+        local makkahLeadStart = BuildUtils.CreateTeleportAnchor(markers, "BriefingMakkahLeadStart", center + Vector3.new(74, 14, 30))
+        makkahLeadStart.CFrame = CFrame.new(makkahLeadStart.Position, center + Vector3.new(18, 8, 16))
+        local makkahLeadAdvance = BuildUtils.CreateTeleportAnchor(markers, "BriefingMakkahLeadAdvance", center + Vector3.new(26, 6, 18))
+        makkahLeadAdvance.CFrame = CFrame.new(makkahLeadAdvance.Position, center + Vector3.new(-12, 4, 10))
+        local makkahSupportStart = BuildUtils.CreateTeleportAnchor(markers, "BriefingMakkahSupportStart", center + Vector3.new(86, 14, 14))
+        makkahSupportStart.CFrame = CFrame.new(makkahSupportStart.Position, center + Vector3.new(22, 8, 8))
+        local makkahSupportAdvance = BuildUtils.CreateTeleportAnchor(markers, "BriefingMakkahSupportAdvance", center + Vector3.new(40, 6, 4))
+        makkahSupportAdvance.CFrame = CFrame.new(makkahSupportAdvance.Position, center + Vector3.new(-6, 4, 2))
+
+        createActorRig(actors, "BriefingMedinaLead", medinaLeadStart.CFrame, medinaColor, Color3.fromRGB(40, 71, 48))
+        createActorRig(actors, "BriefingMedinaSupport", medinaSupportStart.CFrame, medinaColor, Color3.fromRGB(40, 71, 48))
+        createActorRig(actors, "BriefingMakkahLead", makkahLeadStart.CFrame, makkahColor, Color3.fromRGB(97, 67, 43))
+        createActorRig(actors, "BriefingMakkahSupport", makkahSupportStart.CFrame, makkahColor, Color3.fromRGB(97, 67, 43))
+
+        for index = 1, 4 do
+            local archerPosition = center + Vector3.new(-68 + index * 12, 20.4, -6 + ((index % 2 == 0) and -1.2 or 1.2))
+            createActorRig(
+                actors,
+                string.format("BriefingArcher%d", index),
+                CFrame.new(archerPosition, center + Vector3.new(22, 10, 10)),
+                medinaColor,
+                Color3.fromRGB(51, 83, 58),
+                0.94
+            )
+        end
+
+        for index = 1, 4 do
+            createActorRig(
+                actors,
+                string.format("BriefingMedinaRank%d", index),
+                CFrame.new(center + Vector3.new(-70 + index * 8, 0, 32 + index * 4), center + Vector3.new(12, 0, 16)),
+                medinaColor,
+                Color3.fromRGB(40, 71, 48),
+                0.96
+            )
+            createActorRig(
+                actors,
+                string.format("BriefingMakkahRank%d", index),
+                CFrame.new(center + Vector3.new(50 + index * 7, 14, 30 - index * 5), center + Vector3.new(-10, 8, 10)),
+                makkahColor,
+                Color3.fromRGB(97, 67, 43),
+                0.96
+            )
+        end
+
+        return
+    end
 
     BuildUtils.CreatePart(geometry, "BriefingDeck", Vector3.new(150, 3, 118), CFrame.new(center + Vector3.new(0, 1.5, 0)), Color3.fromRGB(169, 140, 101), Enum.Material.Sandstone, nil, nil)
     local tableTop = BuildUtils.CreatePart(geometry, "AnimatedMapTable", Vector3.new(116, 2, 72), CFrame.new(center + Vector3.new(0, 6, 0)), Color3.fromRGB(225, 203, 160), Enum.Material.WoodPlanks, nil, nil)
     createBattleMapLabel(
         tableTop,
-        scenarioId == "badr" and "Badr Tactical Map" or "Uhud Tactical Map",
-        scenarioId == "badr" and "Route, valley, wells, and two approaching sides." or "Mountain, pass, archer ridge, and changing momentum."
+        "Badr Tactical Map",
+        "Route, valley, wells, and two approaching sides."
     )
 
     BuildUtils.CreatePart(geometry, "MapFrameNorth", Vector3.new(122, 3, 4), CFrame.new(center + Vector3.new(0, 8, -38)), Color3.fromRGB(97, 67, 42), Enum.Material.Wood, nil, nil)
@@ -368,28 +463,16 @@ local function createBriefingSection(arenaFolder: Folder, center: Vector3, scena
     local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap5", center + Vector3.new(-64, 30, -58))
     camera5.CFrame = CFrame.new(camera5.Position, center + Vector3.new(4, 8, 4))
 
-    if scenarioId == "badr" then
-        createBriefingPath(markers, "RoutePath", CFrame.new(center + Vector3.new(-8, 8.1, 0)) * CFrame.Angles(0, math.rad(14), 0), Color3.fromRGB(246, 221, 143))
-        BuildUtils.CreateVerticalCylinder(markers, "WellMarkerA", 1.4, 4.2, center + Vector3.new(20, 9, -14), Color3.fromRGB(86, 145, 174), Enum.Material.Glass, 0.2)
-        BuildUtils.CreateVerticalCylinder(markers, "WellMarkerB", 1.4, 3.6, center + Vector3.new(30, 9, 6), Color3.fromRGB(86, 145, 174), Enum.Material.Glass, 0.2)
-        createTacticalRidge(markers, "ValleyRidge", center + Vector3.new(0, 8.2, -26), 2, 96, 5.5, 10, Color3.fromRGB(139, 111, 76))
-        createBriefingMarker(markers, "MedinaMapMarker", CFrame.new(center + Vector3.new(-42, 10, 16)), medinaColor)
-        createBriefingMarker(markers, "MakkahMapMarker", CFrame.new(center + Vector3.new(48, 10, -12)), makkahColor)
-        local medinaTarget = createBriefingMarker(markers, "MedinaMapTarget", CFrame.new(center + Vector3.new(-10, 10, 8)), medinaColor)
-        medinaTarget.Transparency = 1
-        local makkahTarget = createBriefingMarker(markers, "MakkahMapTarget", CFrame.new(center + Vector3.new(12, 10, -4)), makkahColor)
-        makkahTarget.Transparency = 1
-    else
-        createTacticalRidge(markers, "UhudMountainMap", center + Vector3.new(0, 8.2, -24), -3, 92, 15, 20, Color3.fromRGB(124, 100, 74))
-        createTacticalRidge(markers, "ArcherRidgeMap", center + Vector3.new(-26, 8.2, -2), -12, 34, 8, 12, Color3.fromRGB(108, 89, 67))
-        createBriefingPath(markers, "FlankPath", CFrame.new(center + Vector3.new(14, 8.1, 14)) * CFrame.Angles(0, math.rad(-28), 0), Color3.fromRGB(246, 221, 143))
-        createBriefingMarker(markers, "MedinaMapMarker", CFrame.new(center + Vector3.new(-40, 10, 16)), medinaColor)
-        createBriefingMarker(markers, "MakkahMapMarker", CFrame.new(center + Vector3.new(50, 10, 12)), makkahColor)
-        local medinaTarget = createBriefingMarker(markers, "MedinaMapTarget", CFrame.new(center + Vector3.new(-4, 10, 0)), medinaColor)
-        medinaTarget.Transparency = 1
-        local makkahTarget = createBriefingMarker(markers, "MakkahMapTarget", CFrame.new(center + Vector3.new(10, 10, 6)), makkahColor)
-        makkahTarget.Transparency = 1
-    end
+    createBriefingPath(markers, "RoutePath", CFrame.new(center + Vector3.new(-8, 8.1, 0)) * CFrame.Angles(0, math.rad(14), 0), Color3.fromRGB(246, 221, 143))
+    BuildUtils.CreateVerticalCylinder(markers, "WellMarkerA", 1.4, 4.2, center + Vector3.new(20, 9, -14), Color3.fromRGB(86, 145, 174), Enum.Material.Glass, 0.2)
+    BuildUtils.CreateVerticalCylinder(markers, "WellMarkerB", 1.4, 3.6, center + Vector3.new(30, 9, 6), Color3.fromRGB(86, 145, 174), Enum.Material.Glass, 0.2)
+    createTacticalRidge(markers, "ValleyRidge", center + Vector3.new(0, 8.2, -26), 2, 96, 5.5, 10, Color3.fromRGB(139, 111, 76))
+    createBriefingMarker(markers, "MedinaMapMarker", CFrame.new(center + Vector3.new(-42, 10, 16)), medinaColor)
+    createBriefingMarker(markers, "MakkahMapMarker", CFrame.new(center + Vector3.new(48, 10, -12)), makkahColor)
+    local medinaTarget = createBriefingMarker(markers, "MedinaMapTarget", CFrame.new(center + Vector3.new(-10, 10, 8)), medinaColor)
+    medinaTarget.Transparency = 1
+    local makkahTarget = createBriefingMarker(markers, "MakkahMapTarget", CFrame.new(center + Vector3.new(12, 10, -4)), makkahColor)
+    makkahTarget.Transparency = 1
 
     createActorRig(geometry, "BriefingGuide", CFrame.new(center + Vector3.new(0, 0, 58), center), Color3.fromRGB(92, 112, 82), Color3.fromRGB(57, 68, 50))
     BuildUtils.CreateBanner(geometry, "BriefingBannerWest", center + Vector3.new(-68, 0, 42), medinaColor)
@@ -481,16 +564,18 @@ local function buildUhudArena(parent: Instance, scenario)
     BuildUtils.CreatePart(geometry, "BattlePassDustBand", Vector3.new(456, 0.26, 48), CFrame.new(-1150, 2.68, 1182), Color3.fromRGB(210, 186, 145), Enum.Material.Sand, nil, 0.18)
     BuildUtils.CreateMountain(geometry, "ArcherRidgeTerrain", Vector3.new(-1298, 0, 1112), 242, 86, 132, Color3.fromRGB(132, 108, 82), -8)
     BuildUtils.CreateMountain(geometry, "SouthShelfTerrain", Vector3.new(-990, 0, 1244), 214, 64, 110, Color3.fromRGB(137, 112, 84), 18)
+    BuildUtils.CreateMountain(geometry, "LastStandShelfTerrain", Vector3.new(-956, 0, 1176), 174, 76, 126, Color3.fromRGB(134, 109, 82), -16)
+    createMountainFaceDetails(geometry, "LastStandShelfFaces", Vector3.new(-956, 0, 1182), -16, 174, 76, 126, Color3.fromRGB(134, 109, 82))
     BuildUtils.CreatePart(geometry, "ArcherRidgeLookout", Vector3.new(108, 2.8, 30), CFrame.new(-1298, 48, 1112) * CFrame.Angles(0, math.rad(-8), 0), Color3.fromRGB(125, 103, 80), Enum.Material.Slate, nil, nil)
     BuildUtils.CreatePart(geometry, "ArcherRidgeTrail", Vector3.new(94, 1.4, 16), CFrame.new(-1332, 22, 1156) * CFrame.Angles(0, math.rad(32), 0), Color3.fromRGB(137, 114, 88), Enum.Material.Slate, nil, nil)
     BuildUtils.CreatePart(geometry, "SouthShelfPath", Vector3.new(98, 2.2, 22), CFrame.new(-990, 34, 1244) * CFrame.Angles(0, math.rad(18), 0), Color3.fromRGB(134, 111, 84), Enum.Material.Slate, nil, nil)
-    BuildUtils.CreatePart(geometry, "FinalStandPlatform", Vector3.new(96, 2.4, 64), CFrame.new(-958, 18, 1182) * CFrame.Angles(0, math.rad(-16), 0), Color3.fromRGB(122, 102, 79), Enum.Material.Slate, nil, nil)
-    BuildUtils.CreatePart(geometry, "FinalStandPlinth", Vector3.new(72, 5.2, 40), CFrame.new(-958, 10, 1182) * CFrame.Angles(0, math.rad(-16), 0), Color3.fromRGB(116, 95, 72), Enum.Material.Rock, nil, nil)
+    BuildUtils.CreatePart(geometry, "LastStandPath", Vector3.new(114, 1.6, 20), CFrame.new(-958, 24, 1184) * CFrame.Angles(0, math.rad(-16), 0), Color3.fromRGB(132, 109, 84), Enum.Material.Slate, nil, nil)
     BuildUtils.CreateRockCluster(geometry, "PassRocksWest", Vector3.new(-1324, 0, 1238))
     BuildUtils.CreateRockCluster(geometry, "PassRocksEast", Vector3.new(-990, 0, 1124))
     BuildUtils.CreateRockCluster(geometry, "PassRocksCenter", Vector3.new(-1156, 0, 1210))
     BuildUtils.CreateRockCluster(geometry, "FinalStandRocks", Vector3.new(-954, 0, 1182))
     BuildUtils.CreateRockCluster(geometry, "RidgeFootRocks", Vector3.new(-1258, 0, 1088))
+    BuildUtils.CreateRockCluster(geometry, "LastStandOuterRocks", Vector3.new(-898, 0, 1210))
     createCampShelter(geometry, "UhudCampWest", Vector3.new(-1376, 0, 1190), Color3.fromRGB(74, 121, 82))
     createCampShelter(geometry, "UhudCampEast", Vector3.new(-932, 0, 1190), Color3.fromRGB(143, 101, 66))
     BuildUtils.CreateBanner(geometry, "UhudBannerWest", Vector3.new(-1338, 0, 1158), Color3.fromRGB(62, 125, 82))
@@ -506,7 +591,7 @@ local function buildUhudArena(parent: Instance, scenario)
     createArenaStorySign(geometry, "UhudMountainStory", Vector3.new(-1150, 0, 1048), 180, "Mount Uhud", "Sahih al-Bukhari 4422 preserves the words that Uhud is a mountain that loves us and is loved by us.", Color3.fromRGB(89, 75, 56))
     createArenaStorySign(geometry, "UhudArcherRidgeStory", Vector3.new(-1328, 0, 1078), 150, "The Archer Ridge", "Sunan Abi Dawud 2662 records the order to hold this position and not leave it even if victory seemed clear.", Color3.fromRGB(68, 91, 66))
     createArenaStorySign(geometry, "UhudFlankStory", Vector3.new(-1000, 0, 1290), 320, "The Hard Turn", "Sahih Muslim 1789 remembers the pressure of the late battle when only a few defenders remained in the last stand.", Color3.fromRGB(112, 76, 51))
-    createArenaStorySign(geometry, "UhudFinalStandStory", Vector3.new(-946, 18, 1130), 210, "Final Stand", "This mode now ends here with one boss instead of filler bots so the finish feels decisive.", Color3.fromRGB(101, 72, 52))
+    createArenaStorySign(geometry, "UhudFinalStandStory", Vector3.new(-946, 24, 1130), 210, "Steadfast Ground", "Qur'an 3:172 and Sahih al-Bukhari 4077 turn the memory of Uhud toward those who answered again after being wounded.", Color3.fromRGB(101, 72, 52))
 
     addSpawnAnchors(spawns, "medina", scenario.SpawnPositions.medina)
     addSpawnAnchors(spawns, "makkah", scenario.SpawnPositions.makkah)

@@ -240,16 +240,6 @@ local BattleScenarios = {
                 AccentColor = Color3.fromRGB(143, 101, 68),
             },
         },
-        FinalBossPhase = {
-            Enabled = true,
-            Health = 420,
-            DisplayNames = {
-                medina = "Final Medina Defender",
-                makkah = "Final Quraysh Cavalry Commander",
-            },
-            StartMessageTemplate = "Final phase: the %s enters the field. The surviving team must finish the battle by defeating this boss.",
-            DefeatedMessageTemplate = "%s defeated the %s and secured the field at Uhud.",
-        },
         KeyFigures = {
             Medina = "Medina side: Prophet Muhammad, peace be upon him, led the Muslims but is never depicted. Companions connected to Uhud include Hamzah ibn Abd al-Muttalib, Mus'ab ibn Umayr, and Nusaybah bint Ka'b, may Allah be pleased with them.",
             Makkah = "Makkah Quraysh side: leaders and commanders connected to Uhud include Abu Sufyan and Khalid ibn al-Walid before he accepted Islam. The game uses a generic commander role instead of making them playable.",
@@ -288,38 +278,51 @@ local BattleScenarios = {
             Scenes = {
                 {
                     CameraName = "BriefingMap1",
-                    Title = "7 Shawwal, 3 AH | 625 CE",
-                    Body = "Uhud happened the year after Badr, north of Medina near Mount Uhud, when Quraysh returned looking for a hard answer to their defeat at Badr.",
+                    Title = "Dawn At Uhud | 3 AH / 625 CE",
+                    Body = "Qur'an 3:121 remembers the believers being placed into battle positions. This opening view frames Mount Uhud, the approaches from Medina, and the ground where the lines were formed before the clash.",
                     DurationSeconds = 8,
                     FieldOfView = 62,
+                    Reference = "Qur'an 3:121 · Quran.com",
                 },
                 {
                     CameraName = "BriefingMap2",
-                    Title = "The Archer Order",
-                    Body = "Sunan Abi Dawud 2662 reports that 'Abd Allah ibn Jubayr led fifty archers with a clear order: do not leave the ridge even if victory looks certain.",
+                    Title = "The Archer Ridge Must Hold",
+                    Body = "Sunan Abi Dawud 2662 reports that 'Abd Allah ibn Jubayr led fifty archers with a strict order: hold the ridge and do not leave, even if the battlefield appears won.",
                     DurationSeconds = 9,
                     FieldOfView = 58,
+                    Reference = "Sunan Abi Dawud 2662 · Sunnah.com",
                 },
                 {
                     CameraName = "BriefingMap3",
-                    Title = "People And Sacrifice",
-                    Body = "The route around Uhud is tied to companions remembered in the reports of this battle, including Hamzah, Mus'ab ibn Umayr, and the defenders who stood firm when the field became confused.",
+                    Title = "Early Pressure On Quraysh",
+                    Body = "Qur'an 3:152 describes the early stage when victory seemed within reach. In the game camera pass, the Medina line pushes forward while the ridge still protects the flank.",
                     DurationSeconds = 9,
                     FieldOfView = 60,
+                    Reference = "Qur'an 3:152 · Quran.com",
                 },
                 {
                     CameraName = "BriefingMap4",
-                    Title = "The Hard Turn",
-                    Body = "Sahih Muslim 1789 describes the pressure of the late battle, when only a few defenders remained in a desperate stand. Uhud teaches that one broken position can change the whole field.",
+                    Title = "The Turn In The Field",
+                    Body = "Qur'an 3:152-153 links the setback to dispute and disobedience after success. Once the ridge opened, the field broke, people ran uphill in confusion, and the battle changed in moments.",
                     DurationSeconds = 9,
                     FieldOfView = 60,
+                    Reference = "Qur'an 3:152-153 · Quran.com",
                 },
                 {
                     CameraName = "BriefingMap5",
-                    Title = "Your Objective",
-                    Body = "Fight for control of the pass. When one side breaks, a final boss enters the field and the surviving team must finish the battle there.",
+                    Title = "Wounds And Protection",
+                    Body = "Sahih Muslim 1790a records the injuries of that day: the Messenger of Allah, peace be upon him, was wounded, and Fatimah and 'Ali worked urgently to stop the bleeding.",
                     DurationSeconds = 8,
                     FieldOfView = 60,
+                    Reference = "Sahih Muslim 1790a · Sunnah.com",
+                },
+                {
+                    CameraName = "BriefingMap6",
+                    Title = "After The Shock",
+                    Body = "Qur'an 3:172 and Sahih al-Bukhari 4077 preserve that wounded believers still answered the call after Uhud. The lesson is not surface-level victory, but obedience, endurance, and return after pain.",
+                    DurationSeconds = 9,
+                    FieldOfView = 57,
+                    Reference = "Qur'an 3:172 · Sahih al-Bukhari 4077",
                 },
             },
         },
@@ -331,39 +334,51 @@ local BattleScenarios = {
                     Title = "A Mountain With Meaning",
                     Body = "Sahih al-Bukhari 4422 preserves the line that Uhud is a mountain that loves us and is loved by us. The place itself became part of the memory of the battle.",
                     DurationSeconds = 8,
+                    Reference = "Sahih al-Bukhari 4422 · Sunnah.com",
                 },
                 {
                     CameraName = "Scene2",
-                    Title = "The Ridge Must Hold",
-                    Body = "Sunan Abi Dawud 2662 ties Uhud to the order given to the archers not to leave their place, even when the field looked won and the temptation of booty appeared.",
+                    Title = "Stations For Battle",
+                    Body = "Qur'an 3:121 recalls the believers being placed into battle positions. This scene turns from the mountain face to the ridge and pass so players can connect the reports to the actual terrain.",
                     DurationSeconds = 9,
+                    Reference = "Qur'an 3:121 · Quran.com",
                 },
                 {
                     CameraName = "Scene3",
-                    Title = "The Last Stand",
-                    Body = "Sahih Muslim 1789 describes a terrible moment when only seven Ansar and two Qurashi defenders remained close in protection while the enemy pressed forward.",
+                    Title = "The Ridge Must Hold",
+                    Body = "Sunan Abi Dawud 2662 ties Uhud to the order given to the archers not to leave their place, even when the field looked won and the temptation of booty appeared.",
                     DurationSeconds = 9,
+                    Reference = "Sunan Abi Dawud 2662 · Sunnah.com",
                 },
                 {
                     CameraName = "Scene4",
-                    Title = "Wounds And Rescue",
-                    Body = "Sahih Muslim 1790a records the injuries suffered that day and the urgent effort to stop the bleeding. The battle was not a simple victory story. It was pain, rescue, and endurance.",
+                    Title = "Confusion And The Uphill Flight",
+                    Body = "Qur'an 3:153 describes the believers climbing and not looking back while the Messenger called from behind. Sahih Muslim 1789 remembers how fiercely the pressure closed in during the late battle.",
                     DurationSeconds = 9,
+                    Reference = "Qur'an 3:153 · Sahih Muslim 1789",
                 },
                 {
                     CameraName = "Scene5",
-                    Title = "What Uhud Leaves Behind",
-                    Body = "Sahih Muslim 940a remembers Mus'ab ibn Umayr among the martyrs of Uhud, and Sahih al-Bukhari 4081 preserves the dream of the broken sword as a sign of the believers' losses.",
+                    Title = "Wounds And Rescue",
+                    Body = "Sahih Muslim 1790a records the injuries suffered that day and the urgent effort to stop the bleeding. Uhud is taught here as pain, rescue, loss, and steadfast protection under pressure.",
                     DurationSeconds = 9,
+                    Reference = "Sahih Muslim 1790a · Sunnah.com",
+                },
+                {
+                    CameraName = "Scene6",
+                    Title = "Martyrs, Grief, And Response",
+                    Body = "Sahih Muslim 940a remembers Mus'ab ibn Umayr among the martyrs of Uhud. Qur'an 3:169 and 3:172 turn the lesson toward honor, patience, and answering again after being wounded.",
+                    DurationSeconds = 9,
+                    Reference = "Qur'an 3:169-172 · Sahih Muslim 940a",
                 },
             },
         },
         StorySummary = {
             Title = "What Happened At Uhud",
             Lines = {
-                "Uhud took place on 7 Shawwal, 3 AH / 625 CE near Mount Uhud and became a hard lesson in discipline and battlefield positioning.",
-                "Sunan Abi Dawud 2662 preserves the order to the archers to hold their post, while Sahih Muslim 1789 records the fierce pressure of the late battle.",
-                "This mode ends with a single final boss instead of filler bots, so the finish feels like one decisive last stand.",
+                "Qur'an 3:121, 3:152, and 3:153 frame Uhud through placement, early success, disobedience, confusion, and the cost of a broken position.",
+                "Sunan Abi Dawud 2662 preserves the command to the archers, while Sahih Muslim 1789 and 1790a preserve the pressure, wounds, and rescue of the late battle.",
+                "Uhud now runs as a player-only battle with no filler bots, so the focus stays on the field, the ridge, and the lesson itself.",
             },
         },
         Rewards = {
@@ -1798,13 +1813,108 @@ local function createBriefingSection(arenaFolder: Folder, center: Vector3, scena
     local geometry = BuildUtils.CreateFolder(briefing, "Geometry")
     local cameras = BuildUtils.CreateFolder(briefing, "Cameras")
     local markers = BuildUtils.CreateFolder(briefing, "Markers")
+    local actors = BuildUtils.CreateFolder(briefing, "Actors")
+
+    if scenarioId == "uhud" then
+        BuildUtils.CreatePart(geometry, "BriefingGround", Vector3.new(176, 2, 128), CFrame.new(center + Vector3.new(0, 1, 0)), Color3.fromRGB(188, 160, 120), Enum.Material.Sand, nil, nil)
+        BuildUtils.CreateDune(geometry, "BriefingFrontRise", center + Vector3.new(0, 0, 46), Vector3.new(164, 34, 56), Color3.fromRGB(198, 170, 126))
+        BuildUtils.CreateDune(geometry, "BriefingRearSlope", center + Vector3.new(0, 0, -34), Vector3.new(146, 28, 44), Color3.fromRGB(186, 156, 118))
+        BuildUtils.CreateMountain(geometry, "BriefingUhudMass", center + Vector3.new(8, 0, -34), 216, 112, 84, Color3.fromRGB(145, 116, 83), -4)
+        BuildUtils.CreateMountain(geometry, "BriefingUhudWestRidge", center + Vector3.new(-50, 0, 10), 132, 54, 54, Color3.fromRGB(132, 106, 79), -18)
+        BuildUtils.CreateMountain(geometry, "BriefingUhudFlankShelf", center + Vector3.new(48, 0, 20), 120, 44, 48, Color3.fromRGB(139, 112, 82), 16)
+        createMountainFaceDetails(geometry, "BriefingUhudMassFaces", center + Vector3.new(8, 0, -28), -4, 216, 112, 84, Color3.fromRGB(145, 116, 83))
+        createMountainFaceDetails(geometry, "BriefingUhudWestFaces", center + Vector3.new(-50, 0, 14), -18, 132, 54, 54, Color3.fromRGB(132, 106, 79))
+        createMountainFaceDetails(geometry, "BriefingUhudFlankFaces", center + Vector3.new(48, 0, 24), 16, 120, 44, 48, Color3.fromRGB(139, 112, 82))
+        BuildUtils.CreatePart(geometry, "BriefingPass", Vector3.new(122, 1, 26), CFrame.new(center + Vector3.new(-2, 2.05, 10)) * CFrame.Angles(0, math.rad(-8), 0), Color3.fromRGB(170, 141, 102), Enum.Material.Sandstone, nil, nil)
+        BuildUtils.CreatePart(geometry, "BriefingArcherShelf", Vector3.new(78, 2.2, 18), CFrame.new(center + Vector3.new(-44, 18, -2)) * CFrame.Angles(0, math.rad(-18), 0), Color3.fromRGB(127, 103, 79), Enum.Material.Slate, nil, nil)
+        BuildUtils.CreatePart(geometry, "BriefingFlankPath", Vector3.new(72, 1.2, 18), CFrame.new(center + Vector3.new(38, 14, 18)) * CFrame.Angles(0, math.rad(18), 0), Color3.fromRGB(142, 117, 90), Enum.Material.Slate, nil, nil)
+        BuildUtils.CreateRockCluster(geometry, "BriefingPassRocksWest", center + Vector3.new(-46, 0, 24))
+        BuildUtils.CreateRockCluster(geometry, "BriefingPassRocksCenter", center + Vector3.new(2, 0, 18))
+        BuildUtils.CreateRockCluster(geometry, "BriefingPassRocksEast", center + Vector3.new(40, 0, 26))
+        createCampShelter(geometry, "BriefingCampWest", center + Vector3.new(-64, 0, 34), Color3.fromRGB(74, 121, 82))
+        createCampShelter(geometry, "BriefingCampEast", center + Vector3.new(66, 0, 34), Color3.fromRGB(143, 101, 66))
+        BuildUtils.CreateBanner(geometry, "BriefingBannerWest", center + Vector3.new(-76, 0, 16), medinaColor)
+        BuildUtils.CreateBanner(geometry, "BriefingBannerEast", center + Vector3.new(78, 0, 24), makkahColor)
+        createArenaTorch(geometry, "BriefingTorchWest", center + Vector3.new(-74, 0, 52))
+        createArenaTorch(geometry, "BriefingTorchEast", center + Vector3.new(76, 0, 52))
+        createArenaStorySign(geometry, "BriefingRidgeSign", center + Vector3.new(-58, 0, -8), 150, "Archer Ridge", "The ridge is shown as a real shelf above the pass so the command to hold it feels physical, not abstract.", Color3.fromRGB(77, 96, 72))
+        createArenaStorySign(geometry, "BriefingPassSign", center + Vector3.new(24, 0, 54), 0, "The Pass", "This route lets players see how one opening could reshape the whole battle.", Color3.fromRGB(108, 80, 55))
+
+        local camera1 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap1", center + Vector3.new(-116, 40, 88))
+        camera1.CFrame = CFrame.new(camera1.Position, center + Vector3.new(-12, 16, 2))
+        local camera2 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap2", center + Vector3.new(-74, 34, 34))
+        camera2.CFrame = CFrame.new(camera2.Position, center + Vector3.new(-46, 22, -2))
+        local camera3 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap3", center + Vector3.new(-8, 30, 80))
+        camera3.CFrame = CFrame.new(camera3.Position, center + Vector3.new(-4, 10, 10))
+        local camera4 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap4", center + Vector3.new(70, 36, 58))
+        camera4.CFrame = CFrame.new(camera4.Position, center + Vector3.new(28, 16, 18))
+        local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap5", center + Vector3.new(26, 24, -66))
+        camera5.CFrame = CFrame.new(camera5.Position, center + Vector3.new(4, 12, 8))
+        local camera6 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap6", center + Vector3.new(-12, 46, -28))
+        camera6.CFrame = CFrame.new(camera6.Position, center + Vector3.new(-6, 10, 12))
+
+        local medinaLeadStart = BuildUtils.CreateTeleportAnchor(markers, "BriefingMedinaLeadStart", center + Vector3.new(-62, 0, 10))
+        medinaLeadStart.CFrame = CFrame.new(medinaLeadStart.Position, center + Vector3.new(-6, 0, 8))
+        local medinaLeadAdvance = BuildUtils.CreateTeleportAnchor(markers, "BriefingMedinaLeadAdvance", center + Vector3.new(-12, 0, 12))
+        medinaLeadAdvance.CFrame = CFrame.new(medinaLeadAdvance.Position, center + Vector3.new(18, 0, 8))
+        local medinaSupportStart = BuildUtils.CreateTeleportAnchor(markers, "BriefingMedinaSupportStart", center + Vector3.new(-80, 0, 24))
+        medinaSupportStart.CFrame = CFrame.new(medinaSupportStart.Position, center + Vector3.new(-18, 0, 12))
+        local medinaSupportAdvance = BuildUtils.CreateTeleportAnchor(markers, "BriefingMedinaSupportAdvance", center + Vector3.new(-30, 0, 16))
+        medinaSupportAdvance.CFrame = CFrame.new(medinaSupportAdvance.Position, center + Vector3.new(12, 0, 8))
+        local makkahLeadStart = BuildUtils.CreateTeleportAnchor(markers, "BriefingMakkahLeadStart", center + Vector3.new(74, 14, 30))
+        makkahLeadStart.CFrame = CFrame.new(makkahLeadStart.Position, center + Vector3.new(18, 8, 16))
+        local makkahLeadAdvance = BuildUtils.CreateTeleportAnchor(markers, "BriefingMakkahLeadAdvance", center + Vector3.new(26, 6, 18))
+        makkahLeadAdvance.CFrame = CFrame.new(makkahLeadAdvance.Position, center + Vector3.new(-12, 4, 10))
+        local makkahSupportStart = BuildUtils.CreateTeleportAnchor(markers, "BriefingMakkahSupportStart", center + Vector3.new(86, 14, 14))
+        makkahSupportStart.CFrame = CFrame.new(makkahSupportStart.Position, center + Vector3.new(22, 8, 8))
+        local makkahSupportAdvance = BuildUtils.CreateTeleportAnchor(markers, "BriefingMakkahSupportAdvance", center + Vector3.new(40, 6, 4))
+        makkahSupportAdvance.CFrame = CFrame.new(makkahSupportAdvance.Position, center + Vector3.new(-6, 4, 2))
+
+        createActorRig(actors, "BriefingMedinaLead", medinaLeadStart.CFrame, medinaColor, Color3.fromRGB(40, 71, 48))
+        createActorRig(actors, "BriefingMedinaSupport", medinaSupportStart.CFrame, medinaColor, Color3.fromRGB(40, 71, 48))
+        createActorRig(actors, "BriefingMakkahLead", makkahLeadStart.CFrame, makkahColor, Color3.fromRGB(97, 67, 43))
+        createActorRig(actors, "BriefingMakkahSupport", makkahSupportStart.CFrame, makkahColor, Color3.fromRGB(97, 67, 43))
+
+        for index = 1, 4 do
+            local archerPosition = center + Vector3.new(-68 + index * 12, 20.4, -6 + ((index % 2 == 0) and -1.2 or 1.2))
+            createActorRig(
+                actors,
+                string.format("BriefingArcher%d", index),
+                CFrame.new(archerPosition, center + Vector3.new(22, 10, 10)),
+                medinaColor,
+                Color3.fromRGB(51, 83, 58),
+                0.94
+            )
+        end
+
+        for index = 1, 4 do
+            createActorRig(
+                actors,
+                string.format("BriefingMedinaRank%d", index),
+                CFrame.new(center + Vector3.new(-70 + index * 8, 0, 32 + index * 4), center + Vector3.new(12, 0, 16)),
+                medinaColor,
+                Color3.fromRGB(40, 71, 48),
+                0.96
+            )
+            createActorRig(
+                actors,
+                string.format("BriefingMakkahRank%d", index),
+                CFrame.new(center + Vector3.new(50 + index * 7, 14, 30 - index * 5), center + Vector3.new(-10, 8, 10)),
+                makkahColor,
+                Color3.fromRGB(97, 67, 43),
+                0.96
+            )
+        end
+
+        return
+    end
 
     BuildUtils.CreatePart(geometry, "BriefingDeck", Vector3.new(150, 3, 118), CFrame.new(center + Vector3.new(0, 1.5, 0)), Color3.fromRGB(169, 140, 101), Enum.Material.Sandstone, nil, nil)
     local tableTop = BuildUtils.CreatePart(geometry, "AnimatedMapTable", Vector3.new(116, 2, 72), CFrame.new(center + Vector3.new(0, 6, 0)), Color3.fromRGB(225, 203, 160), Enum.Material.WoodPlanks, nil, nil)
     createBattleMapLabel(
         tableTop,
-        scenarioId == "badr" and "Badr Tactical Map" or "Uhud Tactical Map",
-        scenarioId == "badr" and "Route, valley, wells, and two approaching sides." or "Mountain, pass, archer ridge, and changing momentum."
+        "Badr Tactical Map",
+        "Route, valley, wells, and two approaching sides."
     )
 
     BuildUtils.CreatePart(geometry, "MapFrameNorth", Vector3.new(122, 3, 4), CFrame.new(center + Vector3.new(0, 8, -38)), Color3.fromRGB(97, 67, 42), Enum.Material.Wood, nil, nil)
@@ -1823,28 +1933,16 @@ local function createBriefingSection(arenaFolder: Folder, center: Vector3, scena
     local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap5", center + Vector3.new(-64, 30, -58))
     camera5.CFrame = CFrame.new(camera5.Position, center + Vector3.new(4, 8, 4))
 
-    if scenarioId == "badr" then
-        createBriefingPath(markers, "RoutePath", CFrame.new(center + Vector3.new(-8, 8.1, 0)) * CFrame.Angles(0, math.rad(14), 0), Color3.fromRGB(246, 221, 143))
-        BuildUtils.CreateVerticalCylinder(markers, "WellMarkerA", 1.4, 4.2, center + Vector3.new(20, 9, -14), Color3.fromRGB(86, 145, 174), Enum.Material.Glass, 0.2)
-        BuildUtils.CreateVerticalCylinder(markers, "WellMarkerB", 1.4, 3.6, center + Vector3.new(30, 9, 6), Color3.fromRGB(86, 145, 174), Enum.Material.Glass, 0.2)
-        createTacticalRidge(markers, "ValleyRidge", center + Vector3.new(0, 8.2, -26), 2, 96, 5.5, 10, Color3.fromRGB(139, 111, 76))
-        createBriefingMarker(markers, "MedinaMapMarker", CFrame.new(center + Vector3.new(-42, 10, 16)), medinaColor)
-        createBriefingMarker(markers, "MakkahMapMarker", CFrame.new(center + Vector3.new(48, 10, -12)), makkahColor)
-        local medinaTarget = createBriefingMarker(markers, "MedinaMapTarget", CFrame.new(center + Vector3.new(-10, 10, 8)), medinaColor)
-        medinaTarget.Transparency = 1
-        local makkahTarget = createBriefingMarker(markers, "MakkahMapTarget", CFrame.new(center + Vector3.new(12, 10, -4)), makkahColor)
-        makkahTarget.Transparency = 1
-    else
-        createTacticalRidge(markers, "UhudMountainMap", center + Vector3.new(0, 8.2, -24), -3, 92, 15, 20, Color3.fromRGB(124, 100, 74))
-        createTacticalRidge(markers, "ArcherRidgeMap", center + Vector3.new(-26, 8.2, -2), -12, 34, 8, 12, Color3.fromRGB(108, 89, 67))
-        createBriefingPath(markers, "FlankPath", CFrame.new(center + Vector3.new(14, 8.1, 14)) * CFrame.Angles(0, math.rad(-28), 0), Color3.fromRGB(246, 221, 143))
-        createBriefingMarker(markers, "MedinaMapMarker", CFrame.new(center + Vector3.new(-40, 10, 16)), medinaColor)
-        createBriefingMarker(markers, "MakkahMapMarker", CFrame.new(center + Vector3.new(50, 10, 12)), makkahColor)
-        local medinaTarget = createBriefingMarker(markers, "MedinaMapTarget", CFrame.new(center + Vector3.new(-4, 10, 0)), medinaColor)
-        medinaTarget.Transparency = 1
-        local makkahTarget = createBriefingMarker(markers, "MakkahMapTarget", CFrame.new(center + Vector3.new(10, 10, 6)), makkahColor)
-        makkahTarget.Transparency = 1
-    end
+    createBriefingPath(markers, "RoutePath", CFrame.new(center + Vector3.new(-8, 8.1, 0)) * CFrame.Angles(0, math.rad(14), 0), Color3.fromRGB(246, 221, 143))
+    BuildUtils.CreateVerticalCylinder(markers, "WellMarkerA", 1.4, 4.2, center + Vector3.new(20, 9, -14), Color3.fromRGB(86, 145, 174), Enum.Material.Glass, 0.2)
+    BuildUtils.CreateVerticalCylinder(markers, "WellMarkerB", 1.4, 3.6, center + Vector3.new(30, 9, 6), Color3.fromRGB(86, 145, 174), Enum.Material.Glass, 0.2)
+    createTacticalRidge(markers, "ValleyRidge", center + Vector3.new(0, 8.2, -26), 2, 96, 5.5, 10, Color3.fromRGB(139, 111, 76))
+    createBriefingMarker(markers, "MedinaMapMarker", CFrame.new(center + Vector3.new(-42, 10, 16)), medinaColor)
+    createBriefingMarker(markers, "MakkahMapMarker", CFrame.new(center + Vector3.new(48, 10, -12)), makkahColor)
+    local medinaTarget = createBriefingMarker(markers, "MedinaMapTarget", CFrame.new(center + Vector3.new(-10, 10, 8)), medinaColor)
+    medinaTarget.Transparency = 1
+    local makkahTarget = createBriefingMarker(markers, "MakkahMapTarget", CFrame.new(center + Vector3.new(12, 10, -4)), makkahColor)
+    makkahTarget.Transparency = 1
 
     createActorRig(geometry, "BriefingGuide", CFrame.new(center + Vector3.new(0, 0, 58), center), Color3.fromRGB(92, 112, 82), Color3.fromRGB(57, 68, 50))
     BuildUtils.CreateBanner(geometry, "BriefingBannerWest", center + Vector3.new(-68, 0, 42), medinaColor)
@@ -1936,16 +2034,18 @@ local function buildUhudArena(parent: Instance, scenario)
     BuildUtils.CreatePart(geometry, "BattlePassDustBand", Vector3.new(456, 0.26, 48), CFrame.new(-1150, 2.68, 1182), Color3.fromRGB(210, 186, 145), Enum.Material.Sand, nil, 0.18)
     BuildUtils.CreateMountain(geometry, "ArcherRidgeTerrain", Vector3.new(-1298, 0, 1112), 242, 86, 132, Color3.fromRGB(132, 108, 82), -8)
     BuildUtils.CreateMountain(geometry, "SouthShelfTerrain", Vector3.new(-990, 0, 1244), 214, 64, 110, Color3.fromRGB(137, 112, 84), 18)
+    BuildUtils.CreateMountain(geometry, "LastStandShelfTerrain", Vector3.new(-956, 0, 1176), 174, 76, 126, Color3.fromRGB(134, 109, 82), -16)
+    createMountainFaceDetails(geometry, "LastStandShelfFaces", Vector3.new(-956, 0, 1182), -16, 174, 76, 126, Color3.fromRGB(134, 109, 82))
     BuildUtils.CreatePart(geometry, "ArcherRidgeLookout", Vector3.new(108, 2.8, 30), CFrame.new(-1298, 48, 1112) * CFrame.Angles(0, math.rad(-8), 0), Color3.fromRGB(125, 103, 80), Enum.Material.Slate, nil, nil)
     BuildUtils.CreatePart(geometry, "ArcherRidgeTrail", Vector3.new(94, 1.4, 16), CFrame.new(-1332, 22, 1156) * CFrame.Angles(0, math.rad(32), 0), Color3.fromRGB(137, 114, 88), Enum.Material.Slate, nil, nil)
     BuildUtils.CreatePart(geometry, "SouthShelfPath", Vector3.new(98, 2.2, 22), CFrame.new(-990, 34, 1244) * CFrame.Angles(0, math.rad(18), 0), Color3.fromRGB(134, 111, 84), Enum.Material.Slate, nil, nil)
-    BuildUtils.CreatePart(geometry, "FinalStandPlatform", Vector3.new(96, 2.4, 64), CFrame.new(-958, 18, 1182) * CFrame.Angles(0, math.rad(-16), 0), Color3.fromRGB(122, 102, 79), Enum.Material.Slate, nil, nil)
-    BuildUtils.CreatePart(geometry, "FinalStandPlinth", Vector3.new(72, 5.2, 40), CFrame.new(-958, 10, 1182) * CFrame.Angles(0, math.rad(-16), 0), Color3.fromRGB(116, 95, 72), Enum.Material.Rock, nil, nil)
+    BuildUtils.CreatePart(geometry, "LastStandPath", Vector3.new(114, 1.6, 20), CFrame.new(-958, 24, 1184) * CFrame.Angles(0, math.rad(-16), 0), Color3.fromRGB(132, 109, 84), Enum.Material.Slate, nil, nil)
     BuildUtils.CreateRockCluster(geometry, "PassRocksWest", Vector3.new(-1324, 0, 1238))
     BuildUtils.CreateRockCluster(geometry, "PassRocksEast", Vector3.new(-990, 0, 1124))
     BuildUtils.CreateRockCluster(geometry, "PassRocksCenter", Vector3.new(-1156, 0, 1210))
     BuildUtils.CreateRockCluster(geometry, "FinalStandRocks", Vector3.new(-954, 0, 1182))
     BuildUtils.CreateRockCluster(geometry, "RidgeFootRocks", Vector3.new(-1258, 0, 1088))
+    BuildUtils.CreateRockCluster(geometry, "LastStandOuterRocks", Vector3.new(-898, 0, 1210))
     createCampShelter(geometry, "UhudCampWest", Vector3.new(-1376, 0, 1190), Color3.fromRGB(74, 121, 82))
     createCampShelter(geometry, "UhudCampEast", Vector3.new(-932, 0, 1190), Color3.fromRGB(143, 101, 66))
     BuildUtils.CreateBanner(geometry, "UhudBannerWest", Vector3.new(-1338, 0, 1158), Color3.fromRGB(62, 125, 82))
@@ -1961,7 +2061,7 @@ local function buildUhudArena(parent: Instance, scenario)
     createArenaStorySign(geometry, "UhudMountainStory", Vector3.new(-1150, 0, 1048), 180, "Mount Uhud", "Sahih al-Bukhari 4422 preserves the words that Uhud is a mountain that loves us and is loved by us.", Color3.fromRGB(89, 75, 56))
     createArenaStorySign(geometry, "UhudArcherRidgeStory", Vector3.new(-1328, 0, 1078), 150, "The Archer Ridge", "Sunan Abi Dawud 2662 records the order to hold this position and not leave it even if victory seemed clear.", Color3.fromRGB(68, 91, 66))
     createArenaStorySign(geometry, "UhudFlankStory", Vector3.new(-1000, 0, 1290), 320, "The Hard Turn", "Sahih Muslim 1789 remembers the pressure of the late battle when only a few defenders remained in the last stand.", Color3.fromRGB(112, 76, 51))
-    createArenaStorySign(geometry, "UhudFinalStandStory", Vector3.new(-946, 18, 1130), 210, "Final Stand", "This mode now ends here with one boss instead of filler bots so the finish feels decisive.", Color3.fromRGB(101, 72, 52))
+    createArenaStorySign(geometry, "UhudFinalStandStory", Vector3.new(-946, 24, 1130), 210, "Steadfast Ground", "Qur'an 3:172 and Sahih al-Bukhari 4077 turn the memory of Uhud toward those who answered again after being wounded.", Color3.fromRGB(101, 72, 52))
 
     addSpawnAnchors(spawns, "medina", scenario.SpawnPositions.medina)
     addSpawnAnchors(spawns, "makkah", scenario.SpawnPositions.makkah)
@@ -2668,6 +2768,40 @@ local function getBriefingPart(arenaFolder: Folder, folderName: string, partName
     return nil
 end
 
+local function getBriefingActor(arenaFolder: Folder, actorName: string): Model?
+    local briefingFolder = arenaFolder:FindFirstChild("Briefing")
+    local actorsFolder = briefingFolder and briefingFolder:FindFirstChild("Actors")
+    local actor = actorsFolder and actorsFolder:FindFirstChild(actorName)
+
+    if actor and actor:IsA("Model") then
+        return actor
+    end
+
+    return nil
+end
+
+local function getBriefingActorsWithPrefix(arenaFolder: Folder, prefix: string): { Model }
+    local results = {}
+    local briefingFolder = arenaFolder:FindFirstChild("Briefing")
+    local actorsFolder = briefingFolder and briefingFolder:FindFirstChild("Actors")
+
+    if not actorsFolder then
+        return results
+    end
+
+    for _, child in ipairs(actorsFolder:GetChildren()) do
+        if child:IsA("Model") and string.sub(child.Name, 1, #prefix) == prefix then
+            table.insert(results, child)
+        end
+    end
+
+    table.sort(results, function(a, b)
+        return a.Name < b.Name
+    end)
+
+    return results
+end
+
 local function getReenactmentActor(arenaFolder: Folder, actorName: string): Model?
     local reenactmentFolder = arenaFolder:FindFirstChild("Reenactment")
     local actorsFolder = reenactmentFolder and reenactmentFolder:FindFirstChild("Actors")
@@ -2718,6 +2852,72 @@ local function tweenPartTo(part: BasePart, targetCFrame: CFrame, duration: numbe
 end
 
 local function animateBriefing(session)
+    if session.Scenario.Id == "uhud" then
+        local medinaLead = getBriefingActor(session.Arena, "BriefingMedinaLead")
+        local medinaSupport = getBriefingActor(session.Arena, "BriefingMedinaSupport")
+        local makkahLead = getBriefingActor(session.Arena, "BriefingMakkahLead")
+        local makkahSupport = getBriefingActor(session.Arena, "BriefingMakkahSupport")
+        local medinaLeadStart = getBriefingPart(session.Arena, "Markers", "BriefingMedinaLeadStart")
+        local medinaLeadAdvance = getBriefingPart(session.Arena, "Markers", "BriefingMedinaLeadAdvance")
+        local medinaSupportStart = getBriefingPart(session.Arena, "Markers", "BriefingMedinaSupportStart")
+        local medinaSupportAdvance = getBriefingPart(session.Arena, "Markers", "BriefingMedinaSupportAdvance")
+        local makkahLeadStart = getBriefingPart(session.Arena, "Markers", "BriefingMakkahLeadStart")
+        local makkahLeadAdvance = getBriefingPart(session.Arena, "Markers", "BriefingMakkahLeadAdvance")
+        local makkahSupportStart = getBriefingPart(session.Arena, "Markers", "BriefingMakkahSupportStart")
+        local makkahSupportAdvance = getBriefingPart(session.Arena, "Markers", "BriefingMakkahSupportAdvance")
+        local medinaRanks = getBriefingActorsWithPrefix(session.Arena, "BriefingMedinaRank")
+        local makkahRanks = getBriefingActorsWithPrefix(session.Arena, "BriefingMakkahRank")
+
+        if medinaLead and medinaSupport and makkahLead and makkahSupport and medinaLeadStart and medinaLeadAdvance and medinaSupportStart and medinaSupportAdvance and makkahLeadStart and makkahLeadAdvance and makkahSupportStart and makkahSupportAdvance then
+            medinaLead:PivotTo(medinaLeadStart.CFrame)
+            medinaSupport:PivotTo(medinaSupportStart.CFrame)
+            makkahLead:PivotTo(makkahLeadStart.CFrame)
+            makkahSupport:PivotTo(makkahSupportStart.CFrame)
+
+            for index, actor in ipairs(medinaRanks) do
+                local startCFrame = actor:GetPivot()
+                actor:PivotTo(startCFrame)
+
+                task.spawn(function()
+                    task.wait(0.8 + index * 0.15)
+                    tweenModelTo(actor, startCFrame * CFrame.new(16, 0, (index % 2 == 0) and -4 or 4), 2.1)
+                end)
+            end
+
+            for index, actor in ipairs(makkahRanks) do
+                local startCFrame = actor:GetPivot()
+                actor:PivotTo(startCFrame)
+
+                task.spawn(function()
+                    task.wait(4.1 + index * 0.14)
+                    tweenModelTo(actor, startCFrame * CFrame.new(-20, -8, (index % 2 == 0) and 3 or -3), 2.2)
+                end)
+            end
+
+            task.spawn(function()
+                task.wait(1.1)
+                tweenModelTo(medinaLead, medinaLeadAdvance.CFrame, 2.2)
+            end)
+
+            task.spawn(function()
+                task.wait(1.4)
+                tweenModelTo(medinaSupport, medinaSupportAdvance.CFrame, 2.4)
+            end)
+
+            task.spawn(function()
+                task.wait(4.2)
+                tweenModelTo(makkahLead, makkahLeadAdvance.CFrame, 2.3)
+            end)
+
+            task.spawn(function()
+                task.wait(4.5)
+                tweenModelTo(makkahSupport, makkahSupportAdvance.CFrame, 2.5)
+            end)
+
+            return
+        end
+    end
+
     local medinaMarker = getBriefingPart(session.Arena, "Markers", "MedinaMapMarker")
     local makkahMarker = getBriefingPart(session.Arena, "Markers", "MakkahMapMarker")
     local medinaTarget = getBriefingPart(session.Arena, "Markers", "MedinaMapTarget")
@@ -2864,7 +3064,11 @@ local function animateReenactment(session)
             task.wait(2.2)
             tweenModelTo(makkahCommander, makkahCommanderAdvance.CFrame, 2)
             task.wait(2.8)
-            tweenModelTo(makkahCommander, makkahCommanderDefeat.CFrame * CFrame.Angles(0, 0, math.rad(68)), 1.8)
+            if scenarioId == "uhud" then
+                tweenModelTo(makkahCommander, makkahCommanderDefeat.CFrame, 1.8)
+            else
+                tweenModelTo(makkahCommander, makkahCommanderDefeat.CFrame * CFrame.Angles(0, 0, math.rad(68)), 1.8)
+            end
         end)
     end
 end
@@ -2884,6 +3088,7 @@ local function buildReenactmentPayload(session, winnerText: string)
             table.insert(scenePayloads, {
                 Title = scene.Title,
                 Body = scene.Body,
+                Reference = scene.Reference,
                 DurationSeconds = scene.DurationSeconds,
                 CameraCFrame = cameraPart.CFrame,
             })
@@ -2918,6 +3123,7 @@ local function buildBriefingPayload(session)
             table.insert(scenePayloads, {
                 Title = scene.Title,
                 Body = scene.Body,
+                Reference = scene.Reference,
                 DurationSeconds = scene.DurationSeconds,
                 CameraCFrame = cameraPart.CFrame,
                 FieldOfView = scene.FieldOfView,
@@ -3457,12 +3663,14 @@ startSession = function(scenarioId: string)
         end
 
         if scenario.FillEmptySlotsWithBots == false then
-            sendMessage(queuedPlayers, "Uhud now runs without filler bots during the main fight so the field stays clear and readable.", 6)
+            sendMessage(queuedPlayers, "Uhud now runs as a player-only mode with no filler bots, so the field stays focused on the ridge, the pass, and the player fight itself.", 6)
         else
             sendMessage(queuedPlayers, string.format("Field strength: up to %d fighters per side. AI fills empty slots, but players still decide the round.", scenario.PlayersPerTeam), 6)
         end
         sendMessage(queuedPlayers, "Combat tips: left click to attack, hold and release the bow to fire, and right click to raise your shield block.", 6)
-        BattleBots.Start(session)
+        if #session.Dummies > 0 then
+            BattleBots.Start(session)
+        end
         evaluateVictory(session)
 
         task.delay(scenario.RoundDurationSeconds, function()
@@ -10167,7 +10375,7 @@ sceneTitle.Parent = cinematicBottom
 local sceneBody = Instance.new("TextLabel")
 sceneBody.BackgroundTransparency = 1
 sceneBody.Position = UDim2.new(0, 38, 1, -112)
-sceneBody.Size = UDim2.new(1, -76, 0, 84)
+sceneBody.Size = UDim2.new(1, -76, 0, 74)
 sceneBody.Font = Enum.Font.Gotham
 sceneBody.Text = ""
 sceneBody.TextColor3 = Color3.fromRGB(220, 214, 199)
@@ -10176,6 +10384,19 @@ sceneBody.TextWrapped = true
 sceneBody.TextXAlignment = Enum.TextXAlignment.Left
 sceneBody.TextYAlignment = Enum.TextYAlignment.Top
 sceneBody.Parent = cinematicBottom
+
+local sceneReference = Instance.new("TextLabel")
+sceneReference.BackgroundTransparency = 1
+sceneReference.Position = UDim2.new(0, 38, 1, -38)
+sceneReference.Size = UDim2.new(1, -76, 0, 18)
+sceneReference.Font = Enum.Font.GothamMedium
+sceneReference.Text = ""
+sceneReference.TextColor3 = Color3.fromRGB(205, 187, 145)
+sceneReference.TextSize = 13
+sceneReference.TextTransparency = 1
+sceneReference.TextWrapped = true
+sceneReference.TextXAlignment = Enum.TextXAlignment.Left
+sceneReference.Parent = cinematicBottom
 
 local sceneCounter = Instance.new("TextLabel")
 sceneCounter.BackgroundTransparency = 1
@@ -10280,6 +10501,9 @@ local function tweenSceneText(sceneTitleTransparency: number, sceneBodyTranspare
     TweenService:Create(sceneBody, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
         TextTransparency = sceneBodyTransparency,
     }):Play()
+    TweenService:Create(sceneReference, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        TextTransparency = sceneBodyTransparency,
+    }):Play()
     TweenService:Create(sceneCounter, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
         TextTransparency = sceneCounterTransparency,
     }):Play()
@@ -10324,6 +10548,7 @@ playReenactment.OnClientEvent:Connect(function(payload)
     local totalDuration = 0
     sceneTitle.TextTransparency = 1
     sceneBody.TextTransparency = 1
+    sceneReference.TextTransparency = 1
     sceneCounter.TextTransparency = 1
 
     for _, scene in ipairs(scenes) do
@@ -10339,6 +10564,7 @@ playReenactment.OnClientEvent:Connect(function(payload)
 
         sceneTitle.Text = scene.Title or ""
         sceneBody.Text = scene.Body or ""
+        sceneReference.Text = scene.Reference or ""
         sceneCounter.Text = string.format("%s %d of %d", payload.Kind == "Briefing" and "Briefing" or "Scene", index, #scenes)
         tweenSceneText(0, 0, 0, 0.22)
 

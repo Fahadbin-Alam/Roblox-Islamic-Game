@@ -26,6 +26,18 @@ function Assert-Contains {
     }
 }
 
+function Assert-NotContains {
+    param(
+        [string] $Text,
+        [string] $Needle,
+        [string] $Label
+    )
+
+    if ($Text.Contains($Needle)) {
+        throw "Unexpected $Label`: $Needle"
+    }
+}
+
 $battleScenarios = Get-Content -LiteralPath $battleScenariosPath -Raw
 $battleService = Get-Content -LiteralPath $battleServicePath -Raw
 $battleBots = Get-Content -LiteralPath $battleBotsPath -Raw
@@ -37,10 +49,8 @@ $build = Get-Content -LiteralPath $buildPath -Raw
 $scenarioChecks = @(
     "RecommendedPlayers = 60",
     "PlayersPerTeam = 30",
-    "RoundDurationSeconds = 240",
     "RoundDurationSeconds = 250",
-    "FillEmptySlotsWithBots = false",
-    "FinalBossPhase = {"
+    "FillEmptySlotsWithBots = false"
 )
 
 foreach ($check in $scenarioChecks) {
@@ -48,16 +58,18 @@ foreach ($check in $scenarioChecks) {
     Assert-Contains $build $check "rebuilt battle scenario config"
 }
 
+Assert-NotContains $battleScenarios "FinalBossPhase = {" "legacy Uhud boss config"
+Assert-NotContains $build "FinalBossPhase = {" "rebuilt legacy Uhud boss config"
+
 $serviceChecks = @(
     "local BattleBots = require(script.Parent.Modules.BattleBots)",
     "local function buildFormationPositions",
     "local function getDummyBotStyle",
-    "local function getFinalBossConfig",
-    "startFinalBossPhase = function",
     'BotStyle = botStyle',
     "BattleBots.Start(session)",
+    "if #session.Dummies > 0 then",
     "Field strength: up to %d fighters per side",
-    "Uhud now runs without filler bots during the main fight"
+    "Uhud now runs as a player-only mode with no filler bots"
 )
 
 foreach ($check in $serviceChecks) {

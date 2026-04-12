@@ -660,6 +660,40 @@ local function getBriefingPart(arenaFolder: Folder, folderName: string, partName
     return nil
 end
 
+local function getBriefingActor(arenaFolder: Folder, actorName: string): Model?
+    local briefingFolder = arenaFolder:FindFirstChild("Briefing")
+    local actorsFolder = briefingFolder and briefingFolder:FindFirstChild("Actors")
+    local actor = actorsFolder and actorsFolder:FindFirstChild(actorName)
+
+    if actor and actor:IsA("Model") then
+        return actor
+    end
+
+    return nil
+end
+
+local function getBriefingActorsWithPrefix(arenaFolder: Folder, prefix: string): { Model }
+    local results = {}
+    local briefingFolder = arenaFolder:FindFirstChild("Briefing")
+    local actorsFolder = briefingFolder and briefingFolder:FindFirstChild("Actors")
+
+    if not actorsFolder then
+        return results
+    end
+
+    for _, child in ipairs(actorsFolder:GetChildren()) do
+        if child:IsA("Model") and string.sub(child.Name, 1, #prefix) == prefix then
+            table.insert(results, child)
+        end
+    end
+
+    table.sort(results, function(a, b)
+        return a.Name < b.Name
+    end)
+
+    return results
+end
+
 local function getReenactmentActor(arenaFolder: Folder, actorName: string): Model?
     local reenactmentFolder = arenaFolder:FindFirstChild("Reenactment")
     local actorsFolder = reenactmentFolder and reenactmentFolder:FindFirstChild("Actors")
@@ -710,6 +744,72 @@ local function tweenPartTo(part: BasePart, targetCFrame: CFrame, duration: numbe
 end
 
 local function animateBriefing(session)
+    if session.Scenario.Id == "uhud" then
+        local medinaLead = getBriefingActor(session.Arena, "BriefingMedinaLead")
+        local medinaSupport = getBriefingActor(session.Arena, "BriefingMedinaSupport")
+        local makkahLead = getBriefingActor(session.Arena, "BriefingMakkahLead")
+        local makkahSupport = getBriefingActor(session.Arena, "BriefingMakkahSupport")
+        local medinaLeadStart = getBriefingPart(session.Arena, "Markers", "BriefingMedinaLeadStart")
+        local medinaLeadAdvance = getBriefingPart(session.Arena, "Markers", "BriefingMedinaLeadAdvance")
+        local medinaSupportStart = getBriefingPart(session.Arena, "Markers", "BriefingMedinaSupportStart")
+        local medinaSupportAdvance = getBriefingPart(session.Arena, "Markers", "BriefingMedinaSupportAdvance")
+        local makkahLeadStart = getBriefingPart(session.Arena, "Markers", "BriefingMakkahLeadStart")
+        local makkahLeadAdvance = getBriefingPart(session.Arena, "Markers", "BriefingMakkahLeadAdvance")
+        local makkahSupportStart = getBriefingPart(session.Arena, "Markers", "BriefingMakkahSupportStart")
+        local makkahSupportAdvance = getBriefingPart(session.Arena, "Markers", "BriefingMakkahSupportAdvance")
+        local medinaRanks = getBriefingActorsWithPrefix(session.Arena, "BriefingMedinaRank")
+        local makkahRanks = getBriefingActorsWithPrefix(session.Arena, "BriefingMakkahRank")
+
+        if medinaLead and medinaSupport and makkahLead and makkahSupport and medinaLeadStart and medinaLeadAdvance and medinaSupportStart and medinaSupportAdvance and makkahLeadStart and makkahLeadAdvance and makkahSupportStart and makkahSupportAdvance then
+            medinaLead:PivotTo(medinaLeadStart.CFrame)
+            medinaSupport:PivotTo(medinaSupportStart.CFrame)
+            makkahLead:PivotTo(makkahLeadStart.CFrame)
+            makkahSupport:PivotTo(makkahSupportStart.CFrame)
+
+            for index, actor in ipairs(medinaRanks) do
+                local startCFrame = actor:GetPivot()
+                actor:PivotTo(startCFrame)
+
+                task.spawn(function()
+                    task.wait(0.8 + index * 0.15)
+                    tweenModelTo(actor, startCFrame * CFrame.new(16, 0, (index % 2 == 0) and -4 or 4), 2.1)
+                end)
+            end
+
+            for index, actor in ipairs(makkahRanks) do
+                local startCFrame = actor:GetPivot()
+                actor:PivotTo(startCFrame)
+
+                task.spawn(function()
+                    task.wait(4.1 + index * 0.14)
+                    tweenModelTo(actor, startCFrame * CFrame.new(-20, -8, (index % 2 == 0) and 3 or -3), 2.2)
+                end)
+            end
+
+            task.spawn(function()
+                task.wait(1.1)
+                tweenModelTo(medinaLead, medinaLeadAdvance.CFrame, 2.2)
+            end)
+
+            task.spawn(function()
+                task.wait(1.4)
+                tweenModelTo(medinaSupport, medinaSupportAdvance.CFrame, 2.4)
+            end)
+
+            task.spawn(function()
+                task.wait(4.2)
+                tweenModelTo(makkahLead, makkahLeadAdvance.CFrame, 2.3)
+            end)
+
+            task.spawn(function()
+                task.wait(4.5)
+                tweenModelTo(makkahSupport, makkahSupportAdvance.CFrame, 2.5)
+            end)
+
+            return
+        end
+    end
+
     local medinaMarker = getBriefingPart(session.Arena, "Markers", "MedinaMapMarker")
     local makkahMarker = getBriefingPart(session.Arena, "Markers", "MakkahMapMarker")
     local medinaTarget = getBriefingPart(session.Arena, "Markers", "MedinaMapTarget")
@@ -856,7 +956,11 @@ local function animateReenactment(session)
             task.wait(2.2)
             tweenModelTo(makkahCommander, makkahCommanderAdvance.CFrame, 2)
             task.wait(2.8)
-            tweenModelTo(makkahCommander, makkahCommanderDefeat.CFrame * CFrame.Angles(0, 0, math.rad(68)), 1.8)
+            if scenarioId == "uhud" then
+                tweenModelTo(makkahCommander, makkahCommanderDefeat.CFrame, 1.8)
+            else
+                tweenModelTo(makkahCommander, makkahCommanderDefeat.CFrame * CFrame.Angles(0, 0, math.rad(68)), 1.8)
+            end
         end)
     end
 end
@@ -876,6 +980,7 @@ local function buildReenactmentPayload(session, winnerText: string)
             table.insert(scenePayloads, {
                 Title = scene.Title,
                 Body = scene.Body,
+                Reference = scene.Reference,
                 DurationSeconds = scene.DurationSeconds,
                 CameraCFrame = cameraPart.CFrame,
             })
@@ -910,6 +1015,7 @@ local function buildBriefingPayload(session)
             table.insert(scenePayloads, {
                 Title = scene.Title,
                 Body = scene.Body,
+                Reference = scene.Reference,
                 DurationSeconds = scene.DurationSeconds,
                 CameraCFrame = cameraPart.CFrame,
                 FieldOfView = scene.FieldOfView,
@@ -1449,12 +1555,14 @@ startSession = function(scenarioId: string)
         end
 
         if scenario.FillEmptySlotsWithBots == false then
-            sendMessage(queuedPlayers, "Uhud now runs without filler bots during the main fight so the field stays clear and readable.", 6)
+            sendMessage(queuedPlayers, "Uhud now runs as a player-only mode with no filler bots, so the field stays focused on the ridge, the pass, and the player fight itself.", 6)
         else
             sendMessage(queuedPlayers, string.format("Field strength: up to %d fighters per side. AI fills empty slots, but players still decide the round.", scenario.PlayersPerTeam), 6)
         end
         sendMessage(queuedPlayers, "Combat tips: left click to attack, hold and release the bow to fire, and right click to raise your shield block.", 6)
-        BattleBots.Start(session)
+        if #session.Dummies > 0 then
+            BattleBots.Start(session)
+        end
         evaluateVictory(session)
 
         task.delay(scenario.RoundDurationSeconds, function()

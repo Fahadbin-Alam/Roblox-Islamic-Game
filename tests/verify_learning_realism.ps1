@@ -78,14 +78,21 @@ $battleChecks = @(
 )
 
 $uhudChecks = @(
+    'Qur''an 3:121',
+    'Qur''an 3:152',
+    'Qur''an 3:153',
+    'Qur''an 3:169-172',
+    'Qur''an 3:172',
     'Sunan Abi Dawud 2662',
     'Sahih Muslim 1789',
     'Sahih Muslim 1790a',
-    'Sahih al-Bukhari 4081',
+    'Sahih al-Bukhari 4077',
     'Sahih al-Bukhari 4422',
     'FillEmptySlotsWithBots = false',
-    'FinalBossPhase = {',
-    'FinalStandPlatform',
+    'BriefingUhudMass',
+    'BriefingMedinaLead',
+    'LastStandShelfTerrain',
+    'Steadfast Ground',
     'UhudFinalStandStory'
 )
 
@@ -94,7 +101,8 @@ $hudChecks = @(
     'local function getLineDuration',
     'REFERENCE_SPEAKER_COLOR',
     'local function tweenSceneText',
-    'sceneTextPlate'
+    'sceneTextPlate',
+    'local sceneReference = Instance.new("TextLabel")'
 )
 
 foreach ($needle in $hubChecks) {
@@ -127,6 +135,10 @@ foreach ($needle in $uhudChecks) {
     }
     Assert-Contains $source $needle "uhud source"
     Assert-Contains $build $needle "rebuilt uhud text"
+}
+
+if ($battleScenarios.Contains('FinalBossPhase = {') -or $build.Contains('FinalBossPhase = {')) {
+    throw "Uhud still contains the removed final boss phase."
 }
 
 foreach ($needle in $hudChecks) {

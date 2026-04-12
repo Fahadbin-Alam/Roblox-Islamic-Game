@@ -239,7 +239,7 @@ sceneTitle.Parent = cinematicBottom
 local sceneBody = Instance.new("TextLabel")
 sceneBody.BackgroundTransparency = 1
 sceneBody.Position = UDim2.new(0, 38, 1, -112)
-sceneBody.Size = UDim2.new(1, -76, 0, 84)
+sceneBody.Size = UDim2.new(1, -76, 0, 74)
 sceneBody.Font = Enum.Font.Gotham
 sceneBody.Text = ""
 sceneBody.TextColor3 = Color3.fromRGB(220, 214, 199)
@@ -248,6 +248,19 @@ sceneBody.TextWrapped = true
 sceneBody.TextXAlignment = Enum.TextXAlignment.Left
 sceneBody.TextYAlignment = Enum.TextYAlignment.Top
 sceneBody.Parent = cinematicBottom
+
+local sceneReference = Instance.new("TextLabel")
+sceneReference.BackgroundTransparency = 1
+sceneReference.Position = UDim2.new(0, 38, 1, -38)
+sceneReference.Size = UDim2.new(1, -76, 0, 18)
+sceneReference.Font = Enum.Font.GothamMedium
+sceneReference.Text = ""
+sceneReference.TextColor3 = Color3.fromRGB(205, 187, 145)
+sceneReference.TextSize = 13
+sceneReference.TextTransparency = 1
+sceneReference.TextWrapped = true
+sceneReference.TextXAlignment = Enum.TextXAlignment.Left
+sceneReference.Parent = cinematicBottom
 
 local sceneCounter = Instance.new("TextLabel")
 sceneCounter.BackgroundTransparency = 1
@@ -352,6 +365,9 @@ local function tweenSceneText(sceneTitleTransparency: number, sceneBodyTranspare
     TweenService:Create(sceneBody, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
         TextTransparency = sceneBodyTransparency,
     }):Play()
+    TweenService:Create(sceneReference, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+        TextTransparency = sceneBodyTransparency,
+    }):Play()
     TweenService:Create(sceneCounter, TweenInfo.new(duration, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
         TextTransparency = sceneCounterTransparency,
     }):Play()
@@ -396,6 +412,7 @@ playReenactment.OnClientEvent:Connect(function(payload)
     local totalDuration = 0
     sceneTitle.TextTransparency = 1
     sceneBody.TextTransparency = 1
+    sceneReference.TextTransparency = 1
     sceneCounter.TextTransparency = 1
 
     for _, scene in ipairs(scenes) do
@@ -411,6 +428,7 @@ playReenactment.OnClientEvent:Connect(function(payload)
 
         sceneTitle.Text = scene.Title or ""
         sceneBody.Text = scene.Body or ""
+        sceneReference.Text = scene.Reference or ""
         sceneCounter.Text = string.format("%s %d of %d", payload.Kind == "Briefing" and "Briefing" or "Scene", index, #scenes)
         tweenSceneText(0, 0, 0, 0.22)
 
