@@ -17,6 +17,8 @@ local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "BattleHud"
 screenGui.ResetOnSpawn = false
 screenGui.DisplayOrder = 20
+screenGui.IgnoreGuiInset = true
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.Parent = playerGui
 
 local toast = Instance.new("TextLabel")
@@ -131,25 +133,25 @@ cutsceneFrame.Visible = false
 cutsceneFrame.Parent = screenGui
 
 local cinematicTop = Instance.new("Frame")
-cinematicTop.Size = UDim2.new(1, 0, 0, 86)
+cinematicTop.Size = UDim2.new(1, 0, 0, 74)
 cinematicTop.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
-cinematicTop.BackgroundTransparency = 0.12
+cinematicTop.BackgroundTransparency = 0.38
 cinematicTop.Parent = cutsceneFrame
 
 local cinematicBottom = Instance.new("Frame")
 cinematicBottom.AnchorPoint = Vector2.new(0, 1)
 cinematicBottom.Position = UDim2.new(0, 0, 1, 0)
-cinematicBottom.Size = UDim2.new(1, 0, 0, 214)
+cinematicBottom.Size = UDim2.new(1, 0, 0, 158)
 cinematicBottom.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
-cinematicBottom.BackgroundTransparency = 0.08
+cinematicBottom.BackgroundTransparency = 0.3
 cinematicBottom.Parent = cutsceneFrame
 
 local vignette = Instance.new("Frame")
 vignette.AnchorPoint = Vector2.new(0.5, 0.5)
 vignette.Position = UDim2.fromScale(0.5, 0.5)
-vignette.Size = UDim2.new(1, -56, 1, -216)
+vignette.Size = UDim2.new(1, -80, 1, -236)
 vignette.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-vignette.BackgroundTransparency = 0.82
+vignette.BackgroundTransparency = 0.93
 vignette.Parent = cutsceneFrame
 
 local vignetteCorner = Instance.new("UICorner")
@@ -158,16 +160,17 @@ vignetteCorner.Parent = vignette
 
 local accentBar = Instance.new("Frame")
 accentBar.Position = UDim2.fromOffset(28, 98)
-accentBar.Size = UDim2.new(0, 5, 1, -292)
+accentBar.Size = UDim2.new(0, 4, 1, -252)
 accentBar.BackgroundColor3 = Color3.fromRGB(205, 169, 94)
-accentBar.BackgroundTransparency = 0.2
+accentBar.BackgroundTransparency = 0.32
 accentBar.Parent = cutsceneFrame
 
 local progressTrack = Instance.new("Frame")
 progressTrack.AnchorPoint = Vector2.new(0, 1)
-progressTrack.Position = UDim2.new(0, 30, 1, -18)
+progressTrack.Position = UDim2.new(0, 30, 1, -14)
 progressTrack.Size = UDim2.new(1, -60, 0, 4)
 progressTrack.BackgroundColor3 = Color3.fromRGB(61, 54, 42)
+progressTrack.BackgroundTransparency = 0.12
 progressTrack.BorderSizePixel = 0
 progressTrack.Parent = cinematicBottom
 
@@ -213,23 +216,23 @@ cutsceneWinner.Parent = cinematicTop
 
 local sceneTitle = Instance.new("TextLabel")
 sceneTitle.BackgroundTransparency = 1
-sceneTitle.Position = UDim2.new(0, 30, 1, -178)
-sceneTitle.Size = UDim2.new(1, -60, 0, 34)
+sceneTitle.Position = UDim2.new(0, 30, 1, -132)
+sceneTitle.Size = UDim2.new(1, -60, 0, 30)
 sceneTitle.Font = Enum.Font.GothamBold
 sceneTitle.Text = ""
 sceneTitle.TextColor3 = Color3.fromRGB(251, 243, 225)
-sceneTitle.TextSize = 28
+sceneTitle.TextSize = 24
 sceneTitle.TextXAlignment = Enum.TextXAlignment.Left
 sceneTitle.Parent = cinematicBottom
 
 local sceneBody = Instance.new("TextLabel")
 sceneBody.BackgroundTransparency = 1
-sceneBody.Position = UDim2.new(0, 30, 1, -136)
-sceneBody.Size = UDim2.new(1, -60, 0, 100)
+sceneBody.Position = UDim2.new(0, 30, 1, -96)
+sceneBody.Size = UDim2.new(1, -60, 0, 68)
 sceneBody.Font = Enum.Font.Gotham
 sceneBody.Text = ""
 sceneBody.TextColor3 = Color3.fromRGB(220, 214, 199)
-sceneBody.TextSize = 18
+sceneBody.TextSize = 16
 sceneBody.TextWrapped = true
 sceneBody.TextXAlignment = Enum.TextXAlignment.Left
 sceneBody.TextYAlignment = Enum.TextYAlignment.Top
@@ -237,7 +240,7 @@ sceneBody.Parent = cinematicBottom
 
 local sceneCounter = Instance.new("TextLabel")
 sceneCounter.BackgroundTransparency = 1
-sceneCounter.Position = UDim2.new(0, 30, 1, -28)
+sceneCounter.Position = UDim2.new(0, 30, 1, -26)
 sceneCounter.Size = UDim2.new(1, -60, 0, 20)
 sceneCounter.Font = Enum.Font.GothamMedium
 sceneCounter.Text = ""
@@ -307,7 +310,7 @@ end
 local function tweenCutsceneFrameIn()
     cutsceneFrame.BackgroundTransparency = 1
     TweenService:Create(cutsceneFrame, TweenInfo.new(0.35, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
-        BackgroundTransparency = 0.24,
+        BackgroundTransparency = 0.76,
     }):Play()
 end
 

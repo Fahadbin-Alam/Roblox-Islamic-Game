@@ -18,7 +18,7 @@ local function requestSwordBlock()
     local character = player.Character
     local equippedTool = character and character:FindFirstChildOfClass("Tool")
 
-    if not equippedTool or equippedTool.Name ~= "Training Sword" then
+    if not equippedTool or (equippedTool.Name ~= "Training Sword" and equippedTool.Name ~= "Bow") then
         return
     end
 
@@ -36,6 +36,11 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
     end
 
     if input.UserInputType == Enum.UserInputType.MouseButton2 then
+        requestSwordBlock()
+        return
+    end
+
+    if input.KeyCode == Enum.KeyCode.F or input.KeyCode == Enum.KeyCode.Q then
         requestSwordBlock()
     end
 end)

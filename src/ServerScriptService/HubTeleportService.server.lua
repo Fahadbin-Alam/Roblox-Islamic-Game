@@ -45,6 +45,10 @@ local function teleportPlayerToDestination(player: Player, destinationId: string
         return
     end
 
+    if player:GetAttribute("InBattle") == true or player:GetAttribute("InStory") == true then
+        return
+    end
+
     local now = os.clock()
     local lastTeleport = cooldowns[player]
 

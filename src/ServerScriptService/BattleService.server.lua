@@ -10,6 +10,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BattleScenarios = require(Shared.Data.BattleScenarios)
 local TravelRoute = require(Shared.Data.TravelRoute)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
+local BattleBots = require(script.Parent.Modules.BattleBots)
 
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local battleFolder = remotesFolder:WaitForChild("Battle")
@@ -133,6 +134,78 @@ local function getAnchors(container: Instance, childName: string): { BasePart }
     return results
 end
 
+local function getAveragePosition(parts: { BasePart }): Vector3?
+    if #parts == 0 then
+        return nil
+    end
+
+    local total = Vector3.zero
+
+    for _, part in ipairs(parts) do
+        total += part.Position
+    end
+
+    return total / #parts
+end
+
+local function getAverageVector(values: { Vector3 }): Vector3?
+    if #values == 0 then
+        return nil
+    end
+
+    local total = Vector3.zero
+
+    for _, value in ipairs(values) do
+        total += value
+    end
+
+    return total / #values
+end
+
+local function getTeamAdvanceVector(scenario, teamId: string): Vector3
+    return scenario.Teams[1].Id == teamId and Vector3.new(1, 0, 0) or Vector3.new(-1, 0, 0)
+end
+
+local function buildFormationPositions(scenario, teamId: string, count: number, dummyAnchors: { BasePart }, spawnAnchors: { BasePart }): { Vector3 }
+    local results = {}
+    local basePosition = getAveragePosition(dummyAnchors) or getAveragePosition(spawnAnchors)
+
+    if not basePosition and scenario.SpawnPositions and scenario.SpawnPositions[teamId] and #scenario.SpawnPositions[teamId] > 0 then
+        basePosition = getAverageVector(scenario.SpawnPositions[teamId])
+    end
+
+    if not basePosition then
+        basePosition = Vector3.zero
+    end
+
+    local advance = getTeamAdvanceVector(scenario, teamId)
+    local sideways = Vector3.new(0, 0, 1)
+    local columnOffsets = { 0, -1, 1, -2, 2, -3 }
+    local rowSpacing = 9.5
+    local columnSpacing = 10.5
+
+    for index = 1, count do
+        local row = math.floor((index - 1) / #columnOffsets)
+        local column = columnOffsets[((index - 1) % #columnOffsets) + 1]
+        local lateralOffset = sideways * (column * columnSpacing)
+        local depthOffset = advance * (-row * rowSpacing)
+        local stagger = advance * (((index % 2 == 0) and 1 or -1) * 0.8)
+        table.insert(results, basePosition + lateralOffset + depthOffset + stagger)
+    end
+
+    return results
+end
+
+local function getDummyBotStyle(formationIndex: number, teamSize: number): string
+    local row = math.floor((formationIndex - 1) / 6)
+
+    if row >= 2 and (formationIndex % 2 == 0 or formationIndex > math.floor(teamSize * 0.6)) then
+        return "Archer"
+    end
+
+    return "Melee"
+end
+
 local function getCharacter(player: Player): Model?
     if player.Character then
         return player.Character
@@ -174,14 +247,33 @@ local function teleportCharacterToAnchor(character: Model, anchor: BasePart)
     character:PivotTo(anchor.CFrame * CFrame.new(0, 4, 0))
 end
 
-local function createDummy(parent: Instance, name: string, teamId: string, scenarioId: string, position: Vector3, accentColor: Color3, isCommander: boolean?, commanderHealth: number?): Model
+local function createDummy(parent: Instance, name: string, teamId: string, scenarioId: string, position: Vector3, accentColor: Color3, isCommander: boolean?, commanderHealth: number?, botStyle: string?): Model
     local scale = isCommander and 1.45 or 1
     local model = Instance.new("Model")
     model.Name = name
     model:SetAttribute("BattleTeam", teamId)
     model:SetAttribute("ScenarioId", scenarioId)
     model:SetAttribute("BattleCommander", isCommander == true)
+    model:SetAttribute("BotStyle", botStyle or "Melee")
     model.Parent = parent
+
+    local limbs = {}
+
+    local function createVisualPart(partName: string, size: Vector3, color: Color3, material: Enum.Material, cframe: CFrame): Part
+        local part = Instance.new("Part")
+        part.Name = partName
+        part.Size = size
+        part.Color = color
+        part.Material = material
+        part.Anchored = true
+        part.CanCollide = false
+        part.CanTouch = false
+        part.CanQuery = false
+        part.CFrame = cframe
+        part.Parent = model
+
+        return part
+    end
 
     local root = Instance.new("Part")
     root.Name = "HumanoidRootPart"
@@ -220,6 +312,17 @@ local function createDummy(parent: Instance, name: string, teamId: string, scena
     wrap.CFrame = CFrame.new(position + Vector3.new(0, 5.88 * scale, 0))
     wrap.Parent = model
 
+    createVisualPart("ShoulderMantle", Vector3.new(3.2, 0.55, 1.8) * scale, isCommander and Color3.fromRGB(132, 78, 52) or Color3.fromRGB(
+        math.clamp(math.floor(accentColor.R * 255) + 24, 0, 255),
+        math.clamp(math.floor(accentColor.G * 255) + 20, 0, 255),
+        math.clamp(math.floor(accentColor.B * 255) + 18, 0, 255)
+    ), Enum.Material.Fabric, CFrame.new(position + Vector3.new(0, 4.1 * scale, 0)))
+    createVisualPart("WaistBelt", Vector3.new(2.7, 0.32, 1.5) * scale, Color3.fromRGB(114, 79, 48), Enum.Material.Fabric, CFrame.new(position + Vector3.new(0, 2.25 * scale, 0)))
+    createVisualPart("RobeSkirt", Vector3.new(2.9, 2.2, 1.8) * scale, accentColor, Enum.Material.Fabric, CFrame.new(position + Vector3.new(0, 1.42 * scale, 0)))
+    createVisualPart("TurbanTail", Vector3.new(0.35, 1.7, 0.75) * scale, wrap.Color, Enum.Material.Fabric, CFrame.new(position + Vector3.new(-0.5, 4.85, 0.85) * scale) * CFrame.Angles(math.rad(18), 0, math.rad(10)))
+    createVisualPart("SandalLeft", Vector3.new(0.72, 0.22, 1.18) * scale, Color3.fromRGB(96, 67, 43), Enum.Material.Fabric, CFrame.new(position + Vector3.new(-0.5, 0.05, 0.1) * scale))
+    createVisualPart("SandalRight", Vector3.new(0.72, 0.22, 1.18) * scale, Color3.fromRGB(96, 67, 43), Enum.Material.Fabric, CFrame.new(position + Vector3.new(0.5, 0.05, 0.1) * scale))
+
     for partName, offset in pairs({
         ["Left Arm"] = Vector3.new(-1.5, 3, 0),
         ["Right Arm"] = Vector3.new(1.5, 3, 0),
@@ -235,9 +338,38 @@ local function createDummy(parent: Instance, name: string, teamId: string, scena
         part.Material = Enum.Material.Fabric
         part.CFrame = CFrame.new(position + offset * scale) * CFrame.Angles(0, 0, math.rad(90))
         part.Parent = model
+        limbs[partName] = part
+    end
+
+    createVisualPart("ArmCuffLeft", Vector3.new(0.9, 0.24, 0.9) * scale, GOLD_ACCENT, Enum.Material.Metal, CFrame.new(position + Vector3.new(-1.5, 3.95, 0) * scale) * CFrame.Angles(0, 0, math.rad(90)))
+    createVisualPart("ArmCuffRight", Vector3.new(0.9, 0.24, 0.9) * scale, GOLD_ACCENT, Enum.Material.Metal, CFrame.new(position + Vector3.new(1.5, 3.95, 0) * scale) * CFrame.Angles(0, 0, math.rad(90)))
+    createVisualPart("LegWrapLeft", Vector3.new(0.8, 0.2, 0.8) * scale, Color3.fromRGB(214, 205, 183), Enum.Material.Fabric, CFrame.new(position + Vector3.new(-0.5, 0.85, 0) * scale) * CFrame.Angles(0, 0, math.rad(90)))
+    createVisualPart("LegWrapRight", Vector3.new(0.8, 0.2, 0.8) * scale, Color3.fromRGB(214, 205, 183), Enum.Material.Fabric, CFrame.new(position + Vector3.new(0.5, 0.85, 0) * scale) * CFrame.Angles(0, 0, math.rad(90)))
+
+    if (botStyle or "Melee") == "Archer" then
+        createVisualPart("BowGrip", Vector3.new(0.16, 1.8, 0.16) * scale, Color3.fromRGB(112, 76, 46), Enum.Material.Wood, CFrame.new(position + Vector3.new(1.58, 3.05, -0.35) * scale))
+        createVisualPart("BowUpper", Vector3.new(0.14, 2.2, 0.14) * scale, Color3.fromRGB(129, 90, 56), Enum.Material.Wood, CFrame.new(position + Vector3.new(1.94, 4.05, -0.35) * scale) * CFrame.Angles(0, 0, math.rad(24)))
+        createVisualPart("BowLower", Vector3.new(0.14, 2.2, 0.14) * scale, Color3.fromRGB(129, 90, 56), Enum.Material.Wood, CFrame.new(position + Vector3.new(1.94, 2.05, -0.35) * scale) * CFrame.Angles(0, 0, math.rad(-24)))
+        createVisualPart("BowString", Vector3.new(0.06, 4.2, 0.06) * scale, Color3.fromRGB(230, 223, 202), Enum.Material.SmoothPlastic, CFrame.new(position + Vector3.new(2.24, 3.05, -0.35) * scale))
+        createVisualPart("QuiverBody", Vector3.new(0.82, 2.3, 0.82) * scale, Color3.fromRGB(110, 73, 44), Enum.Material.Fabric, CFrame.new(position + Vector3.new(-0.95, 3.2, 0.72) * scale) * CFrame.Angles(math.rad(24), 0, math.rad(24)))
+
+        for arrowIndex, yOffset in ipairs({ 0.7, 1.0, 1.3 }) do
+            createVisualPart(string.format("QuiverArrow_%d", arrowIndex), Vector3.new(0.1, 1.45, 0.1) * scale, Color3.fromRGB(205, 200, 191), Enum.Material.Metal, CFrame.new(position + Vector3.new(-0.95, 3.6 + yOffset, 0.72) * scale) * CFrame.Angles(math.rad(24), 0, math.rad(24)))
+        end
+    else
+        createVisualPart("SwordHandle", Vector3.new(0.24, 1.2, 0.24) * scale, Color3.fromRGB(98, 66, 38), Enum.Material.Wood, CFrame.new(position + Vector3.new(1.62, 2.62, -0.2) * scale))
+        createVisualPart("SwordGuard", Vector3.new(1.35, 0.16, 0.24) * scale, Color3.fromRGB(179, 149, 87), Enum.Material.Metal, CFrame.new(position + Vector3.new(1.62, 3.18, -0.2) * scale))
+        createVisualPart("SwordBlade", Vector3.new(0.16, 2.8, 0.24) * scale, Color3.fromRGB(216, 216, 216), Enum.Material.Metal, CFrame.new(position + Vector3.new(1.62, 4.62, -0.2) * scale))
+
+        if limbs["Left Arm"] then
+            createVisualPart("ShieldPlate", Vector3.new(0.2, 2.4, 1.9) * scale, Color3.fromRGB(95, 72, 46), Enum.Material.WoodPlanks, CFrame.new(position + Vector3.new(-2.15, 3.05, 0) * scale) * CFrame.Angles(0, 0, math.rad(90)))
+            createVisualPart("ShieldBoss", Vector3.new(0.36, 0.66, 0.66) * scale, Color3.fromRGB(192, 160, 90), Enum.Material.Metal, CFrame.new(position + Vector3.new(-2.3, 3.05, 0) * scale) * CFrame.Angles(0, 0, math.rad(90)))
+        end
     end
 
     if isCommander then
+        createVisualPart("CommanderShoulderLeft", Vector3.new(1.25, 0.5, 1.5) * scale, Color3.fromRGB(205, 165, 91), Enum.Material.Metal, CFrame.new(position + Vector3.new(-1.42, 4.2, 0) * scale))
+        createVisualPart("CommanderShoulderRight", Vector3.new(1.25, 0.5, 1.5) * scale, Color3.fromRGB(205, 165, 91), Enum.Material.Metal, CFrame.new(position + Vector3.new(1.42, 4.2, 0) * scale))
         local cape = Instance.new("Part")
         cape.Name = "CommanderCape"
         cape.Size = Vector3.new(3.4, 4.2, 0.4) * scale
@@ -428,11 +560,21 @@ local function returnPlayerToHub(player: Player, delaySeconds: number)
     end)
 end
 
-local function getLivingCount(session, teamId: string): number
+local function getTeamDisplayName(session, teamId: string): string
+    for _, team in ipairs(session.Scenario.Teams) do
+        if team.Id == teamId then
+            return team.DisplayName
+        end
+    end
+
+    return teamId
+end
+
+local function getHumanLivingCount(session, teamId: string): number
     local living = 0
 
     for _, entry in ipairs(session.Teams[teamId]) do
-        if entry.Alive then
+        if entry.Alive and entry.Kind == "Player" then
             living += 1
         end
     end
@@ -462,13 +604,19 @@ local function sendSummary(player: Player, scenario, winnerText: string)
     })
 end
 
+local function smoothStep(alpha: number): number
+    local clamped = math.clamp(alpha, 0, 1)
+
+    return clamped * clamped * (3 - 2 * clamped)
+end
+
 local function tweenModelTo(model: Model, targetCFrame: CFrame, duration: number)
     local startCFrame = model:GetPivot()
     local elapsed = 0
 
     while elapsed < duration and model.Parent do
         elapsed += RunService.Heartbeat:Wait()
-        local alpha = math.clamp(elapsed / duration, 0, 1)
+        local alpha = smoothStep(elapsed / duration)
         model:PivotTo(startCFrame:Lerp(targetCFrame, alpha))
     end
 
@@ -541,7 +689,7 @@ local function tweenPartTo(part: BasePart, targetCFrame: CFrame, duration: numbe
 
     while elapsed < duration and part.Parent do
         elapsed += RunService.Heartbeat:Wait()
-        local alpha = math.clamp(elapsed / duration, 0, 1)
+        local alpha = smoothStep(elapsed / duration)
         part.CFrame = startCFrame:Lerp(targetCFrame, alpha)
     end
 
@@ -880,16 +1028,31 @@ end
 local function evaluateVictory(session)
     local firstTeamId = session.Scenario.Teams[1].Id
     local secondTeamId = session.Scenario.Teams[2].Id
+    local firstStartedHumans = session.InitialHumanCounts[firstTeamId] or 0
+    local secondStartedHumans = session.InitialHumanCounts[secondTeamId] or 0
 
-    local firstLiving = getLivingCount(session, firstTeamId)
-    local secondLiving = getLivingCount(session, secondTeamId)
+    local firstLivingHumans = getHumanLivingCount(session, firstTeamId)
+    local secondLivingHumans = getHumanLivingCount(session, secondTeamId)
 
-    if firstLiving <= 0 and secondLiving <= 0 then
-        endSession(session, nil, "The round ended in a draw.")
-    elseif firstLiving <= 0 then
-        endSession(session, secondTeamId, "")
-    elseif secondLiving <= 0 then
-        endSession(session, firstTeamId, "")
+    if firstStartedHumans > 0 and secondStartedHumans > 0 then
+        if firstLivingHumans <= 0 and secondLivingHumans <= 0 then
+            endSession(session, nil, "Both player teams fell. The round ended in a draw.")
+        elseif firstLivingHumans <= 0 then
+            endSession(session, secondTeamId, string.format("%s players held the field after the opposing players fell.", getTeamDisplayName(session, secondTeamId)))
+        elseif secondLivingHumans <= 0 then
+            endSession(session, firstTeamId, string.format("%s players held the field after the opposing players fell.", getTeamDisplayName(session, firstTeamId)))
+        end
+
+        return
+    end
+
+    if firstStartedHumans > 0 and firstLivingHumans <= 0 then
+        endSession(session, secondTeamId, string.format("%s players were defeated before finishing the objective.", getTeamDisplayName(session, firstTeamId)))
+        return
+    end
+
+    if secondStartedHumans > 0 and secondLivingHumans <= 0 then
+        endSession(session, firstTeamId, string.format("%s players were defeated before finishing the objective.", getTeamDisplayName(session, secondTeamId)))
     end
 end
 
@@ -934,6 +1097,7 @@ local function configureCommanderEntry(session, entry, teamAccentColor: Color3)
 end
 
 local function registerEntry(session, teamId: string, entry)
+    entry.TeamId = teamId
     table.insert(session.Teams[teamId], entry)
 
     local teamAccentColor = Color3.fromRGB(180, 114, 64)
@@ -1010,6 +1174,10 @@ startSession = function(scenarioId: string)
             [scenario.Teams[1].Id] = {},
             [scenario.Teams[2].Id] = {},
         },
+        InitialHumanCounts = {
+            [scenario.Teams[1].Id] = 0,
+            [scenario.Teams[2].Id] = 0,
+        },
         Dummies = {},
         Connections = {},
         Ended = false,
@@ -1021,14 +1189,19 @@ startSession = function(scenarioId: string)
     local spawnFolder = arenaFolder:FindFirstChild("Spawns")
     local dummySpawnFolder = arenaFolder:FindFirstChild("DummySpawns")
 
-    if not spawnFolder or not dummySpawnFolder then
+    if not spawnFolder then
         endSession(session, nil, "The arena is missing spawn points.")
         return
     end
 
+    local teamSpawnAnchors = {
+        [scenario.Teams[1].Id] = getAnchors(spawnFolder, scenario.Teams[1].Id),
+        [scenario.Teams[2].Id] = getAnchors(spawnFolder, scenario.Teams[2].Id),
+    }
+
     for index, player in ipairs(queuedPlayers) do
         local team = scenario.Teams[((index - 1) % #scenario.Teams) + 1]
-        local anchors = getAnchors(spawnFolder, team.Id)
+        local anchors = teamSpawnAnchors[team.Id]
         local anchor = nil
 
         if #anchors > 0 then
@@ -1060,21 +1233,29 @@ startSession = function(scenarioId: string)
                     Alive = true,
                     IsCommander = shouldAssignCommander(session, team.Id),
                 })
+                session.InitialHumanCounts[team.Id] += 1
                 playerToSession[player] = session
             end
         end
     end
 
     for _, team in ipairs(scenario.Teams) do
-        local dummyAnchors = getAnchors(dummySpawnFolder, team.Id)
-        local dummyIndex = 1
+        local dummyAnchors = dummySpawnFolder and getAnchors(dummySpawnFolder, team.Id) or {}
+        local formationPositions = buildFormationPositions(scenario, team.Id, scenario.PlayersPerTeam, dummyAnchors, teamSpawnAnchors[team.Id])
 
-        while #session.Teams[team.Id] < scenario.PlayersPerTeam and dummyIndex <= #dummyAnchors do
-            local dummyAnchor = dummyAnchors[dummyIndex]
+        while #session.Teams[team.Id] < scenario.PlayersPerTeam do
+            local formationIndex = #session.Teams[team.Id] + 1
+            local dummyPosition = formationPositions[formationIndex]
+
+            if not dummyPosition then
+                break
+            end
+
             local isCommander = shouldAssignCommander(session, team.Id)
             local commander = getCommanderConfig(session)
-            local dummyName = (isCommander and commander and commander.DisplayName) or string.format("%s Dummy %d", team.DisplayName, dummyIndex)
-            local dummy = createDummy(arenaFolder, dummyName, team.Id, scenario.Id, dummyAnchor.Position, team.AccentColor, isCommander, commander and commander.Health or nil)
+            local botStyle = isCommander and "Melee" or getDummyBotStyle(formationIndex, scenario.PlayersPerTeam)
+            local dummyName = (isCommander and commander and commander.DisplayName) or string.format("%s %s %d", team.DisplayName, botStyle, formationIndex)
+            local dummy = createDummy(arenaFolder, dummyName, team.Id, scenario.Id, dummyPosition, team.AccentColor, isCommander, commander and commander.Health or nil, botStyle)
             local humanoid = dummy:FindFirstChildOfClass("Humanoid")
 
             if humanoid then
@@ -1084,11 +1265,12 @@ startSession = function(scenarioId: string)
                     Humanoid = humanoid,
                     Alive = true,
                     IsCommander = isCommander,
+                    BotStyle = botStyle,
+                    FormationIndex = formationIndex,
+                    LastAttackAt = 0,
                 })
                 table.insert(session.Dummies, dummy)
             end
-
-            dummyIndex += 1
         end
     end
 
@@ -1120,6 +1302,10 @@ startSession = function(scenarioId: string)
         if scenario.Commander then
             sendMessage(queuedPlayers, string.format("Boss objective: defeat the %s to end the scenario.", scenario.Commander.DisplayName), 6)
         end
+
+        sendMessage(queuedPlayers, string.format("Field strength: up to %d fighters per side. AI fills empty slots, but players still decide the round.", scenario.PlayersPerTeam), 6)
+        sendMessage(queuedPlayers, "Combat tips: left click to attack, hold and release the bow to fire, and right click to raise your shield block.", 6)
+        BattleBots.Start(session)
 
         task.delay(scenario.RoundDurationSeconds, function()
             if not session.Ended then

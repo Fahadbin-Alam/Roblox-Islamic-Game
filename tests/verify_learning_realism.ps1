@@ -1,0 +1,105 @@
+$BuildPath = $null
+if ($args.Count -gt 0) {
+    $BuildPath = $args[0]
+}
+
+$ErrorActionPreference = "Stop"
+
+$root = Split-Path -Parent $PSScriptRoot
+$hubWorldBuilderPath = Join-Path $root "src\ServerScriptService\HubWorldBuilder.server.lua"
+$mannersLessonsPath = Join-Path $root "src\ReplicatedStorage\Shared\Data\MannersLessons.lua"
+$companionStoriesPath = Join-Path $root "src\ReplicatedStorage\Shared\Data\CompanionStories.lua"
+$battleServicePath = Join-Path $root "src\ServerScriptService\BattleService.server.lua"
+$battleBotsPath = Join-Path $root "src\ServerScriptService\Modules\BattleBots.lua"
+$mannersHudPath = Join-Path $root "src\StarterPlayer\StarterPlayerScripts\MannersHud.client.lua"
+$storyHudPath = Join-Path $root "src\StarterPlayer\StarterPlayerScripts\StoryHud.client.lua"
+$buildPath = if ($BuildPath) { $BuildPath } else { Join-Path $root "build.rbxlx" }
+
+function Assert-Contains {
+    param(
+        [string] $Text,
+        [string] $Needle,
+        [string] $Label
+    )
+
+    if (-not $Text.Contains($Needle)) {
+        throw "Missing $Label`: $Needle"
+    }
+}
+
+$hubWorldBuilder = Get-Content -LiteralPath $hubWorldBuilderPath -Raw
+$mannersLessons = Get-Content -LiteralPath $mannersLessonsPath -Raw
+$companionStories = Get-Content -LiteralPath $companionStoriesPath -Raw
+$battleService = Get-Content -LiteralPath $battleServicePath -Raw
+$battleBots = Get-Content -LiteralPath $battleBotsPath -Raw
+$mannersHud = Get-Content -LiteralPath $mannersHudPath -Raw
+$storyHud = Get-Content -LiteralPath $storyHudPath -Raw
+$build = Get-Content -LiteralPath $buildPath -Raw
+
+$hubChecks = @(
+    'createLayeredHaramSideFacade(district, "NorthModernFacade"',
+    'createModernHaramDetailLayer(district, center)',
+    'MakkahHotelNorthWest',
+    'MakkahNorthCentralMinaret'
+)
+
+$lessonChecks = @(
+    'Qur''an: Surah At-Tawbah 9:119',
+    'Sahih Muslim 2607c',
+    'Qur''an: Surah Al-Isra'' 17:23-24',
+    'Sahih al-Bukhari 5971',
+    'Sahih al-Bukhari 6013',
+    'Sahih al-Bukhari 2682',
+    'Riyad as-Salihin 308'
+)
+
+$storyChecks = @(
+    'Sahih al-Bukhari 3653',
+    'Sahih Muslim 418a',
+    'Jami` at-Tirmidhi 3689',
+    'Jami` at-Tirmidhi 3853',
+    'Sahih al-Bukhari 4160-4161',
+    'Qur''an 33:23'
+)
+
+$battleChecks = @(
+    'InitialHumanCounts',
+    'getHumanLivingCount',
+    'players still decide the round',
+    'if targetEntry.IsCommander then',
+    'if candidate.IsCommander then',
+    'BOT_STEP_SECONDS = 0.08'
+)
+
+$hudChecks = @(
+    'AutomaticCanvasSize = Enum.AutomaticSize.Y',
+    'local function getLineDuration',
+    'REFERENCE_SPEAKER_COLOR'
+)
+
+foreach ($needle in $hubChecks) {
+    Assert-Contains $hubWorldBuilder $needle "hub world source"
+    Assert-Contains $build $needle "rebuilt hub marker"
+}
+
+foreach ($needle in $lessonChecks) {
+    Assert-Contains $mannersLessons $needle "manners lesson source"
+    Assert-Contains $build $needle "rebuilt lesson text"
+}
+
+foreach ($needle in $storyChecks) {
+    Assert-Contains $companionStories $needle "story source"
+    Assert-Contains $build $needle "rebuilt story text"
+}
+
+foreach ($needle in $battleChecks) {
+    $source = if ($battleBots.Contains($needle)) { $battleBots } else { $battleService }
+    Assert-Contains $source $needle "battle source"
+}
+
+foreach ($needle in $hudChecks) {
+    $source = if ($mannersHud.Contains($needle)) { $mannersHud } else { $storyHud }
+    Assert-Contains $source $needle "hud source"
+}
+
+Write-Host "verify_learning_realism.ps1 passed"

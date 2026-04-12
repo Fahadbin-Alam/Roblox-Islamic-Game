@@ -41,6 +41,9 @@ end
 local screenGui = Instance.new("ScreenGui")
 screenGui.Name = "ShopMenu"
 screenGui.ResetOnSpawn = false
+screenGui.DisplayOrder = 64
+screenGui.IgnoreGuiInset = true
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 screenGui.Parent = playerGui
 
 local toggleButton = Instance.new("TextButton")
@@ -50,10 +53,11 @@ toggleButton.Position = UDim2.new(0, 20, 1, -76)
 toggleButton.Size = UDim2.fromOffset(150, 48)
 toggleButton.AutoButtonColor = true
 toggleButton.BackgroundColor3 = Color3.fromRGB(73, 97, 61)
-toggleButton.Text = "Battle Shop"
+toggleButton.Text = "Item Shop"
 toggleButton.Font = Enum.Font.GothamBold
 toggleButton.TextSize = 18
 toggleButton.TextColor3 = Color3.fromRGB(247, 241, 221)
+toggleButton.Visible = false
 toggleButton.Parent = screenGui
 
 local toggleCorner = Instance.new("UICorner")
@@ -83,18 +87,34 @@ titleLabel.BackgroundTransparency = 1
 titleLabel.Position = UDim2.fromOffset(18, 16)
 titleLabel.Size = UDim2.new(1, -36, 0, 36)
 titleLabel.Font = Enum.Font.GothamBold
-titleLabel.Text = "Battle Shop"
+titleLabel.Text = "Item Shop"
 titleLabel.TextColor3 = Color3.fromRGB(39, 36, 29)
 titleLabel.TextSize = 26
 titleLabel.TextXAlignment = Enum.TextXAlignment.Left
 titleLabel.Parent = panel
+
+local closeButton = Instance.new("TextButton")
+closeButton.Name = "CloseButton"
+closeButton.AnchorPoint = Vector2.new(1, 0)
+closeButton.Position = UDim2.new(1, -16, 0, 16)
+closeButton.Size = UDim2.fromOffset(40, 34)
+closeButton.BackgroundColor3 = Color3.fromRGB(91, 77, 53)
+closeButton.Font = Enum.Font.GothamBold
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(250, 245, 232)
+closeButton.TextSize = 18
+closeButton.Parent = panel
+
+local closeCorner = Instance.new("UICorner")
+closeCorner.CornerRadius = UDim.new(0, 8)
+closeCorner.Parent = closeButton
 
 local subtitleLabel = Instance.new("TextLabel")
 subtitleLabel.BackgroundTransparency = 1
 subtitleLabel.Position = UDim2.fromOffset(18, 52)
 subtitleLabel.Size = UDim2.new(1, -36, 0, 44)
 subtitleLabel.Font = Enum.Font.Gotham
-subtitleLabel.Text = "Sell skins, supporter packs, and ultimate charges with Robux. Keep the learning journey open to everyone."
+subtitleLabel.Text = "Skins, support packs, and extra battle charges."
 subtitleLabel.TextColor3 = Color3.fromRGB(78, 70, 56)
 subtitleLabel.TextSize = 14
 subtitleLabel.TextWrapped = true
@@ -396,6 +416,10 @@ toggleButton.MouseButton1Click:Connect(function()
     end
 end)
 
+closeButton.MouseButton1Click:Connect(function()
+    panel.Visible = false
+end)
+
 ultimateButton.MouseButton1Click:Connect(function()
     if (player:GetAttribute("UltimateCharges") or 0) > 0 then
         useUltimateRemote:FireServer()
@@ -418,15 +442,17 @@ player:GetAttributeChangedSignal("InBattle"):Connect(updateUltimatePanel)
 
 local function updateToggleAvailability()
     local inStory = player:GetAttribute("InStory") == true
+    local inBattle = player:GetAttribute("InBattle") == true
 
-    toggleButton.Visible = not inStory
+    toggleButton.Visible = false
 
-    if inStory then
+    if inStory or inBattle then
         panel.Visible = false
     end
 end
 
 player:GetAttributeChangedSignal("InStory"):Connect(updateToggleAvailability)
+player:GetAttributeChangedSignal("InBattle"):Connect(updateToggleAvailability)
 
 rebuildCatalog()
 updateCanvas()

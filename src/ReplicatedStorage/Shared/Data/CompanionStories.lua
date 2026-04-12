@@ -2,6 +2,94 @@
 
 local CompanionStories = {
     {
+        Id = "abu_bakr_as_siddiq",
+        DisplayName = "Abu Bakr as-Siddiq (RA)",
+        Theme = "Truthfulness and leadership",
+        Summary = "Learn why Abu Bakr was called as-Siddiq, how he supported the early Muslims, and how he became the first caliph.",
+        Difficulty = "Beginner",
+        AccentColor = Color3.fromRGB(124, 108, 67),
+        KeyLessons = {
+            "Truthfulness",
+            "Loyal companionship",
+            "Leadership after hardship",
+        },
+        Introduction = {
+            "This story follows Abu Bakr as-Siddiq through trust, sacrifice, companionship, and leadership.",
+            "Each stop teaches one major moment: his title, his support, the Hijrah, and becoming the first caliph.",
+            "You will also see direct references so the lesson is tied to Qur'an and Hadith, not just a summary.",
+        },
+        ScenarioSteps = {
+            {
+                Id = "as_siddiq_title",
+                Title = "Why He Was Called As-Siddiq",
+                Objective = "Speak to the guide to learn why Abu Bakr was known as as-Siddiq.",
+                NpcName = "Truthfulness Guide",
+                PromptText = "Ask",
+                LocationName = "Trust Courtyard",
+                Dialogue = {
+                    { Speaker = "Guide", Text = "Abu Bakr is remembered with the title as-Siddiq, meaning the truthful one or the one who strongly confirms the truth." },
+                    { Speaker = "Guide", Text = "A famous reason connected to this title is that he believed the Prophet's account of the Night Journey without hesitation, showing immediate trust in revelation." },
+                    { Speaker = "Reference", Text = "Related Hadith: Sahih Muslim 2607c says truth leads to righteousness and a person who keeps telling the truth is recorded with Allah as truthful." },
+                    { Speaker = "Narrator", Text = "This stop teaches that trust and truthfulness were central to Abu Bakr's character." },
+                },
+            },
+            {
+                Id = "early_support",
+                Title = "Supporting The Early Muslims",
+                Objective = "Walk to the support station and learn what Abu Bakr did for the early community.",
+                NpcName = "Community Guide",
+                PromptText = "Learn",
+                LocationName = "Support Station",
+                Dialogue = {
+                    { Speaker = "Guide", Text = "Abu Bakr was among the earliest Muslims and used his position, wealth, and courage to support the community." },
+                    { Speaker = "Guide", Text = "He is remembered for helping free persecuted believers, including Bilal ibn Rabah." },
+                    { Speaker = "Reference", Text = "Related Hadith: Sahih al-Bukhari 3656 describes Abu Bakr as the Prophet's close companion, showing how near he was in loyalty and support." },
+                    { Speaker = "Narrator", Text = "His story shows that leadership starts with service and sacrifice." },
+                },
+            },
+            {
+                Id = "hijrah_companion",
+                Title = "Companion On The Hijrah",
+                Objective = "Move to the cave marker and learn about Abu Bakr's companionship during the Hijrah.",
+                NpcName = "Journey Guide",
+                PromptText = "Listen",
+                LocationName = "Hijrah Path",
+                Dialogue = {
+                    { Speaker = "Guide", Text = "Abu Bakr accompanied the Prophet during the Hijrah from Makkah to Medina." },
+                    { Speaker = "Guide", Text = "He is remembered as the companion who stayed close during one of the most important journeys in Islamic history." },
+                    { Speaker = "Reference", Text = "Qur'an: Surah At-Tawbah 9:40 mentions the two in the cave. Hadith: Sahih al-Bukhari 3653 records Abu Bakr saying that if the pursuers looked down they would see them." },
+                    { Speaker = "Narrator", Text = "This moment teaches loyalty, courage, and trust during danger." },
+                },
+            },
+            {
+                Id = "first_caliph",
+                Title = "The First Caliph",
+                Objective = "Reach the leadership hall and learn how Abu Bakr became the first caliph.",
+                NpcName = "Leadership Guide",
+                PromptText = "Reflect",
+                LocationName = "Leadership Hall",
+                Dialogue = {
+                    { Speaker = "Guide", Text = "After the Prophet's death in 632 CE, the Muslim community needed leadership and unity." },
+                    { Speaker = "Guide", Text = "Abu Bakr became the first caliph, known as the successor to the Messenger of Allah, and served from 632 to 634 CE." },
+                    { Speaker = "Reference", Text = "Related Hadith: Sahih Muslim 418a records the Prophet ordering Abu Bakr to lead the people in prayer, and Sahih al-Bukhari 4986 records Abu Bakr overseeing the collection of the Qur'an after Yamamah." },
+                    { Speaker = "Reflection", Text = "His final lesson in this route is steady leadership after grief and confusion." },
+                },
+            },
+        },
+        Completion = {
+            Title = "Abu Bakr Story Complete",
+            Lines = {
+                "Abu Bakr as-Siddiq is remembered for truthfulness, loyalty, service, and leadership.",
+                "Reference trail: Qur'an 9:40, Sahih Muslim 2607c, Sahih al-Bukhari 3653, Sahih Muslim 418a, and Sahih al-Bukhari 4986.",
+                "You completed the Abu Bakr as-Siddiq playthrough.",
+            },
+        },
+        LinkedBattles = {
+            "badr",
+        },
+        RewardTokens = 45,
+    },
+    {
         Id = "bilal_ibn_rabah",
         DisplayName = "Bilal ibn Rabah (RA)",
         Theme = "Perseverance and faith",
@@ -16,6 +104,7 @@ local CompanionStories = {
         Introduction = {
             "Begin in Makkah and follow Bilal's path from hardship to honor in the Muslim community.",
             "Talk to the guides at each station to unlock the next part of the journey.",
+            "This route links Bilal's story to references about dignity, worship, and sincere service.",
         },
         ScenarioSteps = {
             {
@@ -28,6 +117,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Guide", Text = "Bilal was among the early people who believed in Islam in Makkah." },
                     { Speaker = "Guide", Text = "He stayed firm even when his master punished him and tried to force him to turn away." },
+                    { Speaker = "Reference", Text = "Related Qur'an: Surah Al-Hujurat 49:13 teaches that the most honored with Allah are the most righteous, not the most privileged by race or status." },
                     { Speaker = "Bilal's Story", Text = "His faith became an example of patience and trust in Allah." },
                 },
             },
@@ -41,6 +131,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Elder", Text = "Bilal is remembered for repeating words of tawhid while enduring severe hardship." },
                     { Speaker = "Elder", Text = "His story teaches players that dignity and faith are not taken away by pressure." },
+                    { Speaker = "Reference", Text = "Related Hadith: Jami` at-Tirmidhi 3689 later praises Bilal by mentioning the Prophet hearing Bilal's footsteps in Paradise." },
                     { Speaker = "Narrator", Text = "Steadfast hearts often change the future of a community." },
                 },
             },
@@ -54,6 +145,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Caretaker", Text = "Bilal became known for his beautiful call to prayer and his service among the believers." },
                     { Speaker = "Caretaker", Text = "In the game, this station reminds players that strength is not only on the battlefield." },
+                    { Speaker = "Reference", Text = "Related Hadith: Jami` at-Tirmidhi 3689 ties Bilal's honored rank to sincere worship and steady deeds." },
                     { Speaker = "Narrator", Text = "Service, loyalty, and consistency made Bilal beloved in the community." },
                 },
             },
@@ -67,6 +159,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Guide", Text = "Bilal lived on after the earliest battles and remained honored for his faith and sincerity." },
                     { Speaker = "Guide", Text = "He is remembered as one of the best-known voices of the early Muslim community." },
+                    { Speaker = "Reference", Text = "Reference trail: Qur'an 49:13 and Jami` at-Tirmidhi 3689." },
                     { Speaker = "Reflection", Text = "The lasting lesson is courage with humility and service." },
                 },
             },
@@ -75,6 +168,7 @@ local CompanionStories = {
             Title = "Bilal Story Complete",
             Lines = {
                 "Bilal's journey teaches resilience, faith, and service.",
+                "Reference trail: Qur'an 49:13 and Jami` at-Tirmidhi 3689.",
                 "You completed the Bilal ibn Rabah playthrough.",
             },
         },
@@ -98,6 +192,7 @@ local CompanionStories = {
         Introduction = {
             "This story follows Mus'ab from the comfort of Makkah to the mission of teaching Islam in Yathrib.",
             "Each stop focuses on a moment that made him one of the great teachers of the early community.",
+            "The route now includes related references on sacrifice, da'wah, and Uhud.",
         },
         ScenarioSteps = {
             {
@@ -110,6 +205,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Guide", Text = "Mus'ab was known for comfort and refinement before Islam reached his heart." },
                     { Speaker = "Guide", Text = "After hearing the message, he chose faith even though it cost him ease and status." },
+                    { Speaker = "Reference", Text = "Related Qur'an: Surah Al-Ankabut 29:2 reminds believers that they will be tested after saying, 'We believe'." },
                     { Speaker = "Narrator", Text = "The first lesson of Mus'ab's life is that truth can demand sacrifice." },
                 },
             },
@@ -123,6 +219,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Elder", Text = "Mus'ab was sent ahead to Yathrib to teach Islam and help prepare the city for the Hijrah." },
                     { Speaker = "Elder", Text = "He taught with wisdom, patience, and strong character." },
+                    { Speaker = "Reference", Text = "Related Qur'an: Surah An-Nahl 16:125 commands calling to Allah with wisdom and good instruction." },
                     { Speaker = "Narrator", Text = "This is why he is remembered as one of the first great teachers in Medina." },
                 },
             },
@@ -136,6 +233,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Battle Guide", Text = "Mus'ab carried the banner in battle and stood firm when the fighting became difficult." },
                     { Speaker = "Battle Guide", Text = "His courage showed leadership through action, not only words." },
+                    { Speaker = "Reference", Text = "Related Hadith: Jami` at-Tirmidhi 3853 remembers Mus'ab among those who gave their lives without enjoying worldly reward." },
                     { Speaker = "Narrator", Text = "Players see that teaching and bravery can live in the same person." },
                 },
             },
@@ -149,6 +247,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Guide", Text = "Mus'ab was martyred at Uhud after a life of sacrifice and service." },
                     { Speaker = "Guide", Text = "His story is remembered because he gave up comfort, then gave his effort, and finally gave his life." },
+                    { Speaker = "Reference", Text = "Hadith: Jami` at-Tirmidhi 3853 and Sunan an-Nasa'i 1903 describe how little cloth remained to shroud Mus'ab after Uhud." },
                     { Speaker = "Reflection", Text = "Mus'ab teaches sincere leadership and sacrifice for the truth." },
                 },
             },
@@ -157,6 +256,7 @@ local CompanionStories = {
             Title = "Mus'ab Story Complete",
             Lines = {
                 "Mus'ab ibn Umayr is remembered for sacrifice, teaching, and courage.",
+                "Reference trail: Qur'an 29:2, Qur'an 16:125, Jami` at-Tirmidhi 3853, and Sunan an-Nasa'i 1903.",
                 "You completed the Mus'ab ibn Umayr playthrough.",
             },
         },
@@ -180,6 +280,7 @@ local CompanionStories = {
         Introduction = {
             "Walk through a story of courage and loyalty with Nusaybah bint Ka'b.",
             "This route focuses on service, bravery, and standing firm when the community needed protection.",
+            "Where direct reports are brief, the route uses clearly marked related Qur'an reflections on steadfastness and sacrifice.",
         },
         ScenarioSteps = {
             {
@@ -192,6 +293,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Elder", Text = "Nusaybah became known among the Ansar for firm commitment and loyalty." },
                     { Speaker = "Elder", Text = "She is remembered as one of the courageous companions who supported the Muslim community." },
+                    { Speaker = "Reference", Text = "Related Qur'an reflection: Surah Al-Ahzab 33:23 praises believers who stayed true to their covenant with Allah." },
                     { Speaker = "Narrator", Text = "Her story begins with sincere faith and readiness to serve." },
                 },
             },
@@ -205,6 +307,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Aid Guide", Text = "Nusaybah's story includes service, family commitment, and strong support for the believers." },
                     { Speaker = "Aid Guide", Text = "Great courage is often built from everyday loyalty and service." },
+                    { Speaker = "Reference", Text = "Related Qur'an: Surah Al-Ma'idah 5:2 commands cooperation in righteousness and piety." },
                     { Speaker = "Narrator", Text = "This station connects bravery to care, readiness, and responsibility." },
                 },
             },
@@ -218,6 +321,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Defense Guide", Text = "At Uhud, Nusaybah became famous for defending the Messenger's side during a difficult moment." },
                     { Speaker = "Defense Guide", Text = "Her courage made her one of the most memorable figures of that battle." },
+                    { Speaker = "Reference", Text = "Related Qur'an reflection: Surah Al-Ahzab 33:23 is often used to reflect on believers who stayed firm when the test became severe." },
                     { Speaker = "Narrator", Text = "Players are meant to feel the urgency of protection and commitment here." },
                 },
             },
@@ -231,6 +335,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Guide", Text = "Nusaybah remained known for courage and commitment beyond a single moment on the battlefield." },
                     { Speaker = "Guide", Text = "Her story reminds players that bravery can belong to those who protect faith, family, and community." },
+                    { Speaker = "Reference", Text = "Related Qur'an: Surah At-Tawbah 9:111 praises believers who give themselves in Allah's cause." },
                     { Speaker = "Reflection", Text = "The lesson of Nusaybah is courage joined with loyalty." },
                 },
             },
@@ -239,6 +344,7 @@ local CompanionStories = {
             Title = "Nusaybah Story Complete",
             Lines = {
                 "Nusaybah bint Ka'b is remembered for courage, protection, and loyalty.",
+                "Related reflection references: Qur'an 33:23, Qur'an 5:2, and Qur'an 9:111.",
                 "You completed the Nusaybah bint Ka'b playthrough.",
             },
         },
@@ -262,6 +368,7 @@ local CompanionStories = {
         Introduction = {
             "This story route explores Umar's change, leadership, and reputation for justice.",
             "Move from the moment of turning to the legacy of principled strength.",
+            "You will see related references for justice, courage, and responsibility in public leadership.",
         },
         ScenarioSteps = {
             {
@@ -274,6 +381,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Guide", Text = "Umar is remembered for a powerful turning point that brought him into Islam." },
                     { Speaker = "Guide", Text = "His strength, once feared, later became a source of support for the Muslim community." },
+                    { Speaker = "Reference", Text = "Related Hadith: Jami` at-Tirmidhi 3686 says that if there had been a prophet after Muhammad, peace be upon him, it would have been Umar." },
                     { Speaker = "Narrator", Text = "The story begins with change, humility, and truth." },
                 },
             },
@@ -287,6 +395,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Elder", Text = "Umar became known for visible strength and confidence once he embraced Islam." },
                     { Speaker = "Elder", Text = "Players learn here that strong personalities can become forces for good when guided by principle." },
+                    { Speaker = "Reference", Text = "Related Qur'an: Surah Al-Ma'idah 8 commands believers not to let emotion pull them away from justice." },
                     { Speaker = "Narrator", Text = "Public courage can help protect a growing community." },
                 },
             },
@@ -300,6 +409,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Justice Guide", Text = "Umar is widely remembered for justice, discipline, and responsibility." },
                     { Speaker = "Justice Guide", Text = "His legacy shows that power must be tied to fairness and accountability." },
+                    { Speaker = "Reference", Text = "Related Hadith: Sahih al-Bukhari 4160-4161 records Umar stopping to help a widow and her hungry children instead of passing by their need." },
                     { Speaker = "Narrator", Text = "This station turns strength into a lesson about responsibility." },
                 },
             },
@@ -313,6 +423,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Guide", Text = "Umar died later in Medina after a life remembered for leadership, strength, and justice." },
                     { Speaker = "Guide", Text = "His story remains one of disciplined power used with responsibility." },
+                    { Speaker = "Reference", Text = "Reference trail: Jami` at-Tirmidhi 3686, Qur'an 5:8, and Sahih al-Bukhari 4160-4161." },
                     { Speaker = "Reflection", Text = "The lasting lesson is that justice must stay at the center of strength." },
                 },
             },
@@ -321,6 +432,7 @@ local CompanionStories = {
             Title = "Umar Story Complete",
             Lines = {
                 "Umar ibn al-Khattab is remembered for justice, strength, and responsibility.",
+                "Reference trail: Jami` at-Tirmidhi 3686, Qur'an 5:8, and Sahih al-Bukhari 4160-4161.",
                 "You completed the Umar ibn al-Khattab playthrough.",
             },
         },

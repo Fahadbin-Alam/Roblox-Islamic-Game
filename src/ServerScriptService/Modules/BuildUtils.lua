@@ -1,5 +1,7 @@
 --!strict
 
+local Workspace = game:GetService("Workspace")
+
 local BuildUtils = {}
 
 function BuildUtils.CreateFolder(parent: Instance, name: string): Folder
@@ -232,14 +234,164 @@ function BuildUtils.CreateHouse(parent: Instance, name: string, position: Vector
     BuildUtils.CreatePart(parent, string.format("%s_Door", name), Vector3.new(4, 9, 1), CFrame.new(position + Vector3.new(0, 4.5, footprint.Z * -0.5 - 0.5)), Color3.fromRGB(110, 82, 49), Enum.Material.Wood, nil, nil)
 end
 
+function BuildUtils.CreateWedge(
+    parent: Instance,
+    name: string,
+    size: Vector3,
+    cframe: CFrame,
+    color: Color3,
+    material: Enum.Material,
+    transparency: number?
+): WedgePart
+    local wedge = Instance.new("WedgePart")
+    wedge.Name = name
+    wedge.Anchored = true
+    wedge.CanCollide = true
+    wedge.TopSurface = Enum.SurfaceType.Smooth
+    wedge.BottomSurface = Enum.SurfaceType.Smooth
+    wedge.Size = size
+    wedge.CFrame = cframe
+    wedge.Color = color
+    wedge.Material = material
+
+    if transparency then
+        wedge.Transparency = transparency
+    end
+
+    wedge.Parent = parent
+
+    return wedge
+end
+
+local function scaleColor(color: Color3, scale: number): Color3
+    return Color3.fromRGB(
+        math.clamp(math.floor(color.R * 255 * scale), 0, 255),
+        math.clamp(math.floor(color.G * 255 * scale), 0, 255),
+        math.clamp(math.floor(color.B * 255 * scale), 0, 255)
+    )
+end
+
+local function fillTerrainBall(position: Vector3, radius: number, material: Enum.Material)
+    pcall(function()
+        Workspace.Terrain:FillBall(position, radius, material)
+    end)
+end
+
+local function fillTerrainBlock(cframe: CFrame, size: Vector3, material: Enum.Material)
+    pcall(function()
+        Workspace.Terrain:FillBlock(cframe, size, material)
+    end)
+end
+
+function BuildUtils.CreateMountain(
+    parent: Instance,
+    name: string,
+    position: Vector3,
+    baseWidth: number,
+    height: number,
+    depth: number,
+    color: Color3,
+    yawDegrees: number?
+)
+    local folder = BuildUtils.CreateFolder(parent, name)
+    local yaw = math.rad(yawDegrees or 0)
+    local baseCFrame = CFrame.new(position) * CFrame.Angles(0, yaw, 0)
+    folder:SetAttribute("TerrainMountain", true)
+    folder:SetAttribute("ColorPreview", color)
+
+    fillTerrainBlock(
+        baseCFrame * CFrame.new(0, math.max(4, height * 0.08), 0),
+        Vector3.new(baseWidth * 0.94, math.max(10, height * 0.16), depth * 0.82),
+        Enum.Material.Rock
+    )
+
+    for index = -3, 3 do
+        local alpha = index / 3
+        local widthFalloff = 1 - math.abs(alpha) * 0.38
+        local ridgeHeight = height * (0.46 + widthFalloff * 0.34)
+        local radius = math.max(18, math.min(baseWidth, depth) * (0.28 + widthFalloff * 0.18))
+        local lateral = alpha * baseWidth * 0.32
+        local offsetZ = math.sin(index * 1.7) * depth * 0.08
+        local centerPosition = (baseCFrame * CFrame.new(lateral, ridgeHeight * 0.48, offsetZ)).Position
+
+        fillTerrainBall(centerPosition, radius, Enum.Material.Rock)
+        fillTerrainBall(centerPosition + Vector3.new(0, radius * 0.32, 0), radius * 0.68, Enum.Material.Rock)
+
+        if index % 2 == 0 then
+            fillTerrainBall(
+                (baseCFrame * CFrame.new(lateral * 0.9, ridgeHeight * 0.42, offsetZ + depth * 0.22)).Position,
+                radius * 0.64,
+                Enum.Material.Sandstone
+            )
+        end
+    end
+
+    for index = 1, 7 do
+        local alpha = index / 8
+        local x = (alpha - 0.5) * baseWidth * 0.92
+        local y = height * (0.22 + alpha * 0.16)
+        local z = ((index % 2 == 0) and -1 or 1) * depth * (0.28 + alpha * 0.08)
+        local shoulderCFrame = baseCFrame
+            * CFrame.new(x, y, z)
+            * CFrame.Angles(0, math.rad((index % 2 == 0) and 14 or -18), math.rad((index % 3 - 1) * 5))
+
+        fillTerrainBlock(
+            shoulderCFrame,
+            Vector3.new(baseWidth * (0.22 + alpha * 0.05), math.max(9, height * 0.08), depth * 0.08),
+            index % 2 == 0 and Enum.Material.Rock or Enum.Material.Sandstone
+        )
+    end
+end
+
 function BuildUtils.CreateDune(parent: Instance, name: string, position: Vector3, size: Vector3, color: Color3)
-    BuildUtils.CreatePart(parent, name, size, CFrame.new(position + Vector3.new(0, size.Y * 0.25, 0)), color, Enum.Material.Sand, Enum.PartType.Ball, nil)
+    local folder = BuildUtils.CreateFolder(parent, name)
+    folder:SetAttribute("TerrainDune", true)
+    folder:SetAttribute("ColorPreview", color)
+
+    fillTerrainBlock(
+        CFrame.new(position + Vector3.new(0, math.max(4, size.Y * 0.1), 0)),
+        Vector3.new(size.X * 0.88, math.max(8, size.Y * 0.22), size.Z * 0.78),
+        Enum.Material.Sand
+    )
+
+    for index = -2, 2 do
+        local alpha = index / 2
+        local radius = math.max(14, math.min(size.X, size.Z) * (0.24 + (1 - math.abs(alpha)) * 0.1))
+        local centerPosition = position
+            + Vector3.new(alpha * size.X * 0.28, size.Y * (0.22 + (1 - math.abs(alpha)) * 0.18), math.sin(index * 1.3) * size.Z * 0.14)
+
+        fillTerrainBall(centerPosition, radius, Enum.Material.Sand)
+    end
+
+    fillTerrainBlock(
+        CFrame.new(position + Vector3.new(0, math.max(3, size.Y * 0.08), size.Z * -0.32)) * CFrame.Angles(0, math.rad(9), 0),
+        Vector3.new(size.X * 0.72, math.max(5, size.Y * 0.12), size.Z * 0.16),
+        Enum.Material.Sandstone
+    )
 end
 
 function BuildUtils.CreateRockCluster(parent: Instance, name: string, position: Vector3)
-    BuildUtils.CreatePart(parent, string.format("%s_A", name), Vector3.new(14, 11, 12), CFrame.new(position + Vector3.new(-16, 5.5, -16)), Color3.fromRGB(162, 136, 95), Enum.Material.Rock, nil, nil)
-    BuildUtils.CreatePart(parent, string.format("%s_B", name), Vector3.new(18, 15, 16), CFrame.new(position + Vector3.new(8, 7.5, 12)), Color3.fromRGB(154, 127, 89), Enum.Material.Rock, nil, nil)
-    BuildUtils.CreatePart(parent, string.format("%s_C", name), Vector3.new(10, 8, 10), CFrame.new(position + Vector3.new(20, 4, -10)), Color3.fromRGB(178, 146, 101), Enum.Material.Rock, nil, nil)
+    local folder = BuildUtils.CreateFolder(parent, name)
+    folder:SetAttribute("TerrainRockCluster", true)
+
+    fillTerrainBlock(
+        CFrame.new(position + Vector3.new(4, 4, -2)) * CFrame.Angles(0, math.rad(-12), 0),
+        Vector3.new(52, 8, 38),
+        Enum.Material.Rock
+    )
+
+    for index, offset in ipairs({
+        Vector3.new(-16, 12, -16),
+        Vector3.new(8, 16, 12),
+        Vector3.new(24, 10, -10),
+        Vector3.new(-4, 8, 18),
+    }) do
+        fillTerrainBall(
+            position + offset,
+            index == 2 and 18 or 13,
+            index == 3 and Enum.Material.Sandstone or Enum.Material.Rock
+        )
+    end
 end
 
 function BuildUtils.CreateVerticalCylinder(
@@ -340,6 +492,57 @@ function BuildUtils.CreateModernTower(
         nil,
         0.2
     )
+
+    local windowRows = math.clamp(math.floor(shaftHeight / 34), 4, 11)
+    local windowRowSpacing = shaftHeight / (windowRows + 1)
+
+    for row = 1, windowRows do
+        local y = podiumHeight + row * windowRowSpacing
+
+        BuildUtils.CreatePart(
+            parent,
+            string.format("%s_FloorLineFront_%d", name, row),
+            Vector3.new(math.max(10, footprint.X - 8), 0.8, 1.35),
+            CFrame.new(position + Vector3.new(0, y, footprint.Y * -0.5 - 1)),
+            Color3.fromRGB(236, 229, 211),
+            Enum.Material.Metal,
+            nil,
+            nil
+        )
+
+        BuildUtils.CreatePart(
+            parent,
+            string.format("%s_FloorLineBack_%d", name, row),
+            Vector3.new(math.max(10, footprint.X - 8), 0.8, 1.35),
+            CFrame.new(position + Vector3.new(0, y, footprint.Y * 0.5 + 1)),
+            Color3.fromRGB(236, 229, 211),
+            Enum.Material.Metal,
+            nil,
+            nil
+        )
+
+        BuildUtils.CreatePart(
+            parent,
+            string.format("%s_SideGlassWest_%d", name, row),
+            Vector3.new(1.25, 6, math.max(10, footprint.Y * 0.42)),
+            CFrame.new(position + Vector3.new(footprint.X * -0.5 - 0.8, y + 3, 0)),
+            windowColor,
+            Enum.Material.Glass,
+            nil,
+            0.24
+        )
+
+        BuildUtils.CreatePart(
+            parent,
+            string.format("%s_SideGlassEast_%d", name, row),
+            Vector3.new(1.25, 6, math.max(10, footprint.Y * 0.42)),
+            CFrame.new(position + Vector3.new(footprint.X * 0.5 + 0.8, y + 3, 0)),
+            windowColor,
+            Enum.Material.Glass,
+            nil,
+            0.24
+        )
+    end
 
     BuildUtils.CreatePart(
         parent,

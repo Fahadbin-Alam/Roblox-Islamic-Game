@@ -47,6 +47,15 @@ local destinations = {
         AccentColor = Color3.fromRGB(98, 119, 76),
     },
     {
+        Id = "trivia_court",
+        DisplayName = "Trivia Court",
+        Description = "A live Islamic trivia area where everyone on the server can compete through harder and harder questions.",
+        Theme = "Trivia",
+        Position = Vector3.new(346, 4, -438),
+        TeleportPosition = Vector3.new(346, 4, -366),
+        AccentColor = Color3.fromRGB(63, 98, 88),
+    },
+    {
         Id = "parkour_tower",
         DisplayName = "Lobby Parkour Tower",
         Description = "A climbing challenge in the lobby for players waiting between stories and battles.",

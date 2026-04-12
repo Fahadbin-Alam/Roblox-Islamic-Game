@@ -14,6 +14,7 @@ local SAND_ACCENT = Color3.fromRGB(204, 182, 137)
 local GARDEN_GREEN = Color3.fromRGB(93, 133, 87)
 
 local STORY_CENTERS = {
+    abu_bakr_as_siddiq = Vector3.new(840, 4, -720),
     bilal_ibn_rabah = Vector3.new(840, 4, -320),
     musab_ibn_umayr = Vector3.new(840, 4, 80),
     nusaybah_bint_kaab = Vector3.new(840, 4, 500),
@@ -74,7 +75,13 @@ local function createStepStation(zone: Folder, story, step, stepIndex: number, p
     local anchor = BuildUtils.CreateTeleportAnchor(anchors, string.format("Step_%d", stepIndex), position + Vector3.new(0, 0, 24))
     anchor:SetAttribute("StoryId", story.Id)
 
-    if story.Id == "bilal_ibn_rabah" then
+    if story.Id == "abu_bakr_as_siddiq" then
+        BuildUtils.CreateLantern(stationFolder, string.format("%sLantern", step.Id), position + Vector3.new(-22, 0, 16), Color3.fromRGB(207, 168, 86))
+        BuildUtils.CreateBanner(stationFolder, string.format("%sBanner", step.Id), position + Vector3.new(22, 0, 16), Color3.fromRGB(124, 108, 67))
+        BuildUtils.CreatePart(stationFolder, string.format("%sTrustArchLeft", step.Id), Vector3.new(5, 20, 5), CFrame.new(position + Vector3.new(-18, 10, -4)), BASE_STONE, Enum.Material.Marble, nil, nil)
+        BuildUtils.CreatePart(stationFolder, string.format("%sTrustArchRight", step.Id), Vector3.new(5, 20, 5), CFrame.new(position + Vector3.new(18, 10, -4)), BASE_STONE, Enum.Material.Marble, nil, nil)
+        BuildUtils.CreatePart(stationFolder, string.format("%sTrustArchTop", step.Id), Vector3.new(41, 5, 6), CFrame.new(position + Vector3.new(0, 20, -4)), BASE_STONE, Enum.Material.Marble, nil, nil)
+    elseif story.Id == "bilal_ibn_rabah" then
         BuildUtils.CreateLantern(stationFolder, string.format("%sLantern", step.Id), position + Vector3.new(-22, 0, 16), Color3.fromRGB(182, 152, 87))
         BuildUtils.CreateHouse(stationFolder, string.format("%sHouse", step.Id), position + Vector3.new(22, 0, -6), Vector3.new(34, 28, 28), SAND_ACCENT)
     elseif story.Id == "musab_ibn_umayr" then
@@ -139,7 +146,13 @@ local function buildStoryZone(parent: Instance, story, center: Vector3)
         createStepStation(zone, story, step, index, stepPositions[index])
     end
 
-    if story.Id == "bilal_ibn_rabah" then
+    if story.Id == "abu_bakr_as_siddiq" then
+        BuildUtils.CreatePart(zone, "SiddiqLeadershipHall", Vector3.new(104, 30, 52), CFrame.new(center + Vector3.new(0, 15, -126)), Color3.fromRGB(218, 211, 194), Enum.Material.Marble, nil, nil)
+        BuildUtils.CreatePart(zone, "SiddiqLeadershipRoof", Vector3.new(116, 5, 64), CFrame.new(center + Vector3.new(0, 32, -126)), Color3.fromRGB(124, 108, 67), Enum.Material.Marble, nil, nil)
+        BuildUtils.CreatePart(zone, "SiddiqCaveMarker", Vector3.new(46, 18, 24), CFrame.new(center + Vector3.new(-124, 9, -118)), Color3.fromRGB(112, 101, 82), Enum.Material.Rock, nil, nil)
+        BuildUtils.CreateLantern(zone, "SiddiqLanternA", center + Vector3.new(-136, 0, 70), Color3.fromRGB(207, 168, 86))
+        BuildUtils.CreateLantern(zone, "SiddiqLanternB", center + Vector3.new(136, 0, 70), Color3.fromRGB(207, 168, 86))
+    elseif story.Id == "bilal_ibn_rabah" then
         BuildUtils.CreateHouse(zone, "BilalHome", center + Vector3.new(0, 0, -120), Vector3.new(48, 26, 34), SAND_ACCENT)
         BuildUtils.CreateLantern(zone, "BilalLanternA", center + Vector3.new(-136, 0, 70), Color3.fromRGB(174, 147, 80))
         BuildUtils.CreateLantern(zone, "BilalLanternB", center + Vector3.new(136, 0, 70), Color3.fromRGB(174, 147, 80))

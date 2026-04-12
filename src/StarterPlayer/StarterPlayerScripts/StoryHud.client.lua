@@ -82,7 +82,7 @@ locationLabel.Parent = missionFrame
 local dialogueFrame = Instance.new("Frame")
 dialogueFrame.AnchorPoint = Vector2.new(0.5, 1)
 dialogueFrame.Position = UDim2.new(0.5, 0, 1, -42)
-dialogueFrame.Size = UDim2.fromOffset(760, 166)
+dialogueFrame.Size = UDim2.fromOffset(840, 196)
 dialogueFrame.BackgroundColor3 = Color3.fromRGB(30, 27, 24)
 dialogueFrame.BackgroundTransparency = 0.08
 dialogueFrame.Visible = false
@@ -126,14 +126,17 @@ dialogueBody.Size = UDim2.new(1, -40, 1, -86)
 dialogueBody.Font = Enum.Font.Gotham
 dialogueBody.Text = ""
 dialogueBody.TextColor3 = Color3.fromRGB(240, 236, 226)
-dialogueBody.TextSize = 18
+dialogueBody.TextSize = 19
 dialogueBody.TextWrapped = true
 dialogueBody.TextXAlignment = Enum.TextXAlignment.Left
 dialogueBody.TextYAlignment = Enum.TextYAlignment.Top
 dialogueBody.Parent = dialogueFrame
 
 local dialogueToken = 0
-local LINE_DURATION_SECONDS = 2.4
+local MIN_LINE_DURATION_SECONDS = 2.7
+local MAX_LINE_DURATION_SECONDS = 7.2
+local REFERENCE_SPEAKER_COLOR = Color3.fromRGB(215, 189, 126)
+local DEFAULT_SPEAKER_COLOR = Color3.fromRGB(160, 194, 164)
 
 local function normalizeDialogueLine(rawLine)
     if typeof(rawLine) == "table" then
@@ -141,6 +144,11 @@ local function normalizeDialogueLine(rawLine)
     end
 
     return "", tostring(rawLine)
+end
+
+local function getLineDuration(body: string): number
+    local characters = string.len(body)
+    return math.clamp(2.1 + characters * 0.028, MIN_LINE_DURATION_SECONDS, MAX_LINE_DURATION_SECONDS)
 end
 
 showStoryDialogue.OnClientEvent:Connect(function(payload)
@@ -158,8 +166,9 @@ showStoryDialogue.OnClientEvent:Connect(function(payload)
 
         local speaker, body = normalizeDialogueLine(rawLine)
         dialogueSpeaker.Text = speaker
+        dialogueSpeaker.TextColor3 = string.find(string.lower(speaker), "reference", 1, true) and REFERENCE_SPEAKER_COLOR or DEFAULT_SPEAKER_COLOR
         dialogueBody.Text = body
-        task.wait(LINE_DURATION_SECONDS)
+        task.wait(getLineDuration(body))
     end
 
     if currentToken == dialogueToken then
