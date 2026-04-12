@@ -283,22 +283,46 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
         BuildUtils.CreateDune(geometry, "UhudBackdropDustRise", center + Vector3.new(0, 0, 32), Vector3.new(156, 24, 40), Color3.fromRGB(210, 186, 144))
         BuildUtils.CreatePart(geometry, "UhudRidgeShelf", Vector3.new(58, 2.2, 18), CFrame.new(center + Vector3.new(-30, 10, -10)) * CFrame.Angles(0, math.rad(-18), 0), Color3.fromRGB(122, 98, 73), Enum.Material.Slate, nil, nil)
         BuildUtils.CreatePart(geometry, "UhudDustBand", Vector3.new(120, 0.3, 20), CFrame.new(center + Vector3.new(8, 2.5, 20)), Color3.fromRGB(216, 193, 151), Enum.Material.Sand, nil, 0.2)
+        BuildUtils.CreatePart(geometry, "UhudViewShelfWest", Vector3.new(44, 2.4, 16), CFrame.new(center + Vector3.new(-74, 20, 18)) * CFrame.Angles(0, math.rad(-26), 0), Color3.fromRGB(129, 104, 77), Enum.Material.Slate, nil, nil)
+        BuildUtils.CreatePart(geometry, "UhudViewShelfEast", Vector3.new(42, 2.4, 16), CFrame.new(center + Vector3.new(76, 22, 14)) * CFrame.Angles(0, math.rad(22), 0), Color3.fromRGB(132, 107, 80), Enum.Material.Slate, nil, nil)
         createArenaTorch(geometry, "ReenactmentTorchWest", center + Vector3.new(-58, 0, 36))
         createArenaTorch(geometry, "ReenactmentTorchEast", center + Vector3.new(58, 0, 30))
     end
 
-    local camera1 = BuildUtils.CreateTeleportAnchor(cameras, "Scene1", center + Vector3.new(-48, 22, 42))
-    camera1.CFrame = CFrame.new(center + Vector3.new(-48, 22, 42), center + Vector3.new(0, 8, -4))
-    local camera2 = BuildUtils.CreateTeleportAnchor(cameras, "Scene2", center + Vector3.new(0, 18, 58))
-    camera2.CFrame = CFrame.new(center + Vector3.new(0, 18, 58), center + Vector3.new(0, 8, 0))
-    local camera3 = BuildUtils.CreateTeleportAnchor(cameras, "Scene3", center + Vector3.new(52, 26, 36))
-    camera3.CFrame = CFrame.new(center + Vector3.new(52, 26, 36), center + Vector3.new(0, 10, -6))
-    local camera4 = BuildUtils.CreateTeleportAnchor(cameras, "Scene4", center + Vector3.new(0, 30, -78))
-    camera4.CFrame = CFrame.new(center + Vector3.new(0, 30, -78), center + Vector3.new(0, 9, 8))
-    local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "Scene5", center + Vector3.new(-18, 24, 86))
-    camera5.CFrame = CFrame.new(center + Vector3.new(-18, 24, 86), center + Vector3.new(0, 9, -8))
-    local camera6 = BuildUtils.CreateTeleportAnchor(cameras, "Scene6", center + Vector3.new(18, 34, -92))
-    camera6.CFrame = CFrame.new(center + Vector3.new(18, 34, -92), center + Vector3.new(-10, 8, -8))
+    local camera1: BasePart
+    local camera2: BasePart
+    local camera3: BasePart
+    local camera4: BasePart
+    local camera5: BasePart
+    local camera6: BasePart
+
+    if scenarioId == "uhud" then
+        camera1 = BuildUtils.CreateTeleportAnchor(cameras, "Scene1", center + Vector3.new(-94, 40, 96))
+        camera1.CFrame = CFrame.new(camera1.Position, center + Vector3.new(-18, 16, 4))
+        camera2 = BuildUtils.CreateTeleportAnchor(cameras, "Scene2", center + Vector3.new(-42, 30, 74))
+        camera2.CFrame = CFrame.new(camera2.Position, center + Vector3.new(-20, 18, -2))
+        camera3 = BuildUtils.CreateTeleportAnchor(cameras, "Scene3", center + Vector3.new(76, 34, 70))
+        camera3.CFrame = CFrame.new(camera3.Position, center + Vector3.new(18, 14, 2))
+        camera4 = BuildUtils.CreateTeleportAnchor(cameras, "Scene4", center + Vector3.new(84, 42, 18))
+        camera4.CFrame = CFrame.new(camera4.Position, center + Vector3.new(10, 18, -10))
+        camera5 = BuildUtils.CreateTeleportAnchor(cameras, "Scene5", center + Vector3.new(-4, 32, 108))
+        camera5.CFrame = CFrame.new(camera5.Position, center + Vector3.new(4, 14, -8))
+        camera6 = BuildUtils.CreateTeleportAnchor(cameras, "Scene6", center + Vector3.new(-82, 50, 8))
+        camera6.CFrame = CFrame.new(camera6.Position, center + Vector3.new(-12, 20, -10))
+    else
+        camera1 = BuildUtils.CreateTeleportAnchor(cameras, "Scene1", center + Vector3.new(-48, 22, 42))
+        camera1.CFrame = CFrame.new(center + Vector3.new(-48, 22, 42), center + Vector3.new(0, 8, -4))
+        camera2 = BuildUtils.CreateTeleportAnchor(cameras, "Scene2", center + Vector3.new(0, 18, 58))
+        camera2.CFrame = CFrame.new(center + Vector3.new(0, 18, 58), center + Vector3.new(0, 8, 0))
+        camera3 = BuildUtils.CreateTeleportAnchor(cameras, "Scene3", center + Vector3.new(52, 26, 36))
+        camera3.CFrame = CFrame.new(center + Vector3.new(52, 26, 36), center + Vector3.new(0, 10, -6))
+        camera4 = BuildUtils.CreateTeleportAnchor(cameras, "Scene4", center + Vector3.new(0, 30, -78))
+        camera4.CFrame = CFrame.new(center + Vector3.new(0, 30, -78), center + Vector3.new(0, 9, 8))
+        camera5 = BuildUtils.CreateTeleportAnchor(cameras, "Scene5", center + Vector3.new(-18, 24, 86))
+        camera5.CFrame = CFrame.new(center + Vector3.new(-18, 24, 86), center + Vector3.new(0, 9, -8))
+        camera6 = BuildUtils.CreateTeleportAnchor(cameras, "Scene6", center + Vector3.new(18, 34, -92))
+        camera6.CFrame = CFrame.new(center + Vector3.new(18, 34, -92), center + Vector3.new(-10, 8, -8))
+    end
 
     local medinaLeadStart = BuildUtils.CreateTeleportAnchor(marks, "MedinaLeadStart", center + Vector3.new(-26, 0, 12))
     medinaLeadStart.CFrame = CFrame.new(medinaLeadStart.Position, center + Vector3.new(12, 0, 0))
@@ -389,18 +413,18 @@ local function createBriefingSection(arenaFolder: Folder, center: Vector3, scena
         createArenaTorch(geometry, "BriefingTorchWest", center + Vector3.new(-74, 0, 52))
         createArenaTorch(geometry, "BriefingTorchEast", center + Vector3.new(76, 0, 52))
 
-        local camera1 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap1", center + Vector3.new(-116, 40, 88))
-        camera1.CFrame = CFrame.new(camera1.Position, center + Vector3.new(-12, 16, 2))
-        local camera2 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap2", center + Vector3.new(-74, 34, 34))
+        local camera1 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap1", center + Vector3.new(-126, 50, 108))
+        camera1.CFrame = CFrame.new(camera1.Position, center + Vector3.new(-18, 18, 4))
+        local camera2 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap2", center + Vector3.new(-98, 42, 52))
         camera2.CFrame = CFrame.new(camera2.Position, center + Vector3.new(-46, 22, -2))
-        local camera3 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap3", center + Vector3.new(-8, 30, 80))
-        camera3.CFrame = CFrame.new(camera3.Position, center + Vector3.new(-4, 10, 10))
-        local camera4 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap4", center + Vector3.new(70, 36, 58))
-        camera4.CFrame = CFrame.new(camera4.Position, center + Vector3.new(28, 16, 18))
-        local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap5", center + Vector3.new(26, 24, -66))
-        camera5.CFrame = CFrame.new(camera5.Position, center + Vector3.new(4, 12, 8))
-        local camera6 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap6", center + Vector3.new(-12, 46, -28))
-        camera6.CFrame = CFrame.new(camera6.Position, center + Vector3.new(-6, 10, 12))
+        local camera3 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap3", center + Vector3.new(-12, 38, 98))
+        camera3.CFrame = CFrame.new(camera3.Position, center + Vector3.new(-4, 12, 12))
+        local camera4 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap4", center + Vector3.new(84, 42, 76))
+        camera4.CFrame = CFrame.new(camera4.Position, center + Vector3.new(30, 16, 18))
+        local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap5", center + Vector3.new(90, 44, 10))
+        camera5.CFrame = CFrame.new(camera5.Position, center + Vector3.new(14, 18, 8))
+        local camera6 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap6", center + Vector3.new(-34, 56, 12))
+        camera6.CFrame = CFrame.new(camera6.Position, center + Vector3.new(-8, 14, 10))
 
         local medinaLeadStart = BuildUtils.CreateTeleportAnchor(markers, "BriefingMedinaLeadStart", center + Vector3.new(-62, 0, 10))
         medinaLeadStart.CFrame = CFrame.new(medinaLeadStart.Position, center + Vector3.new(-6, 0, 8))

@@ -4,10 +4,10 @@ local Lighting = game:GetService("Lighting")
 local MaterialService = game:GetService("MaterialService")
 local Workspace = game:GetService("Workspace")
 
-local START_CLOCK_TIME = 9.15
+local START_CLOCK_TIME = 10.3
 local FULL_CYCLE_SECONDS = 780
-local MIN_NIGHT_BRIGHTNESS = 1.2
-local MAX_DAY_BRIGHTNESS = 1.82
+local MIN_NIGHT_BRIGHTNESS = 1.38
+local MAX_DAY_BRIGHTNESS = 2.08
 
 local function ensureAtmosphere(): Atmosphere
     local existing = Lighting:FindFirstChild("JourneyAtmosphere")
@@ -172,9 +172,9 @@ pcall(function()
     Workspace.Terrain.Decoration = true
 end)
 pcall(function()
-    Workspace.Terrain:SetMaterialColor(Enum.Material.Sand, Color3.fromRGB(186, 164, 119))
-    Workspace.Terrain:SetMaterialColor(Enum.Material.Sandstone, Color3.fromRGB(160, 132, 94))
-    Workspace.Terrain:SetMaterialColor(Enum.Material.Rock, Color3.fromRGB(109, 98, 86))
+    Workspace.Terrain:SetMaterialColor(Enum.Material.Sand, Color3.fromRGB(198, 176, 129))
+    Workspace.Terrain:SetMaterialColor(Enum.Material.Sandstone, Color3.fromRGB(172, 145, 104))
+    Workspace.Terrain:SetMaterialColor(Enum.Material.Rock, Color3.fromRGB(120, 108, 96))
 end)
 
 local atmosphere = ensureAtmosphere()
@@ -199,33 +199,33 @@ local function applyCycleLighting(clockTime: number)
 
     Lighting.ClockTime = clockTime
     Lighting.Brightness = lerpNumber(MIN_NIGHT_BRIGHTNESS, MAX_DAY_BRIGHTNESS, dayAlpha)
-    Lighting.EnvironmentDiffuseScale = lerpNumber(0.36, 0.48, dayAlpha)
-    Lighting.EnvironmentSpecularScale = lerpNumber(0.18, 0.3, dayAlpha)
-    Lighting.OutdoorAmbient = lerpColor(Color3.fromRGB(63, 70, 88), Color3.fromRGB(152, 145, 132), dayAlpha)
-    Lighting.Ambient = lerpColor(Color3.fromRGB(45, 51, 68), Color3.fromRGB(116, 109, 98), dayAlpha)
-    Lighting.ColorShift_Top = lerpColor(Color3.fromRGB(105, 120, 162), Color3.fromRGB(221, 207, 186), dayAlpha)
-    Lighting.ColorShift_Bottom = lerpColor(Color3.fromRGB(72, 84, 120), Color3.fromRGB(182, 168, 144), dayAlpha)
-    Lighting.ShadowSoftness = lerpNumber(0.72, 0.54, dayAlpha)
+    Lighting.EnvironmentDiffuseScale = lerpNumber(0.42, 0.58, dayAlpha)
+    Lighting.EnvironmentSpecularScale = lerpNumber(0.2, 0.34, dayAlpha)
+    Lighting.OutdoorAmbient = lerpColor(Color3.fromRGB(78, 85, 104), Color3.fromRGB(176, 168, 152), dayAlpha)
+    Lighting.Ambient = lerpColor(Color3.fromRGB(56, 62, 79), Color3.fromRGB(132, 124, 110), dayAlpha)
+    Lighting.ColorShift_Top = lerpColor(Color3.fromRGB(118, 132, 174), Color3.fromRGB(233, 219, 198), dayAlpha)
+    Lighting.ColorShift_Bottom = lerpColor(Color3.fromRGB(84, 96, 132), Color3.fromRGB(194, 181, 156), dayAlpha)
+    Lighting.ShadowSoftness = lerpNumber(0.68, 0.48, dayAlpha)
 
     pcall(function()
-        Lighting.ExposureCompensation = lerpNumber(-0.12, -0.22, dayAlpha)
+        Lighting.ExposureCompensation = lerpNumber(0.03, -0.06, dayAlpha)
     end)
 
-    atmosphere.Color = lerpColor(Color3.fromRGB(92, 111, 156), Color3.fromRGB(212, 197, 174), dayAlpha)
-    atmosphere.Decay = lerpColor(Color3.fromRGB(69, 88, 129), Color3.fromRGB(179, 158, 129), dayAlpha)
-    atmosphere.Density = lerpNumber(0.35, 0.25, dayAlpha)
-    atmosphere.Glare = lerpNumber(0.02, 0.08, dayAlpha)
-    atmosphere.Haze = lerpNumber(1.26, 1.02, dayAlpha)
-    atmosphere.Offset = lerpNumber(0.11, 0.04, dayAlpha)
+    atmosphere.Color = lerpColor(Color3.fromRGB(104, 123, 166), Color3.fromRGB(221, 206, 182), dayAlpha)
+    atmosphere.Decay = lerpColor(Color3.fromRGB(81, 98, 138), Color3.fromRGB(191, 170, 138), dayAlpha)
+    atmosphere.Density = lerpNumber(0.31, 0.22, dayAlpha)
+    atmosphere.Glare = lerpNumber(0.03, 0.1, dayAlpha)
+    atmosphere.Haze = lerpNumber(1.08, 0.88, dayAlpha)
+    atmosphere.Offset = lerpNumber(0.08, 0.02, dayAlpha)
 
-    bloom.Intensity = lerpNumber(0.05, 0.1, dayAlpha)
-    bloom.Size = lerpNumber(18, 24, dayAlpha)
-    bloom.Threshold = lerpNumber(1.34, 1.26, dayAlpha)
+    bloom.Intensity = lerpNumber(0.05, 0.12, dayAlpha)
+    bloom.Size = lerpNumber(18, 25, dayAlpha)
+    bloom.Threshold = lerpNumber(1.28, 1.18, dayAlpha)
 
-    colorCorrection.Brightness = lerpNumber(-0.08, -0.06, dayAlpha)
-    colorCorrection.Contrast = lerpNumber(0.18, 0.15, dayAlpha)
-    colorCorrection.Saturation = lerpNumber(-0.08, -0.05, dayAlpha)
-    colorCorrection.TintColor = lerpColor(Color3.fromRGB(181, 194, 226), Color3.fromRGB(229, 215, 194), dayAlpha)
+    colorCorrection.Brightness = lerpNumber(-0.03, 0.02, dayAlpha)
+    colorCorrection.Contrast = lerpNumber(0.16, 0.14, dayAlpha)
+    colorCorrection.Saturation = lerpNumber(-0.04, 0.02, dayAlpha)
+    colorCorrection.TintColor = lerpColor(Color3.fromRGB(190, 202, 231), Color3.fromRGB(236, 223, 200), dayAlpha)
 
     sunRays.Intensity = lerpNumber(0.003, 0.048, dayAlpha)
     sunRays.Spread = lerpNumber(0.28, 0.72, dayAlpha)
@@ -244,9 +244,9 @@ local function applyCycleLighting(clockTime: number)
 
     pcall(function()
         Lighting.GlobalShadows = true
-        Lighting.FogEnd = lerpNumber(8000, 120000, dayAlpha)
+        Lighting.FogEnd = lerpNumber(12000, 132000, dayAlpha)
         Lighting.FogStart = 0
-        Lighting.FogColor = lerpColor(Color3.fromRGB(54, 66, 99), Color3.fromRGB(178, 167, 149), dayAlpha)
+        Lighting.FogColor = lerpColor(Color3.fromRGB(72, 82, 112), Color3.fromRGB(195, 184, 164), dayAlpha)
     end)
 
     -- Tiny nudge to moon visibility on darker moments.
@@ -255,8 +255,8 @@ local function applyCycleLighting(clockTime: number)
     end
 
     -- Terrain clouds help break up the flat Roblox sky look.
-    clouds.Cover = lerpNumber(0.48, 0.32, dayAlpha)
-    clouds.Density = lerpNumber(0.92, 0.68, dayAlpha)
+    clouds.Cover = lerpNumber(0.42, 0.28, dayAlpha)
+    clouds.Density = lerpNumber(0.86, 0.62, dayAlpha)
     clouds.Color = lerpColor(Color3.fromRGB(168, 179, 208), Color3.fromRGB(246, 241, 231), dayAlpha)
     clouds.Enabled = true
 end

@@ -141,8 +141,9 @@ local BattleScenarios = {
         Format = "TeamBattleScenario",
         ArenaTheme = "DesertValley",
         RecommendedPlayers = 60,
-        MinPlayersToLaunch = 1,
+        MinPlayersToLaunch = 2,
         PlayersPerTeam = 30,
+        FillEmptySlotsWithBots = false,
         CountdownSeconds = 8,
         RoundDurationSeconds = 240,
         LearningGoal = "Teach courage, preparation, unity, and the importance of a major early turning point.",
@@ -157,14 +158,6 @@ local BattleScenarios = {
                 DisplayName = "Makkah Side",
                 AccentColor = Color3.fromRGB(160, 109, 60),
             },
-        },
-        Commander = {
-            TeamId = "makkah",
-            DisplayName = "Quraysh Commander",
-            RoleText = "A stronger opposing-side commander role. If a player is on this side, one player becomes the commander. If not, the game creates a boss dummy.",
-            Health = 260,
-            DefeatedWinnerTeamId = "medina",
-            DefeatedMessage = "Medina Side completes the scenario: the Quraysh commander was defeated.",
         },
         KeyFigures = {
             Medina = "Medina side: Prophet Muhammad, peace be upon him, led the Muslims but is never depicted. Companions connected to this period include Abu Bakr, Umar, Ali, Hamzah, and Bilal, may Allah be pleased with them.",
@@ -228,8 +221,8 @@ local BattleScenarios = {
                 },
                 {
                     CameraName = "BriefingMap4",
-                    Title = "Opposing Commanders",
-                    Body = "Quraysh leaders remembered in this conflict include Abu Jahl, Umayyah ibn Khalaf, and Utbah ibn Rabi'ah. The boss role represents an opposing commander without making a sacred figure playable.",
+                    Title = "The Opposing Side",
+                    Body = "Quraysh leaders remembered in this conflict include Abu Jahl, Umayyah ibn Khalaf, and Utbah ibn Rabi'ah. This mode now stays fully player-versus-player with no filler bots or boss dummy.",
                     DurationSeconds = 8,
                     FieldOfView = 60,
                     CameraDrift = Vector3.new(-10, 1, -5),
@@ -237,7 +230,7 @@ local BattleScenarios = {
                 {
                     CameraName = "BriefingMap5",
                     Title = "Your Objective",
-                    Body = "Fight the round, look for the Quraysh Commander boss, then watch the reenactment to connect the action to courage, preparation, unity, and gratitude.",
+                    Body = "Fight the round as a direct clash between both player teams, use the valley and wells, then watch the reenactment to connect the action to courage, preparation, unity, and gratitude.",
                     DurationSeconds = 7,
                     FieldOfView = 60,
                     CameraDrift = Vector3.new(8, 0, -8),
@@ -266,7 +259,7 @@ local BattleScenarios = {
                 {
                     CameraName = "Scene3",
                     Title = "The Opposing Command",
-                    Body = "The Quraysh side had powerful chiefs and confidence from Makkah. In gameplay, the commander boss gives players a clear objective.",
+                    Body = "The Quraysh side had powerful chiefs and confidence from Makkah. In gameplay, the mode now stays focused on two player teams meeting in the valley without bot fill.",
                     DurationSeconds = 7,
                     FieldOfView = 61,
                     CameraDrift = Vector3.new(-9, 0, 8),
@@ -294,7 +287,7 @@ local BattleScenarios = {
             Lines = {
                 "Badr took place on 17 Ramadan, 2 AH / 624 CE and became a major victory for the early Muslim community.",
                 "The battle strengthened morale and marked a turning point in the public standing of the community.",
-                "This battle mode uses a commander boss objective for gameplay while the reenactment keeps the historical meaning in view.",
+                "This battle mode now stays player-only so the reenactment carries the teaching while the round itself stays focused and readable.",
             },
         },
         Rewards = {
@@ -312,7 +305,7 @@ local BattleScenarios = {
         Format = "TeamBattleScenario",
         ArenaTheme = "MountainPass",
         RecommendedPlayers = 60,
-        MinPlayersToLaunch = 1,
+        MinPlayersToLaunch = 2,
         PlayersPerTeam = 30,
         FillEmptySlotsWithBots = false,
         CountdownSeconds = 8,
@@ -1861,22 +1854,46 @@ local function createReenactmentSection(arenaFolder: Folder, center: Vector3, sc
         BuildUtils.CreateDune(geometry, "UhudBackdropDustRise", center + Vector3.new(0, 0, 32), Vector3.new(156, 24, 40), Color3.fromRGB(210, 186, 144))
         BuildUtils.CreatePart(geometry, "UhudRidgeShelf", Vector3.new(58, 2.2, 18), CFrame.new(center + Vector3.new(-30, 10, -10)) * CFrame.Angles(0, math.rad(-18), 0), Color3.fromRGB(122, 98, 73), Enum.Material.Slate, nil, nil)
         BuildUtils.CreatePart(geometry, "UhudDustBand", Vector3.new(120, 0.3, 20), CFrame.new(center + Vector3.new(8, 2.5, 20)), Color3.fromRGB(216, 193, 151), Enum.Material.Sand, nil, 0.2)
+        BuildUtils.CreatePart(geometry, "UhudViewShelfWest", Vector3.new(44, 2.4, 16), CFrame.new(center + Vector3.new(-74, 20, 18)) * CFrame.Angles(0, math.rad(-26), 0), Color3.fromRGB(129, 104, 77), Enum.Material.Slate, nil, nil)
+        BuildUtils.CreatePart(geometry, "UhudViewShelfEast", Vector3.new(42, 2.4, 16), CFrame.new(center + Vector3.new(76, 22, 14)) * CFrame.Angles(0, math.rad(22), 0), Color3.fromRGB(132, 107, 80), Enum.Material.Slate, nil, nil)
         createArenaTorch(geometry, "ReenactmentTorchWest", center + Vector3.new(-58, 0, 36))
         createArenaTorch(geometry, "ReenactmentTorchEast", center + Vector3.new(58, 0, 30))
     end
 
-    local camera1 = BuildUtils.CreateTeleportAnchor(cameras, "Scene1", center + Vector3.new(-48, 22, 42))
-    camera1.CFrame = CFrame.new(center + Vector3.new(-48, 22, 42), center + Vector3.new(0, 8, -4))
-    local camera2 = BuildUtils.CreateTeleportAnchor(cameras, "Scene2", center + Vector3.new(0, 18, 58))
-    camera2.CFrame = CFrame.new(center + Vector3.new(0, 18, 58), center + Vector3.new(0, 8, 0))
-    local camera3 = BuildUtils.CreateTeleportAnchor(cameras, "Scene3", center + Vector3.new(52, 26, 36))
-    camera3.CFrame = CFrame.new(center + Vector3.new(52, 26, 36), center + Vector3.new(0, 10, -6))
-    local camera4 = BuildUtils.CreateTeleportAnchor(cameras, "Scene4", center + Vector3.new(0, 30, -78))
-    camera4.CFrame = CFrame.new(center + Vector3.new(0, 30, -78), center + Vector3.new(0, 9, 8))
-    local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "Scene5", center + Vector3.new(-18, 24, 86))
-    camera5.CFrame = CFrame.new(center + Vector3.new(-18, 24, 86), center + Vector3.new(0, 9, -8))
-    local camera6 = BuildUtils.CreateTeleportAnchor(cameras, "Scene6", center + Vector3.new(18, 34, -92))
-    camera6.CFrame = CFrame.new(center + Vector3.new(18, 34, -92), center + Vector3.new(-10, 8, -8))
+    local camera1: BasePart
+    local camera2: BasePart
+    local camera3: BasePart
+    local camera4: BasePart
+    local camera5: BasePart
+    local camera6: BasePart
+
+    if scenarioId == "uhud" then
+        camera1 = BuildUtils.CreateTeleportAnchor(cameras, "Scene1", center + Vector3.new(-94, 40, 96))
+        camera1.CFrame = CFrame.new(camera1.Position, center + Vector3.new(-18, 16, 4))
+        camera2 = BuildUtils.CreateTeleportAnchor(cameras, "Scene2", center + Vector3.new(-42, 30, 74))
+        camera2.CFrame = CFrame.new(camera2.Position, center + Vector3.new(-20, 18, -2))
+        camera3 = BuildUtils.CreateTeleportAnchor(cameras, "Scene3", center + Vector3.new(76, 34, 70))
+        camera3.CFrame = CFrame.new(camera3.Position, center + Vector3.new(18, 14, 2))
+        camera4 = BuildUtils.CreateTeleportAnchor(cameras, "Scene4", center + Vector3.new(84, 42, 18))
+        camera4.CFrame = CFrame.new(camera4.Position, center + Vector3.new(10, 18, -10))
+        camera5 = BuildUtils.CreateTeleportAnchor(cameras, "Scene5", center + Vector3.new(-4, 32, 108))
+        camera5.CFrame = CFrame.new(camera5.Position, center + Vector3.new(4, 14, -8))
+        camera6 = BuildUtils.CreateTeleportAnchor(cameras, "Scene6", center + Vector3.new(-82, 50, 8))
+        camera6.CFrame = CFrame.new(camera6.Position, center + Vector3.new(-12, 20, -10))
+    else
+        camera1 = BuildUtils.CreateTeleportAnchor(cameras, "Scene1", center + Vector3.new(-48, 22, 42))
+        camera1.CFrame = CFrame.new(center + Vector3.new(-48, 22, 42), center + Vector3.new(0, 8, -4))
+        camera2 = BuildUtils.CreateTeleportAnchor(cameras, "Scene2", center + Vector3.new(0, 18, 58))
+        camera2.CFrame = CFrame.new(center + Vector3.new(0, 18, 58), center + Vector3.new(0, 8, 0))
+        camera3 = BuildUtils.CreateTeleportAnchor(cameras, "Scene3", center + Vector3.new(52, 26, 36))
+        camera3.CFrame = CFrame.new(center + Vector3.new(52, 26, 36), center + Vector3.new(0, 10, -6))
+        camera4 = BuildUtils.CreateTeleportAnchor(cameras, "Scene4", center + Vector3.new(0, 30, -78))
+        camera4.CFrame = CFrame.new(center + Vector3.new(0, 30, -78), center + Vector3.new(0, 9, 8))
+        camera5 = BuildUtils.CreateTeleportAnchor(cameras, "Scene5", center + Vector3.new(-18, 24, 86))
+        camera5.CFrame = CFrame.new(center + Vector3.new(-18, 24, 86), center + Vector3.new(0, 9, -8))
+        camera6 = BuildUtils.CreateTeleportAnchor(cameras, "Scene6", center + Vector3.new(18, 34, -92))
+        camera6.CFrame = CFrame.new(center + Vector3.new(18, 34, -92), center + Vector3.new(-10, 8, -8))
+    end
 
     local medinaLeadStart = BuildUtils.CreateTeleportAnchor(marks, "MedinaLeadStart", center + Vector3.new(-26, 0, 12))
     medinaLeadStart.CFrame = CFrame.new(medinaLeadStart.Position, center + Vector3.new(12, 0, 0))
@@ -1967,18 +1984,18 @@ local function createBriefingSection(arenaFolder: Folder, center: Vector3, scena
         createArenaTorch(geometry, "BriefingTorchWest", center + Vector3.new(-74, 0, 52))
         createArenaTorch(geometry, "BriefingTorchEast", center + Vector3.new(76, 0, 52))
 
-        local camera1 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap1", center + Vector3.new(-116, 40, 88))
-        camera1.CFrame = CFrame.new(camera1.Position, center + Vector3.new(-12, 16, 2))
-        local camera2 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap2", center + Vector3.new(-74, 34, 34))
+        local camera1 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap1", center + Vector3.new(-126, 50, 108))
+        camera1.CFrame = CFrame.new(camera1.Position, center + Vector3.new(-18, 18, 4))
+        local camera2 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap2", center + Vector3.new(-98, 42, 52))
         camera2.CFrame = CFrame.new(camera2.Position, center + Vector3.new(-46, 22, -2))
-        local camera3 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap3", center + Vector3.new(-8, 30, 80))
-        camera3.CFrame = CFrame.new(camera3.Position, center + Vector3.new(-4, 10, 10))
-        local camera4 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap4", center + Vector3.new(70, 36, 58))
-        camera4.CFrame = CFrame.new(camera4.Position, center + Vector3.new(28, 16, 18))
-        local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap5", center + Vector3.new(26, 24, -66))
-        camera5.CFrame = CFrame.new(camera5.Position, center + Vector3.new(4, 12, 8))
-        local camera6 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap6", center + Vector3.new(-12, 46, -28))
-        camera6.CFrame = CFrame.new(camera6.Position, center + Vector3.new(-6, 10, 12))
+        local camera3 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap3", center + Vector3.new(-12, 38, 98))
+        camera3.CFrame = CFrame.new(camera3.Position, center + Vector3.new(-4, 12, 12))
+        local camera4 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap4", center + Vector3.new(84, 42, 76))
+        camera4.CFrame = CFrame.new(camera4.Position, center + Vector3.new(30, 16, 18))
+        local camera5 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap5", center + Vector3.new(90, 44, 10))
+        camera5.CFrame = CFrame.new(camera5.Position, center + Vector3.new(14, 18, 8))
+        local camera6 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap6", center + Vector3.new(-34, 56, 12))
+        camera6.CFrame = CFrame.new(camera6.Position, center + Vector3.new(-8, 14, 10))
 
         local medinaLeadStart = BuildUtils.CreateTeleportAnchor(markers, "BriefingMedinaLeadStart", center + Vector3.new(-62, 0, 10))
         medinaLeadStart.CFrame = CFrame.new(medinaLeadStart.Position, center + Vector3.new(-6, 0, 8))
@@ -2246,8 +2263,6 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BattleScenarios = require(Shared.Data.BattleScenarios)
 local TravelRoute = require(Shared.Data.TravelRoute)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
-local BattleBots = require(script.Parent.Modules.BattleBots)
-
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local battleFolder = remotesFolder:WaitForChild("Battle")
 local shopFolder = remotesFolder:WaitForChild("Shop")
@@ -3883,21 +3898,12 @@ startSession = function(scenarioId: string)
         unfreezePlayersForBattle(queuedPlayers)
         sendMessage(queuedPlayers, string.format("%s begins now. Fight in first person with your sword and bow, then watch the reenactment at the end.", scenario.DisplayName), 6)
 
-        if scenario.Commander then
-            sendMessage(queuedPlayers, string.format("Boss objective: defeat the %s to end the scenario.", scenario.Commander.DisplayName), 6)
-        elseif getFinalBossConfig(session) then
+        if getFinalBossConfig(session) then
             sendMessage(queuedPlayers, "Win the player fight first. Then the mode shifts into one final boss stand.", 6)
         end
 
-        if scenario.FillEmptySlotsWithBots == false then
-            sendMessage(queuedPlayers, "Uhud now runs as a player-only mode with no filler bots, so the field stays focused on the ridge, the pass, and the player fight itself.", 6)
-        else
-            sendMessage(queuedPlayers, string.format("Field strength: up to %d fighters per side. AI fills empty slots, but players still decide the round.", scenario.PlayersPerTeam), 6)
-        end
+        sendMessage(queuedPlayers, string.format("%s now runs as a player-only battle. No filler bots spawn into the round.", scenario.DisplayName), 6)
         sendMessage(queuedPlayers, "Combat tips: left click to attack, hold and release the bow to fire, and right click to raise your shield block.", 6)
-        if #session.Dummies > 0 then
-            BattleBots.Start(session)
-        end
         evaluateVictory(session)
 
         task.delay(scenario.RoundDurationSeconds, function()
@@ -4737,10 +4743,10 @@ local Lighting = game:GetService("Lighting")
 local MaterialService = game:GetService("MaterialService")
 local Workspace = game:GetService("Workspace")
 
-local START_CLOCK_TIME = 9.15
+local START_CLOCK_TIME = 10.3
 local FULL_CYCLE_SECONDS = 780
-local MIN_NIGHT_BRIGHTNESS = 1.2
-local MAX_DAY_BRIGHTNESS = 1.82
+local MIN_NIGHT_BRIGHTNESS = 1.38
+local MAX_DAY_BRIGHTNESS = 2.08
 
 local function ensureAtmosphere(): Atmosphere
     local existing = Lighting:FindFirstChild("JourneyAtmosphere")
@@ -4905,9 +4911,9 @@ pcall(function()
     Workspace.Terrain.Decoration = true
 end)
 pcall(function()
-    Workspace.Terrain:SetMaterialColor(Enum.Material.Sand, Color3.fromRGB(186, 164, 119))
-    Workspace.Terrain:SetMaterialColor(Enum.Material.Sandstone, Color3.fromRGB(160, 132, 94))
-    Workspace.Terrain:SetMaterialColor(Enum.Material.Rock, Color3.fromRGB(109, 98, 86))
+    Workspace.Terrain:SetMaterialColor(Enum.Material.Sand, Color3.fromRGB(198, 176, 129))
+    Workspace.Terrain:SetMaterialColor(Enum.Material.Sandstone, Color3.fromRGB(172, 145, 104))
+    Workspace.Terrain:SetMaterialColor(Enum.Material.Rock, Color3.fromRGB(120, 108, 96))
 end)
 
 local atmosphere = ensureAtmosphere()
@@ -4932,33 +4938,33 @@ local function applyCycleLighting(clockTime: number)
 
     Lighting.ClockTime = clockTime
     Lighting.Brightness = lerpNumber(MIN_NIGHT_BRIGHTNESS, MAX_DAY_BRIGHTNESS, dayAlpha)
-    Lighting.EnvironmentDiffuseScale = lerpNumber(0.36, 0.48, dayAlpha)
-    Lighting.EnvironmentSpecularScale = lerpNumber(0.18, 0.3, dayAlpha)
-    Lighting.OutdoorAmbient = lerpColor(Color3.fromRGB(63, 70, 88), Color3.fromRGB(152, 145, 132), dayAlpha)
-    Lighting.Ambient = lerpColor(Color3.fromRGB(45, 51, 68), Color3.fromRGB(116, 109, 98), dayAlpha)
-    Lighting.ColorShift_Top = lerpColor(Color3.fromRGB(105, 120, 162), Color3.fromRGB(221, 207, 186), dayAlpha)
-    Lighting.ColorShift_Bottom = lerpColor(Color3.fromRGB(72, 84, 120), Color3.fromRGB(182, 168, 144), dayAlpha)
-    Lighting.ShadowSoftness = lerpNumber(0.72, 0.54, dayAlpha)
+    Lighting.EnvironmentDiffuseScale = lerpNumber(0.42, 0.58, dayAlpha)
+    Lighting.EnvironmentSpecularScale = lerpNumber(0.2, 0.34, dayAlpha)
+    Lighting.OutdoorAmbient = lerpColor(Color3.fromRGB(78, 85, 104), Color3.fromRGB(176, 168, 152), dayAlpha)
+    Lighting.Ambient = lerpColor(Color3.fromRGB(56, 62, 79), Color3.fromRGB(132, 124, 110), dayAlpha)
+    Lighting.ColorShift_Top = lerpColor(Color3.fromRGB(118, 132, 174), Color3.fromRGB(233, 219, 198), dayAlpha)
+    Lighting.ColorShift_Bottom = lerpColor(Color3.fromRGB(84, 96, 132), Color3.fromRGB(194, 181, 156), dayAlpha)
+    Lighting.ShadowSoftness = lerpNumber(0.68, 0.48, dayAlpha)
 
     pcall(function()
-        Lighting.ExposureCompensation = lerpNumber(-0.12, -0.22, dayAlpha)
+        Lighting.ExposureCompensation = lerpNumber(0.03, -0.06, dayAlpha)
     end)
 
-    atmosphere.Color = lerpColor(Color3.fromRGB(92, 111, 156), Color3.fromRGB(212, 197, 174), dayAlpha)
-    atmosphere.Decay = lerpColor(Color3.fromRGB(69, 88, 129), Color3.fromRGB(179, 158, 129), dayAlpha)
-    atmosphere.Density = lerpNumber(0.35, 0.25, dayAlpha)
-    atmosphere.Glare = lerpNumber(0.02, 0.08, dayAlpha)
-    atmosphere.Haze = lerpNumber(1.26, 1.02, dayAlpha)
-    atmosphere.Offset = lerpNumber(0.11, 0.04, dayAlpha)
+    atmosphere.Color = lerpColor(Color3.fromRGB(104, 123, 166), Color3.fromRGB(221, 206, 182), dayAlpha)
+    atmosphere.Decay = lerpColor(Color3.fromRGB(81, 98, 138), Color3.fromRGB(191, 170, 138), dayAlpha)
+    atmosphere.Density = lerpNumber(0.31, 0.22, dayAlpha)
+    atmosphere.Glare = lerpNumber(0.03, 0.1, dayAlpha)
+    atmosphere.Haze = lerpNumber(1.08, 0.88, dayAlpha)
+    atmosphere.Offset = lerpNumber(0.08, 0.02, dayAlpha)
 
-    bloom.Intensity = lerpNumber(0.05, 0.1, dayAlpha)
-    bloom.Size = lerpNumber(18, 24, dayAlpha)
-    bloom.Threshold = lerpNumber(1.34, 1.26, dayAlpha)
+    bloom.Intensity = lerpNumber(0.05, 0.12, dayAlpha)
+    bloom.Size = lerpNumber(18, 25, dayAlpha)
+    bloom.Threshold = lerpNumber(1.28, 1.18, dayAlpha)
 
-    colorCorrection.Brightness = lerpNumber(-0.08, -0.06, dayAlpha)
-    colorCorrection.Contrast = lerpNumber(0.18, 0.15, dayAlpha)
-    colorCorrection.Saturation = lerpNumber(-0.08, -0.05, dayAlpha)
-    colorCorrection.TintColor = lerpColor(Color3.fromRGB(181, 194, 226), Color3.fromRGB(229, 215, 194), dayAlpha)
+    colorCorrection.Brightness = lerpNumber(-0.03, 0.02, dayAlpha)
+    colorCorrection.Contrast = lerpNumber(0.16, 0.14, dayAlpha)
+    colorCorrection.Saturation = lerpNumber(-0.04, 0.02, dayAlpha)
+    colorCorrection.TintColor = lerpColor(Color3.fromRGB(190, 202, 231), Color3.fromRGB(236, 223, 200), dayAlpha)
 
     sunRays.Intensity = lerpNumber(0.003, 0.048, dayAlpha)
     sunRays.Spread = lerpNumber(0.28, 0.72, dayAlpha)
@@ -4977,9 +4983,9 @@ local function applyCycleLighting(clockTime: number)
 
     pcall(function()
         Lighting.GlobalShadows = true
-        Lighting.FogEnd = lerpNumber(8000, 120000, dayAlpha)
+        Lighting.FogEnd = lerpNumber(12000, 132000, dayAlpha)
         Lighting.FogStart = 0
-        Lighting.FogColor = lerpColor(Color3.fromRGB(54, 66, 99), Color3.fromRGB(178, 167, 149), dayAlpha)
+        Lighting.FogColor = lerpColor(Color3.fromRGB(72, 82, 112), Color3.fromRGB(195, 184, 164), dayAlpha)
     end)
 
     -- Tiny nudge to moon visibility on darker moments.
@@ -4988,8 +4994,8 @@ local function applyCycleLighting(clockTime: number)
     end
 
     -- Terrain clouds help break up the flat Roblox sky look.
-    clouds.Cover = lerpNumber(0.48, 0.32, dayAlpha)
-    clouds.Density = lerpNumber(0.92, 0.68, dayAlpha)
+    clouds.Cover = lerpNumber(0.42, 0.28, dayAlpha)
+    clouds.Density = lerpNumber(0.86, 0.62, dayAlpha)
     clouds.Color = lerpColor(Color3.fromRGB(168, 179, 208), Color3.fromRGB(246, 241, 231), dayAlpha)
     clouds.Enabled = true
 end
@@ -10918,6 +10924,35 @@ local function tweenCutsceneFrameOut()
     tween.Completed:Wait()
 end
 
+local function resolveCameraPosition(desiredPosition: Vector3, lookTarget: Vector3): Vector3
+    local rayDirection = desiredPosition - lookTarget
+
+    if rayDirection.Magnitude <= 0.01 then
+        return desiredPosition
+    end
+
+    local origin = lookTarget + rayDirection.Unit * 2
+    local params = RaycastParams.new()
+    params.FilterType = Enum.RaycastFilterType.Exclude
+
+    local ignored = {}
+    local character = player.Character
+
+    if character then
+        table.insert(ignored, character)
+    end
+
+    params.FilterDescendantsInstances = ignored
+
+    local result = Workspace:Raycast(origin, desiredPosition - origin, params)
+
+    if result then
+        return result.Position + result.Normal * 2.2
+    end
+
+    return desiredPosition
+end
+
 local function moveCameraThroughScene(camera: Camera, scene, duration: number, token: number)
     local cframe = scene.CameraCFrame
 
@@ -10927,9 +10962,12 @@ local function moveCameraThroughScene(camera: Camera, scene, duration: number, t
     end
 
     local targetFieldOfView = scene.FieldOfView or 66
+    local baseLookTarget = cframe.Position + cframe.LookVector * 120
+    local safeBasePosition = resolveCameraPosition(cframe.Position, baseLookTarget)
+    local safeCFrame = CFrame.lookAt(safeBasePosition, baseLookTarget)
     local tweenDuration = math.min(1.9, math.max(0.6, duration * 0.34))
     local tween = TweenService:Create(camera, TweenInfo.new(tweenDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-        CFrame = cframe,
+        CFrame = safeCFrame,
         FieldOfView = targetFieldOfView,
     })
     tween:Play()
@@ -10950,15 +10988,15 @@ local function moveCameraThroughScene(camera: Camera, scene, duration: number, t
         return
     end
 
-    local baseLookTarget = cframe.Position + cframe.LookVector * 120
     local elapsed = 0
 
     while elapsed < driftDuration and token == cutsceneToken do
         elapsed += RunService.RenderStepped:Wait()
         local alpha = smoothStep(elapsed / driftDuration)
         local offset = drift * alpha
-        local driftedPosition = cframe.Position + offset
+        local desiredPosition = cframe.Position + offset
         local driftedLook = baseLookTarget + drift * 0.35 * alpha
+        local driftedPosition = resolveCameraPosition(desiredPosition, driftedLook)
         camera.CFrame = CFrame.lookAt(driftedPosition, driftedLook)
         camera.FieldOfView = targetFieldOfView
     end

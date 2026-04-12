@@ -11,8 +11,6 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BattleScenarios = require(Shared.Data.BattleScenarios)
 local TravelRoute = require(Shared.Data.TravelRoute)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
-local BattleBots = require(script.Parent.Modules.BattleBots)
-
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local battleFolder = remotesFolder:WaitForChild("Battle")
 local shopFolder = remotesFolder:WaitForChild("Shop")
@@ -1648,21 +1646,12 @@ startSession = function(scenarioId: string)
         unfreezePlayersForBattle(queuedPlayers)
         sendMessage(queuedPlayers, string.format("%s begins now. Fight in first person with your sword and bow, then watch the reenactment at the end.", scenario.DisplayName), 6)
 
-        if scenario.Commander then
-            sendMessage(queuedPlayers, string.format("Boss objective: defeat the %s to end the scenario.", scenario.Commander.DisplayName), 6)
-        elseif getFinalBossConfig(session) then
+        if getFinalBossConfig(session) then
             sendMessage(queuedPlayers, "Win the player fight first. Then the mode shifts into one final boss stand.", 6)
         end
 
-        if scenario.FillEmptySlotsWithBots == false then
-            sendMessage(queuedPlayers, "Uhud now runs as a player-only mode with no filler bots, so the field stays focused on the ridge, the pass, and the player fight itself.", 6)
-        else
-            sendMessage(queuedPlayers, string.format("Field strength: up to %d fighters per side. AI fills empty slots, but players still decide the round.", scenario.PlayersPerTeam), 6)
-        end
+        sendMessage(queuedPlayers, string.format("%s now runs as a player-only battle. No filler bots spawn into the round.", scenario.DisplayName), 6)
         sendMessage(queuedPlayers, "Combat tips: left click to attack, hold and release the bow to fire, and right click to raise your shield block.", 6)
-        if #session.Dummies > 0 then
-            BattleBots.Start(session)
-        end
         evaluateVictory(session)
 
         task.delay(scenario.RoundDurationSeconds, function()

@@ -423,6 +423,35 @@ local function tweenCutsceneFrameOut()
     tween.Completed:Wait()
 end
 
+local function resolveCameraPosition(desiredPosition: Vector3, lookTarget: Vector3): Vector3
+    local rayDirection = desiredPosition - lookTarget
+
+    if rayDirection.Magnitude <= 0.01 then
+        return desiredPosition
+    end
+
+    local origin = lookTarget + rayDirection.Unit * 2
+    local params = RaycastParams.new()
+    params.FilterType = Enum.RaycastFilterType.Exclude
+
+    local ignored = {}
+    local character = player.Character
+
+    if character then
+        table.insert(ignored, character)
+    end
+
+    params.FilterDescendantsInstances = ignored
+
+    local result = Workspace:Raycast(origin, desiredPosition - origin, params)
+
+    if result then
+        return result.Position + result.Normal * 2.2
+    end
+
+    return desiredPosition
+end
+
 local function moveCameraThroughScene(camera: Camera, scene, duration: number, token: number)
     local cframe = scene.CameraCFrame
 
@@ -432,9 +461,12 @@ local function moveCameraThroughScene(camera: Camera, scene, duration: number, t
     end
 
     local targetFieldOfView = scene.FieldOfView or 66
+    local baseLookTarget = cframe.Position + cframe.LookVector * 120
+    local safeBasePosition = resolveCameraPosition(cframe.Position, baseLookTarget)
+    local safeCFrame = CFrame.lookAt(safeBasePosition, baseLookTarget)
     local tweenDuration = math.min(1.9, math.max(0.6, duration * 0.34))
     local tween = TweenService:Create(camera, TweenInfo.new(tweenDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
-        CFrame = cframe,
+        CFrame = safeCFrame,
         FieldOfView = targetFieldOfView,
     })
     tween:Play()
@@ -455,15 +487,15 @@ local function moveCameraThroughScene(camera: Camera, scene, duration: number, t
         return
     end
 
-    local baseLookTarget = cframe.Position + cframe.LookVector * 120
     local elapsed = 0
 
     while elapsed < driftDuration and token == cutsceneToken do
         elapsed += RunService.RenderStepped:Wait()
         local alpha = smoothStep(elapsed / driftDuration)
         local offset = drift * alpha
-        local driftedPosition = cframe.Position + offset
+        local desiredPosition = cframe.Position + offset
         local driftedLook = baseLookTarget + drift * 0.35 * alpha
+        local driftedPosition = resolveCameraPosition(desiredPosition, driftedLook)
         camera.CFrame = CFrame.lookAt(driftedPosition, driftedLook)
         camera.FieldOfView = targetFieldOfView
     end

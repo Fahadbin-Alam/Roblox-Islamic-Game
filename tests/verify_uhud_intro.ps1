@@ -44,7 +44,7 @@ $builderChecks = @(
     'BriefingArcherShelf',
     'BriefingMedinaLead',
     'BriefingMakkahLead',
-    'local camera6 = BuildUtils.CreateTeleportAnchor(cameras, "Scene6"',
+    'camera6 = BuildUtils.CreateTeleportAnchor(cameras, "Scene6"',
     'string.format("UhudArcher%d", index)'
 )
 

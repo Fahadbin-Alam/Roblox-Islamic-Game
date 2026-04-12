@@ -71,10 +71,10 @@ $storyChecks = @(
 $battleChecks = @(
     'InitialHumanCounts',
     'getHumanLivingCount',
-    'players still decide the round',
+    'player-only battle. No filler bots spawn into the round',
+    'while scenario.FillEmptySlotsWithBots ~= false and #session.Teams[team.Id] < scenario.PlayersPerTeam do',
     'if targetEntry.IsCommander then',
-    'if candidate.IsCommander then',
-    'BOT_STEP_SECONDS = 0.08'
+    'if candidate.IsCommander then'
 )
 
 $uhudChecks = @(
@@ -91,7 +91,7 @@ $uhudChecks = @(
     'FillEmptySlotsWithBots = false',
     'BriefingUhudMass',
     'BriefingMedinaLead',
-    'local camera6 = BuildUtils.CreateTeleportAnchor(cameras, "Scene6"',
+    'camera6 = BuildUtils.CreateTeleportAnchor(cameras, "Scene6"',
     'LastStandShelfTerrain',
     'Steadfast Ground',
     'UhudFinalStandStory'

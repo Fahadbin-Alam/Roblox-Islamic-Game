@@ -8,8 +8,9 @@ local BattleScenarios = {
         Format = "TeamBattleScenario",
         ArenaTheme = "DesertValley",
         RecommendedPlayers = 60,
-        MinPlayersToLaunch = 1,
+        MinPlayersToLaunch = 2,
         PlayersPerTeam = 30,
+        FillEmptySlotsWithBots = false,
         CountdownSeconds = 8,
         RoundDurationSeconds = 240,
         LearningGoal = "Teach courage, preparation, unity, and the importance of a major early turning point.",
@@ -24,14 +25,6 @@ local BattleScenarios = {
                 DisplayName = "Makkah Side",
                 AccentColor = Color3.fromRGB(160, 109, 60),
             },
-        },
-        Commander = {
-            TeamId = "makkah",
-            DisplayName = "Quraysh Commander",
-            RoleText = "A stronger opposing-side commander role. If a player is on this side, one player becomes the commander. If not, the game creates a boss dummy.",
-            Health = 260,
-            DefeatedWinnerTeamId = "medina",
-            DefeatedMessage = "Medina Side completes the scenario: the Quraysh commander was defeated.",
         },
         KeyFigures = {
             Medina = "Medina side: Prophet Muhammad, peace be upon him, led the Muslims but is never depicted. Companions connected to this period include Abu Bakr, Umar, Ali, Hamzah, and Bilal, may Allah be pleased with them.",
@@ -95,8 +88,8 @@ local BattleScenarios = {
                 },
                 {
                     CameraName = "BriefingMap4",
-                    Title = "Opposing Commanders",
-                    Body = "Quraysh leaders remembered in this conflict include Abu Jahl, Umayyah ibn Khalaf, and Utbah ibn Rabi'ah. The boss role represents an opposing commander without making a sacred figure playable.",
+                    Title = "The Opposing Side",
+                    Body = "Quraysh leaders remembered in this conflict include Abu Jahl, Umayyah ibn Khalaf, and Utbah ibn Rabi'ah. This mode now stays fully player-versus-player with no filler bots or boss dummy.",
                     DurationSeconds = 8,
                     FieldOfView = 60,
                     CameraDrift = Vector3.new(-10, 1, -5),
@@ -104,7 +97,7 @@ local BattleScenarios = {
                 {
                     CameraName = "BriefingMap5",
                     Title = "Your Objective",
-                    Body = "Fight the round, look for the Quraysh Commander boss, then watch the reenactment to connect the action to courage, preparation, unity, and gratitude.",
+                    Body = "Fight the round as a direct clash between both player teams, use the valley and wells, then watch the reenactment to connect the action to courage, preparation, unity, and gratitude.",
                     DurationSeconds = 7,
                     FieldOfView = 60,
                     CameraDrift = Vector3.new(8, 0, -8),
@@ -133,7 +126,7 @@ local BattleScenarios = {
                 {
                     CameraName = "Scene3",
                     Title = "The Opposing Command",
-                    Body = "The Quraysh side had powerful chiefs and confidence from Makkah. In gameplay, the commander boss gives players a clear objective.",
+                    Body = "The Quraysh side had powerful chiefs and confidence from Makkah. In gameplay, the mode now stays focused on two player teams meeting in the valley without bot fill.",
                     DurationSeconds = 7,
                     FieldOfView = 61,
                     CameraDrift = Vector3.new(-9, 0, 8),
@@ -161,7 +154,7 @@ local BattleScenarios = {
             Lines = {
                 "Badr took place on 17 Ramadan, 2 AH / 624 CE and became a major victory for the early Muslim community.",
                 "The battle strengthened morale and marked a turning point in the public standing of the community.",
-                "This battle mode uses a commander boss objective for gameplay while the reenactment keeps the historical meaning in view.",
+                "This battle mode now stays player-only so the reenactment carries the teaching while the round itself stays focused and readable.",
             },
         },
         Rewards = {
@@ -179,7 +172,7 @@ local BattleScenarios = {
         Format = "TeamBattleScenario",
         ArenaTheme = "MountainPass",
         RecommendedPlayers = 60,
-        MinPlayersToLaunch = 1,
+        MinPlayersToLaunch = 2,
         PlayersPerTeam = 30,
         FillEmptySlotsWithBots = false,
         CountdownSeconds = 8,

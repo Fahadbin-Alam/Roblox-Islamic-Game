@@ -47,6 +47,7 @@ $weaponChecks = @(
 )
 
 $hudChecks = @(
+    'local function resolveCameraPosition(desiredPosition: Vector3, lookTarget: Vector3): Vector3',
     'local function moveCameraThroughScene(camera: Camera, scene, duration: number, token: number)',
     'local drift = scene.CameraDrift',
     'camera.CFrame = CFrame.lookAt(driftedPosition, driftedLook)'
@@ -64,6 +65,12 @@ $kaabaChecks = @(
     'bodyHalfX = 38',
     'bodyHalfZ = 31',
     'KaabaShadowHemFront'
+)
+
+$arenaChecks = @(
+    'UhudViewShelfWest',
+    'camera4 = BuildUtils.CreateTeleportAnchor(cameras, "Scene4", center + Vector3.new(84, 42, 18))',
+    'camera5 = BuildUtils.CreateTeleportAnchor(cameras, "BriefingMap5", center + Vector3.new(90, 44, 10))'
 )
 
 foreach ($check in $libraryChecks) {
@@ -89,6 +96,10 @@ foreach ($check in $scenarioChecks) {
 foreach ($check in $kaabaChecks) {
     Assert-Contains $hubWorldBuilder $check "Kaaba polish source"
     Assert-Contains $build $check "rebuilt Kaaba polish source"
+}
+
+foreach ($check in $arenaChecks) {
+    Assert-Contains $build $check "rebuilt Uhud camera polish"
 }
 
 Write-Host "verify_presentation_polish.ps1 passed"

@@ -50,6 +50,7 @@ $scenarioChecks = @(
     "RecommendedPlayers = 60",
     "PlayersPerTeam = 30",
     "RoundDurationSeconds = 250",
+    "MinPlayersToLaunch = 2",
     "FillEmptySlotsWithBots = false"
 )
 
@@ -62,19 +63,26 @@ Assert-NotContains $battleScenarios "FinalBossPhase = {" "legacy Uhud boss confi
 Assert-NotContains $build "FinalBossPhase = {" "rebuilt legacy Uhud boss config"
 
 $serviceChecks = @(
-    "local BattleBots = require(script.Parent.Modules.BattleBots)",
     "local function buildFormationPositions",
     "local function getDummyBotStyle",
     'BotStyle = botStyle',
-    "BattleBots.Start(session)",
-    "if #session.Dummies > 0 then",
-    "Field strength: up to %d fighters per side",
-    "Uhud now runs as a player-only mode with no filler bots"
+    "while scenario.FillEmptySlotsWithBots ~= false and #session.Teams[team.Id] < scenario.PlayersPerTeam do",
+    'sendMessage(queuedPlayers, string.format("%s now runs as a player-only battle. No filler bots spawn into the round.", scenario.DisplayName), 6)'
 )
 
 foreach ($check in $serviceChecks) {
     Assert-Contains $battleService $check "battle service wiring"
     Assert-Contains $build $check "rebuilt battle service wiring"
+}
+
+$serviceAbsenceChecks = @(
+    "local BattleBots = require(script.Parent.Modules.BattleBots)",
+    "BattleBots.Start(session)",
+    "Field strength: up to %d fighters per side"
+)
+
+foreach ($check in $serviceAbsenceChecks) {
+    Assert-NotContains $battleService $check "legacy bot service wiring"
 }
 
 $botChecks = @(

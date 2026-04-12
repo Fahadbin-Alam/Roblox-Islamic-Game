@@ -38,11 +38,12 @@ $worldChecks = @(
 )
 
 $atmosphereChecks = @(
-    'local MIN_NIGHT_BRIGHTNESS = 1.2',
-    'local MAX_DAY_BRIGHTNESS = 1.82',
-    'Workspace.Terrain:SetMaterialColor(Enum.Material.Sand, Color3.fromRGB(186, 164, 119))',
-    'Lighting.ExposureCompensation = lerpNumber(-0.12, -0.22, dayAlpha)',
-    'Lighting.FogEnd = lerpNumber(8000, 120000, dayAlpha)'
+    'local START_CLOCK_TIME = 10.3',
+    'local MIN_NIGHT_BRIGHTNESS = 1.38',
+    'local MAX_DAY_BRIGHTNESS = 2.08',
+    'Workspace.Terrain:SetMaterialColor(Enum.Material.Sand, Color3.fromRGB(198, 176, 129))',
+    'Lighting.ExposureCompensation = lerpNumber(0.03, -0.06, dayAlpha)',
+    'Lighting.FogEnd = lerpNumber(12000, 132000, dayAlpha)'
 )
 
 foreach ($check in $worldChecks) {
