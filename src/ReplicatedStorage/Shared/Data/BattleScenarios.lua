@@ -75,6 +75,7 @@ local BattleScenarios = {
                     Body = "Badr happened after the Hijrah, when the Muslims had settled in Medina and conflict with the Quraysh of Makkah was still rising.",
                     DurationSeconds = 7,
                     FieldOfView = 62,
+                    CameraDrift = Vector3.new(10, 1, -4),
                 },
                 {
                     CameraName = "BriefingMap2",
@@ -82,6 +83,7 @@ local BattleScenarios = {
                     Body = "The young Muslim community in Medina faced pressure from Quraysh power in Makkah. Badr became the first major battle between the two sides.",
                     DurationSeconds = 8,
                     FieldOfView = 58,
+                    CameraDrift = Vector3.new(0, -2, 10),
                 },
                 {
                     CameraName = "BriefingMap3",
@@ -89,6 +91,7 @@ local BattleScenarios = {
                     Body = "Medina side: the Prophet, peace be upon him, led but is not depicted. Companions such as Abu Bakr, Umar, Ali, Hamzah, and Bilal, may Allah be pleased with them, are connected to this period.",
                     DurationSeconds = 9,
                     FieldOfView = 64,
+                    CameraDrift = Vector3.new(-8, 0, 12),
                 },
                 {
                     CameraName = "BriefingMap4",
@@ -96,6 +99,7 @@ local BattleScenarios = {
                     Body = "Quraysh leaders remembered in this conflict include Abu Jahl, Umayyah ibn Khalaf, and Utbah ibn Rabi'ah. The boss role represents an opposing commander without making a sacred figure playable.",
                     DurationSeconds = 8,
                     FieldOfView = 60,
+                    CameraDrift = Vector3.new(-10, 1, -5),
                 },
                 {
                     CameraName = "BriefingMap5",
@@ -103,6 +107,7 @@ local BattleScenarios = {
                     Body = "Fight the round, look for the Quraysh Commander boss, then watch the reenactment to connect the action to courage, preparation, unity, and gratitude.",
                     DurationSeconds = 7,
                     FieldOfView = 60,
+                    CameraDrift = Vector3.new(8, 0, -8),
                 },
             },
         },
@@ -114,30 +119,40 @@ local BattleScenarios = {
                     Title = "The Wells Of Badr",
                     Body = "17 Ramadan, 2 AH. The valley and wells mattered because preparation and position shaped what happened before the clash.",
                     DurationSeconds = 7,
+                    FieldOfView = 63,
+                    CameraDrift = Vector3.new(8, 0, -6),
                 },
                 {
                     CameraName = "Scene2",
                     Title = "Standing Together",
                     Body = "The Medina side was a small, vulnerable community under pressure. The scene keeps the Prophet, peace be upon him, out of visual depiction.",
                     DurationSeconds = 8,
+                    FieldOfView = 60,
+                    CameraDrift = Vector3.new(0, 1, 10),
                 },
                 {
                     CameraName = "Scene3",
                     Title = "The Opposing Command",
                     Body = "The Quraysh side had powerful chiefs and confidence from Makkah. In gameplay, the commander boss gives players a clear objective.",
                     DurationSeconds = 7,
+                    FieldOfView = 61,
+                    CameraDrift = Vector3.new(-9, 0, 8),
                 },
                 {
                     CameraName = "Scene4",
                     Title = "A Turning Point",
                     Body = "Badr raised morale and changed how the community was seen. The ending should feel like a lesson, not only a scoreboard.",
                     DurationSeconds = 7,
+                    FieldOfView = 58,
+                    CameraDrift = Vector3.new(6, 2, -10),
                 },
                 {
                     CameraName = "Scene5",
                     Title = "What Players Should Remember",
                     Body = "In the game you fought for fun. In the lesson, remember preparation, unity, gratitude, and responsibility after victory.",
                     DurationSeconds = 7,
+                    FieldOfView = 60,
+                    CameraDrift = Vector3.new(-5, 0, -8),
                 },
             },
         },
@@ -224,6 +239,7 @@ local BattleScenarios = {
                     Body = "Qur'an 3:121 remembers the believers being placed into battle positions. This opening view frames Mount Uhud, the approaches from Medina, and the ground where the lines were formed before the clash.",
                     DurationSeconds = 8,
                     FieldOfView = 62,
+                    CameraDrift = Vector3.new(14, 2, -8),
                     Reference = "Qur'an 3:121 · Quran.com",
                 },
                 {
@@ -232,6 +248,7 @@ local BattleScenarios = {
                     Body = "Sunan Abi Dawud 2662 reports that 'Abd Allah ibn Jubayr led fifty archers with a strict order: hold the ridge and do not leave, even if the battlefield appears won.",
                     DurationSeconds = 9,
                     FieldOfView = 58,
+                    CameraDrift = Vector3.new(10, 0, 10),
                     Reference = "Sunan Abi Dawud 2662 · Sunnah.com",
                 },
                 {
@@ -240,6 +257,7 @@ local BattleScenarios = {
                     Body = "Qur'an 3:152 describes the early stage when victory seemed within reach. In the game camera pass, the Medina line pushes forward while the ridge still protects the flank.",
                     DurationSeconds = 9,
                     FieldOfView = 60,
+                    CameraDrift = Vector3.new(-10, 0, 12),
                     Reference = "Qur'an 3:152 · Quran.com",
                 },
                 {
@@ -248,6 +266,7 @@ local BattleScenarios = {
                     Body = "Qur'an 3:152-153 links the setback to dispute and disobedience after success. Once the ridge opened, the field broke, people ran uphill in confusion, and the battle changed in moments.",
                     DurationSeconds = 9,
                     FieldOfView = 60,
+                    CameraDrift = Vector3.new(-12, 1, -9),
                     Reference = "Qur'an 3:152-153 · Quran.com",
                 },
                 {
@@ -256,6 +275,7 @@ local BattleScenarios = {
                     Body = "Sahih Muslim 1790a records the injuries of that day: the Messenger of Allah, peace be upon him, was wounded, and Fatimah and 'Ali worked urgently to stop the bleeding.",
                     DurationSeconds = 8,
                     FieldOfView = 60,
+                    CameraDrift = Vector3.new(8, 2, -8),
                     Reference = "Sahih Muslim 1790a · Sunnah.com",
                 },
                 {
@@ -264,6 +284,7 @@ local BattleScenarios = {
                     Body = "Qur'an 3:172 and Sahih al-Bukhari 4077 preserve that wounded believers still answered the call after Uhud. The lesson is not surface-level victory, but obedience, endurance, and return after pain.",
                     DurationSeconds = 9,
                     FieldOfView = 57,
+                    CameraDrift = Vector3.new(0, -2, 10),
                     Reference = "Qur'an 3:172 · Sahih al-Bukhari 4077",
                 },
             },
@@ -276,6 +297,8 @@ local BattleScenarios = {
                     Title = "A Mountain With Meaning",
                     Body = "Sahih al-Bukhari 4422 preserves the line that Uhud is a mountain that loves us and is loved by us. The place itself became part of the memory of the battle.",
                     DurationSeconds = 8,
+                    FieldOfView = 61,
+                    CameraDrift = Vector3.new(12, 1, -8),
                     Reference = "Sahih al-Bukhari 4422 · Sunnah.com",
                 },
                 {
@@ -283,6 +306,8 @@ local BattleScenarios = {
                     Title = "Stations For Battle",
                     Body = "Qur'an 3:121 recalls the believers being placed into battle positions. This scene turns from the mountain face to the ridge and pass so players can connect the reports to the actual terrain.",
                     DurationSeconds = 9,
+                    FieldOfView = 59,
+                    CameraDrift = Vector3.new(6, 2, 10),
                     Reference = "Qur'an 3:121 · Quran.com",
                 },
                 {
@@ -290,6 +315,8 @@ local BattleScenarios = {
                     Title = "The Ridge Must Hold",
                     Body = "Sunan Abi Dawud 2662 ties Uhud to the order given to the archers not to leave their place, even when the field looked won and the temptation of booty appeared.",
                     DurationSeconds = 9,
+                    FieldOfView = 60,
+                    CameraDrift = Vector3.new(-12, 0, 10),
                     Reference = "Sunan Abi Dawud 2662 · Sunnah.com",
                 },
                 {
@@ -297,6 +324,8 @@ local BattleScenarios = {
                     Title = "Confusion And The Uphill Flight",
                     Body = "Qur'an 3:153 describes the believers climbing and not looking back while the Messenger called from behind. Sahih Muslim 1789 remembers how fiercely the pressure closed in during the late battle.",
                     DurationSeconds = 9,
+                    FieldOfView = 58,
+                    CameraDrift = Vector3.new(-8, 3, -12),
                     Reference = "Qur'an 3:153 · Sahih Muslim 1789",
                 },
                 {
@@ -304,6 +333,8 @@ local BattleScenarios = {
                     Title = "Wounds And Rescue",
                     Body = "Sahih Muslim 1790a records the injuries suffered that day and the urgent effort to stop the bleeding. Uhud is taught here as pain, rescue, loss, and steadfast protection under pressure.",
                     DurationSeconds = 9,
+                    FieldOfView = 60,
+                    CameraDrift = Vector3.new(10, 1, -6),
                     Reference = "Sahih Muslim 1790a · Sunnah.com",
                 },
                 {
@@ -311,6 +342,8 @@ local BattleScenarios = {
                     Title = "Martyrs, Grief, And Response",
                     Body = "Sahih Muslim 940a remembers Mus'ab ibn Umayr among the martyrs of Uhud. Qur'an 3:169 and 3:172 turn the lesson toward honor, patience, and answering again after being wounded.",
                     DurationSeconds = 9,
+                    FieldOfView = 57,
+                    CameraDrift = Vector3.new(0, -3, 12),
                     Reference = "Qur'an 3:169-172 · Sahih Muslim 940a",
                 },
             },

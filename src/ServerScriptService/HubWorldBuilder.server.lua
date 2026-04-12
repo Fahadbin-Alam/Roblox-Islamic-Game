@@ -827,28 +827,37 @@ local function createHorizontalCylinder(parent: Instance, name: string, length: 
     )
 end
 
-local function createKaabaGoldMotifs(parent: Instance, center: Vector3, bodyHalf: number, bodyCenterY: number, bodyHeight: number, bandY: number, baseY: number)
-    local motifCount = 7
-    local usableWidth = bodyHalf * 2 - 18
+local function createKaabaGoldMotifs(parent: Instance, center: Vector3, bodyHalfX: number, bodyHalfZ: number, bodyCenterY: number, bodyHeight: number, bandY: number, baseY: number)
+    local motifCountFront = 7
+    local motifCountSide = 5
+    local usableWidthFront = bodyHalfX * 2 - 18
+    local usableWidthSide = bodyHalfZ * 2 - 14
     local gold = Color3.fromRGB(222, 184, 93)
     local deepGold = Color3.fromRGB(166, 126, 46)
 
-    for index = 1, motifCount do
-        local alpha = (index - 1) / (motifCount - 1)
-        local offset = -usableWidth * 0.5 + usableWidth * alpha
+    for index = 1, motifCountFront do
+        local alpha = (index - 1) / (motifCountFront - 1)
+        local offset = -usableWidthFront * 0.5 + usableWidthFront * alpha
         local motifY = bandY - 7
 
-        BuildUtils.CreatePart(parent, string.format("KaabaFrontGoldMedallion_%d", index), Vector3.new(4.6, 2.6, 0.95), CFrame.new(center + Vector3.new(offset, motifY, -bodyHalf - 1.55)), gold, Enum.Material.Metal, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("KaabaBackGoldMedallion_%d", index), Vector3.new(4.6, 2.6, 0.95), CFrame.new(center + Vector3.new(offset, motifY, bodyHalf + 1.55)), gold, Enum.Material.Metal, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("KaabaLeftGoldMedallion_%d", index), Vector3.new(0.95, 2.6, 4.6), CFrame.new(center + Vector3.new(-bodyHalf - 1.55, motifY, offset)), gold, Enum.Material.Metal, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("KaabaRightGoldMedallion_%d", index), Vector3.new(0.95, 2.6, 4.6), CFrame.new(center + Vector3.new(bodyHalf + 1.55, motifY, offset)), gold, Enum.Material.Metal, nil, nil)
+        BuildUtils.CreatePart(parent, string.format("KaabaFrontGoldMedallion_%d", index), Vector3.new(4.6, 2.6, 0.95), CFrame.new(center + Vector3.new(offset, motifY, -bodyHalfZ - 1.55)), gold, Enum.Material.Metal, nil, nil)
+        BuildUtils.CreatePart(parent, string.format("KaabaBackGoldMedallion_%d", index), Vector3.new(4.6, 2.6, 0.95), CFrame.new(center + Vector3.new(offset, motifY, bodyHalfZ + 1.55)), gold, Enum.Material.Metal, nil, nil)
+    end
+
+    for index = 1, motifCountSide do
+        local alpha = (index - 1) / math.max(motifCountSide - 1, 1)
+        local offset = -usableWidthSide * 0.5 + usableWidthSide * alpha
+        local motifY = bandY - 7
+
+        BuildUtils.CreatePart(parent, string.format("KaabaLeftGoldMedallion_%d", index), Vector3.new(0.95, 2.6, 4.6), CFrame.new(center + Vector3.new(-bodyHalfX - 1.55, motifY, offset)), gold, Enum.Material.Metal, nil, nil)
+        BuildUtils.CreatePart(parent, string.format("KaabaRightGoldMedallion_%d", index), Vector3.new(0.95, 2.6, 4.6), CFrame.new(center + Vector3.new(bodyHalfX + 1.55, motifY, offset)), gold, Enum.Material.Metal, nil, nil)
     end
 
     for _, side in ipairs({
-        { Name = "Front", Size = Vector3.new(bodyHalf * 2 + 2, 1.15, 0.9), Offset = Vector3.new(0, baseY + 8.4, -bodyHalf - 1.35) },
-        { Name = "Back", Size = Vector3.new(bodyHalf * 2 + 2, 1.15, 0.9), Offset = Vector3.new(0, baseY + 8.4, bodyHalf + 1.35) },
-        { Name = "Left", Size = Vector3.new(0.9, 1.15, bodyHalf * 2 + 2), Offset = Vector3.new(-bodyHalf - 1.35, baseY + 8.4, 0) },
-        { Name = "Right", Size = Vector3.new(0.9, 1.15, bodyHalf * 2 + 2), Offset = Vector3.new(bodyHalf + 1.35, baseY + 8.4, 0) },
+        { Name = "Front", Size = Vector3.new(bodyHalfX * 2 + 2, 1.15, 0.9), Offset = Vector3.new(0, baseY + 8.4, -bodyHalfZ - 1.35) },
+        { Name = "Back", Size = Vector3.new(bodyHalfX * 2 + 2, 1.15, 0.9), Offset = Vector3.new(0, baseY + 8.4, bodyHalfZ + 1.35) },
+        { Name = "Left", Size = Vector3.new(0.9, 1.15, bodyHalfZ * 2 + 2), Offset = Vector3.new(-bodyHalfX - 1.35, baseY + 8.4, 0) },
+        { Name = "Right", Size = Vector3.new(0.9, 1.15, bodyHalfZ * 2 + 2), Offset = Vector3.new(bodyHalfX + 1.35, baseY + 8.4, 0) },
     }) do
         BuildUtils.CreatePart(parent, string.format("KaabaLowerKiswahTrim%s", side.Name), side.Size, CFrame.new(center + side.Offset), deepGold, Enum.Material.Metal, nil, nil)
     end
@@ -857,27 +866,37 @@ local function createKaabaGoldMotifs(parent: Instance, center: Vector3, bodyHalf
         for column = 1, 2 do
             local x = (column == 1) and -2.45 or 2.45
             local y = baseY + 10.8 + row * 4.25
-            BuildUtils.CreatePart(parent, string.format("KaabaDoorRaisedPanel_%d_%d", row, column), Vector3.new(3.2, 2.5, 2), CFrame.new(center + Vector3.new(x, y, -bodyHalf - 2.75)), gold, Enum.Material.Metal, nil, nil)
+            BuildUtils.CreatePart(parent, string.format("KaabaDoorRaisedPanel_%d_%d", row, column), Vector3.new(3.2, 2.5, 2), CFrame.new(center + Vector3.new(x, y, -bodyHalfZ - 2.75)), gold, Enum.Material.Metal, nil, nil)
         end
     end
 
-    BuildUtils.CreatePart(parent, "KaabaDoorHandleLeft", Vector3.new(0.8, 3.2, 2.1), CFrame.new(center + Vector3.new(-2.1, baseY + 14.4, -bodyHalf - 3.05)), Color3.fromRGB(236, 205, 123), Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaDoorHandleRight", Vector3.new(0.8, 3.2, 2.1), CFrame.new(center + Vector3.new(2.1, baseY + 14.4, -bodyHalf - 3.05)), Color3.fromRGB(236, 205, 123), Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaDoorHandleLeft", Vector3.new(0.8, 3.2, 2.1), CFrame.new(center + Vector3.new(-2.1, baseY + 14.4, -bodyHalfZ - 3.05)), Color3.fromRGB(236, 205, 123), Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaDoorHandleRight", Vector3.new(0.8, 3.2, 2.1), CFrame.new(center + Vector3.new(2.1, baseY + 14.4, -bodyHalfZ - 3.05)), Color3.fromRGB(236, 205, 123), Enum.Material.Metal, nil, nil)
 
     for index = 1, 10 do
         local alpha = (index - 1) / 9
-        local x = -bodyHalf + 6 + (bodyHalf * 2 - 12) * alpha
+        local x = -bodyHalfX + 6 + (bodyHalfX * 2 - 12) * alpha
         local fringeY = bodyCenterY - bodyHeight * 0.5 + 3.4
 
-        BuildUtils.CreatePart(parent, string.format("KaabaFrontClothFringe_%d", index), Vector3.new(0.8, 6.2, 0.72), CFrame.new(center + Vector3.new(x, fringeY, -bodyHalf - 1.45)), Color3.fromRGB(4, 4, 4), Enum.Material.Fabric, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("KaabaBackClothFringe_%d", index), Vector3.new(0.8, 6.2, 0.72), CFrame.new(center + Vector3.new(x, fringeY, bodyHalf + 1.45)), Color3.fromRGB(4, 4, 4), Enum.Material.Fabric, nil, nil)
+        BuildUtils.CreatePart(parent, string.format("KaabaFrontClothFringe_%d", index), Vector3.new(0.8, 6.2, 0.72), CFrame.new(center + Vector3.new(x, fringeY, -bodyHalfZ - 1.45)), Color3.fromRGB(4, 4, 4), Enum.Material.Fabric, nil, nil)
+        BuildUtils.CreatePart(parent, string.format("KaabaBackClothFringe_%d", index), Vector3.new(0.8, 6.2, 0.72), CFrame.new(center + Vector3.new(x, fringeY, bodyHalfZ + 1.45)), Color3.fromRGB(4, 4, 4), Enum.Material.Fabric, nil, nil)
+    end
+
+    for index = 1, 8 do
+        local alpha = (index - 1) / 7
+        local z = -bodyHalfZ + 6 + (bodyHalfZ * 2 - 12) * alpha
+        local fringeY = bodyCenterY - bodyHeight * 0.5 + 3.4
+
+        BuildUtils.CreatePart(parent, string.format("KaabaLeftClothFringe_%d", index), Vector3.new(0.72, 6.2, 0.8), CFrame.new(center + Vector3.new(-bodyHalfX - 1.45, fringeY, z)), Color3.fromRGB(4, 4, 4), Enum.Material.Fabric, nil, nil)
+        BuildUtils.CreatePart(parent, string.format("KaabaRightClothFringe_%d", index), Vector3.new(0.72, 6.2, 0.8), CFrame.new(center + Vector3.new(bodyHalfX + 1.45, fringeY, z)), Color3.fromRGB(4, 4, 4), Enum.Material.Fabric, nil, nil)
     end
 end
 
 local function createDetailedKaaba(parent: Instance, center: Vector3)
     local baseY = 7.8
-    local bodyHeight = 66
-    local bodyHalf = 36
+    local bodyHeight = 67
+    local bodyHalfX = 38
+    local bodyHalfZ = 31
     local bodyCenterY = baseY + bodyHeight * 0.5
     local bandY = baseY + bodyHeight - 11
     local topY = baseY + bodyHeight
@@ -885,46 +904,69 @@ local function createDetailedKaaba(parent: Instance, center: Vector3)
     local blackPanel = Color3.fromRGB(22, 21, 20)
     local deepPanel = Color3.fromRGB(7, 7, 7)
 
-    BuildUtils.CreatePart(parent, "KaabaFoundation", Vector3.new(98, 3, 98), CFrame.new(center + Vector3.new(0, 6.9, 0)), Color3.fromRGB(48, 46, 43), Enum.Material.Slate, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaRaisedMarbleStep", Vector3.new(90, 1.4, 90), CFrame.new(center + Vector3.new(0, 9.1, 0)), Color3.fromRGB(224, 217, 201), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaMainBody", Vector3.new(bodyHalf * 2, bodyHeight, bodyHalf * 2), CFrame.new(center + Vector3.new(0, bodyCenterY, 0)), blackCloth, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaRoofLip", Vector3.new(78, 3.2, 78), CFrame.new(center + Vector3.new(0, topY + 1.6, 0)), Color3.fromRGB(18, 18, 17), Enum.Material.Slate, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaTopTrim", Vector3.new(82, 1.2, 82), CFrame.new(center + Vector3.new(0, topY + 4, 0)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaFoundation", Vector3.new(104, 3.4, 92), CFrame.new(center + Vector3.new(0, 6.7, 0)), Color3.fromRGB(44, 43, 41), Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaBaseStone", Vector3.new(96, 1.4, 84), CFrame.new(center + Vector3.new(0, 8.45, 0)), Color3.fromRGB(206, 199, 184), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaRaisedMarbleStep", Vector3.new(90, 1.15, 78), CFrame.new(center + Vector3.new(0, 9.85, 0)), Color3.fromRGB(222, 214, 198), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaMainBody", Vector3.new(bodyHalfX * 2, bodyHeight, bodyHalfZ * 2), CFrame.new(center + Vector3.new(0, bodyCenterY, 0)), blackCloth, Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaRoofLip", Vector3.new(bodyHalfX * 2 + 6, 2.8, bodyHalfZ * 2 + 6), CFrame.new(center + Vector3.new(0, topY + 1.4, 0)), Color3.fromRGB(18, 18, 17), Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaTopTrim", Vector3.new(bodyHalfX * 2 + 10, 1.0, bodyHalfZ * 2 + 10), CFrame.new(center + Vector3.new(0, topY + 3.4, 0)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaShadowHemFront", Vector3.new(bodyHalfX * 2 + 1.4, 3.4, 1), CFrame.new(center + Vector3.new(0, baseY + 3.8, -bodyHalfZ - 1.12)), Color3.fromRGB(5, 5, 5), Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaShadowHemBack", Vector3.new(bodyHalfX * 2 + 1.4, 3.4, 1), CFrame.new(center + Vector3.new(0, baseY + 3.8, bodyHalfZ + 1.12)), Color3.fromRGB(5, 5, 5), Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaShadowHemLeft", Vector3.new(1, 3.4, bodyHalfZ * 2 + 1.4), CFrame.new(center + Vector3.new(-bodyHalfX - 1.12, baseY + 3.8, 0)), Color3.fromRGB(5, 5, 5), Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaShadowHemRight", Vector3.new(1, 3.4, bodyHalfZ * 2 + 1.4), CFrame.new(center + Vector3.new(bodyHalfX + 1.12, baseY + 3.8, 0)), Color3.fromRGB(5, 5, 5), Enum.Material.Fabric, nil, nil)
 
-    BuildUtils.CreatePart(parent, "KaabaFrontClothPanel", Vector3.new(68, bodyHeight - 5, 0.7), CFrame.new(center + Vector3.new(0, bodyCenterY - 1, -bodyHalf - 0.45)), blackPanel, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaBackClothPanel", Vector3.new(68, bodyHeight - 5, 0.7), CFrame.new(center + Vector3.new(0, bodyCenterY - 1, bodyHalf + 0.45)), deepPanel, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaLeftClothPanel", Vector3.new(0.7, bodyHeight - 5, 68), CFrame.new(center + Vector3.new(-bodyHalf - 0.45, bodyCenterY - 1, 0)), blackPanel, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaRightClothPanel", Vector3.new(0.7, bodyHeight - 5, 68), CFrame.new(center + Vector3.new(bodyHalf + 0.45, bodyCenterY - 1, 0)), deepPanel, Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaFrontClothPanel", Vector3.new(bodyHalfX * 2 - 4, bodyHeight - 5, 0.7), CFrame.new(center + Vector3.new(0, bodyCenterY - 1, -bodyHalfZ - 0.45)), blackPanel, Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaBackClothPanel", Vector3.new(bodyHalfX * 2 - 4, bodyHeight - 5, 0.7), CFrame.new(center + Vector3.new(0, bodyCenterY - 1, bodyHalfZ + 0.45)), deepPanel, Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaLeftClothPanel", Vector3.new(0.7, bodyHeight - 5, bodyHalfZ * 2 - 4), CFrame.new(center + Vector3.new(-bodyHalfX - 0.45, bodyCenterY - 1, 0)), blackPanel, Enum.Material.Fabric, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaRightClothPanel", Vector3.new(0.7, bodyHeight - 5, bodyHalfZ * 2 - 4), CFrame.new(center + Vector3.new(bodyHalfX + 0.45, bodyCenterY - 1, 0)), deepPanel, Enum.Material.Fabric, nil, nil)
 
     for _, side in ipairs({
-        { Name = "Front", Size = Vector3.new(78, 3.2, 1), Offset = Vector3.new(0, bandY, -bodyHalf - 1) },
-        { Name = "Back", Size = Vector3.new(78, 3.2, 1), Offset = Vector3.new(0, bandY, bodyHalf + 1) },
-        { Name = "Left", Size = Vector3.new(1, 3.2, 78), Offset = Vector3.new(-bodyHalf - 1, bandY, 0) },
-        { Name = "Right", Size = Vector3.new(1, 3.2, 78), Offset = Vector3.new(bodyHalf + 1, bandY, 0) },
+        { Name = "Front", Size = Vector3.new(bodyHalfX * 2 + 2, 3.2, 1), Offset = Vector3.new(0, bandY, -bodyHalfZ - 1) },
+        { Name = "Back", Size = Vector3.new(bodyHalfX * 2 + 2, 3.2, 1), Offset = Vector3.new(0, bandY, bodyHalfZ + 1) },
+        { Name = "Left", Size = Vector3.new(1, 3.2, bodyHalfZ * 2 + 2), Offset = Vector3.new(-bodyHalfX - 1, bandY, 0) },
+        { Name = "Right", Size = Vector3.new(1, 3.2, bodyHalfZ * 2 + 2), Offset = Vector3.new(bodyHalfX + 1, bandY, 0) },
     }) do
+        local insetSize
+
+        if side.Name == "Front" or side.Name == "Back" then
+            insetSize = Vector3.new(side.Size.X - 10, 1.1, side.Size.Z + 0.08)
+        else
+            insetSize = Vector3.new(side.Size.X + 0.08, 1.1, side.Size.Z - 10)
+        end
+
         BuildUtils.CreatePart(parent, string.format("KaabaKiswahBand%s", side.Name), side.Size, CFrame.new(center + side.Offset), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+        BuildUtils.CreatePart(parent, string.format("KaabaKiswahBandInset%s", side.Name), insetSize, CFrame.new(center + side.Offset + Vector3.new(0, -0.05, 0)), Color3.fromRGB(145, 109, 38), Enum.Material.Metal, nil, nil)
     end
 
-    for _, x in ipairs({ -27, -15, 0, 15, 27 }) do
-        BuildUtils.CreatePart(parent, string.format("KaabaFrontSeam_%d", x), Vector3.new(0.7, bodyHeight - 9, 0.82), CFrame.new(center + Vector3.new(x, bodyCenterY - 2, -bodyHalf - 1.05)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("KaabaBackSeam_%d", x), Vector3.new(0.7, bodyHeight - 9, 0.82), CFrame.new(center + Vector3.new(x, bodyCenterY - 2, bodyHalf + 1.05)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
+    for _, x in ipairs({ -29, -18, -7, 7, 18, 29 }) do
+        BuildUtils.CreatePart(parent, string.format("KaabaFrontSeam_%d", x), Vector3.new(0.6, bodyHeight - 8, 0.82), CFrame.new(center + Vector3.new(x, bodyCenterY - 2, -bodyHalfZ - 1.05)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
+        BuildUtils.CreatePart(parent, string.format("KaabaBackSeam_%d", x), Vector3.new(0.6, bodyHeight - 8, 0.82), CFrame.new(center + Vector3.new(x, bodyCenterY - 2, bodyHalfZ + 1.05)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
     end
 
-    for _, z in ipairs({ -27, -15, 0, 15, 27 }) do
-        BuildUtils.CreatePart(parent, string.format("KaabaLeftSeam_%d", z), Vector3.new(0.82, bodyHeight - 9, 0.7), CFrame.new(center + Vector3.new(-bodyHalf - 1.05, bodyCenterY - 2, z)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("KaabaRightSeam_%d", z), Vector3.new(0.82, bodyHeight - 9, 0.7), CFrame.new(center + Vector3.new(bodyHalf + 1.05, bodyCenterY - 2, z)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
+    for _, z in ipairs({ -21, -11, 0, 11, 21 }) do
+        BuildUtils.CreatePart(parent, string.format("KaabaLeftSeam_%d", z), Vector3.new(0.82, bodyHeight - 8, 0.6), CFrame.new(center + Vector3.new(-bodyHalfX - 1.05, bodyCenterY - 2, z)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
+        BuildUtils.CreatePart(parent, string.format("KaabaRightSeam_%d", z), Vector3.new(0.82, bodyHeight - 8, 0.6), CFrame.new(center + Vector3.new(bodyHalfX + 1.05, bodyCenterY - 2, z)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
     end
 
-    BuildUtils.CreatePart(parent, "KaabaDoorGoldFrame", Vector3.new(14, 26, 1.4), CFrame.new(center + Vector3.new(0, baseY + 17.4, -bodyHalf - 1.8)), Color3.fromRGB(191, 151, 62), Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaDoorInset", Vector3.new(10, 20.5, 1.6), CFrame.new(center + Vector3.new(0, baseY + 16.5, -bodyHalf - 2.2)), Color3.fromRGB(145, 104, 37), Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaDoorCenterPattern", Vector3.new(1.2, 19.5, 1.8), CFrame.new(center + Vector3.new(0, baseY + 16.5, -bodyHalf - 2.5)), Color3.fromRGB(229, 197, 112), Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaDoorUpperPanel", Vector3.new(11, 4.8, 1.8), CFrame.new(center + Vector3.new(0, baseY + 26.3, -bodyHalf - 2.55)), Color3.fromRGB(230, 192, 90), Enum.Material.Metal, nil, nil)
+    for _, corner in ipairs({
+        Vector3.new(-bodyHalfX - 0.8, bodyCenterY - 0.8, -bodyHalfZ - 0.8),
+        Vector3.new(bodyHalfX + 0.8, bodyCenterY - 0.8, -bodyHalfZ - 0.8),
+        Vector3.new(-bodyHalfX - 0.8, bodyCenterY - 0.8, bodyHalfZ + 0.8),
+        Vector3.new(bodyHalfX + 0.8, bodyCenterY - 0.8, bodyHalfZ + 0.8),
+    }) do
+        BuildUtils.CreatePart(parent, string.format("KaabaCornerTrim_%d_%d", corner.X, corner.Z), Vector3.new(1.1, bodyHeight - 4, 1.1), CFrame.new(center + corner), Color3.fromRGB(18, 18, 18), Enum.Material.Slate, nil, nil)
+    end
 
-    BuildUtils.CreateSphere(parent, "HajarAswadSilverFrame", 7.2, center + Vector3.new(bodyHalf + 0.6, baseY + 10.4, -bodyHalf - 0.6), Color3.fromRGB(205, 207, 203), Enum.Material.Metal, nil)
-    BuildUtils.CreateSphere(parent, "HajarAswadMarker", 4.6, center + Vector3.new(bodyHalf + 1.1, baseY + 10.4, -bodyHalf - 1.1), Color3.fromRGB(8, 8, 8), Enum.Material.Slate, nil)
-    BuildUtils.CreatePart(parent, "KaabaGoldSpoutMarker", Vector3.new(17, 1.3, 1.8), CFrame.new(center + Vector3.new(-bodyHalf - 8, topY + 0.4, 18)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaDoorGoldFrame", Vector3.new(14, 26, 1.4), CFrame.new(center + Vector3.new(0, baseY + 17.4, -bodyHalfZ - 1.8)), Color3.fromRGB(191, 151, 62), Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaDoorInset", Vector3.new(10, 20.5, 1.6), CFrame.new(center + Vector3.new(0, baseY + 16.5, -bodyHalfZ - 2.2)), Color3.fromRGB(145, 104, 37), Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaDoorCenterPattern", Vector3.new(1.2, 19.5, 1.8), CFrame.new(center + Vector3.new(0, baseY + 16.5, -bodyHalfZ - 2.5)), Color3.fromRGB(229, 197, 112), Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(parent, "KaabaDoorUpperPanel", Vector3.new(11, 4.8, 1.8), CFrame.new(center + Vector3.new(0, baseY + 26.3, -bodyHalfZ - 2.55)), Color3.fromRGB(230, 192, 90), Enum.Material.Metal, nil, nil)
 
-    createKaabaGoldMotifs(parent, center, bodyHalf, bodyCenterY, bodyHeight, bandY, baseY)
+    BuildUtils.CreateSphere(parent, "HajarAswadSilverFrame", 7.2, center + Vector3.new(bodyHalfX + 0.6, baseY + 10.4, -bodyHalfZ - 0.6), Color3.fromRGB(205, 207, 203), Enum.Material.Metal, nil)
+    BuildUtils.CreateSphere(parent, "HajarAswadMarker", 4.6, center + Vector3.new(bodyHalfX + 1.1, baseY + 10.4, -bodyHalfZ - 1.1), Color3.fromRGB(8, 8, 8), Enum.Material.Slate, nil)
+    BuildUtils.CreatePart(parent, "KaabaGoldSpoutMarker", Vector3.new(14, 1.3, 1.8), CFrame.new(center + Vector3.new(-9, topY + 0.5, bodyHalfZ + 4.2)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+
+    createKaabaGoldMotifs(parent, center, bodyHalfX, bodyHalfZ, bodyCenterY, bodyHeight, bandY, baseY)
 
     for index = 1, 8 do
         local angle = (math.pi * 2) * (index / 8)

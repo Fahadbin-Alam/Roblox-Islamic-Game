@@ -2,6 +2,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
 local TweenService = game:GetService("TweenService")
 local Lighting = game:GetService("Lighting")
@@ -304,6 +305,11 @@ sceneCounter.Parent = cinematicBottom
 local toastToken = 0
 local cutsceneToken = 0
 
+local function smoothStep(alpha: number): number
+    local clamped = math.clamp(alpha, 0, 1)
+    return clamped * clamped * (3 - 2 * clamped)
+end
+
 local function setCoreGuiVisibility(isVisible: boolean)
     for _, coreGuiType in ipairs({
         Enum.CoreGuiType.Backpack,
@@ -417,16 +423,50 @@ local function tweenCutsceneFrameOut()
     tween.Completed:Wait()
 end
 
-local function tweenCameraTo(camera: Camera, cframe: CFrame, fieldOfView: number?, duration: number)
-    local tweenDuration = math.min(1.9, math.max(0.6, duration * 0.38))
+local function moveCameraThroughScene(camera: Camera, scene, duration: number, token: number)
+    local cframe = scene.CameraCFrame
+
+    if not cframe then
+        task.wait(duration)
+        return
+    end
+
+    local targetFieldOfView = scene.FieldOfView or 66
+    local tweenDuration = math.min(1.9, math.max(0.6, duration * 0.34))
     local tween = TweenService:Create(camera, TweenInfo.new(tweenDuration, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
         CFrame = cframe,
-        FieldOfView = fieldOfView or 66,
+        FieldOfView = targetFieldOfView,
     })
     tween:Play()
     tween.Completed:Wait()
 
-    return tweenDuration
+    if token ~= cutsceneToken then
+        return
+    end
+
+    local drift = scene.CameraDrift
+    local driftDuration = math.max(0, duration - tweenDuration)
+
+    if typeof(drift) ~= "Vector3" or drift.Magnitude <= 0.05 or driftDuration <= 0 then
+        if driftDuration > 0 then
+            task.wait(driftDuration)
+        end
+
+        return
+    end
+
+    local baseLookTarget = cframe.Position + cframe.LookVector * 120
+    local elapsed = 0
+
+    while elapsed < driftDuration and token == cutsceneToken do
+        elapsed += RunService.RenderStepped:Wait()
+        local alpha = smoothStep(elapsed / driftDuration)
+        local offset = drift * alpha
+        local driftedPosition = cframe.Position + offset
+        local driftedLook = baseLookTarget + drift * 0.35 * alpha
+        camera.CFrame = CFrame.lookAt(driftedPosition, driftedLook)
+        camera.FieldOfView = targetFieldOfView
+    end
 end
 
 local function tweenSceneText(sceneTitleTransparency: number, sceneBodyTransparency: number, sceneCounterTransparency: number, duration: number)
@@ -506,18 +546,13 @@ playReenactment.OnClientEvent:Connect(function(payload)
         tweenSceneText(0, 0, 0, 0.22)
 
         local sceneDuration = scene.DurationSeconds or 5
-        local cameraTweenDuration = 0
 
         progressBar.Size = UDim2.fromScale(math.clamp(elapsedDuration / math.max(totalDuration, 1), 0, 1), 1)
         TweenService:Create(progressBar, TweenInfo.new(sceneDuration, Enum.EasingStyle.Linear), {
             Size = UDim2.fromScale(math.clamp((elapsedDuration + sceneDuration) / math.max(totalDuration, 1), 0, 1), 1),
         }):Play()
 
-        if scene.CameraCFrame then
-            cameraTweenDuration = tweenCameraTo(camera, scene.CameraCFrame, scene.FieldOfView, sceneDuration)
-        end
-
-        task.wait(math.max(0, sceneDuration - cameraTweenDuration - 0.18))
+        moveCameraThroughScene(camera, scene, math.max(0.4, sceneDuration - 0.18), currentToken)
         tweenSceneText(1, 1, 1, 0.18)
         task.wait(0.18)
         elapsedDuration += sceneDuration

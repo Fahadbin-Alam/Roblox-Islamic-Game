@@ -1080,6 +1080,8 @@ local function buildReenactmentPayload(session, winnerText: string)
                 Reference = scene.Reference,
                 DurationSeconds = scene.DurationSeconds,
                 CameraCFrame = cameraPart.CFrame,
+                CameraDrift = scene.CameraDrift,
+                FieldOfView = scene.FieldOfView,
             })
         end
     end
@@ -1115,6 +1117,7 @@ local function buildBriefingPayload(session)
                 Reference = scene.Reference,
                 DurationSeconds = scene.DurationSeconds,
                 CameraCFrame = cameraPart.CFrame,
+                CameraDrift = scene.CameraDrift,
                 FieldOfView = scene.FieldOfView,
             })
         end
