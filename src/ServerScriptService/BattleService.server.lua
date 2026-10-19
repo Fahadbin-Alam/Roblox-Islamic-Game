@@ -28,6 +28,7 @@ local promptConnections = {}
 local startSession
 local startFinalBossPhase
 local COMBATANT_TAG = "BattleCombatant"
+local GOLD_ACCENT = Color3.fromRGB(193, 162, 86)
 
 for _, scenario in ipairs(BattleScenarios) do
     scenarioById[scenario.Id] = scenario
@@ -1256,6 +1257,16 @@ local function endSession(session, winnerTeamId: string?, reason: string)
     end)
 end
 
+local function getFinalBossConfig(session)
+    local finalBossPhase = session.Scenario.FinalBossPhase
+
+    if not finalBossPhase or finalBossPhase.Enabled ~= true then
+        return nil
+    end
+
+    return finalBossPhase
+end
+
 local function evaluateVictory(session)
     local firstTeamId = session.Scenario.Teams[1].Id
     local secondTeamId = session.Scenario.Teams[2].Id
@@ -1317,16 +1328,6 @@ end
 
 local function getCommanderConfig(session)
     return session.Scenario.Commander
-end
-
-local function getFinalBossConfig(session)
-    local finalBossPhase = session.Scenario.FinalBossPhase
-
-    if not finalBossPhase or finalBossPhase.Enabled ~= true then
-        return nil
-    end
-
-    return finalBossPhase
 end
 
 local function shouldAssignCommander(session, teamId: string): boolean

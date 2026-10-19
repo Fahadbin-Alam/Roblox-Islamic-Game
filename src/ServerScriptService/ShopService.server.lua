@@ -36,6 +36,7 @@ local receiptStore = DataStoreService:GetDataStore("ProcessedReceipts_v1")
 local playerProfiles: { [Player]: { EquippedSkin: string, UltimateCharges: number, KnowledgeTokens: number, SupportPoints: number } } = {}
 local playerPassOwnership: { [Player]: { [string]: boolean } } = {}
 local ultimateCooldowns: { [Player]: number } = {}
+local unsavedProfiles: { [Player]: boolean } = {}
 local COMBATANT_TAG = "BattleCombatant"
 
 local gamePassByKey = {}
@@ -123,19 +124,22 @@ end
 local function saveProfile(player: Player)
     local profile = playerProfiles[player]
 
-    if not profile then
+    -- A profile that failed to load is a blank default; saving it would wipe the player's real data.
+    if not profile or unsavedProfiles[player] then
         return
     end
 
     local profileCopy = cloneProfile(profile)
+    local userId = player.UserId
+    local playerName = player.Name
 
     task.spawn(function()
         local success, errorMessage = pcall(function()
-            profileStore:SetAsync(string.format("player_%d", player.UserId), profileCopy)
+            profileStore:SetAsync(string.format("player_%d", userId), profileCopy)
         end)
 
         if not success then
-            warn(string.format("[ShopService] Failed to save profile for %s: %s", player.Name, tostring(errorMessage)))
+            warn(string.format("[ShopService] Failed to save profile for %s: %s", playerName, tostring(errorMessage)))
         end
     end)
 end
@@ -196,9 +200,21 @@ end
 local function loadProfile(player: Player)
     local profile = buildDefaultProfile()
 
-    local success, storedProfile = pcall(function()
-        return profileStore:GetAsync(string.format("player_%d", player.UserId))
-    end)
+    local success, storedProfile
+
+    for attempt = 1, 3 do
+        success, storedProfile = pcall(function()
+            return profileStore:GetAsync(string.format("player_%d", player.UserId))
+        end)
+
+        if success then
+            break
+        end
+
+        task.wait(attempt)
+    end
+
+    unsavedProfiles[player] = not success or nil
 
     if success and type(storedProfile) == "table" then
         if type(storedProfile.EquippedSkin) == "string" then
@@ -507,6 +523,11 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
         return Enum.ProductPurchaseDecision.PurchaseGranted
     end
 
+    -- Release the lock so Roblox's retry of this receipt can still grant the purchase.
+    pcall(function()
+        receiptStore:RemoveAsync(receiptKey)
+    end)
+
     return Enum.ProductPurchaseDecision.NotProcessedYet
 end
 
@@ -525,6 +546,7 @@ Players.PlayerRemoving:Connect(function(player)
     playerProfiles[player] = nil
     playerPassOwnership[player] = nil
     ultimateCooldowns[player] = nil
+    unsavedProfiles[player] = nil
 end)
 
 for _, player in ipairs(Players:GetPlayers()) do
@@ -532,3 +554,12 @@ for _, player in ipairs(Players:GetPlayers()) do
         loadProfile(player)
     end)
 end
+
+game:BindToClose(function()
+    for _, player in ipairs(Players:GetPlayers()) do
+        saveProfile(player)
+    end
+
+    -- saveProfile writes on its own threads; give them time to finish before shutdown.
+    task.wait(3)
+end)
