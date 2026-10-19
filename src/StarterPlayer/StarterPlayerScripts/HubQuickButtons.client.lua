@@ -75,9 +75,11 @@ local function createButton(name: string, text: string, yOffset: number, color: 
     return button
 end
 
+local learnButton = createButton("LearnButton", "Learn", -200, Color3.fromRGB(121, 94, 63))
 local itemShopButton = createButton("ItemShopButton", "Item Shop", -144, Color3.fromRGB(73, 97, 61))
 local menuButton = createButton("MenuButton", "Menu", -88, Color3.fromRGB(31, 46, 38))
 local watchedPanels: { [Frame]: RBXScriptConnection } = {}
+local PANEL_GUIS = { "MainMenu", "ShopMenu", "LearningHall" }
 local updateAvailability
 
 local function getPanel(guiName: string): Frame?
@@ -125,16 +127,14 @@ local function openPanel(targetGuiName: string, sourceButton: TextButton)
         return
     end
 
-    local menuPanel = getPanel("MainMenu")
-    local shopPanel = getPanel("ShopMenu")
     local nextVisible = not targetPanel.Visible
 
-    if menuPanel then
-        menuPanel.Visible = false
-    end
+    for _, guiName in ipairs(PANEL_GUIS) do
+        local otherPanel = getPanel(guiName)
 
-    if shopPanel then
-        shopPanel.Visible = false
+        if otherPanel then
+            otherPanel.Visible = false
+        end
     end
 
     targetPanel.Visible = nextVisible
@@ -149,10 +149,15 @@ local function openPanel(targetGuiName: string, sourceButton: TextButton)
 end
 
 local function anyPanelOpen(): boolean
-    local menuPanel = getPanel("MainMenu")
-    local shopPanel = getPanel("ShopMenu")
+    for _, guiName in ipairs(PANEL_GUIS) do
+        local panel = getPanel(guiName)
 
-    return (menuPanel and menuPanel.Visible) == true or (shopPanel and shopPanel.Visible) == true
+        if panel and panel.Visible then
+            return true
+        end
+    end
+
+    return false
 end
 
 local function watchPanel(guiName: string)
@@ -170,27 +175,30 @@ local function watchPanel(guiName: string)
 end
 
 updateAvailability = function()
-    watchPanel("MainMenu")
-    watchPanel("ShopMenu")
+    for _, guiName in ipairs(PANEL_GUIS) do
+        watchPanel(guiName)
+    end
 
     local blocked = player:GetAttribute("InBattle") == true or player:GetAttribute("InStory") == true
     local panelOpen = anyPanelOpen()
+    learnButton.Visible = not blocked and not panelOpen
     itemShopButton.Visible = not blocked and not panelOpen
     menuButton.Visible = not blocked and not panelOpen
 
     if blocked then
-        local menuPanel = getPanel("MainMenu")
-        local shopPanel = getPanel("ShopMenu")
+        for _, guiName in ipairs(PANEL_GUIS) do
+            local panel = getPanel(guiName)
 
-        if menuPanel then
-            menuPanel.Visible = false
-        end
-
-        if shopPanel then
-            shopPanel.Visible = false
+            if panel then
+                panel.Visible = false
+            end
         end
     end
 end
+
+connectButton(learnButton, function()
+    openPanel("LearningHall", learnButton)
+end)
 
 connectButton(itemShopButton, function()
     openPanel("ShopMenu", itemShopButton)
@@ -203,7 +211,7 @@ end)
 player:GetAttributeChangedSignal("InBattle"):Connect(updateAvailability)
 player:GetAttributeChangedSignal("InStory"):Connect(updateAvailability)
 playerGui.ChildAdded:Connect(function(child)
-    if child.Name == "MainMenu" or child.Name == "ShopMenu" then
+    if table.find(PANEL_GUIS, child.Name) then
         task.defer(function()
             watchPanel(child.Name)
             updateAvailability()

@@ -8,6 +8,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local CompanionStories = require(Shared.Data.CompanionStories)
 local TravelRoute = require(Shared.Data.TravelRoute)
+local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local shopFolder = remotesFolder:WaitForChild("Shop")
@@ -249,6 +250,7 @@ local function completeStory(player: Player)
 
     fireDialogue(player, state.Story, state.Story.Completion.Title, state.Story.Completion.Lines)
     awardKnowledgeTokens(player, state.Story.RewardTokens or 0, string.format("%s story complete", state.Story.DisplayName))
+    PlayerProgress.RecordCompletion(player, "story", state.Story.Id, state.Story.DisplayName)
 
     local returnDelay = math.max(5.5, #state.Story.Completion.Lines * LINE_DURATION_SECONDS + 0.7)
 

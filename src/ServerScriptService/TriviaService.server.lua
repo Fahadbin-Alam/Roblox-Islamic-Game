@@ -7,6 +7,8 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local TravelRoute = require(Shared.Data.TravelRoute)
 local TriviaQuestions = require(Shared.Data.TriviaQuestions)
+local Progression = require(Shared.Modules.Progression)
+local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local triviaFolder = remotesFolder:WaitForChild("Trivia")
@@ -255,6 +257,8 @@ submitTriviaAnswer.OnServerEvent:Connect(function(player: Player, answerIndex)
         score.Streak += 1
         score.Correct += 1
         score.Score += currentQuestion.Points + math.min(20, score.Streak * 3)
+        PlayerProgress.IncrementStat(player, "TriviaCorrect", 1)
+        PlayerProgress.AddXP(player, Progression.Rewards.TriviaCorrect)
     else
         score.Streak = 0
     end

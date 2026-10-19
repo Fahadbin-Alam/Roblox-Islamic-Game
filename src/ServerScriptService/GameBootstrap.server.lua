@@ -50,6 +50,8 @@ local shopFolder = ensureFolder(remotesFolder, "Shop")
 local hubFolder = ensureFolder(remotesFolder, "Hub")
 local mannersFolder = ensureFolder(remotesFolder, "Manners")
 local triviaFolder = ensureFolder(remotesFolder, "Trivia")
+local progressFolder = ensureFolder(remotesFolder, "Progress")
+local learningFolder = ensureFolder(remotesFolder, "Learning")
 
 ensureRemoteEvent(hubFolder, "RequestTeleport")
 ensureRemoteEvent(hubFolder, "RequestHaramTrail")
@@ -73,6 +75,12 @@ ensureRemoteEvent(triviaFolder, "ShowTriviaQuestion")
 ensureRemoteEvent(triviaFolder, "ShowTriviaResult")
 ensureRemoteEvent(triviaFolder, "UpdateTriviaScores")
 ensureRemoteEvent(triviaFolder, "ClearTrivia")
+ensureRemoteEvent(progressFolder, "RequestProfile")
+ensureRemoteEvent(progressFolder, "ProfileUpdated")
+ensureRemoteEvent(progressFolder, "ProgressToast")
+ensureRemoteEvent(learningFolder, "OpenLearningHall")
+ensureRemoteEvent(learningFolder, "SubmitQuiz")
+ensureRemoteEvent(learningFolder, "QuizResult")
 ensureRemoteEvent(shopFolder, "RequestShopState")
 ensureRemoteEvent(shopFolder, "PromptGamePassPurchase")
 ensureRemoteEvent(shopFolder, "PromptDeveloperProductPurchase")
@@ -82,9 +90,10 @@ ensureRemoteEvent(shopFolder, "ShopState")
 ensureRemoteEvent(shopFolder, "PurchaseFeedback")
 
 print(string.format(
-    "[GameBootstrap] %s loaded with %d stories, %d battle scenarios, %d travel landmarks, and %d premium products.",
+    "[GameBootstrap] %s loaded with %d stories, %d Islamic Studies units, %d battle scenarios, %d travel landmarks, and %d premium products.",
     content.Config.GameName,
     #content.Stories,
+    #content.IslamicStudies.Units,
     #content.Battles,
     #content.TravelRoute.Destinations,
     #content.Shop.GamePasses + #content.Shop.DeveloperProducts

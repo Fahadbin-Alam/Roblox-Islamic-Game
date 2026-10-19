@@ -11,6 +11,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BattleScenarios = require(Shared.Data.BattleScenarios)
 local TravelRoute = require(Shared.Data.TravelRoute)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
+local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local battleFolder = remotesFolder:WaitForChild("Battle")
 local shopFolder = remotesFolder:WaitForChild("Shop")
@@ -1245,6 +1246,7 @@ local function endSession(session, winnerTeamId: string?, reason: string)
 
         for _, player in ipairs(session.Players) do
             awardKnowledgeTokens(player, session.Scenario.Rewards.KnowledgeTokens or 0, string.format("%s complete", session.Scenario.DisplayName))
+            PlayerProgress.RecordCompletion(player, "battle", session.Scenario.Id, session.Scenario.DisplayName)
             clearPlayerBattleState(player)
             returnPlayerToHub(player, 0.15)
         end
