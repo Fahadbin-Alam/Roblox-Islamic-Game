@@ -411,6 +411,9 @@ local function addMenuButton(index, item, callback)
     return button
 end
 
+local showSahabiMenu: () -> ()
+local showMannersMenu: () -> ()
+
 local function showHome()
     clearButtons()
     sectionTitle.Text = "Choose What To Do"
@@ -433,7 +436,7 @@ local function showHome()
     end
 end
 
-function showSahabiMenu()
+showSahabiMenu = function()
     clearButtons()
     sectionTitle.Text = "Learn About Sahabis"
     sectionSubtitle.Text = "Choose a sahabi story route. More companions can be added here."
@@ -451,7 +454,7 @@ function showSahabiMenu()
     end
 end
 
-function showMannersMenu()
+showMannersMenu = function()
     clearButtons()
     sectionTitle.Text = "Manners Lessons"
     sectionSubtitle.Text = "Choose a manners lesson. The menu closes after the lesson opens."

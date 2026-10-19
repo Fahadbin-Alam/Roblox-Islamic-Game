@@ -7,6 +7,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local HaramLearningTrail = require(Shared.Data.HaramLearningTrail)
 local TravelRoute = require(Shared.Data.TravelRoute)
+local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local hubFolder = remotesFolder:WaitForChild("Hub")
@@ -119,6 +120,7 @@ end
 local function completeTrail(player: Player, state)
     showTrailMessage(player, HaramLearningTrail.Completion.Title, HaramLearningTrail.Completion.Lines)
     awardKnowledgeTokens(player, HaramLearningTrail.RewardTokens or 0, HaramLearningTrail.DisplayName)
+    PlayerProgress.RecordCompletion(player, "trail", HaramLearningTrail.Id, HaramLearningTrail.DisplayName)
 
     task.delay(math.max(5, #HaramLearningTrail.Completion.Lines * LINE_DURATION_SECONDS + 0.8), function()
         if activeTrails[player] ~= state then

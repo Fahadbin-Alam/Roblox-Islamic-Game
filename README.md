@@ -71,6 +71,25 @@ The best first playable version is:
 - [src/ServerScriptService/GameBootstrap.server.lua](src/ServerScriptService/GameBootstrap.server.lua)
 - [src/StarterPlayer/StarterPlayerScripts/ClientBootstrap.client.lua](src/StarterPlayer/StarterPlayerScripts/ClientBootstrap.client.lua)
 
+## Progression And Islamic Studies
+
+- `src/ReplicatedStorage/Shared/Data/IslamicStudies.lua` holds the Islamic Studies units: the Five Pillars, how to pray (wudu and the steps of salah), daily duas, the six articles of iman, and stories of the Prophets told through narration only. Every lesson ends with a checkpoint quiz that the server grades.
+- `src/ReplicatedStorage/Shared/Modules/Progression.lua` holds the rules: XP per activity, the level curve, rank titles, and badges.
+- `src/ServerScriptService/Modules/PlayerProgress.lua` saves each player's XP, completions, badges, and stats to the `PlayerProgress_v1` DataStore. Other server scripts call `PlayerProgress.RecordCompletion(player, category, id, name)` when a player finishes a story, battle, lesson, learning walk, or manners lesson.
+- Players open the hall from the `Learn` button or the Islamic Studies podium in the Trivia Court. The `My Journal` tab shows level, stats, and badges.
+- The Islamic Studies podium in the Trivia Court also starts a study circle: everyone standing nearby answers one lesson's quiz together and passes or fails as a group (`StudyCircleService.server.lua`).
+- The Battle of Uhud unlocks after the Battle of Badr or at level 3 (`Unlock` in `BattleScenarios.lua`).
+- To also award real Roblox badges, create them in Creator Hub and set `RobloxBadgeId` on the matching badge in `Progression.lua`.
+
+Content added to `IslamicStudies.lua` should cite its Qur'an or hadith source, stay general where schools of thought differ, and never depict a Prophet.
+
+## Automated Checks
+
+`.github/workflows/checks.yml` runs on every pull request:
+
+- `tests/luau/run.sh <luau>` runs unit tests for the shared data and progression rules outside Studio.
+- `tests/analyze.sh <luau-lsp> <rojo> <globalTypes.d.luau>` type-checks every script against the Roblox API and fails on syntax errors, unknown globals, and broken requires.
+
 ## Next Build Steps
 
 1. Open `build.rbxlx` in Roblox Studio and playtest the generated hub, story prompts, battle gates, manners court, shop, and teleport menu.
