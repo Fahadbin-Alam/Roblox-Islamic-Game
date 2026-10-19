@@ -82,3 +82,17 @@ test("snapshot is plain data", function()
 
     expectEqual(snapshot.Level, 1, "level")
 end)
+
+test("Uhud unlocks after Badr or at level 3", function()
+    local profile = Progression.NewProfile()
+    assert(Progression.GetBattleLockReason(profile, "uhud"), "new players are locked out of Uhud")
+    expectEqual(Progression.GetBattleLockReason(profile, "badr"), nil, "Badr is always open")
+    expectEqual(Progression.GetBattleLockReason(nil, "uhud"), nil, "unloaded profiles are never blocked")
+
+    profile.Completed.battle.badr = true
+    expectEqual(Progression.GetBattleLockReason(profile, "uhud"), nil, "open after Badr")
+
+    local leveled = Progression.NewProfile()
+    leveled.XP = Progression.XPForNextLevel(1) + Progression.XPForNextLevel(2)
+    expectEqual(Progression.GetBattleLockReason(leveled, "uhud"), nil, "open at level 3")
+end)

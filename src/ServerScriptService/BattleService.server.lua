@@ -10,6 +10,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BattleScenarios = require(Shared.Data.BattleScenarios)
 local TravelRoute = require(Shared.Data.TravelRoute)
+local Progression = require(Shared.Modules.Progression)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
@@ -1679,6 +1680,13 @@ local function joinQueue(player: Player, scenarioId: string)
 
     if playerToSession[player] then
         sendMessage({ player }, "You are already inside a battle round.", 3)
+        return
+    end
+
+    local lockReason = Progression.GetBattleLockReason(PlayerProgress.Get(player), scenarioId)
+
+    if lockReason then
+        sendMessage({ player }, lockReason, 5)
         return
     end
 

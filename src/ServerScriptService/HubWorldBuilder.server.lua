@@ -861,6 +861,7 @@ local function buildTriviaCourt(parent: Instance, center: Vector3)
             Color = Color3.fromRGB(92, 119, 82),
             Title = "Islamic Studies",
             Body = "Pillars, salah, duas, and Prophets.",
+            CirclePrompt = true,
             Prompt = {
                 ActionText = "Study",
                 ObjectText = "Islamic Studies",
@@ -874,10 +875,17 @@ local function buildTriviaCourt(parent: Instance, center: Vector3)
     }
 
     for _, podium in ipairs(podiums) do
-        BuildUtils.CreatePart(district, string.format("%s_Base", podium.Name), Vector3.new(48, 6, 30), CFrame.new(center + podium.Offset + Vector3.new(0, 3, 0)), podium.Color, Enum.Material.Sandstone, nil, nil)
+        local base = BuildUtils.CreatePart(district, string.format("%s_Base", podium.Name), Vector3.new(48, 6, 30), CFrame.new(center + podium.Offset + Vector3.new(0, 3, 0)), podium.Color, Enum.Material.Sandstone, nil, nil)
         BuildUtils.CreatePart(district, string.format("%s_Glow", podium.Name), Vector3.new(42, 0.5, 24), CFrame.new(center + podium.Offset + Vector3.new(0, 6.35, 0)), Color3.fromRGB(245, 217, 153), Enum.Material.Neon, nil, 0.28).CanCollide = false
         local board = BuildUtils.CreateBoardSign(district, podium.Name, center + podium.Offset + Vector3.new(0, 0, 28), podium.Title, podium.Body, podium.Color, podium.Prompt)
         board.Orientation = Vector3.new(0, 180, 0)
+
+        if podium.CirclePrompt then
+            local circlePrompt = BuildUtils.AttachPrompt(base, "Start Study Circle", "Group Lesson", {
+                PromptAction = "StartStudyCircle",
+            })
+            circlePrompt.MaxActivationDistance = 26
+        end
     end
 
     createLightPost(district, "TriviaLightWest", center + Vector3.new(-104, 0, -28), Color3.fromRGB(118, 105, 84))

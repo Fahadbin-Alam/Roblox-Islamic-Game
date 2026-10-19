@@ -349,6 +349,12 @@ local BattleScenarios = {
                 "Uhud now runs as a player-only battle with no filler bots, so the focus stays on the field, the ridge, and the lesson itself.",
             },
         },
+        -- Uhud builds on the lessons of Badr, so it opens after Badr or once a player has
+        -- learned enough elsewhere to follow it.
+        Unlock = {
+            AfterBattleId = "badr",
+            OrLevel = 3,
+        },
         Rewards = {
             KnowledgeTokens = 125,
             UnlockStoryIds = {

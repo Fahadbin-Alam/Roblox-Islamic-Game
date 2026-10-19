@@ -48,6 +48,7 @@ Progression.Rewards = {
     trail = 90,
     manners = 25,
     TriviaCorrect = 4,
+    StudyCircle = 40,
     RepeatMultiplier = 0.25,
 }
 
@@ -269,6 +270,16 @@ local function buildBadges(): { Badge }
     end
 
     table.insert(badges, {
+        Id = "study_circle",
+        DisplayName = "Halaqah Member",
+        Description = "Pass a study circle with other players.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.StudyCircles or 0) >= 1
+        end,
+    })
+
+    table.insert(badges, {
         Id = "trivia_25",
         DisplayName = "Quick Thinker",
         Description = "Answer 25 trivia questions correctly.",
@@ -294,6 +305,48 @@ local function buildBadges(): { Badge }
 end
 
 Progression.Badges = buildBadges()
+
+-- Returns why a battle is still locked for this profile, or nil when the player may join.
+-- A missing profile (still loading, or the DataStore is down) never locks anyone out.
+function Progression.GetBattleLockReason(profile: Profile?, scenarioId: string): string?
+    local scenario = nil
+
+    for _, candidate in ipairs(BattleScenarios) do
+        if candidate.Id == scenarioId then
+            scenario = candidate
+        end
+    end
+
+    local unlock = scenario and (scenario :: any).Unlock
+
+    if not profile or not unlock then
+        return nil
+    end
+
+    local battlesDone = profile.Completed[Progression.Categories.Battle] or {}
+
+    if unlock.AfterBattleId and battlesDone[unlock.AfterBattleId] then
+        return nil
+    end
+
+    if unlock.OrLevel and Progression.GetLevelInfo(profile.XP).Level >= unlock.OrLevel then
+        return nil
+    end
+
+    local requiredName = unlock.AfterBattleId
+
+    for _, candidate in ipairs(BattleScenarios) do
+        if candidate.Id == unlock.AfterBattleId then
+            requiredName = candidate.DisplayName
+        end
+    end
+
+    if unlock.OrLevel then
+        return string.format("%s unlocks after you complete the %s or reach level %d.", scenario.DisplayName, requiredName, unlock.OrLevel)
+    end
+
+    return string.format("%s unlocks after you complete the %s.", scenario.DisplayName, requiredName)
+end
 
 -- Returns the badges the profile now qualifies for but has not been given yet.
 function Progression.FindNewBadges(profile: Profile): { Badge }

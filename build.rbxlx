@@ -482,6 +482,12 @@ local BattleScenarios = {
                 "Uhud now runs as a player-only battle with no filler bots, so the focus stays on the field, the ridge, and the lesson itself.",
             },
         },
+        -- Uhud builds on the lessons of Badr, so it opens after Badr or once a player has
+        -- learned enough elsewhere to follow it.
+        Unlock = {
+            AfterBattleId = "badr",
+            OrLevel = 3,
+        },
         Rewards = {
             KnowledgeTokens = 125,
             UnlockStoryIds = {
@@ -2245,6 +2251,7 @@ Progression.Rewards = {
     trail = 90,
     manners = 25,
     TriviaCorrect = 4,
+    StudyCircle = 40,
     RepeatMultiplier = 0.25,
 }
 
@@ -2466,6 +2473,16 @@ local function buildBadges(): { Badge }
     end
 
     table.insert(badges, {
+        Id = "study_circle",
+        DisplayName = "Halaqah Member",
+        Description = "Pass a study circle with other players.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.StudyCircles or 0) >= 1
+        end,
+    })
+
+    table.insert(badges, {
         Id = "trivia_25",
         DisplayName = "Quick Thinker",
         Description = "Answer 25 trivia questions correctly.",
@@ -2491,6 +2508,48 @@ local function buildBadges(): { Badge }
 end
 
 Progression.Badges = buildBadges()
+
+-- Returns why a battle is still locked for this profile, or nil when the player may join.
+-- A missing profile (still loading, or the DataStore is down) never locks anyone out.
+function Progression.GetBattleLockReason(profile: Profile?, scenarioId: string): string?
+    local scenario = nil
+
+    for _, candidate in ipairs(BattleScenarios) do
+        if candidate.Id == scenarioId then
+            scenario = candidate
+        end
+    end
+
+    local unlock = scenario and (scenario :: any).Unlock
+
+    if not profile or not unlock then
+        return nil
+    end
+
+    local battlesDone = profile.Completed[Progression.Categories.Battle] or {}
+
+    if unlock.AfterBattleId and battlesDone[unlock.AfterBattleId] then
+        return nil
+    end
+
+    if unlock.OrLevel and Progression.GetLevelInfo(profile.XP).Level >= unlock.OrLevel then
+        return nil
+    end
+
+    local requiredName = unlock.AfterBattleId
+
+    for _, candidate in ipairs(BattleScenarios) do
+        if candidate.Id == unlock.AfterBattleId then
+            requiredName = candidate.DisplayName
+        end
+    end
+
+    if unlock.OrLevel then
+        return string.format("%s unlocks after you complete the %s or reach level %d.", scenario.DisplayName, requiredName, unlock.OrLevel)
+    end
+
+    return string.format("%s unlocks after you complete the %s.", scenario.DisplayName, requiredName)
+end
 
 -- Returns the badges the profile now qualifies for but has not been given yet.
 function Progression.FindNewBadges(profile: Profile): { Badge }
@@ -3288,6 +3347,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BattleScenarios = require(Shared.Data.BattleScenarios)
 local TravelRoute = require(Shared.Data.TravelRoute)
+local Progression = require(Shared.Modules.Progression)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
@@ -4960,6 +5020,13 @@ local function joinQueue(player: Player, scenarioId: string)
         return
     end
 
+    local lockReason = Progression.GetBattleLockReason(PlayerProgress.Get(player), scenarioId)
+
+    if lockReason then
+        sendMessage({ player }, lockReason, 5)
+        return
+    end
+
     if activeSessions[scenarioId] then
         sendMessage({ player }, string.format("%s is already running. You are queued for the next round.", scenario.DisplayName), 4)
     end
@@ -5497,6 +5564,8 @@ ensureRemoteEvent(progressFolder, "ProgressToast")
 ensureRemoteEvent(learningFolder, "OpenLearningHall")
 ensureRemoteEvent(learningFolder, "SubmitQuiz")
 ensureRemoteEvent(learningFolder, "QuizResult")
+ensureRemoteEvent(learningFolder, "StudyCircleUpdate")
+ensureRemoteEvent(learningFolder, "StudyCircleAnswer")
 ensureRemoteEvent(shopFolder, "RequestShopState")
 ensureRemoteEvent(shopFolder, "PromptGamePassPurchase")
 ensureRemoteEvent(shopFolder, "PromptDeveloperProductPurchase")
@@ -7054,6 +7123,7 @@ local function buildTriviaCourt(parent: Instance, center: Vector3)
             Color = Color3.fromRGB(92, 119, 82),
             Title = "Islamic Studies",
             Body = "Pillars, salah, duas, and Prophets.",
+            CirclePrompt = true,
             Prompt = {
                 ActionText = "Study",
                 ObjectText = "Islamic Studies",
@@ -7067,10 +7137,17 @@ local function buildTriviaCourt(parent: Instance, center: Vector3)
     }
 
     for _, podium in ipairs(podiums) do
-        BuildUtils.CreatePart(district, string.format("%s_Base", podium.Name), Vector3.new(48, 6, 30), CFrame.new(center + podium.Offset + Vector3.new(0, 3, 0)), podium.Color, Enum.Material.Sandstone, nil, nil)
+        local base = BuildUtils.CreatePart(district, string.format("%s_Base", podium.Name), Vector3.new(48, 6, 30), CFrame.new(center + podium.Offset + Vector3.new(0, 3, 0)), podium.Color, Enum.Material.Sandstone, nil, nil)
         BuildUtils.CreatePart(district, string.format("%s_Glow", podium.Name), Vector3.new(42, 0.5, 24), CFrame.new(center + podium.Offset + Vector3.new(0, 6.35, 0)), Color3.fromRGB(245, 217, 153), Enum.Material.Neon, nil, 0.28).CanCollide = false
         local board = BuildUtils.CreateBoardSign(district, podium.Name, center + podium.Offset + Vector3.new(0, 0, 28), podium.Title, podium.Body, podium.Color, podium.Prompt)
         board.Orientation = Vector3.new(0, 180, 0)
+
+        if podium.CirclePrompt then
+            local circlePrompt = BuildUtils.AttachPrompt(base, "Start Study Circle", "Group Lesson", {
+                PromptAction = "StartStudyCircle",
+            })
+            circlePrompt.MaxActivationDistance = 26
+        end
     end
 
     createLightPost(district, "TriviaLightWest", center + Vector3.new(-104, 0, -28), Color3.fromRGB(118, 105, 84))
@@ -11681,6 +11758,314 @@ end
     </Item>
     <Item class="Script" referent="37">
       <Properties>
+        <string name="Name">StudyCircleService</string>
+        <token name="RunContext">0</token>
+        <string name="Source"><![CDATA[--!strict
+
+-- Study circle (halaqah): a cooperative quiz for everyone standing at the Islamic Studies
+-- podium. Players answer together and pass or fail as a group, so helping friends learn is
+-- what earns the reward. One circle runs at a time.
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local IslamicStudies = require(Shared.Data.IslamicStudies)
+local Progression = require(Shared.Modules.Progression)
+local TravelRoute = require(Shared.Data.TravelRoute)
+local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
+
+local learningFolder = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Learning")
+local circleUpdate = learningFolder:WaitForChild("StudyCircleUpdate") :: RemoteEvent
+local circleAnswer = learningFolder:WaitForChild("StudyCircleAnswer") :: RemoteEvent
+
+local GATHER_SECONDS = 10
+local QUESTION_SECONDS = 20
+local REVEAL_SECONDS = 6
+local JOIN_RADIUS = 45
+local MIN_PLAYERS_FOR_BADGE = 2
+
+type Circle = {
+    Lesson: IslamicStudies.Lesson,
+    Participants: { Player },
+    QuestionIndex: number,
+    AcceptingAnswers: boolean,
+    Answers: { [Player]: number },
+    TotalCorrect: number,
+}
+
+local activeCircle: Circle? = nil
+local gathering = false
+local promptConnections: { [ProximityPrompt]: RBXScriptConnection } = {}
+
+local allLessons = {}
+
+for _, unit in ipairs(IslamicStudies.Units) do
+    for _, lesson in ipairs(unit.Lessons) do
+        table.insert(allLessons, lesson)
+    end
+end
+
+local function isBusy(player: Player): boolean
+    return player:GetAttribute("InBattle") == true or player:GetAttribute("InStory") == true
+end
+
+local function playersNear(position: Vector3): { Player }
+    local nearby = {}
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        local character = player.Character
+        local root = character and character:FindFirstChild("HumanoidRootPart")
+
+        if root and root:IsA("BasePart") and not isBusy(player) and (root.Position - position).Magnitude <= JOIN_RADIUS then
+            table.insert(nearby, player)
+        end
+    end
+
+    return nearby
+end
+
+local function broadcast(circle: Circle, payload: { [string]: any })
+    payload.Participants = #circle.Participants
+
+    for _, player in ipairs(circle.Participants) do
+        circleUpdate:FireClient(player, payload)
+    end
+end
+
+local function stillPresent(circle: Circle)
+    local present = {}
+
+    for _, player in ipairs(circle.Participants) do
+        if player.Parent and not isBusy(player) then
+            table.insert(present, player)
+        end
+    end
+
+    circle.Participants = present
+end
+
+local function everyoneAnswered(circle: Circle): boolean
+    for _, player in ipairs(circle.Participants) do
+        if circle.Answers[player] == nil then
+            return false
+        end
+    end
+
+    return true
+end
+
+local function runCircle(circle: Circle)
+    local lesson = circle.Lesson
+
+    for index, question in ipairs(lesson.Quiz) do
+        stillPresent(circle)
+
+        if #circle.Participants == 0 then
+            return
+        end
+
+        circle.QuestionIndex = index
+        circle.Answers = {}
+        circle.AcceptingAnswers = true
+
+        broadcast(circle, {
+            Phase = "question",
+            LessonName = lesson.DisplayName,
+            Index = index,
+            Total = #lesson.Quiz,
+            Prompt = question.Prompt,
+            Options = question.Options,
+            TimeLimit = QUESTION_SECONDS,
+        })
+
+        local startedAt = os.clock()
+
+        while os.clock() - startedAt < QUESTION_SECONDS and not everyoneAnswered(circle) do
+            task.wait(0.25)
+            stillPresent(circle)
+        end
+
+        circle.AcceptingAnswers = false
+
+        local correctCount = 0
+        local answeredCount = 0
+
+        for _, answer in pairs(circle.Answers) do
+            answeredCount += 1
+
+            if answer == question.CorrectIndex then
+                correctCount += 1
+            end
+        end
+
+        circle.TotalCorrect += correctCount
+
+        broadcast(circle, {
+            Phase = "reveal",
+            LessonName = lesson.DisplayName,
+            Index = index,
+            Total = #lesson.Quiz,
+            Prompt = question.Prompt,
+            Options = question.Options,
+            CorrectIndex = question.CorrectIndex,
+            Explanation = question.Explanation,
+            CorrectCount = correctCount,
+            AnsweredCount = answeredCount,
+        })
+
+        task.wait(REVEAL_SECONDS)
+    end
+
+    stillPresent(circle)
+
+    local possible = #lesson.Quiz * math.max(1, #circle.Participants)
+    local ratio = circle.TotalCorrect / possible
+    local passed = ratio >= IslamicStudies.PassRatio
+    local isGroup = #circle.Participants >= MIN_PLAYERS_FOR_BADGE
+
+    broadcast(circle, {
+        Phase = "finished",
+        LessonName = lesson.DisplayName,
+        Passed = passed,
+        Percent = math.floor(ratio * 100 + 0.5),
+        IsGroup = isGroup,
+        XP = if passed then Progression.Rewards.StudyCircle else 0,
+    })
+
+    if passed then
+        for _, player in ipairs(circle.Participants) do
+            PlayerProgress.AddXP(player, Progression.Rewards.StudyCircle, string.format("Study circle: %s", lesson.DisplayName))
+
+            if isGroup then
+                PlayerProgress.IncrementStat(player, "StudyCircles", 1)
+            end
+        end
+    end
+end
+
+local function startCircle(starter: Player, anchor: BasePart)
+    if activeCircle or gathering or isBusy(starter) then
+        if activeCircle or gathering then
+            circleUpdate:FireClient(starter, {
+                Phase = "notice",
+                Text = "A study circle is already running. Join the next one!",
+            })
+        end
+
+        return
+    end
+
+    gathering = true
+
+    for _, player in ipairs(playersNear(anchor.Position)) do
+        circleUpdate:FireClient(player, {
+            Phase = "gathering",
+            Seconds = GATHER_SECONDS,
+            Text = string.format("%s is starting a study circle. Stay near the Islamic Studies podium to join!", starter.DisplayName),
+        })
+    end
+
+    task.wait(GATHER_SECONDS)
+
+    local participants = playersNear(anchor.Position)
+    gathering = false
+
+    if #participants == 0 then
+        return
+    end
+
+    local circle: Circle = {
+        Lesson = allLessons[math.random(1, #allLessons)],
+        Participants = participants,
+        QuestionIndex = 0,
+        AcceptingAnswers = false,
+        Answers = {},
+        TotalCorrect = 0,
+    }
+
+    activeCircle = circle
+    local ok, err = pcall(function()
+        runCircle(circle)
+    end)
+
+    if not ok then
+        warn(string.format("[StudyCircleService] Circle failed: %s", tostring(err)))
+    end
+
+    activeCircle = nil
+end
+
+circleAnswer.OnServerEvent:Connect(function(player: Player, questionIndex: any, answerIndex: any)
+    local circle = activeCircle
+
+    if not circle or not circle.AcceptingAnswers or questionIndex ~= circle.QuestionIndex then
+        return
+    end
+
+    if typeof(answerIndex) ~= "number" or circle.Answers[player] ~= nil or not table.find(circle.Participants, player) then
+        return
+    end
+
+    local question = circle.Lesson.Quiz[circle.QuestionIndex]
+
+    if answerIndex < 1 or answerIndex > #question.Options then
+        return
+    end
+
+    circle.Answers[player] = answerIndex
+end)
+
+local function connectPrompt(prompt: ProximityPrompt)
+    if promptConnections[prompt] or prompt:GetAttribute("PromptAction") ~= "StartStudyCircle" then
+        return
+    end
+
+    local anchor = prompt.Parent
+
+    if not anchor or not anchor:IsA("BasePart") then
+        return
+    end
+
+    promptConnections[prompt] = prompt.Triggered:Connect(function(player: Player)
+        task.spawn(startCircle, player, anchor)
+    end)
+
+    prompt.Destroying:Connect(function()
+        local connection = promptConnections[prompt]
+
+        if connection then
+            connection:Disconnect()
+            promptConnections[prompt] = nil
+        end
+    end)
+end
+
+task.spawn(function()
+    local worldFolder = Workspace:WaitForChild(TravelRoute.WorldFolderName, 30)
+
+    if not worldFolder then
+        return
+    end
+
+    for _, descendant in ipairs(worldFolder:GetDescendants()) do
+        if descendant:IsA("ProximityPrompt") then
+            connectPrompt(descendant)
+        end
+    end
+
+    worldFolder.DescendantAdded:Connect(function(descendant)
+        if descendant:IsA("ProximityPrompt") then
+            task.defer(connectPrompt, descendant)
+        end
+    end)
+end)
+]]></string>
+      </Properties>
+    </Item>
+    <Item class="Script" referent="38">
+      <Properties>
         <string name="Name">TriviaService</string>
         <token name="RunContext">0</token>
         <string name="Source"><![CDATA[--!strict
@@ -12017,15 +12402,15 @@ end)
       </Properties>
     </Item>
   </Item>
-  <Item class="StarterPlayer" referent="38">
+  <Item class="StarterPlayer" referent="39">
     <Properties>
       <string name="Name">StarterPlayer</string>
     </Properties>
-    <Item class="StarterPlayerScripts" referent="39">
+    <Item class="StarterPlayerScripts" referent="40">
       <Properties>
         <string name="Name">StarterPlayerScripts</string>
       </Properties>
-      <Item class="LocalScript" referent="40">
+      <Item class="LocalScript" referent="41">
         <Properties>
           <string name="Name">BattleCamera</string>
           <string name="Source"><![CDATA[--!strict
@@ -12060,7 +12445,7 @@ applyBattleCameraMode()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="41">
+      <Item class="LocalScript" referent="42">
         <Properties>
           <string name="Name">BattleControls</string>
           <string name="Source"><![CDATA[--!strict
@@ -12112,7 +12497,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="42">
+      <Item class="LocalScript" referent="43">
         <Properties>
           <string name="Name">BattleHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -12722,7 +13107,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="43">
+      <Item class="LocalScript" referent="44">
         <Properties>
           <string name="Name">BattleWeaponAnimation</string>
           <string name="Source"><![CDATA[--!strict
@@ -13310,7 +13695,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="44">
+      <Item class="LocalScript" referent="45">
         <Properties>
           <string name="Name">ClientBootstrap</string>
           <string name="Source"><![CDATA[--!strict
@@ -13335,7 +13720,7 @@ print(string.format(
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="45">
+      <Item class="LocalScript" referent="46">
         <Properties>
           <string name="Name">HubAmbience</string>
           <string name="Source"><![CDATA[--!strict
@@ -13578,7 +13963,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="46">
+      <Item class="LocalScript" referent="47">
         <Properties>
           <string name="Name">HubQuickButtons</string>
           <string name="Source"><![CDATA[--!strict
@@ -13805,7 +14190,7 @@ updateAvailability()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="47">
+      <Item class="LocalScript" referent="48">
         <Properties>
           <string name="Name">LearningHall</string>
           <string name="Source"><![CDATA[--!strict
@@ -14432,7 +14817,7 @@ player:GetAttributeChangedSignal("InStory"):Connect(closeIfBusy)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="48">
+      <Item class="LocalScript" referent="49">
         <Properties>
           <string name="Name">LearningTrailHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -14631,7 +15016,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="49">
+      <Item class="LocalScript" referent="50">
         <Properties>
           <string name="Name">MainMenu</string>
           <string name="Source"><![CDATA[--!nonstrict
@@ -15152,7 +15537,7 @@ showHome()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="50">
+      <Item class="LocalScript" referent="51">
         <Properties>
           <string name="Name">MannersHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -15275,7 +15660,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="51">
+      <Item class="LocalScript" referent="52">
         <Properties>
           <string name="Name">ProgressHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -15312,8 +15697,8 @@ screenGui.Parent = playerGui
 
 local levelPill = Instance.new("Frame")
 levelPill.Name = "LevelPill"
-levelPill.AnchorPoint = Vector2.new(0.5, 0)
-levelPill.Position = UDim2.new(0.5, 0, 0, 8)
+-- Top-left is free in the hub; the story mission card uses it, so the pill hides during stories.
+levelPill.Position = UDim2.fromOffset(22, 22)
 levelPill.Size = UDim2.fromOffset(260, 46)
 levelPill.BackgroundColor3 = Color3.fromRGB(31, 46, 38)
 levelPill.BackgroundTransparency = 0.12
@@ -15375,8 +15760,9 @@ barFillCorner.Parent = barFill
 
 local toastStack = Instance.new("Frame")
 toastStack.Name = "Toasts"
-toastStack.AnchorPoint = Vector2.new(1, 0)
-toastStack.Position = UDim2.new(1, -16, 0, 64)
+-- Middle-right stays clear of the trivia panel (top center) and learning walk card (top right).
+toastStack.AnchorPoint = Vector2.new(1, 0.5)
+toastStack.Position = UDim2.new(1, -16, 0.45, 0)
 toastStack.Size = UDim2.fromOffset(300, 260)
 toastStack.BackgroundTransparency = 1
 toastStack.Parent = screenGui
@@ -15390,7 +15776,7 @@ toastLayout.Parent = toastStack
 local toastOrder = 0
 
 local function updateVisibility()
-    local busy = player:GetAttribute("InBattle") == true
+    local busy = player:GetAttribute("InBattle") == true or player:GetAttribute("InStory") == true
     levelPill.Visible = not busy and levelLabel.Text ~= ""
 end
 
@@ -15490,13 +15876,14 @@ end
 profileUpdated.OnClientEvent:Connect(applySnapshot)
 progressToast.OnClientEvent:Connect(showToast)
 player:GetAttributeChangedSignal("InBattle"):Connect(updateVisibility)
+player:GetAttributeChangedSignal("InStory"):Connect(updateVisibility)
 
 -- The server pushes a snapshot when the profile loads, but this script may start after that.
 requestProfile:FireServer()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="52">
+      <Item class="LocalScript" referent="53">
         <Properties>
           <string name="Name">ShopMenu</string>
           <string name="Source"><![CDATA[--!strict
@@ -15963,7 +16350,7 @@ requestShopState:FireServer()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="53">
+      <Item class="LocalScript" referent="54">
         <Properties>
           <string name="Name">StoryHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -16159,7 +16546,242 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="54">
+      <Item class="LocalScript" referent="55">
+        <Properties>
+          <string name="Name">StudyCircleHud</string>
+          <string name="Source"><![CDATA[--!strict
+
+-- Shows the shared study circle quiz: gathering countdown, each question, the group's result
+-- for it, and the final pass or fail for the whole circle.
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local learningFolder = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Learning")
+local circleUpdate = learningFolder:WaitForChild("StudyCircleUpdate") :: RemoteEvent
+local circleAnswer = learningFolder:WaitForChild("StudyCircleAnswer") :: RemoteEvent
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local COLORS = {
+    Panel = Color3.fromRGB(246, 238, 218),
+    Ink = Color3.fromRGB(42, 38, 30),
+    SoftInk = Color3.fromRGB(88, 78, 62),
+    Option = Color3.fromRGB(63, 98, 88),
+    Selected = Color3.fromRGB(176, 140, 62),
+    Correct = Color3.fromRGB(63, 120, 78),
+    Wrong = Color3.fromRGB(150, 74, 60),
+    Muted = Color3.fromRGB(150, 142, 126),
+    Light = Color3.fromRGB(250, 246, 234),
+}
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "StudyCircleHud"
+screenGui.ResetOnSpawn = false
+screenGui.DisplayOrder = 29
+screenGui.Parent = playerGui
+
+local panel = Instance.new("Frame")
+panel.AnchorPoint = Vector2.new(0.5, 0)
+panel.Position = UDim2.new(0.5, 0, 0, 20)
+panel.Size = UDim2.new(0.9, 0, 0, 330)
+panel.BackgroundColor3 = COLORS.Panel
+panel.Visible = false
+panel.Parent = screenGui
+
+local sizeLimit = Instance.new("UISizeConstraint")
+sizeLimit.MaxSize = Vector2.new(620, 330)
+sizeLimit.Parent = panel
+
+local panelCorner = Instance.new("UICorner")
+panelCorner.CornerRadius = UDim.new(0, 16)
+panelCorner.Parent = panel
+
+local panelStroke = Instance.new("UIStroke")
+panelStroke.Color = Color3.fromRGB(101, 83, 55)
+panelStroke.Thickness = 2
+panelStroke.Parent = panel
+
+local function makeLabel(position: UDim2, size: UDim2, textSize: number, font: Enum.Font, color: Color3): TextLabel
+    local textLabel = Instance.new("TextLabel")
+    textLabel.BackgroundTransparency = 1
+    textLabel.Position = position
+    textLabel.Size = size
+    textLabel.Font = font
+    textLabel.Text = ""
+    textLabel.TextColor3 = color
+    textLabel.TextSize = textSize
+    textLabel.TextWrapped = true
+    textLabel.TextXAlignment = Enum.TextXAlignment.Left
+    textLabel.TextYAlignment = Enum.TextYAlignment.Top
+    textLabel.Parent = panel
+
+    return textLabel
+end
+
+local titleLabel = makeLabel(UDim2.fromOffset(18, 14), UDim2.new(1, -36, 0, 26), 20, Enum.Font.GothamBold, COLORS.Ink)
+local metaLabel = makeLabel(UDim2.fromOffset(18, 42), UDim2.new(1, -36, 0, 20), 14, Enum.Font.GothamMedium, COLORS.SoftInk)
+local bodyLabel = makeLabel(UDim2.fromOffset(18, 68), UDim2.new(1, -36, 0, 62), 18, Enum.Font.GothamBold, COLORS.Ink)
+local footerLabel = makeLabel(UDim2.new(0, 18, 1, -48), UDim2.new(1, -36, 0, 40), 14, Enum.Font.Gotham, COLORS.SoftInk)
+
+local optionsFrame = Instance.new("Frame")
+optionsFrame.BackgroundTransparency = 1
+optionsFrame.Position = UDim2.fromOffset(18, 136)
+optionsFrame.Size = UDim2.new(1, -36, 0, 140)
+optionsFrame.Parent = panel
+
+local optionsLayout = Instance.new("UIGridLayout")
+optionsLayout.CellPadding = UDim2.fromOffset(10, 10)
+optionsLayout.CellSize = UDim2.new(0.5, -5, 0, 62)
+optionsLayout.SortOrder = Enum.SortOrder.LayoutOrder
+optionsLayout.Parent = optionsFrame
+
+local optionButtons: { TextButton } = {}
+local currentQuestion = 0
+local selectedIndex: number? = nil
+local hideToken = 0
+
+for index = 1, 4 do
+    local optionButton = Instance.new("TextButton")
+    optionButton.AutoButtonColor = true
+    optionButton.BackgroundColor3 = COLORS.Option
+    optionButton.BorderSizePixel = 0
+    optionButton.Font = Enum.Font.GothamBold
+    optionButton.LayoutOrder = index
+    optionButton.Text = ""
+    optionButton.TextColor3 = COLORS.Light
+    optionButton.TextSize = 15
+    optionButton.TextWrapped = true
+    optionButton.Visible = false
+    optionButton.Parent = optionsFrame
+
+    local optionCorner = Instance.new("UICorner")
+    optionCorner.CornerRadius = UDim.new(0, 8)
+    optionCorner.Parent = optionButton
+
+    optionButton.Activated:Connect(function()
+        if selectedIndex ~= nil or currentQuestion == 0 then
+            return
+        end
+
+        selectedIndex = index
+
+        for otherIndex, other in ipairs(optionButtons) do
+            other.BackgroundColor3 = if otherIndex == index then COLORS.Selected else COLORS.Muted
+        end
+
+        footerLabel.Text = "Answer locked in. Waiting for the rest of the circle..."
+        circleAnswer:FireServer(currentQuestion, index)
+    end)
+
+    optionButtons[index] = optionButton
+end
+
+local function showOptions(options: { string }?)
+    for index, optionButton in ipairs(optionButtons) do
+        local text = options and options[index]
+        optionButton.Visible = text ~= nil
+        optionButton.Text = text or ""
+        optionButton.BackgroundColor3 = COLORS.Option
+    end
+end
+
+local function hideLater(seconds: number)
+    hideToken += 1
+    local token = hideToken
+
+    task.delay(seconds, function()
+        if token == hideToken then
+            panel.Visible = false
+        end
+    end)
+end
+
+local function show()
+    hideToken += 1
+    panel.Visible = true
+end
+
+circleUpdate.OnClientEvent:Connect(function(payload: any)
+    if type(payload) ~= "table" then
+        return
+    end
+
+    local phase = payload.Phase
+
+    if phase == "notice" then
+        show()
+        titleLabel.Text = "Study Circle"
+        metaLabel.Text = ""
+        bodyLabel.Text = tostring(payload.Text or "")
+        footerLabel.Text = ""
+        showOptions(nil)
+        hideLater(4)
+    elseif phase == "gathering" then
+        show()
+        currentQuestion = 0
+        titleLabel.Text = "Study Circle Gathering"
+        metaLabel.Text = string.format("Starting in %d seconds", payload.Seconds or 0)
+        bodyLabel.Text = tostring(payload.Text or "")
+        footerLabel.Text = "Answer together. The whole circle passes or fails as a group."
+        showOptions(nil)
+    elseif phase == "question" then
+        show()
+        currentQuestion = payload.Index
+        selectedIndex = nil
+        titleLabel.Text = string.format("Study Circle: %s", tostring(payload.LessonName))
+        metaLabel.Text = string.format("Question %d of %d  ·  %d in the circle  ·  %d seconds", payload.Index, payload.Total, payload.Participants or 1, payload.TimeLimit or 0)
+        bodyLabel.Text = tostring(payload.Prompt)
+        footerLabel.Text = "Choose an answer. Talk it through with your circle in chat!"
+        showOptions(payload.Options)
+    elseif phase == "reveal" then
+        show()
+        currentQuestion = 0
+
+        for index, optionButton in ipairs(optionButtons) do
+            if index == payload.CorrectIndex then
+                optionButton.BackgroundColor3 = COLORS.Correct
+            elseif index == selectedIndex then
+                optionButton.BackgroundColor3 = COLORS.Wrong
+            else
+                optionButton.BackgroundColor3 = COLORS.Muted
+            end
+        end
+
+        footerLabel.Text = string.format("%d of %d answered correctly. %s", payload.CorrectCount or 0, payload.Participants or 1, tostring(payload.Explanation or ""))
+    elseif phase == "finished" then
+        show()
+        currentQuestion = 0
+        titleLabel.Text = if payload.Passed then "Study circle passed!" else "Study circle complete"
+        metaLabel.Text = string.format("%s  ·  The circle scored %d%%", tostring(payload.LessonName), payload.Percent or 0)
+
+        if payload.Passed then
+            bodyLabel.Text = string.format("Everyone in the circle earns %d XP.", payload.XP or 0)
+        else
+            bodyLabel.Text = "Review the lesson in the Islamic Studies hall and try another circle together."
+        end
+
+        footerLabel.Text = if payload.IsGroup then "" else "Study with at least one other player to earn the Halaqah Member badge."
+        showOptions(nil)
+        hideLater(7)
+    end
+end)
+
+-- Joining a battle or story removes the player from the circle, so close the panel too.
+local function hideIfBusy()
+    if player:GetAttribute("InBattle") == true or player:GetAttribute("InStory") == true then
+        currentQuestion = 0
+        panel.Visible = false
+    end
+end
+
+player:GetAttributeChangedSignal("InBattle"):Connect(hideIfBusy)
+player:GetAttributeChangedSignal("InStory"):Connect(hideIfBusy)
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="LocalScript" referent="56">
         <Properties>
           <string name="Name">TriviaHud</string>
           <string name="Source"><![CDATA[--!strict
