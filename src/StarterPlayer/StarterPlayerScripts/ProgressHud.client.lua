@@ -108,11 +108,40 @@ toastLayout.SortOrder = Enum.SortOrder.LayoutOrder
 toastLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 toastLayout.Parent = toastStack
 
+-- A one-line "what to do next" hint from the suggested path, under the level pill.
+local nextLabel = Instance.new("TextLabel")
+nextLabel.Name = "NextStep"
+nextLabel.Position = UDim2.fromOffset(22, 74)
+nextLabel.Size = UDim2.fromOffset(300, 0)
+nextLabel.AutomaticSize = Enum.AutomaticSize.Y
+nextLabel.BackgroundColor3 = Color3.fromRGB(31, 46, 38)
+nextLabel.BackgroundTransparency = 0.3
+nextLabel.Font = Enum.Font.GothamMedium
+nextLabel.Text = ""
+nextLabel.TextColor3 = Color3.fromRGB(240, 232, 208)
+nextLabel.TextSize = 13
+nextLabel.TextWrapped = true
+nextLabel.TextXAlignment = Enum.TextXAlignment.Left
+nextLabel.Visible = false
+nextLabel.Parent = screenGui
+
+local nextPadding = Instance.new("UIPadding")
+nextPadding.PaddingTop = UDim.new(0, 6)
+nextPadding.PaddingBottom = UDim.new(0, 6)
+nextPadding.PaddingLeft = UDim.new(0, 10)
+nextPadding.PaddingRight = UDim.new(0, 10)
+nextPadding.Parent = nextLabel
+
+local nextCorner = Instance.new("UICorner")
+nextCorner.CornerRadius = UDim.new(0, 8)
+nextCorner.Parent = nextLabel
+
 local toastOrder = 0
 
 local function updateVisibility()
     local busy = player:GetAttribute("InBattle") == true or player:GetAttribute("InStory") == true
     levelPill.Visible = not busy and levelLabel.Text ~= ""
+    nextLabel.Visible = levelPill.Visible and nextLabel.Text ~= ""
 end
 
 local function applySnapshot(snapshot: any)
@@ -122,6 +151,12 @@ local function applySnapshot(snapshot: any)
 
     levelLabel.Text = string.format("Lv %d  ·  %s", snapshot.Level, tostring(snapshot.RankTitle or ""))
     xpLabel.Text = string.format("%d / %d XP", snapshot.XPIntoLevel or 0, snapshot.XPForNext or 0)
+
+    if type(snapshot.NextStep) == "table" then
+        nextLabel.Text = string.format("Next: %s\n%s", tostring(snapshot.NextStep.Title), tostring(snapshot.NextStep.Hint))
+    else
+        nextLabel.Text = ""
+    end
 
     local ratio = 0
 

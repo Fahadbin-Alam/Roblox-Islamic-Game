@@ -20,6 +20,8 @@ local requestProfile = progressFolder:WaitForChild("RequestProfile") :: RemoteEv
 local openLearningHall = learningFolder:WaitForChild("OpenLearningHall") :: RemoteEvent
 local submitQuiz = learningFolder:WaitForChild("SubmitQuiz") :: RemoteEvent
 local quizResult = learningFolder:WaitForChild("QuizResult") :: RemoteEvent
+local submitDailyAnswer = learningFolder:WaitForChild("SubmitDailyAnswer") :: RemoteEvent
+local dailyResult = learningFolder:WaitForChild("DailyResult") :: RemoteEvent
 
 local AUTOSAVE_SECONDS = 120
 local SUBMIT_COOLDOWN_SECONDS = 1
@@ -99,6 +101,18 @@ submitQuiz.OnServerEvent:Connect(function(player: Player, lessonId: any, answers
     quizResult:FireClient(player, result)
 end)
 
+submitDailyAnswer.OnServerEvent:Connect(function(player: Player, answerIndex: any)
+    if typeof(answerIndex) ~= "number" then
+        return
+    end
+
+    local result = PlayerProgress.AnswerDailyQuestion(player, answerIndex)
+
+    if result then
+        dailyResult:FireClient(player, result)
+    end
+end)
+
 requestProfile.OnServerEvent:Connect(function(player: Player)
     PlayerProgress.SendSnapshot(player)
 end)
@@ -151,6 +165,8 @@ task.spawn(function()
         task.wait(AUTOSAVE_SECONDS)
 
         for _, player in ipairs(Players:GetPlayers()) do
+            -- Also catches the new UTC day for players who stay in one server past midnight.
+            PlayerProgress.RecordDailyVisit(player)
             task.spawn(PlayerProgress.Save, player)
         end
     end

@@ -79,6 +79,9 @@ The best first playable version is:
 - Players open the hall from the `Learn` button or the Islamic Studies podium in the Trivia Court. The `My Journal` tab shows level, stats, and badges.
 - The Islamic Studies podium in the Trivia Court also starts a study circle: everyone standing nearby answers one lesson's quiz together and passes or fails as a group (`StudyCircleService.server.lua`).
 - The Battle of Uhud unlocks after the Battle of Badr or at level 3 (`Unlock` in `BattleScenarios.lua`).
+- Daily return loop (`Shared/Modules/Daily.lua`, `Shared/Data/DailyReflections.lua`): each UTC day brings one cited reflection and one review question in the hall's **Today** tab, and a visit streak that grows the daily visit XP for up to a week.
+- A suggested path (`Progression.Path`) powers the "Next" hint under the level bar and the checklist in **My Journal**.
+- `ResponsiveUi.client.lua` shrinks fixed-size menus so they fit on phone screens.
 - To also award real Roblox badges, create them in Creator Hub and set `RobloxBadgeId` on the matching badge in `Progression.lua`.
 
 Content added to `IslamicStudies.lua` should cite its Qur'an or hadith source, stay general where schools of thought differ, and never depict a Prophet.

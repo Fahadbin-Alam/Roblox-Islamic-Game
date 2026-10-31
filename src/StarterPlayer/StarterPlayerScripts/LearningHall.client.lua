@@ -16,6 +16,8 @@ local profileUpdated = progressFolder:WaitForChild("ProfileUpdated") :: RemoteEv
 local openLearningHall = learningFolder:WaitForChild("OpenLearningHall") :: RemoteEvent
 local submitQuiz = learningFolder:WaitForChild("SubmitQuiz") :: RemoteEvent
 local quizResult = learningFolder:WaitForChild("QuizResult") :: RemoteEvent
+local submitDailyAnswer = learningFolder:WaitForChild("SubmitDailyAnswer") :: RemoteEvent
+local dailyResult = learningFolder:WaitForChild("DailyResult") :: RemoteEvent
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -42,12 +44,16 @@ type Snapshot = {
     Badges: { { Id: string, DisplayName: string, Description: string, Earned: boolean } },
     Completed: { [string]: { string } },
     Stats: { [string]: number },
+    Path: { { Id: string, Title: string, Hint: string, Done: boolean } },
+    NextStep: { Title: string, Hint: string }?,
+    Daily: any,
 }
 
 local snapshot: Snapshot? = nil
-local currentUnitId: string? = nil
 local pendingLessonId: string? = nil
 local refreshCurrentView: (() -> ())? = nil
+local dailyAnswerPending = false
+local lastDailyResult: any = nil
 
 local unitById = {}
 local lessonById = {}
@@ -275,6 +281,7 @@ end
 local showUnit: (unitId: string) -> ()
 local showLesson: (lessonId: string, pageIndex: number) -> ()
 local showJournal: () -> ()
+local showToday: () -> ()
 
 local function showQuestion(lessonId: string, questionIndex: number, answers: { number })
     local lesson = lessonById[lessonId]
@@ -404,7 +411,6 @@ end
 
 showUnit = function(unitId: string)
     local unit = unitById[unitId] or IslamicStudies.Units[1]
-    currentUnitId = unit.Id
     clearContent()
 
     local done = completedSet("lesson")
@@ -465,7 +471,6 @@ showUnit = function(unitId: string)
 end
 
 showJournal = function()
-    currentUnitId = nil
     clearContent()
 
     local list = contentList(0)
@@ -507,11 +512,31 @@ showJournal = function()
         #current.Badges
     ), 15, Enum.Font.GothamMedium, COLORS.SoftInk, 2)
 
+    autoLabel(list, "Your Path", 18, Enum.Font.GothamBold, COLORS.Ink, 3)
+
+    local pathLines = {}
+
+    for index, step in ipairs(current.Path or {}) do
+        local mark = if step.Done then "[Done]" else string.format("%d.", index)
+        local line = string.format("%s  %s", mark, step.Title)
+
+        if not step.Done and current.NextStep and current.NextStep.Title == step.Title then
+            line ..= string.format("\n      Next: %s", step.Hint)
+        end
+
+        table.insert(pathLines, line)
+    end
+
+    local pathLabel = autoLabel(list, table.concat(pathLines, "\n"), 15, Enum.Font.Gotham, COLORS.Ink, 4)
+    pathLabel.LineHeight = 1.15
+
+    autoLabel(list, "Badges", 18, Enum.Font.GothamBold, COLORS.Ink, 5)
+
     local grid = Instance.new("Frame")
     grid.BackgroundTransparency = 1
     grid.AutomaticSize = Enum.AutomaticSize.Y
     grid.Size = UDim2.new(1, 0, 0, 0)
-    grid.LayoutOrder = 3
+    grid.LayoutOrder = 6
     grid.Parent = list
 
     local gridLayout = Instance.new("UIGridLayout")
@@ -541,7 +566,97 @@ showJournal = function()
     refreshCurrentView = showJournal
 end
 
+showToday = function()
+    clearContent()
+
+    local list = contentList(0)
+    autoLabel(list, "Today", 24, Enum.Font.GothamBold, COLORS.Ink, 1)
+
+    local daily = snapshot and snapshot.Daily
+
+    if not daily then
+        autoLabel(list, "Loading today's lesson...", 16, Enum.Font.GothamMedium, COLORS.SoftInk, 2)
+        refreshCurrentView = showToday
+        return
+    end
+
+    local streakText = if daily.Streak > 1
+        then string.format("You have visited %d days in a row. Best streak: %d days.", daily.Streak, daily.BestStreak)
+        else "Visit every day to build a streak and earn more XP each day."
+    autoLabel(list, streakText, 15, Enum.Font.GothamMedium, COLORS.SoftInk, 2)
+
+    local reflection = autoLabel(list, string.format("\"%s\"\n%s", daily.Reflection.Text, daily.Reflection.Source), 19, Enum.Font.GothamBold, COLORS.Ink, 3)
+    reflection.LineHeight = 1.15
+    autoLabel(list, daily.Reflection.Thought, 16, Enum.Font.Gotham, COLORS.Ink, 4)
+
+    autoLabel(list, string.format("Daily question  ·  from %s", daily.Question.LessonName), 15, Enum.Font.GothamBold, COLORS.SoftInk, 5)
+    autoLabel(list, daily.Question.Prompt, 19, Enum.Font.GothamBold, COLORS.Ink, 6)
+
+    local result = lastDailyResult
+
+    for optionIndex, optionText in ipairs(daily.Question.Options) do
+        local color = COLORS.Border
+
+        if result then
+            if optionIndex == result.CorrectIndex then
+                color = COLORS.Success
+            elseif optionIndex == result.SelectedIndex then
+                color = COLORS.Danger
+            else
+                color = COLORS.Locked
+            end
+        elseif daily.QuestionAnswered then
+            color = COLORS.Locked
+        end
+
+        local optionButton = button(list, optionText, color, function()
+            if daily.QuestionAnswered or dailyAnswerPending or lastDailyResult then
+                return
+            end
+
+            dailyAnswerPending = true
+            lastDailyResult = { SelectedIndex = optionIndex, Pending = true }
+            submitDailyAnswer:FireServer(optionIndex)
+
+            task.delay(6, function()
+                if dailyAnswerPending then
+                    dailyAnswerPending = false
+                    lastDailyResult = nil
+
+                    if panel.Visible and refreshCurrentView == showToday then
+                        showToday()
+                    end
+                end
+            end)
+        end)
+        optionButton.Size = UDim2.new(1, 0, 0, 46)
+        optionButton.LayoutOrder = 6 + optionIndex
+    end
+
+    local footerText
+
+    if result and not result.Pending then
+        footerText = if result.Correct
+            then string.format("Correct! +%d XP. %s", result.XPAwarded or 0, result.Explanation)
+            else string.format("Not quite. %s Come back tomorrow for a new question.", result.Explanation)
+    elseif daily.QuestionAnswered then
+        footerText = "You already answered today's question. A new one arrives tomorrow."
+    else
+        footerText = string.format("Answer correctly for +%d XP. You get one try each day.", daily.QuestionReward)
+    end
+
+    autoLabel(list, footerText, 15, Enum.Font.GothamMedium, COLORS.SoftInk, 20)
+    refreshCurrentView = showToday
+end
+
 local function buildSidebar()
+    local todayButton = button(sidebar, "Today", COLORS.Gold, function()
+        showToday()
+    end)
+    todayButton.Size = UDim2.new(1, -6, 0, 50)
+    todayButton.LayoutOrder = 0
+    todayButton.TextSize = 15
+
     for index, unit in ipairs(IslamicStudies.Units) do
         local unitButton = button(sidebar, unit.DisplayName, rgb(unit.AccentRGB), function()
             showUnit(unit.Id)
@@ -573,20 +688,40 @@ local function openHall(unitId: string?)
         end
     end
 
-    showUnit(unitId or currentUnitId or IslamicStudies.Units[1].Id)
+    if unitId then
+        showUnit(unitId)
+    else
+        showToday()
+    end
+
     panel.Visible = true
 end
 
 -- Opening the panel from elsewhere (the quick button toggles Visible) lands on a lesson list.
 panel:GetPropertyChangedSignal("Visible"):Connect(function()
     if panel.Visible and #content:GetChildren() <= 1 then
-        showUnit(currentUnitId or IslamicStudies.Units[1].Id)
+        showToday()
     end
 end)
 
 openLearningHall.OnClientEvent:Connect(function(payload: any)
     local unitId = if type(payload) == "table" and type(payload.UnitId) == "string" then payload.UnitId else nil
     openHall(unitId)
+end)
+
+dailyResult.OnClientEvent:Connect(function(result: any)
+    if type(result) ~= "table" then
+        return
+    end
+
+    local selected = lastDailyResult and lastDailyResult.SelectedIndex
+    dailyAnswerPending = false
+    lastDailyResult = result
+    lastDailyResult.SelectedIndex = selected
+
+    if panel.Visible and refreshCurrentView == showToday then
+        showToday()
+    end
 end)
 
 quizResult.OnClientEvent:Connect(function(result: any)
@@ -601,6 +736,10 @@ end)
 profileUpdated.OnClientEvent:Connect(function(payload: any)
     if type(payload) ~= "table" or type(payload.Level) ~= "number" then
         return
+    end
+
+    if snapshot and snapshot.Daily and payload.Daily and snapshot.Daily.Day ~= payload.Daily.Day then
+        lastDailyResult = nil
     end
 
     snapshot = payload

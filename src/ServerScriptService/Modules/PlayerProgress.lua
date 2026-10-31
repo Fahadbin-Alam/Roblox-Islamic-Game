@@ -10,7 +10,9 @@ local BadgeService = game:GetService("BadgeService")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Progression = require(ReplicatedStorage:WaitForChild("Shared").Modules.Progression)
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Daily = require(Shared.Modules.Daily)
+local Progression = require(Shared.Modules.Progression)
 
 type Profile = Progression.Profile
 
@@ -63,7 +65,9 @@ function PlayerProgress.SendSnapshot(player: Player)
     local profile = profiles[player]
 
     if profile then
-        profileUpdated:FireClient(player, Progression.BuildSnapshot(profile))
+        local snapshot: any = Progression.BuildSnapshot(profile)
+        snapshot.Daily = Daily.BuildPayload(profile.Stats, Daily.DayNumber(os.time()))
+        profileUpdated:FireClient(player, snapshot)
     end
 end
 
@@ -176,6 +180,54 @@ function PlayerProgress.IncrementStat(player: Player, stat: string, amount: numb
     changed(player, profile)
 end
 
+-- Counts today's visit toward the streak and pays the visit reward the first time each day.
+-- Players who stay in a server past midnight UTC get it when ProgressionService checks again.
+function PlayerProgress.RecordDailyVisit(player: Player)
+    local profile = profiles[player]
+
+    if not profile then
+        return
+    end
+
+    local streak, firstVisitToday = Daily.RecordVisit(profile.Stats, Daily.DayNumber(os.time()))
+
+    if not firstVisitToday then
+        return
+    end
+
+    local label = if streak > 1 then string.format("Daily visit: %d day streak", streak) else "Daily visit"
+    PlayerProgress.AddXP(player, Daily.VisitReward(streak), label)
+end
+
+-- Grades today's review question. Returns nil when it was already answered today.
+function PlayerProgress.AnswerDailyQuestion(player: Player, answerIndex: number): { Correct: boolean, CorrectIndex: number, Explanation: string, XPAwarded: number }?
+    local profile = profiles[player]
+    local day = Daily.DayNumber(os.time())
+
+    if not profile or Daily.HasAnsweredQuestion(profile.Stats, day) then
+        return nil
+    end
+
+    local entry = Daily.GetQuestion(day)
+    local correct = answerIndex == entry.Question.CorrectIndex
+    profile.Stats.DailyQuestionDay = day
+    local awarded = 0
+
+    if correct then
+        profile.Stats.DailyQuestionsCorrect = (profile.Stats.DailyQuestionsCorrect or 0) + 1
+        awarded = PlayerProgress.AddXP(player, Daily.Rewards.Question, "Daily question")
+    else
+        changed(player, profile)
+    end
+
+    return {
+        Correct = correct,
+        CorrectIndex = entry.Question.CorrectIndex,
+        Explanation = entry.Question.Explanation,
+        XPAwarded = awarded,
+    }
+end
+
 function PlayerProgress.Load(player: Player)
     local raw = nil
     local loaded = store == nil
@@ -214,6 +266,7 @@ function PlayerProgress.Load(player: Player)
     -- Badges added in an update are granted to players who already qualify.
     awardNewBadges(player, profile)
     applyAttributes(player, profile)
+    PlayerProgress.RecordDailyVisit(player)
     PlayerProgress.SendSnapshot(player)
 end
 

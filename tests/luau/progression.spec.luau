@@ -96,3 +96,16 @@ test("Uhud unlocks after Badr or at level 3", function()
     leveled.XP = Progression.XPForNextLevel(1) + Progression.XPForNextLevel(2)
     expectEqual(Progression.GetBattleLockReason(leveled, "uhud"), nil, "open at level 3")
 end)
+
+test("path suggests the first unfinished step", function()
+    local profile = Progression.NewProfile()
+    expectEqual(Progression.GetNextStep(profile).Id, "haram_walk", "new players start with the walk")
+
+    profile.Completed.trail.haram_learning_walk = true
+    expectEqual(Progression.GetNextStep(profile).Id, "pillars", "then the pillars")
+
+    local snapshot = Progression.BuildSnapshot(profile)
+    expectEqual(snapshot.Path[1].Done, true, "walk shows done")
+    expectEqual(snapshot.NextStep.Title, Progression.Path[2].Title, "snapshot next step")
+    expectEqual(snapshot.Path[1].IsDone, nil, "no functions in path")
+end)

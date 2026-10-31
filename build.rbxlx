@@ -956,6 +956,127 @@ return table.freeze(CompanionStories)
         </Item>
         <Item class="ModuleScript" referent="8">
           <Properties>
+            <string name="Name">DailyReflections</string>
+            <string name="Source"><![CDATA[--!strict
+
+-- One reflection is shown each day in the Islamic Studies hall, cycling through this list.
+-- Every entry is a short, widely known ayah or authentic hadith with its reference.
+
+export type Reflection = {
+    Text: string,
+    Source: string,
+    Thought: string,
+}
+
+local DailyReflections: { Reflection } = {
+    {
+        Text = "Indeed, with hardship comes ease.",
+        Source = "Qur'an 94:6",
+        Thought = "When something feels hard today, remember that Allah has promised ease alongside it.",
+    },
+    {
+        Text = "So remember Me; I will remember you.",
+        Source = "Qur'an 2:152",
+        Thought = "Say SubhanAllah, Alhamdulillah, or Allahu Akbar a few times today and remember Allah is remembering you.",
+    },
+    {
+        Text = "Allah does not burden a soul beyond what it can bear.",
+        Source = "Qur'an 2:286",
+        Thought = "Whatever you are facing, you have been given the strength to handle it.",
+    },
+    {
+        Text = "And speak to people good words.",
+        Source = "Qur'an 2:83",
+        Thought = "Try to say something kind to every person you talk to today, online or offline.",
+    },
+    {
+        Text = "Indeed, Allah is with the patient.",
+        Source = "Qur'an 2:153",
+        Thought = "Patience is not doing nothing. It is staying calm and doing the right thing while you wait.",
+    },
+    {
+        Text = "Verily, in the remembrance of Allah do hearts find rest.",
+        Source = "Qur'an 13:28",
+        Thought = "If you feel worried, take a quiet minute to make dua.",
+    },
+    {
+        Text = "Whoever does an atom's weight of good will see it.",
+        Source = "Qur'an 99:7",
+        Thought = "No good deed is too small. Holding a door or sharing a snack counts.",
+    },
+    {
+        Text = "The most noble of you in the sight of Allah is the most righteous of you.",
+        Source = "Qur'an 49:13",
+        Thought = "What makes someone great is their character, not their looks, money, or where they come from.",
+    },
+    {
+        Text = "Actions are judged by intentions.",
+        Source = "Sahih al-Bukhari 1",
+        Thought = "Before you start something, make the intention to do it for Allah. Even studying can become worship.",
+    },
+    {
+        Text = "None of you truly believes until he loves for his brother what he loves for himself.",
+        Source = "Sahih al-Bukhari 13",
+        Thought = "Cheer for your friends when they win, the way you would want them to cheer for you.",
+    },
+    {
+        Text = "The strong person is not the one who wrestles others down, but the one who controls himself when angry.",
+        Source = "Sahih al-Bukhari 6114",
+        Thought = "If a game or a person makes you angry today, pause and breathe before you react.",
+    },
+    {
+        Text = "Whoever believes in Allah and the Last Day, let him speak good or stay silent.",
+        Source = "Sahih al-Bukhari 6018",
+        Thought = "Check your words in chat today: if it isn't good, it's better not to send it.",
+    },
+    {
+        Text = "The best of you are those who learn the Qur'an and teach it.",
+        Source = "Sahih al-Bukhari 5027",
+        Thought = "Learn one new ayah or its meaning today, then share it with someone.",
+    },
+    {
+        Text = "Make things easy and do not make them difficult.",
+        Source = "Sahih al-Bukhari 69",
+        Thought = "Help a new player or a younger sibling today instead of making things harder for them.",
+    },
+    {
+        Text = "Allah does not look at your appearance or wealth, but He looks at your hearts and deeds.",
+        Source = "Sahih Muslim 2564",
+        Thought = "Focus on being a good person rather than on looking cool.",
+    },
+    {
+        Text = "Your smile in the face of your brother is charity.",
+        Source = "Jami' at-Tirmidhi 1956",
+        Thought = "Smiling is a sadaqah you can give for free, as many times as you like.",
+    },
+    {
+        Text = "The most beloved deeds to Allah are those done regularly, even if they are small.",
+        Source = "Sahih al-Bukhari 6464",
+        Thought = "Coming back every day to learn a little is exactly the kind of habit Allah loves.",
+    },
+    {
+        Text = "Whoever takes a path seeking knowledge, Allah makes easy for him a path to Paradise.",
+        Source = "Sahih Muslim 2699",
+        Thought = "Every lesson you finish here is a step on that path.",
+    },
+    {
+        Text = "Do not become angry.",
+        Source = "Sahih al-Bukhari 6116",
+        Thought = "This was the advice given to a man who asked for something short to remember. Try it today.",
+    },
+    {
+        Text = "My Lord, increase me in knowledge.",
+        Source = "Qur'an 20:114",
+        Thought = "Make this dua before you start a lesson or your homework.",
+    },
+}
+
+return DailyReflections
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="9">
+          <Properties>
             <string name="Name">HaramLearningTrail</string>
             <string name="Source"><![CDATA[--!strict
 
@@ -1034,7 +1155,7 @@ return table.freeze(HaramLearningTrail)
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="9">
+        <Item class="ModuleScript" referent="10">
           <Properties>
             <string name="Name">IslamicStudies</string>
             <string name="Source"><![CDATA[--!strict
@@ -1666,7 +1787,7 @@ return IslamicStudies
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="10">
+        <Item class="ModuleScript" referent="11">
           <Properties>
             <string name="Name">MannersLessons</string>
             <string name="Source"><![CDATA[--!strict
@@ -1748,7 +1869,7 @@ return table.freeze(MannersLessons)
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="11">
+        <Item class="ModuleScript" referent="12">
           <Properties>
             <string name="Name">ShopCatalog</string>
             <string name="Source"><![CDATA[--!strict
@@ -1877,7 +1998,7 @@ return table.freeze(ShopCatalog)
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="12">
+        <Item class="ModuleScript" referent="13">
           <Properties>
             <string name="Name">TravelRoute</string>
             <string name="Source"><![CDATA[--!strict
@@ -1989,7 +2110,7 @@ return table.freeze(TravelRoute)
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="13">
+        <Item class="ModuleScript" referent="14">
           <Properties>
             <string name="Name">TriviaQuestions</string>
             <string name="Source"><![CDATA[--!strict
@@ -2159,11 +2280,11 @@ return table.freeze(TriviaQuestions)
           </Properties>
         </Item>
       </Item>
-      <Item class="Folder" referent="14">
+      <Item class="Folder" referent="15">
         <Properties>
           <string name="Name">Modules</string>
         </Properties>
-        <Item class="ModuleScript" referent="15">
+        <Item class="ModuleScript" referent="16">
           <Properties>
             <string name="Name">ContentIndex</string>
             <string name="Source"><![CDATA[--!strict
@@ -2198,7 +2319,137 @@ return ContentIndex
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="16">
+        <Item class="ModuleScript" referent="17">
+          <Properties>
+            <string name="Name">Daily</string>
+            <string name="Source"><![CDATA[--!strict
+
+-- Pure rules for the daily return loop: one reflection and one review question per day, plus
+-- a visit streak. Days are counted in UTC so every server agrees on when a new day starts.
+
+local DailyReflections = require(script.Parent.Parent.Data.DailyReflections)
+local IslamicStudies = require(script.Parent.Parent.Data.IslamicStudies)
+
+local Daily = {}
+
+local SECONDS_PER_DAY = 86400
+
+Daily.Rewards = {
+    VisitBase = 20,
+    -- Each consecutive day adds this much, up to a week of growth.
+    VisitPerStreakDay = 5,
+    VisitStreakCap = 7,
+    Question = 30,
+}
+
+type Stats = { [string]: number }
+
+local allQuestions = {}
+
+for _, unit in ipairs(IslamicStudies.Units) do
+    for _, lesson in ipairs(unit.Lessons) do
+        for index, question in ipairs(lesson.Quiz) do
+            table.insert(allQuestions, {
+                LessonId = lesson.Id,
+                LessonName = lesson.DisplayName,
+                QuestionIndex = index,
+                Question = question,
+            })
+        end
+    end
+end
+
+function Daily.DayNumber(unixTime: number): number
+    return math.floor(unixTime / SECONDS_PER_DAY)
+end
+
+function Daily.GetReflection(day: number)
+    return DailyReflections[(day % #DailyReflections) + 1]
+end
+
+local function gcd(a: number, b: number): number
+    while b ~= 0 do
+        a, b = b, a % b
+    end
+
+    return a
+end
+
+-- Stepping by a number coprime with the question count spreads consecutive days across
+-- different lessons and still reaches every question before repeating.
+local questionStep = 1
+
+for _, candidate in ipairs({ 7, 11, 13, 17, 19, 23 }) do
+    if gcd(candidate, #allQuestions) == 1 then
+        questionStep = candidate
+        break
+    end
+end
+
+function Daily.GetQuestion(day: number)
+    local index = ((day * questionStep) % #allQuestions) + 1
+    return allQuestions[index]
+end
+
+function Daily.QuestionCount(): number
+    return #allQuestions
+end
+
+function Daily.VisitReward(streak: number): number
+    local growth = math.min(math.max(streak, 1), Daily.Rewards.VisitStreakCap) - 1
+    return Daily.Rewards.VisitBase + growth * Daily.Rewards.VisitPerStreakDay
+end
+
+-- Records a visit on `day`. Returns the new streak and whether this is the first visit today.
+-- Missing a day resets the streak to 1.
+function Daily.RecordVisit(stats: Stats, day: number): (number, boolean)
+    local lastDay = stats.DailyLastDay
+
+    if lastDay == day then
+        return stats.DailyStreak or 1, false
+    end
+
+    local streak = if lastDay == day - 1 then (stats.DailyStreak or 0) + 1 else 1
+    stats.DailyLastDay = day
+    stats.DailyStreak = streak
+    stats.DailyBestStreak = math.max(stats.DailyBestStreak or 0, streak)
+
+    return streak, true
+end
+
+function Daily.HasAnsweredQuestion(stats: Stats, day: number): boolean
+    return stats.DailyQuestionDay == day
+end
+
+-- What the client is shown for today. The correct answer is left out on purpose.
+function Daily.BuildPayload(stats: Stats, day: number)
+    local reflection = Daily.GetReflection(day)
+    local entry = Daily.GetQuestion(day)
+
+    return {
+        Day = day,
+        Streak = stats.DailyStreak or 0,
+        BestStreak = stats.DailyBestStreak or 0,
+        Reflection = {
+            Text = reflection.Text,
+            Source = reflection.Source,
+            Thought = reflection.Thought,
+        },
+        Question = {
+            LessonName = entry.LessonName,
+            Prompt = entry.Question.Prompt,
+            Options = entry.Question.Options,
+        },
+        QuestionAnswered = Daily.HasAnsweredQuestion(stats, day),
+        QuestionReward = Daily.Rewards.Question,
+    }
+end
+
+return Daily
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="18">
           <Properties>
             <string name="Name">Progression</string>
             <string name="Source"><![CDATA[--!strict
@@ -2509,6 +2760,111 @@ end
 
 Progression.Badges = buildBadges()
 
+local function lessonIdsOfUnit(unitId: string): { string }
+    for _, unit in ipairs(IslamicStudies.Units) do
+        if unit.Id == unitId then
+            return idsOf(unit.Lessons)
+        end
+    end
+
+    return {}
+end
+
+local function allLessonIds(): { string }
+    local ids = {}
+
+    for _, unit in ipairs(IslamicStudies.Units) do
+        for _, lesson in ipairs(unit.Lessons) do
+            table.insert(ids, lesson.Id)
+        end
+    end
+
+    return ids
+end
+
+export type PathStep = {
+    Id: string,
+    Title: string,
+    Hint: string,
+    IsDone: (profile: Profile) -> boolean,
+}
+
+-- The suggested order through the game. Players can do anything at any time; this only
+-- powers the "Next" hint and the journal checklist so nobody wonders what to do next.
+Progression.Path = {
+    {
+        Id = "haram_walk",
+        Title = "Take the Haram Learning Walk",
+        Hint = "Start at the gold marker on the south side of the Kaaba courtyard.",
+        IsDone = function(profile)
+            return totalCompleted(profile, Progression.Categories.Trail) >= 1
+        end,
+    },
+    {
+        Id = "pillars",
+        Title = "Learn the Five Pillars",
+        Hint = "Press Learn and open The Five Pillars.",
+        IsDone = allCompleted(Progression.Categories.Lesson, lessonIdsOfUnit("pillars")),
+    },
+    {
+        Id = "first_story",
+        Title = "Finish a companion story",
+        Hint = "Open the Menu, choose Learn About Sahabis, and pick a companion.",
+        IsDone = function(profile)
+            return totalCompleted(profile, Progression.Categories.Story) >= 1
+        end,
+    },
+    {
+        Id = "badr",
+        Title = "Complete the Battle of Badr",
+        Hint = "Open the Menu and choose Battle of Badr.",
+        IsDone = allCompleted(Progression.Categories.Battle, { "badr" }),
+    },
+    {
+        Id = "prayer",
+        Title = "Learn how to pray",
+        Hint = "Press Learn and open How To Pray.",
+        IsDone = allCompleted(Progression.Categories.Lesson, lessonIdsOfUnit("prayer")),
+    },
+    {
+        Id = "manners",
+        Title = "Read every Manners Court lesson",
+        Hint = "Walk to the Manners Court and read each board.",
+        IsDone = allCompleted(Progression.Categories.Manners, idsOf(MannersLessons)),
+    },
+    {
+        Id = "uhud",
+        Title = "Complete the Battle of Uhud",
+        Hint = "Open the Menu and choose Battle of Uhud.",
+        IsDone = allCompleted(Progression.Categories.Battle, { "uhud" }),
+    },
+    {
+        Id = "study_circle",
+        Title = "Pass a study circle with a friend",
+        Hint = "Stand by the Islamic Studies podium in the Trivia Court with a friend and start a circle.",
+        IsDone = function(profile)
+            return (profile.Stats.StudyCircles or 0) >= 1
+        end,
+    },
+    {
+        Id = "all_lessons",
+        Title = "Finish every Islamic Studies lesson",
+        Hint = "Press Learn and complete the lessons you have left.",
+        IsDone = allCompleted(Progression.Categories.Lesson, allLessonIds()),
+    },
+} :: { PathStep }
+
+-- The first unfinished step, or nil when the whole path is done.
+function Progression.GetNextStep(profile: Profile): PathStep?
+    for _, step in ipairs(Progression.Path) do
+        if not step.IsDone(profile) then
+            return step
+        end
+    end
+
+    return nil
+end
+
 -- Returns why a battle is still locked for this profile, or nil when the player may join.
 -- A missing profile (still loading, or the DataStore is down) never locks anyone out.
 function Progression.GetBattleLockReason(profile: Profile?, scenarioId: string): string?
@@ -2591,8 +2947,23 @@ function Progression.BuildSnapshot(profile: Profile)
         completed[category] = ids
     end
 
+    local path = {}
+
+    for _, step in ipairs(Progression.Path) do
+        table.insert(path, {
+            Id = step.Id,
+            Title = step.Title,
+            Hint = step.Hint,
+            Done = step.IsDone(profile),
+        })
+    end
+
+    local nextStep = Progression.GetNextStep(profile)
+
     return {
         XP = profile.XP,
+        Path = path,
+        NextStep = if nextStep then { Title = nextStep.Title, Hint = nextStep.Hint } else nil,
         Level = levelInfo.Level,
         XPIntoLevel = levelInfo.XPIntoLevel,
         XPForNext = levelInfo.XPForNext,
@@ -2610,11 +2981,11 @@ return Progression
       </Item>
     </Item>
   </Item>
-  <Item class="ServerScriptService" referent="17">
+  <Item class="ServerScriptService" referent="19">
     <Properties>
       <string name="Name">ServerScriptService</string>
     </Properties>
-    <Item class="Script" referent="18">
+    <Item class="Script" referent="20">
       <Properties>
         <string name="Name">BattleArenaBuilder</string>
         <token name="RunContext">0</token>
@@ -3331,7 +3702,7 @@ end
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="19">
+    <Item class="Script" referent="21">
       <Properties>
         <string name="Name">BattleService</string>
         <token name="RunContext">0</token>
@@ -5104,7 +5475,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="20">
+    <Item class="Script" referent="22">
       <Properties>
         <string name="Name">CamelMountService</string>
         <token name="RunContext">0</token>
@@ -5341,7 +5712,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="21">
+    <Item class="Script" referent="23">
       <Properties>
         <string name="Name">FallGuard</string>
         <token name="RunContext">0</token>
@@ -5477,7 +5848,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="22">
+    <Item class="Script" referent="24">
       <Properties>
         <string name="Name">GameBootstrap</string>
         <token name="RunContext">0</token>
@@ -5564,6 +5935,8 @@ ensureRemoteEvent(progressFolder, "ProgressToast")
 ensureRemoteEvent(learningFolder, "OpenLearningHall")
 ensureRemoteEvent(learningFolder, "SubmitQuiz")
 ensureRemoteEvent(learningFolder, "QuizResult")
+ensureRemoteEvent(learningFolder, "SubmitDailyAnswer")
+ensureRemoteEvent(learningFolder, "DailyResult")
 ensureRemoteEvent(learningFolder, "StudyCircleUpdate")
 ensureRemoteEvent(learningFolder, "StudyCircleAnswer")
 ensureRemoteEvent(shopFolder, "RequestShopState")
@@ -5586,7 +5959,7 @@ print(string.format(
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="23">
+    <Item class="Script" referent="25">
       <Properties>
         <string name="Name">HaramLearningTrailService</string>
         <token name="RunContext">0</token>
@@ -5842,7 +6215,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="24">
+    <Item class="Script" referent="26">
       <Properties>
         <string name="Name">HubAtmosphere</string>
         <token name="RunContext">0</token>
@@ -6124,7 +6497,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="25">
+    <Item class="Script" referent="27">
       <Properties>
         <string name="Name">HubTeleportService</string>
         <token name="RunContext">0</token>
@@ -6256,7 +6629,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="26">
+    <Item class="Script" referent="28">
       <Properties>
         <string name="Name">HubWorldBuilder</string>
         <token name="RunContext">0</token>
@@ -7956,7 +8329,7 @@ spawnLocation.Parent = geometryFolder
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="27">
+    <Item class="Script" referent="29">
       <Properties>
         <string name="Name">MannersService</string>
         <token name="RunContext">0</token>
@@ -8060,11 +8433,11 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Folder" referent="28">
+    <Item class="Folder" referent="30">
       <Properties>
         <string name="Name">Modules</string>
       </Properties>
-      <Item class="ModuleScript" referent="29">
+      <Item class="ModuleScript" referent="31">
         <Properties>
           <string name="Name">BattleBots</string>
           <string name="Source"><![CDATA[--!nonstrict
@@ -8482,7 +8855,7 @@ return BattleBots
 ]]></string>
         </Properties>
       </Item>
-      <Item class="ModuleScript" referent="30">
+      <Item class="ModuleScript" referent="32">
         <Properties>
           <string name="Name">BattleLoadout</string>
           <string name="Source"><![CDATA[--!strict
@@ -9361,7 +9734,7 @@ return BattleLoadout
 ]]></string>
         </Properties>
       </Item>
-      <Item class="ModuleScript" referent="31">
+      <Item class="ModuleScript" referent="33">
         <Properties>
           <string name="Name">BuildUtils</string>
           <string name="Source"><![CDATA[--!strict
@@ -10072,7 +10445,7 @@ return BuildUtils
 ]]></string>
         </Properties>
       </Item>
-      <Item class="ModuleScript" referent="32">
+      <Item class="ModuleScript" referent="34">
         <Properties>
           <string name="Name">PlayerProgress</string>
           <string name="Source"><![CDATA[--!strict
@@ -10087,7 +10460,9 @@ local BadgeService = game:GetService("BadgeService")
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local Progression = require(ReplicatedStorage:WaitForChild("Shared").Modules.Progression)
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local Daily = require(Shared.Modules.Daily)
+local Progression = require(Shared.Modules.Progression)
 
 type Profile = Progression.Profile
 
@@ -10140,7 +10515,9 @@ function PlayerProgress.SendSnapshot(player: Player)
     local profile = profiles[player]
 
     if profile then
-        profileUpdated:FireClient(player, Progression.BuildSnapshot(profile))
+        local snapshot: any = Progression.BuildSnapshot(profile)
+        snapshot.Daily = Daily.BuildPayload(profile.Stats, Daily.DayNumber(os.time()))
+        profileUpdated:FireClient(player, snapshot)
     end
 end
 
@@ -10253,6 +10630,54 @@ function PlayerProgress.IncrementStat(player: Player, stat: string, amount: numb
     changed(player, profile)
 end
 
+-- Counts today's visit toward the streak and pays the visit reward the first time each day.
+-- Players who stay in a server past midnight UTC get it when ProgressionService checks again.
+function PlayerProgress.RecordDailyVisit(player: Player)
+    local profile = profiles[player]
+
+    if not profile then
+        return
+    end
+
+    local streak, firstVisitToday = Daily.RecordVisit(profile.Stats, Daily.DayNumber(os.time()))
+
+    if not firstVisitToday then
+        return
+    end
+
+    local label = if streak > 1 then string.format("Daily visit: %d day streak", streak) else "Daily visit"
+    PlayerProgress.AddXP(player, Daily.VisitReward(streak), label)
+end
+
+-- Grades today's review question. Returns nil when it was already answered today.
+function PlayerProgress.AnswerDailyQuestion(player: Player, answerIndex: number): { Correct: boolean, CorrectIndex: number, Explanation: string, XPAwarded: number }?
+    local profile = profiles[player]
+    local day = Daily.DayNumber(os.time())
+
+    if not profile or Daily.HasAnsweredQuestion(profile.Stats, day) then
+        return nil
+    end
+
+    local entry = Daily.GetQuestion(day)
+    local correct = answerIndex == entry.Question.CorrectIndex
+    profile.Stats.DailyQuestionDay = day
+    local awarded = 0
+
+    if correct then
+        profile.Stats.DailyQuestionsCorrect = (profile.Stats.DailyQuestionsCorrect or 0) + 1
+        awarded = PlayerProgress.AddXP(player, Daily.Rewards.Question, "Daily question")
+    else
+        changed(player, profile)
+    end
+
+    return {
+        Correct = correct,
+        CorrectIndex = entry.Question.CorrectIndex,
+        Explanation = entry.Question.Explanation,
+        XPAwarded = awarded,
+    }
+end
+
 function PlayerProgress.Load(player: Player)
     local raw = nil
     local loaded = store == nil
@@ -10291,6 +10716,7 @@ function PlayerProgress.Load(player: Player)
     -- Badges added in an update are granted to players who already qualify.
     awardNewBadges(player, profile)
     applyAttributes(player, profile)
+    PlayerProgress.RecordDailyVisit(player)
     PlayerProgress.SendSnapshot(player)
 end
 
@@ -10343,7 +10769,7 @@ return PlayerProgress
         </Properties>
       </Item>
     </Item>
-    <Item class="Script" referent="33">
+    <Item class="Script" referent="35">
       <Properties>
         <string name="Name">ProgressionService</string>
         <token name="RunContext">0</token>
@@ -10369,6 +10795,8 @@ local requestProfile = progressFolder:WaitForChild("RequestProfile") :: RemoteEv
 local openLearningHall = learningFolder:WaitForChild("OpenLearningHall") :: RemoteEvent
 local submitQuiz = learningFolder:WaitForChild("SubmitQuiz") :: RemoteEvent
 local quizResult = learningFolder:WaitForChild("QuizResult") :: RemoteEvent
+local submitDailyAnswer = learningFolder:WaitForChild("SubmitDailyAnswer") :: RemoteEvent
+local dailyResult = learningFolder:WaitForChild("DailyResult") :: RemoteEvent
 
 local AUTOSAVE_SECONDS = 120
 local SUBMIT_COOLDOWN_SECONDS = 1
@@ -10448,6 +10876,18 @@ submitQuiz.OnServerEvent:Connect(function(player: Player, lessonId: any, answers
     quizResult:FireClient(player, result)
 end)
 
+submitDailyAnswer.OnServerEvent:Connect(function(player: Player, answerIndex: any)
+    if typeof(answerIndex) ~= "number" then
+        return
+    end
+
+    local result = PlayerProgress.AnswerDailyQuestion(player, answerIndex)
+
+    if result then
+        dailyResult:FireClient(player, result)
+    end
+end)
+
 requestProfile.OnServerEvent:Connect(function(player: Player)
     PlayerProgress.SendSnapshot(player)
 end)
@@ -10500,6 +10940,8 @@ task.spawn(function()
         task.wait(AUTOSAVE_SECONDS)
 
         for _, player in ipairs(Players:GetPlayers()) do
+            -- Also catches the new UTC day for players who stay in one server past midnight.
+            PlayerProgress.RecordDailyVisit(player)
             task.spawn(PlayerProgress.Save, player)
         end
     end
@@ -10527,7 +10969,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="34">
+    <Item class="Script" referent="36">
       <Properties>
         <string name="Name">ShopService</string>
         <token name="RunContext">0</token>
@@ -11099,7 +11541,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="35">
+    <Item class="Script" referent="37">
       <Properties>
         <string name="Name">StoryService</string>
         <token name="RunContext">0</token>
@@ -11559,7 +12001,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="36">
+    <Item class="Script" referent="38">
       <Properties>
         <string name="Name">StoryWorldBuilder</string>
         <token name="RunContext">0</token>
@@ -11756,7 +12198,7 @@ end
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="37">
+    <Item class="Script" referent="39">
       <Properties>
         <string name="Name">StudyCircleService</string>
         <token name="RunContext">0</token>
@@ -12064,7 +12506,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="38">
+    <Item class="Script" referent="40">
       <Properties>
         <string name="Name">TriviaService</string>
         <token name="RunContext">0</token>
@@ -12402,15 +12844,15 @@ end)
       </Properties>
     </Item>
   </Item>
-  <Item class="StarterPlayer" referent="39">
+  <Item class="StarterPlayer" referent="41">
     <Properties>
       <string name="Name">StarterPlayer</string>
     </Properties>
-    <Item class="StarterPlayerScripts" referent="40">
+    <Item class="StarterPlayerScripts" referent="42">
       <Properties>
         <string name="Name">StarterPlayerScripts</string>
       </Properties>
-      <Item class="LocalScript" referent="41">
+      <Item class="LocalScript" referent="43">
         <Properties>
           <string name="Name">BattleCamera</string>
           <string name="Source"><![CDATA[--!strict
@@ -12445,7 +12887,7 @@ applyBattleCameraMode()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="42">
+      <Item class="LocalScript" referent="44">
         <Properties>
           <string name="Name">BattleControls</string>
           <string name="Source"><![CDATA[--!strict
@@ -12497,7 +12939,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="43">
+      <Item class="LocalScript" referent="45">
         <Properties>
           <string name="Name">BattleHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -13107,7 +13549,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="44">
+      <Item class="LocalScript" referent="46">
         <Properties>
           <string name="Name">BattleWeaponAnimation</string>
           <string name="Source"><![CDATA[--!strict
@@ -13695,7 +14137,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="45">
+      <Item class="LocalScript" referent="47">
         <Properties>
           <string name="Name">ClientBootstrap</string>
           <string name="Source"><![CDATA[--!strict
@@ -13720,7 +14162,7 @@ print(string.format(
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="46">
+      <Item class="LocalScript" referent="48">
         <Properties>
           <string name="Name">HubAmbience</string>
           <string name="Source"><![CDATA[--!strict
@@ -13963,7 +14405,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="47">
+      <Item class="LocalScript" referent="49">
         <Properties>
           <string name="Name">HubQuickButtons</string>
           <string name="Source"><![CDATA[--!strict
@@ -14190,7 +14632,7 @@ updateAvailability()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="48">
+      <Item class="LocalScript" referent="50">
         <Properties>
           <string name="Name">LearningHall</string>
           <string name="Source"><![CDATA[--!strict
@@ -14211,6 +14653,8 @@ local profileUpdated = progressFolder:WaitForChild("ProfileUpdated") :: RemoteEv
 local openLearningHall = learningFolder:WaitForChild("OpenLearningHall") :: RemoteEvent
 local submitQuiz = learningFolder:WaitForChild("SubmitQuiz") :: RemoteEvent
 local quizResult = learningFolder:WaitForChild("QuizResult") :: RemoteEvent
+local submitDailyAnswer = learningFolder:WaitForChild("SubmitDailyAnswer") :: RemoteEvent
+local dailyResult = learningFolder:WaitForChild("DailyResult") :: RemoteEvent
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -14237,12 +14681,16 @@ type Snapshot = {
     Badges: { { Id: string, DisplayName: string, Description: string, Earned: boolean } },
     Completed: { [string]: { string } },
     Stats: { [string]: number },
+    Path: { { Id: string, Title: string, Hint: string, Done: boolean } },
+    NextStep: { Title: string, Hint: string }?,
+    Daily: any,
 }
 
 local snapshot: Snapshot? = nil
-local currentUnitId: string? = nil
 local pendingLessonId: string? = nil
 local refreshCurrentView: (() -> ())? = nil
+local dailyAnswerPending = false
+local lastDailyResult: any = nil
 
 local unitById = {}
 local lessonById = {}
@@ -14470,6 +14918,7 @@ end
 local showUnit: (unitId: string) -> ()
 local showLesson: (lessonId: string, pageIndex: number) -> ()
 local showJournal: () -> ()
+local showToday: () -> ()
 
 local function showQuestion(lessonId: string, questionIndex: number, answers: { number })
     local lesson = lessonById[lessonId]
@@ -14599,7 +15048,6 @@ end
 
 showUnit = function(unitId: string)
     local unit = unitById[unitId] or IslamicStudies.Units[1]
-    currentUnitId = unit.Id
     clearContent()
 
     local done = completedSet("lesson")
@@ -14660,7 +15108,6 @@ showUnit = function(unitId: string)
 end
 
 showJournal = function()
-    currentUnitId = nil
     clearContent()
 
     local list = contentList(0)
@@ -14702,11 +15149,31 @@ showJournal = function()
         #current.Badges
     ), 15, Enum.Font.GothamMedium, COLORS.SoftInk, 2)
 
+    autoLabel(list, "Your Path", 18, Enum.Font.GothamBold, COLORS.Ink, 3)
+
+    local pathLines = {}
+
+    for index, step in ipairs(current.Path or {}) do
+        local mark = if step.Done then "[Done]" else string.format("%d.", index)
+        local line = string.format("%s  %s", mark, step.Title)
+
+        if not step.Done and current.NextStep and current.NextStep.Title == step.Title then
+            line ..= string.format("\n      Next: %s", step.Hint)
+        end
+
+        table.insert(pathLines, line)
+    end
+
+    local pathLabel = autoLabel(list, table.concat(pathLines, "\n"), 15, Enum.Font.Gotham, COLORS.Ink, 4)
+    pathLabel.LineHeight = 1.15
+
+    autoLabel(list, "Badges", 18, Enum.Font.GothamBold, COLORS.Ink, 5)
+
     local grid = Instance.new("Frame")
     grid.BackgroundTransparency = 1
     grid.AutomaticSize = Enum.AutomaticSize.Y
     grid.Size = UDim2.new(1, 0, 0, 0)
-    grid.LayoutOrder = 3
+    grid.LayoutOrder = 6
     grid.Parent = list
 
     local gridLayout = Instance.new("UIGridLayout")
@@ -14736,7 +15203,97 @@ showJournal = function()
     refreshCurrentView = showJournal
 end
 
+showToday = function()
+    clearContent()
+
+    local list = contentList(0)
+    autoLabel(list, "Today", 24, Enum.Font.GothamBold, COLORS.Ink, 1)
+
+    local daily = snapshot and snapshot.Daily
+
+    if not daily then
+        autoLabel(list, "Loading today's lesson...", 16, Enum.Font.GothamMedium, COLORS.SoftInk, 2)
+        refreshCurrentView = showToday
+        return
+    end
+
+    local streakText = if daily.Streak > 1
+        then string.format("You have visited %d days in a row. Best streak: %d days.", daily.Streak, daily.BestStreak)
+        else "Visit every day to build a streak and earn more XP each day."
+    autoLabel(list, streakText, 15, Enum.Font.GothamMedium, COLORS.SoftInk, 2)
+
+    local reflection = autoLabel(list, string.format("\"%s\"\n%s", daily.Reflection.Text, daily.Reflection.Source), 19, Enum.Font.GothamBold, COLORS.Ink, 3)
+    reflection.LineHeight = 1.15
+    autoLabel(list, daily.Reflection.Thought, 16, Enum.Font.Gotham, COLORS.Ink, 4)
+
+    autoLabel(list, string.format("Daily question  ·  from %s", daily.Question.LessonName), 15, Enum.Font.GothamBold, COLORS.SoftInk, 5)
+    autoLabel(list, daily.Question.Prompt, 19, Enum.Font.GothamBold, COLORS.Ink, 6)
+
+    local result = lastDailyResult
+
+    for optionIndex, optionText in ipairs(daily.Question.Options) do
+        local color = COLORS.Border
+
+        if result then
+            if optionIndex == result.CorrectIndex then
+                color = COLORS.Success
+            elseif optionIndex == result.SelectedIndex then
+                color = COLORS.Danger
+            else
+                color = COLORS.Locked
+            end
+        elseif daily.QuestionAnswered then
+            color = COLORS.Locked
+        end
+
+        local optionButton = button(list, optionText, color, function()
+            if daily.QuestionAnswered or dailyAnswerPending or lastDailyResult then
+                return
+            end
+
+            dailyAnswerPending = true
+            lastDailyResult = { SelectedIndex = optionIndex, Pending = true }
+            submitDailyAnswer:FireServer(optionIndex)
+
+            task.delay(6, function()
+                if dailyAnswerPending then
+                    dailyAnswerPending = false
+                    lastDailyResult = nil
+
+                    if panel.Visible and refreshCurrentView == showToday then
+                        showToday()
+                    end
+                end
+            end)
+        end)
+        optionButton.Size = UDim2.new(1, 0, 0, 46)
+        optionButton.LayoutOrder = 6 + optionIndex
+    end
+
+    local footerText
+
+    if result and not result.Pending then
+        footerText = if result.Correct
+            then string.format("Correct! +%d XP. %s", result.XPAwarded or 0, result.Explanation)
+            else string.format("Not quite. %s Come back tomorrow for a new question.", result.Explanation)
+    elseif daily.QuestionAnswered then
+        footerText = "You already answered today's question. A new one arrives tomorrow."
+    else
+        footerText = string.format("Answer correctly for +%d XP. You get one try each day.", daily.QuestionReward)
+    end
+
+    autoLabel(list, footerText, 15, Enum.Font.GothamMedium, COLORS.SoftInk, 20)
+    refreshCurrentView = showToday
+end
+
 local function buildSidebar()
+    local todayButton = button(sidebar, "Today", COLORS.Gold, function()
+        showToday()
+    end)
+    todayButton.Size = UDim2.new(1, -6, 0, 50)
+    todayButton.LayoutOrder = 0
+    todayButton.TextSize = 15
+
     for index, unit in ipairs(IslamicStudies.Units) do
         local unitButton = button(sidebar, unit.DisplayName, rgb(unit.AccentRGB), function()
             showUnit(unit.Id)
@@ -14768,20 +15325,40 @@ local function openHall(unitId: string?)
         end
     end
 
-    showUnit(unitId or currentUnitId or IslamicStudies.Units[1].Id)
+    if unitId then
+        showUnit(unitId)
+    else
+        showToday()
+    end
+
     panel.Visible = true
 end
 
 -- Opening the panel from elsewhere (the quick button toggles Visible) lands on a lesson list.
 panel:GetPropertyChangedSignal("Visible"):Connect(function()
     if panel.Visible and #content:GetChildren() <= 1 then
-        showUnit(currentUnitId or IslamicStudies.Units[1].Id)
+        showToday()
     end
 end)
 
 openLearningHall.OnClientEvent:Connect(function(payload: any)
     local unitId = if type(payload) == "table" and type(payload.UnitId) == "string" then payload.UnitId else nil
     openHall(unitId)
+end)
+
+dailyResult.OnClientEvent:Connect(function(result: any)
+    if type(result) ~= "table" then
+        return
+    end
+
+    local selected = lastDailyResult and lastDailyResult.SelectedIndex
+    dailyAnswerPending = false
+    lastDailyResult = result
+    lastDailyResult.SelectedIndex = selected
+
+    if panel.Visible and refreshCurrentView == showToday then
+        showToday()
+    end
 end)
 
 quizResult.OnClientEvent:Connect(function(result: any)
@@ -14796,6 +15373,10 @@ end)
 profileUpdated.OnClientEvent:Connect(function(payload: any)
     if type(payload) ~= "table" or type(payload.Level) ~= "number" then
         return
+    end
+
+    if snapshot and snapshot.Daily and payload.Daily and snapshot.Daily.Day ~= payload.Daily.Day then
+        lastDailyResult = nil
     end
 
     snapshot = payload
@@ -14817,7 +15398,7 @@ player:GetAttributeChangedSignal("InStory"):Connect(closeIfBusy)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="49">
+      <Item class="LocalScript" referent="51">
         <Properties>
           <string name="Name">LearningTrailHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -15016,7 +15597,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="50">
+      <Item class="LocalScript" referent="52">
         <Properties>
           <string name="Name">MainMenu</string>
           <string name="Source"><![CDATA[--!nonstrict
@@ -15537,7 +16118,7 @@ showHome()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="51">
+      <Item class="LocalScript" referent="53">
         <Properties>
           <string name="Name">MannersHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -15660,7 +16241,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="52">
+      <Item class="LocalScript" referent="54">
         <Properties>
           <string name="Name">ProgressHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -15773,11 +16354,40 @@ toastLayout.SortOrder = Enum.SortOrder.LayoutOrder
 toastLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
 toastLayout.Parent = toastStack
 
+-- A one-line "what to do next" hint from the suggested path, under the level pill.
+local nextLabel = Instance.new("TextLabel")
+nextLabel.Name = "NextStep"
+nextLabel.Position = UDim2.fromOffset(22, 74)
+nextLabel.Size = UDim2.fromOffset(300, 0)
+nextLabel.AutomaticSize = Enum.AutomaticSize.Y
+nextLabel.BackgroundColor3 = Color3.fromRGB(31, 46, 38)
+nextLabel.BackgroundTransparency = 0.3
+nextLabel.Font = Enum.Font.GothamMedium
+nextLabel.Text = ""
+nextLabel.TextColor3 = Color3.fromRGB(240, 232, 208)
+nextLabel.TextSize = 13
+nextLabel.TextWrapped = true
+nextLabel.TextXAlignment = Enum.TextXAlignment.Left
+nextLabel.Visible = false
+nextLabel.Parent = screenGui
+
+local nextPadding = Instance.new("UIPadding")
+nextPadding.PaddingTop = UDim.new(0, 6)
+nextPadding.PaddingBottom = UDim.new(0, 6)
+nextPadding.PaddingLeft = UDim.new(0, 10)
+nextPadding.PaddingRight = UDim.new(0, 10)
+nextPadding.Parent = nextLabel
+
+local nextCorner = Instance.new("UICorner")
+nextCorner.CornerRadius = UDim.new(0, 8)
+nextCorner.Parent = nextLabel
+
 local toastOrder = 0
 
 local function updateVisibility()
     local busy = player:GetAttribute("InBattle") == true or player:GetAttribute("InStory") == true
     levelPill.Visible = not busy and levelLabel.Text ~= ""
+    nextLabel.Visible = levelPill.Visible and nextLabel.Text ~= ""
 end
 
 local function applySnapshot(snapshot: any)
@@ -15787,6 +16397,12 @@ local function applySnapshot(snapshot: any)
 
     levelLabel.Text = string.format("Lv %d  ·  %s", snapshot.Level, tostring(snapshot.RankTitle or ""))
     xpLabel.Text = string.format("%d / %d XP", snapshot.XPIntoLevel or 0, snapshot.XPForNext or 0)
+
+    if type(snapshot.NextStep) == "table" then
+        nextLabel.Text = string.format("Next: %s\n%s", tostring(snapshot.NextStep.Title), tostring(snapshot.NextStep.Hint))
+    else
+        nextLabel.Text = ""
+    end
 
     local ratio = 0
 
@@ -15883,7 +16499,149 @@ requestProfile:FireServer()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="53">
+      <Item class="LocalScript" referent="55">
+        <Properties>
+          <string name="Name">ResponsiveUi</string>
+          <string name="Source"><![CDATA[--!strict
+
+-- Many panels are laid out in fixed pixel sizes that overflow phone screens. This shrinks each
+-- such panel with a UIScale just enough to keep it fully on screen, and leaves it at full size
+-- wherever it already fits.
+
+local Players = game:GetService("Players")
+
+local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+
+local MARGIN = 12
+local MIN_SCALE = 0.5
+
+-- ScreenGuis whose top-level frames use fixed pixel sizes. The main menu also moves to the
+-- center of the screen when it has to shrink, which leaves it the most room.
+local TARGETS: { [string]: { Recenter: boolean } } = {
+    MainMenu = { Recenter = true },
+    ShopMenu = { Recenter = false },
+    MannersHud = { Recenter = false },
+    TriviaHud = { Recenter = false },
+    StoryHud = { Recenter = false },
+    LearningTrailHud = { Recenter = false },
+    BattleHud = { Recenter = false },
+}
+
+type Original = { AnchorPoint: Vector2, Position: UDim2 }
+
+local originals: { [GuiObject]: Original } = {}
+
+-- Largest scale (at most 1) that keeps one axis of the frame inside the screen, given that a
+-- UIScale grows and shrinks a frame around its anchor point.
+local function fitAxis(screen: number, position: number, anchor: number, length: number): number
+    local fit = math.huge
+
+    if anchor > 0 then
+        fit = math.min(fit, (position - MARGIN) / (anchor * length))
+    end
+
+    if anchor < 1 then
+        fit = math.min(fit, (screen - MARGIN - position) / ((1 - anchor) * length))
+    end
+
+    return fit
+end
+
+local function fitFrame(screenGui: ScreenGui, frame: GuiObject, recenter: boolean)
+    local size = frame.Size
+
+    if size.X.Scale ~= 0 or size.Y.Scale ~= 0 or size.X.Offset <= 0 or size.Y.Offset <= 0 then
+        return
+    end
+
+    local screen = screenGui.AbsoluteSize
+
+    if screen.X <= 0 or screen.Y <= 0 then
+        return
+    end
+
+    local original: Original = originals[frame] or { AnchorPoint = frame.AnchorPoint, Position = frame.Position }
+    originals[frame] = original
+
+    local function scaleAt(anchorPoint: Vector2, position: UDim2): number
+        local x = position.X.Scale * screen.X + position.X.Offset
+        local y = position.Y.Scale * screen.Y + position.Y.Offset
+
+        return math.min(
+            1,
+            fitAxis(screen.X, x, anchorPoint.X, size.X.Offset),
+            fitAxis(screen.Y, y, anchorPoint.Y, size.Y.Offset)
+        )
+    end
+
+    local scale = scaleAt(original.AnchorPoint, original.Position)
+
+    if recenter and scale < 1 then
+        frame.AnchorPoint = Vector2.new(0.5, 0.5)
+        frame.Position = UDim2.fromScale(0.5, 0.5)
+        scale = scaleAt(frame.AnchorPoint, frame.Position)
+    else
+        frame.AnchorPoint = original.AnchorPoint
+        frame.Position = original.Position
+    end
+
+    local existing = frame:FindFirstChild("ResponsiveScale")
+    local uiScale: UIScale
+
+    if existing and existing:IsA("UIScale") then
+        uiScale = existing
+    else
+        uiScale = Instance.new("UIScale")
+        uiScale.Name = "ResponsiveScale"
+        uiScale.Parent = frame
+    end
+
+    uiScale.Scale = math.max(MIN_SCALE, scale)
+end
+
+local function fitScreenGui(screenGui: ScreenGui)
+    local config = TARGETS[screenGui.Name]
+
+    if not config then
+        return
+    end
+
+    for _, child in ipairs(screenGui:GetChildren()) do
+        if child:IsA("GuiObject") then
+            fitFrame(screenGui, child, config.Recenter)
+        end
+    end
+end
+
+local watched: { [ScreenGui]: boolean } = {}
+
+local function watch(instance: Instance)
+    if not instance:IsA("ScreenGui") or not TARGETS[instance.Name] or watched[instance] then
+        return
+    end
+
+    local screenGui = instance
+    watched[screenGui] = true
+
+    -- Frames are created right after the ScreenGui, so wait a frame before measuring.
+    task.defer(fitScreenGui, screenGui)
+    screenGui:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+        fitScreenGui(screenGui)
+    end)
+    screenGui.ChildAdded:Connect(function()
+        task.defer(fitScreenGui, screenGui)
+    end)
+end
+
+for _, child in ipairs(playerGui:GetChildren()) do
+    watch(child)
+end
+
+playerGui.ChildAdded:Connect(watch)
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="LocalScript" referent="56">
         <Properties>
           <string name="Name">ShopMenu</string>
           <string name="Source"><![CDATA[--!strict
@@ -16350,7 +17108,7 @@ requestShopState:FireServer()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="54">
+      <Item class="LocalScript" referent="57">
         <Properties>
           <string name="Name">StoryHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -16546,7 +17304,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="55">
+      <Item class="LocalScript" referent="58">
         <Properties>
           <string name="Name">StudyCircleHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -16781,7 +17539,7 @@ player:GetAttributeChangedSignal("InStory"):Connect(hideIfBusy)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="56">
+      <Item class="LocalScript" referent="59">
         <Properties>
           <string name="Name">TriviaHud</string>
           <string name="Source"><![CDATA[--!strict

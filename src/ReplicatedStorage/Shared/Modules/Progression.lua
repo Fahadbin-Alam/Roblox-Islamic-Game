@@ -306,6 +306,111 @@ end
 
 Progression.Badges = buildBadges()
 
+local function lessonIdsOfUnit(unitId: string): { string }
+    for _, unit in ipairs(IslamicStudies.Units) do
+        if unit.Id == unitId then
+            return idsOf(unit.Lessons)
+        end
+    end
+
+    return {}
+end
+
+local function allLessonIds(): { string }
+    local ids = {}
+
+    for _, unit in ipairs(IslamicStudies.Units) do
+        for _, lesson in ipairs(unit.Lessons) do
+            table.insert(ids, lesson.Id)
+        end
+    end
+
+    return ids
+end
+
+export type PathStep = {
+    Id: string,
+    Title: string,
+    Hint: string,
+    IsDone: (profile: Profile) -> boolean,
+}
+
+-- The suggested order through the game. Players can do anything at any time; this only
+-- powers the "Next" hint and the journal checklist so nobody wonders what to do next.
+Progression.Path = {
+    {
+        Id = "haram_walk",
+        Title = "Take the Haram Learning Walk",
+        Hint = "Start at the gold marker on the south side of the Kaaba courtyard.",
+        IsDone = function(profile)
+            return totalCompleted(profile, Progression.Categories.Trail) >= 1
+        end,
+    },
+    {
+        Id = "pillars",
+        Title = "Learn the Five Pillars",
+        Hint = "Press Learn and open The Five Pillars.",
+        IsDone = allCompleted(Progression.Categories.Lesson, lessonIdsOfUnit("pillars")),
+    },
+    {
+        Id = "first_story",
+        Title = "Finish a companion story",
+        Hint = "Open the Menu, choose Learn About Sahabis, and pick a companion.",
+        IsDone = function(profile)
+            return totalCompleted(profile, Progression.Categories.Story) >= 1
+        end,
+    },
+    {
+        Id = "badr",
+        Title = "Complete the Battle of Badr",
+        Hint = "Open the Menu and choose Battle of Badr.",
+        IsDone = allCompleted(Progression.Categories.Battle, { "badr" }),
+    },
+    {
+        Id = "prayer",
+        Title = "Learn how to pray",
+        Hint = "Press Learn and open How To Pray.",
+        IsDone = allCompleted(Progression.Categories.Lesson, lessonIdsOfUnit("prayer")),
+    },
+    {
+        Id = "manners",
+        Title = "Read every Manners Court lesson",
+        Hint = "Walk to the Manners Court and read each board.",
+        IsDone = allCompleted(Progression.Categories.Manners, idsOf(MannersLessons)),
+    },
+    {
+        Id = "uhud",
+        Title = "Complete the Battle of Uhud",
+        Hint = "Open the Menu and choose Battle of Uhud.",
+        IsDone = allCompleted(Progression.Categories.Battle, { "uhud" }),
+    },
+    {
+        Id = "study_circle",
+        Title = "Pass a study circle with a friend",
+        Hint = "Stand by the Islamic Studies podium in the Trivia Court with a friend and start a circle.",
+        IsDone = function(profile)
+            return (profile.Stats.StudyCircles or 0) >= 1
+        end,
+    },
+    {
+        Id = "all_lessons",
+        Title = "Finish every Islamic Studies lesson",
+        Hint = "Press Learn and complete the lessons you have left.",
+        IsDone = allCompleted(Progression.Categories.Lesson, allLessonIds()),
+    },
+} :: { PathStep }
+
+-- The first unfinished step, or nil when the whole path is done.
+function Progression.GetNextStep(profile: Profile): PathStep?
+    for _, step in ipairs(Progression.Path) do
+        if not step.IsDone(profile) then
+            return step
+        end
+    end
+
+    return nil
+end
+
 -- Returns why a battle is still locked for this profile, or nil when the player may join.
 -- A missing profile (still loading, or the DataStore is down) never locks anyone out.
 function Progression.GetBattleLockReason(profile: Profile?, scenarioId: string): string?
@@ -388,8 +493,23 @@ function Progression.BuildSnapshot(profile: Profile)
         completed[category] = ids
     end
 
+    local path = {}
+
+    for _, step in ipairs(Progression.Path) do
+        table.insert(path, {
+            Id = step.Id,
+            Title = step.Title,
+            Hint = step.Hint,
+            Done = step.IsDone(profile),
+        })
+    end
+
+    local nextStep = Progression.GetNextStep(profile)
+
     return {
         XP = profile.XP,
+        Path = path,
+        NextStep = if nextStep then { Title = nextStep.Title, Hint = nextStep.Hint } else nil,
         Level = levelInfo.Level,
         XPIntoLevel = levelInfo.XPIntoLevel,
         XPForNext = levelInfo.XPForNext,
