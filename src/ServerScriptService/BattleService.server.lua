@@ -10,7 +10,9 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BattleScenarios = require(Shared.Data.BattleScenarios)
 local TravelRoute = require(Shared.Data.TravelRoute)
+local Progression = require(Shared.Modules.Progression)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
+local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local battleFolder = remotesFolder:WaitForChild("Battle")
 local shopFolder = remotesFolder:WaitForChild("Shop")
@@ -28,6 +30,7 @@ local promptConnections = {}
 local startSession
 local startFinalBossPhase
 local COMBATANT_TAG = "BattleCombatant"
+local GOLD_ACCENT = Color3.fromRGB(193, 162, 86)
 
 for _, scenario in ipairs(BattleScenarios) do
     scenarioById[scenario.Id] = scenario
@@ -1244,6 +1247,7 @@ local function endSession(session, winnerTeamId: string?, reason: string)
 
         for _, player in ipairs(session.Players) do
             awardKnowledgeTokens(player, session.Scenario.Rewards.KnowledgeTokens or 0, string.format("%s complete", session.Scenario.DisplayName))
+            PlayerProgress.RecordCompletion(player, "battle", session.Scenario.Id, session.Scenario.DisplayName)
             clearPlayerBattleState(player)
             returnPlayerToHub(player, 0.15)
         end
@@ -1254,6 +1258,16 @@ local function endSession(session, winnerTeamId: string?, reason: string)
             startQueueCountdown(session.Scenario.Id)
         end
     end)
+end
+
+local function getFinalBossConfig(session)
+    local finalBossPhase = session.Scenario.FinalBossPhase
+
+    if not finalBossPhase or finalBossPhase.Enabled ~= true then
+        return nil
+    end
+
+    return finalBossPhase
 end
 
 local function evaluateVictory(session)
@@ -1317,16 +1331,6 @@ end
 
 local function getCommanderConfig(session)
     return session.Scenario.Commander
-end
-
-local function getFinalBossConfig(session)
-    local finalBossPhase = session.Scenario.FinalBossPhase
-
-    if not finalBossPhase or finalBossPhase.Enabled ~= true then
-        return nil
-    end
-
-    return finalBossPhase
 end
 
 local function shouldAssignCommander(session, teamId: string): boolean
@@ -1676,6 +1680,13 @@ local function joinQueue(player: Player, scenarioId: string)
 
     if playerToSession[player] then
         sendMessage({ player }, "You are already inside a battle round.", 3)
+        return
+    end
+
+    local lockReason = Progression.GetBattleLockReason(PlayerProgress.Get(player), scenarioId)
+
+    if lockReason then
+        sendMessage({ player }, lockReason, 5)
         return
     end
 

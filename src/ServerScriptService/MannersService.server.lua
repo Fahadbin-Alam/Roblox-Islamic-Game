@@ -7,6 +7,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local MannersLessons = require(Shared.Data.MannersLessons)
 local TravelRoute = require(Shared.Data.TravelRoute)
+local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local mannersFolder = remotesFolder:WaitForChild("Manners")
@@ -35,6 +36,11 @@ local function showLesson(player: Player, lessonId: string)
         AccentColor = lesson.AccentColor,
         LinkedStoryId = lesson.LinkedStoryId,
     })
+
+    -- Reading a manners lesson counts once; reopening it is free.
+    if not PlayerProgress.HasCompleted(player, "manners", lesson.Id) then
+        PlayerProgress.RecordCompletion(player, "manners", lesson.Id, lesson.DisplayName)
+    end
 end
 
 local function connectPrompt(prompt: ProximityPrompt)

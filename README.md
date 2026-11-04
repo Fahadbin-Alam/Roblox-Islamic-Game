@@ -71,6 +71,30 @@ The best first playable version is:
 - [src/ServerScriptService/GameBootstrap.server.lua](src/ServerScriptService/GameBootstrap.server.lua)
 - [src/StarterPlayer/StarterPlayerScripts/ClientBootstrap.client.lua](src/StarterPlayer/StarterPlayerScripts/ClientBootstrap.client.lua)
 
+## Progression And Islamic Studies
+
+- `src/ReplicatedStorage/Shared/Data/IslamicStudies.lua` holds the Islamic Studies units: the Five Pillars, how to pray (wudu and the steps of salah), daily duas, the six articles of iman, stories of the Prophets and the Seerah told through narration only, and the Eids and special days. Every lesson ends with a checkpoint quiz that the server grades.
+- `src/ReplicatedStorage/Shared/Modules/Progression.lua` holds the rules: XP per activity, the level curve, rank titles, and badges.
+- `src/ServerScriptService/Modules/PlayerProgress.lua` saves each player's XP, completions, badges, and stats to the `PlayerProgress_v1` DataStore. Other server scripts call `PlayerProgress.RecordCompletion(player, category, id, name)` when a player finishes a story, battle, lesson, learning walk, or manners lesson.
+- Players open the hall from the `Learn` button or the Islamic Studies podium in the Trivia Court. The `My Journal` tab shows level, stats, and badges.
+- The Islamic Studies podium in the Trivia Court also starts a study circle: everyone standing nearby answers one lesson's quiz together and passes or fails as a group (`StudyCircleService.server.lua`).
+- The Battle of Uhud unlocks after the Battle of Badr or at level 3 (`Unlock` in `BattleScenarios.lua`).
+- Daily return loop (`Shared/Modules/Daily.lua`, `Shared/Data/DailyReflections.lua`): each UTC day brings one cited reflection and one review question in the hall's **Today** tab, and a visit streak that grows the daily visit XP for up to a week.
+- A suggested path (`Progression.Path`) powers the "Next" hint under the level bar and the checklist in **My Journal**.
+- Finishing a path step is a quest: it pays a small XP bonus once. Three guide teachers (`Data/Guides.lua`, built by `GuideService`) stand at the Kaaba spawn, the Trivia Court, and the Story Court. Talking to one shows the next quest and a button that teleports the player there or opens the right lesson. The guides are present-day teachers, never historical figures.
+- Level and XP show in the Roblox player list (leaderstats), and the **Top Learners** board beside spawn ranks the top 10 by XP across all servers (`LeaderboardService`, OrderedDataStore `TopLearnersXP_v1`). Profiles that failed to load never post a score.
+- `ResponsiveUi.client.lua` shrinks fixed-size menus so they fit on phone screens.
+- To also award real Roblox badges, create them in Creator Hub and set `RobloxBadgeId` on the matching badge in `Progression.lua`.
+
+Content added to `IslamicStudies.lua` should cite its Qur'an or hadith source, stay general where schools of thought differ, and never depict a Prophet.
+
+## Automated Checks
+
+`.github/workflows/checks.yml` runs on every pull request:
+
+- `tests/luau/run.sh <luau>` runs unit tests for the shared data and progression rules outside Studio.
+- `tests/analyze.sh <luau-lsp> <rojo> <globalTypes.d.luau>` type-checks every script against the Roblox API and fails on syntax errors, unknown globals, and broken requires.
+
 ## Next Build Steps
 
 1. Open `build.rbxlx` in Roblox Studio and playtest the generated hub, story prompts, battle gates, manners court, shop, and teleport menu.
