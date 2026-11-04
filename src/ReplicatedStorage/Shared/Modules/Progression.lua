@@ -37,6 +37,7 @@ Progression.Categories = {
     Battle = "battle",
     Trail = "trail",
     Manners = "manners",
+    Path = "path",
 }
 
 -- XP for the first completion of each kind of activity. Repeats give RepeatMultiplier of it,
@@ -49,6 +50,7 @@ Progression.Rewards = {
     manners = 25,
     TriviaCorrect = 4,
     StudyCircle = 40,
+    path = 25,
     RepeatMultiplier = 0.25,
 }
 
@@ -332,6 +334,10 @@ export type PathStep = {
     Id: string,
     Title: string,
     Hint: string,
+    -- Where a guide can send the player for this step: a TravelRoute destination to
+    -- teleport to, or an Islamic Studies unit to open.
+    Destination: string?,
+    HallUnitId: string?,
     IsDone: (profile: Profile) -> boolean,
 }
 
@@ -340,6 +346,7 @@ export type PathStep = {
 Progression.Path = {
     {
         Id = "haram_walk",
+        Destination = "kaaba_courtyard",
         Title = "Take the Haram Learning Walk",
         Hint = "Start at the gold marker on the south side of the Kaaba courtyard.",
         IsDone = function(profile)
@@ -348,12 +355,14 @@ Progression.Path = {
     },
     {
         Id = "pillars",
+        HallUnitId = "pillars",
         Title = "Learn the Five Pillars",
         Hint = "Press Learn and open The Five Pillars.",
         IsDone = allCompleted(Progression.Categories.Lesson, lessonIdsOfUnit("pillars")),
     },
     {
         Id = "first_story",
+        Destination = "story_court",
         Title = "Finish a companion story",
         Hint = "Open the Menu, choose Learn About Sahabis, and pick a companion.",
         IsDone = function(profile)
@@ -362,30 +371,35 @@ Progression.Path = {
     },
     {
         Id = "badr",
+        Destination = "badr_gate",
         Title = "Complete the Battle of Badr",
         Hint = "Open the Menu and choose Battle of Badr.",
         IsDone = allCompleted(Progression.Categories.Battle, { "badr" }),
     },
     {
         Id = "prayer",
+        HallUnitId = "prayer",
         Title = "Learn how to pray",
         Hint = "Press Learn and open How To Pray.",
         IsDone = allCompleted(Progression.Categories.Lesson, lessonIdsOfUnit("prayer")),
     },
     {
         Id = "manners",
+        Destination = "manners_court",
         Title = "Read every Manners Court lesson",
         Hint = "Walk to the Manners Court and read each board.",
         IsDone = allCompleted(Progression.Categories.Manners, idsOf(MannersLessons)),
     },
     {
         Id = "uhud",
+        Destination = "uhud_gate",
         Title = "Complete the Battle of Uhud",
         Hint = "Open the Menu and choose Battle of Uhud.",
         IsDone = allCompleted(Progression.Categories.Battle, { "uhud" }),
     },
     {
         Id = "study_circle",
+        Destination = "trivia_court",
         Title = "Pass a study circle with a friend",
         Hint = "Stand by the Islamic Studies podium in the Trivia Court with a friend and start a circle.",
         IsDone = function(profile)
@@ -399,6 +413,20 @@ Progression.Path = {
         IsDone = allCompleted(Progression.Categories.Lesson, allLessonIds()),
     },
 } :: { PathStep }
+
+-- Path steps the profile has finished but not yet been rewarded for.
+function Progression.FindNewlyCompletedSteps(profile: Profile): { PathStep }
+    local rewarded = profile.Completed[Progression.Categories.Path] or {}
+    local steps = {}
+
+    for _, step in ipairs(Progression.Path) do
+        if not rewarded[step.Id] and step.IsDone(profile) then
+            table.insert(steps, step)
+        end
+    end
+
+    return steps
+end
 
 -- The first unfinished step, or nil when the whole path is done.
 function Progression.GetNextStep(profile: Profile): PathStep?
@@ -500,6 +528,8 @@ function Progression.BuildSnapshot(profile: Profile)
             Id = step.Id,
             Title = step.Title,
             Hint = step.Hint,
+            Destination = step.Destination,
+            HallUnitId = step.HallUnitId,
             Done = step.IsDone(profile),
         })
     end
@@ -509,7 +539,9 @@ function Progression.BuildSnapshot(profile: Profile)
     return {
         XP = profile.XP,
         Path = path,
-        NextStep = if nextStep then { Title = nextStep.Title, Hint = nextStep.Hint } else nil,
+        NextStep = if nextStep
+            then { Id = nextStep.Id, Title = nextStep.Title, Hint = nextStep.Hint, Destination = nextStep.Destination, HallUnitId = nextStep.HallUnitId }
+            else nil,
         Level = levelInfo.Level,
         XPIntoLevel = levelInfo.XPIntoLevel,
         XPForNext = levelInfo.XPForNext,

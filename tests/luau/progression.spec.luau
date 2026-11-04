@@ -109,3 +109,47 @@ test("path suggests the first unfinished step", function()
     expectEqual(snapshot.NextStep.Title, Progression.Path[2].Title, "snapshot next step")
     expectEqual(snapshot.Path[1].IsDone, nil, "no functions in path")
 end)
+
+test("path steps are rewarded once and point somewhere real", function()
+    local TravelRoute = load("Data/TravelRoute")
+    local unitIds = {}
+
+    for _, unit in ipairs(IslamicStudies.Units) do
+        unitIds[unit.Id] = true
+    end
+
+    for _, step in ipairs(Progression.Path) do
+        if step.Destination then
+            assert(TravelRoute.GetDestinationById(step.Destination), "unknown destination for " .. step.Id)
+        end
+
+        if step.HallUnitId then
+            assert(unitIds[step.HallUnitId], "unknown unit for " .. step.Id)
+        end
+    end
+
+    local profile = Progression.NewProfile()
+    expectEqual(#Progression.FindNewlyCompletedSteps(profile), 0, "nothing done yet")
+
+    profile.Completed.trail = { kaaba = true }
+    local done = Progression.FindNewlyCompletedSteps(profile)
+    expectEqual(#done, 1, "trail step done")
+    expectEqual(done[1].Id, "haram_walk", "first step")
+
+    profile.Completed.path = { haram_walk = true }
+    expectEqual(#Progression.FindNewlyCompletedSteps(profile), 0, "already rewarded")
+    expectEqual((Progression.GetNextStep(profile) :: any).Id, "pillars", "next step")
+end)
+
+test("guides stand at real destinations", function()
+    local Guides = load("Data/Guides")
+    local TravelRoute = load("Data/TravelRoute")
+    local seen = {}
+
+    for _, guide in ipairs(Guides) do
+        assert(not seen[guide.Id], "duplicate guide " .. guide.Id)
+        seen[guide.Id] = true
+        assert(TravelRoute.GetDestinationById(guide.Destination), "unknown destination for " .. guide.Id)
+        assert(#guide.Sayings > 0, "guide has sayings")
+    end
+end)

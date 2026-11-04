@@ -46,8 +46,33 @@ local function keyFor(userId: number): string
     return string.format("player_%d", userId)
 end
 
+local function setLeaderstat(player: Player, name: string, value: number)
+    local leaderstats = player:FindFirstChild("leaderstats")
+
+    if not leaderstats then
+        local folder = Instance.new("Folder")
+        folder.Name = "leaderstats"
+        folder.Parent = player
+        leaderstats = folder
+    end
+
+    local stat = (leaderstats :: Instance):FindFirstChild(name)
+
+    if not stat or not stat:IsA("IntValue") then
+        local intValue = Instance.new("IntValue")
+        intValue.Name = name
+        intValue.Parent = leaderstats
+        stat = intValue
+    end
+
+    (stat :: IntValue).Value = value
+end
+
 local function applyAttributes(player: Player, profile: Profile)
     local levelInfo = Progression.GetLevelInfo(profile.XP)
+    -- Shows each player's level and XP in the Roblox player list.
+    setLeaderstat(player, "Level", levelInfo.Level)
+    setLeaderstat(player, "XP", profile.XP)
     player:SetAttribute("Level", levelInfo.Level)
     player:SetAttribute("XP", profile.XP)
     player:SetAttribute("RankTitle", Progression.GetRankTitle(levelInfo.Level))
@@ -90,8 +115,24 @@ local function awardNewBadges(player: Player, profile: Profile)
     end
 end
 
+local function awardCompletedQuests(player: Player, profile: Profile)
+    local rewarded = profile.Completed[Progression.Categories.Path]
+
+    if not rewarded then
+        rewarded = {}
+        profile.Completed[Progression.Categories.Path] = rewarded
+    end
+
+    for _, step in ipairs(Progression.FindNewlyCompletedSteps(profile)) do
+        -- Mark first: AddXP calls back into changed(), which must not reward the step again.
+        rewarded[step.Id] = true
+        PlayerProgress.AddXP(player, Progression.GetCompletionReward(Progression.Categories.Path, true), string.format("Quest complete: %s", step.Title))
+    end
+end
+
 local function changed(player: Player, profile: Profile)
     dirty[player] = true
+    awardCompletedQuests(player, profile)
     awardNewBadges(player, profile)
     applyAttributes(player, profile)
     PlayerProgress.SendSnapshot(player)
@@ -103,6 +144,11 @@ end
 
 function PlayerProgress.IsLoaded(player: Player): boolean
     return profiles[player] ~= nil
+end
+
+-- True when the profile loaded from the DataStore and will be saved, so its numbers are real.
+function PlayerProgress.IsSaveable(player: Player): boolean
+    return profiles[player] ~= nil and store ~= nil and not unsaveable[player]
 end
 
 function PlayerProgress.HasCompleted(player: Player, category: string, id: string): boolean

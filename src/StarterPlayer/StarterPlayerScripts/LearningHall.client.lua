@@ -704,6 +704,14 @@ panel:GetPropertyChangedSignal("Visible"):Connect(function()
     end
 end)
 
+-- Other client scripts (the guide dialogue) open the hall through this, optionally on a unit.
+local openRequest = Instance.new("BindableEvent")
+openRequest.Name = "Open"
+openRequest.Parent = screenGui
+openRequest.Event:Connect(function(unitId: any)
+    openHall(if type(unitId) == "string" then unitId else nil)
+end)
+
 openLearningHall.OnClientEvent:Connect(function(payload: any)
     local unitId = if type(payload) == "table" and type(payload.UnitId) == "string" then payload.UnitId else nil
     openHall(unitId)

@@ -1691,3 +1691,6 @@ spawnLocation.Transparency = 1
 spawnLocation.CanCollide = true
 spawnLocation.CFrame = CFrame.new(meccaCenter + Vector3.new(0, 5, 92))
 spawnLocation.Parent = geometryFolder
+
+-- Lets scripts that place things on the finished hub (guides, the leaderboard) know it is ready.
+worldFolder:SetAttribute("Built", true)
