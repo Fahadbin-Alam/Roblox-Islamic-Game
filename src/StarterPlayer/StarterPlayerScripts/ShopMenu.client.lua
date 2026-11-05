@@ -335,6 +335,10 @@ local function rebuildCatalog()
 
         if skinDefinition.UnlockType == "GamePass" then
             unlockText = owned and "Unlocked from the shop." or "Unlock this skin through its matching pass above."
+        elseif skinDefinition.UnlockType == "Level" then
+            unlockText = if owned
+                then string.format("Earned by reaching level %d.", skinDefinition.UnlockLevel)
+                else string.format("Free reward: reach level %d to unlock it.", skinDefinition.UnlockLevel)
         end
 
         createCard(skinDefinition.DisplayName, unlockText, buttonText, buttonColor, function()

@@ -20,6 +20,8 @@ local requestProfile = progressFolder:WaitForChild("RequestProfile") :: RemoteEv
 local openLearningHall = learningFolder:WaitForChild("OpenLearningHall") :: RemoteEvent
 local submitQuiz = learningFolder:WaitForChild("SubmitQuiz") :: RemoteEvent
 local quizResult = learningFolder:WaitForChild("QuizResult") :: RemoteEvent
+local submitOrder = learningFolder:WaitForChild("SubmitOrder") :: RemoteEvent
+local orderResult = learningFolder:WaitForChild("OrderResult") :: RemoteEvent
 local submitDailyAnswer = learningFolder:WaitForChild("SubmitDailyAnswer") :: RemoteEvent
 local dailyResult = learningFolder:WaitForChild("DailyResult") :: RemoteEvent
 
@@ -99,6 +101,58 @@ submitQuiz.OnServerEvent:Connect(function(player: Player, lessonId: any, answers
     end
 
     quizResult:FireClient(player, result)
+end)
+
+-- Grades a lesson's order puzzle. The client sends step numbers (indexes into
+-- lesson.Order.Steps) in the order the player placed them.
+submitOrder.OnServerEvent:Connect(function(player: Player, lessonId: any, placed: any)
+    if typeof(lessonId) ~= "string" or typeof(placed) ~= "table" then
+        return
+    end
+
+    local now = os.clock()
+
+    if now - (lastSubmitAt[player] or 0) < SUBMIT_COOLDOWN_SECONDS then
+        return
+    end
+
+    lastSubmitAt[player] = now
+
+    local lesson = lessonById[lessonId]
+    local puzzle = lesson and lesson.Order
+
+    if not lesson or not puzzle then
+        return
+    end
+
+    local inPlace = {}
+    local correctCount = 0
+
+    for index = 1, #puzzle.Steps do
+        local right = placed[index] == index
+        inPlace[index] = right
+
+        if right then
+            correctCount += 1
+        end
+    end
+
+    local solved = correctCount == #puzzle.Steps
+    local xpAwarded = 0
+
+    if solved then
+        local firstTime = PlayerProgress.RecordCompletion(player, Progression.Categories.Order, lesson.Id, string.format("%s puzzle", lesson.DisplayName))
+        xpAwarded = Progression.GetCompletionReward(Progression.Categories.Order, firstTime)
+    end
+
+    orderResult:FireClient(player, {
+        LessonId = lesson.Id,
+        Solved = solved,
+        InPlace = inPlace,
+        CorrectCount = correctCount,
+        Total = #puzzle.Steps,
+        XPAwarded = xpAwarded,
+    })
 end)
 
 submitDailyAnswer.OnServerEvent:Connect(function(player: Player, answerIndex: any)

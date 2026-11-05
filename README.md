@@ -83,6 +83,9 @@ The best first playable version is:
 - A suggested path (`Progression.Path`) powers the "Next" hint under the level bar and the checklist in **My Journal**.
 - Finishing a path step is a quest: it pays a small XP bonus once. Three guide teachers (`Data/Guides.lua`, built by `GuideService`) stand at the Kaaba spawn, the Trivia Court, and the Story Court. Talking to one shows the next quest and a button that teleports the player there or opens the right lesson. The guides are present-day teachers, never historical figures.
 - Level and XP show in the Roblox player list (leaderstats), and the **Top Learners** board beside spawn ranks the top 10 by XP across all servers (`LeaderboardService`, OrderedDataStore `TopLearnersXP_v1`). Profiles that failed to load never post a score.
+- Some lessons end with an **order puzzle** (`Order` in `IslamicStudies.lua`): put the steps of wudu or salah, the Prophets, or Seerah events back in order. The server grades it (`SubmitOrder`) and pays XP once per puzzle; solving all of them earns the "In The Right Order" badge.
+- Each player's level and rank title float above their head in the hub (`RankTagService`).
+- Three battle outfits unlock for free at levels 3, 6, and 10 (`UnlockType = "Level"` in `ShopCatalog.lua`); equip them from the Shop.
 - `ResponsiveUi.client.lua` shrinks fixed-size menus so they fit on phone screens.
 - To also award real Roblox badges, create them in Creator Hub and set `RobloxBadgeId` on the matching badge in `Progression.lua`.
 
