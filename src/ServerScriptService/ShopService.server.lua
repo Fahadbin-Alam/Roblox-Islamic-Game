@@ -12,6 +12,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ShopCatalog = require(Shared.Data.ShopCatalog)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
+local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 
 local shopFolder = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Shop")
 local requestShopState = shopFolder:WaitForChild("RequestShopState") :: RemoteEvent
@@ -85,7 +86,13 @@ local function sendFeedback(player: Player, text: string, tone: string?)
     })
 end
 
-local function getOwnedSkins(ownedPasses: { [string]: boolean }): { [string]: boolean }
+local function playerLevel(player: Player): number
+    local level = player:GetAttribute("Level")
+
+    return if type(level) == "number" then level else 0
+end
+
+local function getOwnedSkins(player: Player, ownedPasses: { [string]: boolean }): { [string]: boolean }
     local ownedSkins = {
         default = true,
     }
@@ -93,25 +100,37 @@ local function getOwnedSkins(ownedPasses: { [string]: boolean }): { [string]: bo
     for skinId, skinDefinition in pairs(ShopCatalog.SkinDefinitions) do
         if skinDefinition.UnlockType == "GamePass" and ownedPasses[skinDefinition.UnlockKey] then
             ownedSkins[skinId] = true
+        elseif skinDefinition.UnlockType == "Level" and playerLevel(player) >= (skinDefinition.UnlockLevel or math.huge) then
+            ownedSkins[skinId] = true
         end
     end
 
     return ownedSkins
 end
 
-local function sanitizeEquippedSkin(profile, ownedPasses: { [string]: boolean })
-    local ownedSkins = getOwnedSkins(ownedPasses)
+local function sanitizeEquippedSkin(player: Player, profile, ownedPasses: { [string]: boolean })
+    local ownedSkins = getOwnedSkins(player, ownedPasses)
 
-    if not ownedSkins[profile.EquippedSkin] then
-        profile.EquippedSkin = "default"
+    if ownedSkins[profile.EquippedSkin] then
+        return
     end
+
+    -- Level skins are only taken off once the player's real level is known, so a slow or
+    -- failed progress load never strips a skin they earned.
+    local definition = ShopCatalog.SkinDefinitions[profile.EquippedSkin]
+
+    if definition and definition.UnlockType == "Level" and not PlayerProgress.IsSaveable(player) then
+        return
+    end
+
+    profile.EquippedSkin = "default"
 end
 
 local function applyPlayerAttributes(player: Player)
     local profile = playerProfiles[player] or buildDefaultProfile()
     local ownedPasses = playerPassOwnership[player] or {}
 
-    sanitizeEquippedSkin(profile, ownedPasses)
+    sanitizeEquippedSkin(player, profile, ownedPasses)
     playerProfiles[player] = profile
 
     player:SetAttribute("EquippedBattleSkin", profile.EquippedSkin)
@@ -184,7 +203,7 @@ end
 local function sendShopState(player: Player, statusText: string?)
     local profile = playerProfiles[player] or buildDefaultProfile()
     local ownedPasses = playerPassOwnership[player] or {}
-    local ownedSkins = getOwnedSkins(ownedPasses)
+    local ownedSkins = getOwnedSkins(player, ownedPasses)
 
     shopStateEvent:FireClient(player, {
         OwnedPassKeys = listOwnedKeys(ownedPasses),
@@ -323,7 +342,7 @@ local function tryEquipSkin(player: Player, skinId: string)
         return
     end
 
-    local ownedSkins = getOwnedSkins(ownedPasses)
+    local ownedSkins = getOwnedSkins(player, ownedPasses)
 
     if not ownedSkins[skinId] then
         sendFeedback(player, "You do not own that skin yet.", "warning")

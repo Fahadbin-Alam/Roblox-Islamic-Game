@@ -38,6 +38,7 @@ Progression.Categories = {
     Trail = "trail",
     Manners = "manners",
     Path = "path",
+    Order = "order",
 }
 
 -- XP for the first completion of each kind of activity. Repeats give RepeatMultiplier of it,
@@ -51,6 +52,7 @@ Progression.Rewards = {
     TriviaCorrect = 4,
     StudyCircle = 40,
     path = 25,
+    order = 30,
     RepeatMultiplier = 0.25,
 }
 
@@ -234,6 +236,24 @@ local function buildBadges(): { Badge }
             IsEarned = allCompleted(Progression.Categories.Lesson, idsOf(unit.Lessons)),
         })
     end
+
+    local orderLessonIds = {}
+
+    for _, unit in ipairs(IslamicStudies.Units) do
+        for _, lesson in ipairs(unit.Lessons) do
+            if lesson.Order then
+                table.insert(orderLessonIds, lesson.Id)
+            end
+        end
+    end
+
+    table.insert(badges, {
+        Id = "puzzle_master",
+        DisplayName = "In The Right Order",
+        Description = "Solve every order puzzle in the Islamic Studies hall.",
+        RobloxBadgeId = 0,
+        IsEarned = allCompleted(Progression.Categories.Order, orderLessonIds),
+    })
 
     table.insert(badges, {
         Id = "companion_friend",

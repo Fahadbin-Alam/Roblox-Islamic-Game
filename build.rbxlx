@@ -1249,12 +1249,21 @@ export type QuizQuestion = {
     Explanation: string,
 }
 
+-- An optional bonus puzzle: put the steps back in the right order.
+export type OrderPuzzle = {
+    Prompt: string,
+    -- Listed in the correct order. The hall shuffles them for the player.
+    Steps: { string },
+    Explanation: string,
+}
+
 export type Lesson = {
     Id: string,
     DisplayName: string,
     Summary: string,
     Pages: { string },
     Quiz: { QuizQuestion },
+    Order: OrderPuzzle?,
 }
 
 export type Unit = {
@@ -1485,6 +1494,20 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         "8) Wash your right foot to the ankle, then the left, three times each. Wudu is broken by things like using the toilet or deep sleep, so renew it before the next prayer.",
                         "Details can differ slightly between schools of thought. Ask a parent, teacher, or imam to show you the way your community follows.",
                     },
+                    Order = {
+                        Prompt = "Put the steps of wudu in order.",
+                        Steps = {
+                            "Intention and Bismillah",
+                            "Wash the hands",
+                            "Rinse the mouth",
+                            "Rinse the nose",
+                            "Wash the face",
+                            "Wash the arms to the elbows, right first",
+                            "Wipe the head and ears",
+                            "Wash the feet to the ankles, right first",
+                        },
+                        Explanation = "This is the order taught in the lesson, following Qur'an 5:6 and the Sunnah.",
+                    },
                     Quiz = {
                         {
                             Prompt = "What do you say when beginning wudu?",
@@ -1525,6 +1548,20 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         "6) Prostration (sujud): with forehead and nose, palms, knees, and toes on the ground, say 'Subhana Rabbiyal-A'la' (Glory be to my Lord, the Most High). Sit briefly, then make a second sujud.",
                         "That completes one rak'ah. After every two rak'ahs, and at the end, you sit and recite the tashahhud. The prayer ends by turning the head right then left saying 'As-salamu 'alaykum wa rahmatullah'.",
                         "Small details differ between schools of thought. Learn the full prayer with a trusted teacher or imam, and practice with your family.",
+                    },
+                    Order = {
+                        Prompt = "Put the steps of one rak'ah and the end of the prayer in order.",
+                        Steps = {
+                            "Face the qiblah with the intention",
+                            "Opening takbir: Allahu Akbar",
+                            "Stand and recite Al-Fatihah",
+                            "Bow in ruku'",
+                            "Rise: Sami'a Allahu liman hamidah",
+                            "Prostrate in sujud twice",
+                            "Sit for the tashahhud",
+                            "End with salam, right then left",
+                        },
+                        Explanation = "Each rak'ah repeats standing, ruku', rising, and two sujud. The tashahhud and salam come at the end.",
                     },
                     Quiz = {
                         {
@@ -1942,6 +1979,19 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         "Muslims love and believe in Isa, peace be upon him, as one of the greatest messengers of Allah.",
                         "Lesson: miracles come only by Allah's permission, and the prophets always pointed people to worship Allah alone.",
                     },
+                    Order = {
+                        Prompt = "Put these Prophets in the order they lived, earliest first.",
+                        Steps = {
+                            "Adam",
+                            "Nuh",
+                            "Ibrahim",
+                            "Yusuf",
+                            "Musa",
+                            "Sulayman",
+                            "Isa",
+                        },
+                        Explanation = "Adam was the first human. Yusuf was Ibrahim's great-grandson, Musa came after Yusuf's family settled in Egypt, Sulayman was the son of Dawud, and Isa came last before Muhammad, peace be upon them all.",
+                    },
                     Quiz = {
                         {
                             Prompt = "What did baby Isa say from the cradle?",
@@ -2133,6 +2183,20 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         "In his sermon he reminded the people that their lives, property, and honour are sacred, told them to treat women kindly, and asked them to convey the message to those who were absent.",
                         "He passed away in Madinah in 11 AH (632 CE). His message lives on in the Qur'an and his Sunnah.",
                         "Lesson: every Muslim helps carry the message forward by learning it and living it.",
+                    },
+                    Order = {
+                        Prompt = "Put these events from the Seerah in order, earliest first.",
+                        Steps = {
+                            "Birth in Makkah, in the Year of the Elephant",
+                            "First revelation in the cave of Hira",
+                            "The Hijrah to Madinah",
+                            "The Battle of Badr",
+                            "The Battle of Uhud",
+                            "The Treaty of Hudaybiyyah",
+                            "The Conquest of Makkah",
+                            "The Farewell Hajj",
+                        },
+                        Explanation = "Birth around 570 CE, first revelation at age 40, Hijrah in 1 AH, Badr in 2 AH, Uhud in 3 AH, Hudaybiyyah in 6 AH, the Conquest in 8 AH, and the Farewell Hajj in 10 AH.",
                     },
                     Quiz = {
                         {
@@ -2413,6 +2477,34 @@ local ShopCatalog = {
             SecondaryColor = Color3.fromRGB(72, 72, 72),
             AccentColor = Color3.fromRGB(188, 165, 116),
             CapeColor = Color3.fromRGB(240, 237, 230),
+        },
+        -- Earned by learning, never bought: reaching these levels unlocks them for free.
+        student_robe = {
+            DisplayName = "Student's Robe",
+            UnlockType = "Level",
+            UnlockLevel = 3,
+            PrimaryColor = Color3.fromRGB(92, 119, 82),
+            SecondaryColor = Color3.fromRGB(236, 230, 214),
+            AccentColor = Color3.fromRGB(193, 162, 86),
+            CapeColor = Color3.fromRGB(70, 96, 64),
+        },
+        seeker_of_knowledge = {
+            DisplayName = "Seeker Of Knowledge",
+            UnlockType = "Level",
+            UnlockLevel = 6,
+            PrimaryColor = Color3.fromRGB(58, 84, 120),
+            SecondaryColor = Color3.fromRGB(240, 236, 224),
+            AccentColor = Color3.fromRGB(214, 180, 98),
+            CapeColor = Color3.fromRGB(40, 60, 92),
+        },
+        scholars_companion = {
+            DisplayName = "Scholar's Companion",
+            UnlockType = "Level",
+            UnlockLevel = 10,
+            PrimaryColor = Color3.fromRGB(245, 241, 230),
+            SecondaryColor = Color3.fromRGB(121, 94, 63),
+            AccentColor = Color3.fromRGB(226, 190, 104),
+            CapeColor = Color3.fromRGB(176, 140, 62),
         },
         desert_commander = {
             DisplayName = "Desert Commander",
@@ -2939,6 +3031,7 @@ Progression.Categories = {
     Trail = "trail",
     Manners = "manners",
     Path = "path",
+    Order = "order",
 }
 
 -- XP for the first completion of each kind of activity. Repeats give RepeatMultiplier of it,
@@ -2952,6 +3045,7 @@ Progression.Rewards = {
     TriviaCorrect = 4,
     StudyCircle = 40,
     path = 25,
+    order = 30,
     RepeatMultiplier = 0.25,
 }
 
@@ -3135,6 +3229,24 @@ local function buildBadges(): { Badge }
             IsEarned = allCompleted(Progression.Categories.Lesson, idsOf(unit.Lessons)),
         })
     end
+
+    local orderLessonIds = {}
+
+    for _, unit in ipairs(IslamicStudies.Units) do
+        for _, lesson in ipairs(unit.Lessons) do
+            if lesson.Order then
+                table.insert(orderLessonIds, lesson.Id)
+            end
+        end
+    end
+
+    table.insert(badges, {
+        Id = "puzzle_master",
+        DisplayName = "In The Right Order",
+        Description = "Solve every order puzzle in the Islamic Studies hall.",
+        RobloxBadgeId = 0,
+        IsEarned = allCompleted(Progression.Categories.Order, orderLessonIds),
+    })
 
     table.insert(badges, {
         Id = "companion_friend",
@@ -6414,6 +6526,8 @@ ensureRemoteEvent(progressFolder, "ProgressToast")
 ensureRemoteEvent(learningFolder, "OpenLearningHall")
 ensureRemoteEvent(learningFolder, "SubmitQuiz")
 ensureRemoteEvent(learningFolder, "QuizResult")
+ensureRemoteEvent(learningFolder, "SubmitOrder")
+ensureRemoteEvent(learningFolder, "OrderResult")
 ensureRemoteEvent(learningFolder, "SubmitDailyAnswer")
 ensureRemoteEvent(learningFolder, "DailyResult")
 ensureRemoteEvent(learningFolder, "StudyCircleUpdate")
@@ -11408,6 +11522,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Daily = require(Shared.Modules.Daily)
 local Progression = require(Shared.Modules.Progression)
+local ShopCatalog = require(Shared.Data.ShopCatalog)
 
 type Profile = Progression.Profile
 
@@ -11572,6 +11687,14 @@ function PlayerProgress.AddXP(player: Player, amount: number, reason: string?): 
 
     if levelAfter > levelBefore then
         toast(player, "level", string.format("Level %d reached!", levelAfter), Progression.GetRankTitle(levelAfter))
+
+        for _, skin in pairs(ShopCatalog.SkinDefinitions) do
+            local unlockLevel = (skin :: any).UnlockLevel
+
+            if skin.UnlockType == "Level" and type(unlockLevel) == "number" and unlockLevel > levelBefore and unlockLevel <= levelAfter then
+                toast(player, "badge", string.format("Outfit unlocked: %s", skin.DisplayName), "Equip it from the Shop for your next battle.")
+            end
+        end
     end
 
     changed(player, profile)
@@ -11786,6 +11909,8 @@ local requestProfile = progressFolder:WaitForChild("RequestProfile") :: RemoteEv
 local openLearningHall = learningFolder:WaitForChild("OpenLearningHall") :: RemoteEvent
 local submitQuiz = learningFolder:WaitForChild("SubmitQuiz") :: RemoteEvent
 local quizResult = learningFolder:WaitForChild("QuizResult") :: RemoteEvent
+local submitOrder = learningFolder:WaitForChild("SubmitOrder") :: RemoteEvent
+local orderResult = learningFolder:WaitForChild("OrderResult") :: RemoteEvent
 local submitDailyAnswer = learningFolder:WaitForChild("SubmitDailyAnswer") :: RemoteEvent
 local dailyResult = learningFolder:WaitForChild("DailyResult") :: RemoteEvent
 
@@ -11865,6 +11990,58 @@ submitQuiz.OnServerEvent:Connect(function(player: Player, lessonId: any, answers
     end
 
     quizResult:FireClient(player, result)
+end)
+
+-- Grades a lesson's order puzzle. The client sends step numbers (indexes into
+-- lesson.Order.Steps) in the order the player placed them.
+submitOrder.OnServerEvent:Connect(function(player: Player, lessonId: any, placed: any)
+    if typeof(lessonId) ~= "string" or typeof(placed) ~= "table" then
+        return
+    end
+
+    local now = os.clock()
+
+    if now - (lastSubmitAt[player] or 0) < SUBMIT_COOLDOWN_SECONDS then
+        return
+    end
+
+    lastSubmitAt[player] = now
+
+    local lesson = lessonById[lessonId]
+    local puzzle = lesson and lesson.Order
+
+    if not lesson or not puzzle then
+        return
+    end
+
+    local inPlace = {}
+    local correctCount = 0
+
+    for index = 1, #puzzle.Steps do
+        local right = placed[index] == index
+        inPlace[index] = right
+
+        if right then
+            correctCount += 1
+        end
+    end
+
+    local solved = correctCount == #puzzle.Steps
+    local xpAwarded = 0
+
+    if solved then
+        local firstTime = PlayerProgress.RecordCompletion(player, Progression.Categories.Order, lesson.Id, string.format("%s puzzle", lesson.DisplayName))
+        xpAwarded = Progression.GetCompletionReward(Progression.Categories.Order, firstTime)
+    end
+
+    orderResult:FireClient(player, {
+        LessonId = lesson.Id,
+        Solved = solved,
+        InPlace = inPlace,
+        CorrectCount = correctCount,
+        Total = #puzzle.Steps,
+        XPAwarded = xpAwarded,
+    })
 end)
 
 submitDailyAnswer.OnServerEvent:Connect(function(player: Player, answerIndex: any)
@@ -11962,6 +12139,106 @@ end)
     </Item>
     <Item class="Script" referent="39">
       <Properties>
+        <string name="Name">RankTagService</string>
+        <token name="RunContext">0</token>
+        <string name="Source"><![CDATA[--!strict
+
+-- Shows each player's level and rank title above their head in the hub, so friends can see
+-- how far everyone has come. The tag hides during battles and stories.
+
+local Players = game:GetService("Players")
+
+local TAG_NAME = "RankTag"
+
+local function tagText(player: Player): string?
+    local level = player:GetAttribute("Level")
+    local title = player:GetAttribute("RankTitle")
+
+    if type(level) ~= "number" then
+        return nil
+    end
+
+    return string.format("Level %d  ·  %s", level, if type(title) == "string" then title else "Seeker")
+end
+
+local function refresh(player: Player)
+    local character = player.Character
+    local head = character and character:FindFirstChild("Head")
+
+    if not head or not head:IsA("BasePart") then
+        return
+    end
+
+    local text = tagText(player)
+    local billboard = head:FindFirstChild(TAG_NAME)
+
+    if not text then
+        if billboard then
+            billboard:Destroy()
+        end
+
+        return
+    end
+
+    if not billboard or not billboard:IsA("BillboardGui") then
+        local newBillboard = Instance.new("BillboardGui")
+        newBillboard.Name = TAG_NAME
+        newBillboard.Size = UDim2.fromOffset(200, 24)
+        -- Sits above the Roblox name tag.
+        newBillboard.StudsOffset = Vector3.new(0, 3.4, 0)
+        newBillboard.MaxDistance = 60
+        newBillboard.Parent = head
+
+        local textLabel = Instance.new("TextLabel")
+        textLabel.Name = "Text"
+        textLabel.BackgroundTransparency = 1
+        textLabel.Size = UDim2.fromScale(1, 1)
+        textLabel.Font = Enum.Font.GothamBold
+        textLabel.TextColor3 = Color3.fromRGB(240, 207, 120)
+        textLabel.TextStrokeTransparency = 0.45
+        textLabel.TextSize = 15
+        textLabel.Parent = newBillboard
+
+        billboard = newBillboard
+    end
+
+    local gui = billboard :: BillboardGui
+    local textLabel = gui:FindFirstChild("Text")
+
+    if textLabel and textLabel:IsA("TextLabel") then
+        textLabel.Text = text
+    end
+
+    gui.Enabled = player:GetAttribute("InBattle") ~= true and player:GetAttribute("InStory") ~= true
+end
+
+local function onPlayerAdded(player: Player)
+    player.CharacterAdded:Connect(function(character)
+        character:WaitForChild("Head", 10)
+        refresh(player)
+    end)
+
+    for _, attribute in ipairs({ "Level", "RankTitle", "InBattle", "InStory" }) do
+        player:GetAttributeChangedSignal(attribute):Connect(function()
+            refresh(player)
+        end)
+    end
+
+    if player.Character then
+        task.spawn(refresh, player)
+    end
+end
+
+Players.PlayerAdded:Connect(onPlayerAdded)
+
+for _, player in ipairs(Players:GetPlayers()) do
+    task.spawn(onPlayerAdded, player)
+end
+]]></string>
+      </Properties>
+    </Item>
+    <Item class="Script" referent="40">
+      <Properties>
         <string name="Name">ShopService</string>
         <token name="RunContext">0</token>
         <string name="Source"><![CDATA[--!strict
@@ -11978,6 +12255,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ShopCatalog = require(Shared.Data.ShopCatalog)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
+local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 
 local shopFolder = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Shop")
 local requestShopState = shopFolder:WaitForChild("RequestShopState") :: RemoteEvent
@@ -12051,7 +12329,13 @@ local function sendFeedback(player: Player, text: string, tone: string?)
     })
 end
 
-local function getOwnedSkins(ownedPasses: { [string]: boolean }): { [string]: boolean }
+local function playerLevel(player: Player): number
+    local level = player:GetAttribute("Level")
+
+    return if type(level) == "number" then level else 0
+end
+
+local function getOwnedSkins(player: Player, ownedPasses: { [string]: boolean }): { [string]: boolean }
     local ownedSkins = {
         default = true,
     }
@@ -12059,25 +12343,37 @@ local function getOwnedSkins(ownedPasses: { [string]: boolean }): { [string]: bo
     for skinId, skinDefinition in pairs(ShopCatalog.SkinDefinitions) do
         if skinDefinition.UnlockType == "GamePass" and ownedPasses[skinDefinition.UnlockKey] then
             ownedSkins[skinId] = true
+        elseif skinDefinition.UnlockType == "Level" and playerLevel(player) >= (skinDefinition.UnlockLevel or math.huge) then
+            ownedSkins[skinId] = true
         end
     end
 
     return ownedSkins
 end
 
-local function sanitizeEquippedSkin(profile, ownedPasses: { [string]: boolean })
-    local ownedSkins = getOwnedSkins(ownedPasses)
+local function sanitizeEquippedSkin(player: Player, profile, ownedPasses: { [string]: boolean })
+    local ownedSkins = getOwnedSkins(player, ownedPasses)
 
-    if not ownedSkins[profile.EquippedSkin] then
-        profile.EquippedSkin = "default"
+    if ownedSkins[profile.EquippedSkin] then
+        return
     end
+
+    -- Level skins are only taken off once the player's real level is known, so a slow or
+    -- failed progress load never strips a skin they earned.
+    local definition = ShopCatalog.SkinDefinitions[profile.EquippedSkin]
+
+    if definition and definition.UnlockType == "Level" and not PlayerProgress.IsSaveable(player) then
+        return
+    end
+
+    profile.EquippedSkin = "default"
 end
 
 local function applyPlayerAttributes(player: Player)
     local profile = playerProfiles[player] or buildDefaultProfile()
     local ownedPasses = playerPassOwnership[player] or {}
 
-    sanitizeEquippedSkin(profile, ownedPasses)
+    sanitizeEquippedSkin(player, profile, ownedPasses)
     playerProfiles[player] = profile
 
     player:SetAttribute("EquippedBattleSkin", profile.EquippedSkin)
@@ -12150,7 +12446,7 @@ end
 local function sendShopState(player: Player, statusText: string?)
     local profile = playerProfiles[player] or buildDefaultProfile()
     local ownedPasses = playerPassOwnership[player] or {}
-    local ownedSkins = getOwnedSkins(ownedPasses)
+    local ownedSkins = getOwnedSkins(player, ownedPasses)
 
     shopStateEvent:FireClient(player, {
         OwnedPassKeys = listOwnedKeys(ownedPasses),
@@ -12289,7 +12585,7 @@ local function tryEquipSkin(player: Player, skinId: string)
         return
     end
 
-    local ownedSkins = getOwnedSkins(ownedPasses)
+    local ownedSkins = getOwnedSkins(player, ownedPasses)
 
     if not ownedSkins[skinId] then
         sendFeedback(player, "You do not own that skin yet.", "warning")
@@ -12532,7 +12828,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="40">
+    <Item class="Script" referent="41">
       <Properties>
         <string name="Name">StoryService</string>
         <token name="RunContext">0</token>
@@ -12992,7 +13288,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="41">
+    <Item class="Script" referent="42">
       <Properties>
         <string name="Name">StoryWorldBuilder</string>
         <token name="RunContext">0</token>
@@ -13189,7 +13485,7 @@ end
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="42">
+    <Item class="Script" referent="43">
       <Properties>
         <string name="Name">StudyCircleService</string>
         <token name="RunContext">0</token>
@@ -13497,7 +13793,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="43">
+    <Item class="Script" referent="44">
       <Properties>
         <string name="Name">TriviaService</string>
         <token name="RunContext">0</token>
@@ -13835,15 +14131,15 @@ end)
       </Properties>
     </Item>
   </Item>
-  <Item class="StarterPlayer" referent="44">
+  <Item class="StarterPlayer" referent="45">
     <Properties>
       <string name="Name">StarterPlayer</string>
     </Properties>
-    <Item class="StarterPlayerScripts" referent="45">
+    <Item class="StarterPlayerScripts" referent="46">
       <Properties>
         <string name="Name">StarterPlayerScripts</string>
       </Properties>
-      <Item class="LocalScript" referent="46">
+      <Item class="LocalScript" referent="47">
         <Properties>
           <string name="Name">BattleCamera</string>
           <string name="Source"><![CDATA[--!strict
@@ -13878,7 +14174,7 @@ applyBattleCameraMode()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="47">
+      <Item class="LocalScript" referent="48">
         <Properties>
           <string name="Name">BattleControls</string>
           <string name="Source"><![CDATA[--!strict
@@ -13930,7 +14226,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="48">
+      <Item class="LocalScript" referent="49">
         <Properties>
           <string name="Name">BattleHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -14540,7 +14836,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="49">
+      <Item class="LocalScript" referent="50">
         <Properties>
           <string name="Name">BattleWeaponAnimation</string>
           <string name="Source"><![CDATA[--!strict
@@ -15128,7 +15424,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="50">
+      <Item class="LocalScript" referent="51">
         <Properties>
           <string name="Name">ClientBootstrap</string>
           <string name="Source"><![CDATA[--!strict
@@ -15153,7 +15449,7 @@ print(string.format(
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="51">
+      <Item class="LocalScript" referent="52">
         <Properties>
           <string name="Name">GuideDialogue</string>
           <string name="Source"><![CDATA[--!strict
@@ -15412,7 +15708,7 @@ requestProfile:FireServer()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="52">
+      <Item class="LocalScript" referent="53">
         <Properties>
           <string name="Name">HubAmbience</string>
           <string name="Source"><![CDATA[--!strict
@@ -15655,7 +15951,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="53">
+      <Item class="LocalScript" referent="54">
         <Properties>
           <string name="Name">HubQuickButtons</string>
           <string name="Source"><![CDATA[--!strict
@@ -15882,7 +16178,7 @@ updateAvailability()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="54">
+      <Item class="LocalScript" referent="55">
         <Properties>
           <string name="Name">LearningHall</string>
           <string name="Source"><![CDATA[--!strict
@@ -15903,6 +16199,8 @@ local profileUpdated = progressFolder:WaitForChild("ProfileUpdated") :: RemoteEv
 local openLearningHall = learningFolder:WaitForChild("OpenLearningHall") :: RemoteEvent
 local submitQuiz = learningFolder:WaitForChild("SubmitQuiz") :: RemoteEvent
 local quizResult = learningFolder:WaitForChild("QuizResult") :: RemoteEvent
+local submitOrder = learningFolder:WaitForChild("SubmitOrder") :: RemoteEvent
+local orderResult = learningFolder:WaitForChild("OrderResult") :: RemoteEvent
 local submitDailyAnswer = learningFolder:WaitForChild("SubmitDailyAnswer") :: RemoteEvent
 local dailyResult = learningFolder:WaitForChild("DailyResult") :: RemoteEvent
 
@@ -16161,7 +16459,7 @@ end
 
 local function footerButton(bar: Frame, text: string, color: Color3, order: number, onClick: () -> ())
     local footerBtn = button(bar, text, color, onClick)
-    footerBtn.Size = UDim2.new(0.32, 0, 0, 42)
+    footerBtn.Size = UDim2.new(0.3, 0, 0, 42)
     footerBtn.LayoutOrder = order
 end
 
@@ -16169,6 +16467,7 @@ local showUnit: (unitId: string) -> ()
 local showLesson: (lessonId: string, pageIndex: number) -> ()
 local showJournal: () -> ()
 local showToday: () -> ()
+local showOrder: (lessonId: string) -> ()
 
 local function showQuestion(lessonId: string, questionIndex: number, answers: { number })
     local lesson = lessonById[lessonId]
@@ -16257,6 +16556,191 @@ local function showResult(result: any)
         end)
     end
 
+    if lesson.Order then
+        footerButton(bar, "Order Puzzle", COLORS.Success, 2, function()
+            showOrder(lesson.Id)
+        end)
+    end
+
+    footerButton(bar, "Back To Lessons", COLORS.Border, 3, function()
+        showUnit(unitIdByLessonId[lesson.Id])
+    end)
+end
+
+local pendingOrderLessonId: string? = nil
+local lastPlaced: { number } = {}
+
+local function shuffledIndexes(count: number): { number }
+    local order = {}
+
+    for index = 1, count do
+        order[index] = index
+    end
+
+    -- Shuffle until the steps are out of order, so the puzzle never starts solved.
+    for _ = 1, 10 do
+        for index = count, 2, -1 do
+            local swap = math.random(1, index)
+            order[index], order[swap] = order[swap], order[index]
+        end
+
+        for index = 1, count do
+            if order[index] ~= index then
+                return order
+            end
+        end
+    end
+
+    return order
+end
+
+local function showOrderPuzzle(lessonId: string, shuffled: { number }, placed: { number })
+    local lesson = lessonById[lessonId]
+    local puzzle = lesson.Order
+
+    if not puzzle then
+        return
+    end
+
+    refreshCurrentView = nil
+    clearContent()
+
+    local accent = rgb(unitById[unitIdByLessonId[lessonId]].AccentRGB)
+    local list = contentList(56)
+    autoLabel(list, string.format("Order puzzle  ·  %s", lesson.DisplayName), 14, Enum.Font.GothamBold, COLORS.SoftInk, 1)
+    autoLabel(list, puzzle.Prompt, 20, Enum.Font.GothamBold, COLORS.Ink, 2)
+
+    local used = {}
+
+    for _, stepIndex in ipairs(placed) do
+        used[stepIndex] = true
+    end
+
+    local order = 3
+
+    if #placed > 0 then
+        local lines = {}
+
+        for position, stepIndex in ipairs(placed) do
+            table.insert(lines, string.format("%d. %s", position, puzzle.Steps[stepIndex]))
+        end
+
+        autoLabel(list, "Your order:\n" .. table.concat(lines, "\n"), 16, Enum.Font.GothamMedium, COLORS.Ink, order)
+        order += 1
+    end
+
+    autoLabel(list, string.format("Tap step %d of %d:", #placed + 1, #puzzle.Steps), 15, Enum.Font.GothamBold, COLORS.SoftInk, order)
+    order += 1
+
+    for _, stepIndex in ipairs(shuffled) do
+        if not used[stepIndex] then
+            local stepButton = button(list, puzzle.Steps[stepIndex], accent, function()
+                table.insert(placed, stepIndex)
+
+                if #placed < #puzzle.Steps then
+                    showOrderPuzzle(lessonId, shuffled, placed)
+                    return
+                end
+
+                clearContent()
+                autoLabel(content, "Checking your order...", 18, Enum.Font.GothamMedium, COLORS.SoftInk, 1)
+                pendingOrderLessonId = lessonId
+                lastPlaced = table.clone(placed)
+                submitOrder:FireServer(lessonId, placed)
+
+                task.delay(6, function()
+                    if pendingOrderLessonId == lessonId then
+                        pendingOrderLessonId = nil
+                        clearContent()
+                        autoLabel(content, "We could not check your order. Please try again.", 18, Enum.Font.GothamMedium, COLORS.Danger, 1)
+                        footerButton(footer(), "Try Again", COLORS.Gold, 1, function()
+                            showOrder(lessonId)
+                        end)
+                    end
+                end)
+            end)
+            stepButton.Size = UDim2.new(1, 0, 0, 44)
+            stepButton.LayoutOrder = order
+            order += 1
+        end
+    end
+
+    local bar = footer()
+
+    if #placed > 0 then
+        footerButton(bar, "Undo", COLORS.Gold, 1, function()
+            table.remove(placed)
+            showOrderPuzzle(lessonId, shuffled, placed)
+        end)
+    end
+
+    footerButton(bar, "Back To Lesson", COLORS.Border, 2, function()
+        showLesson(lessonId, 1)
+    end)
+end
+
+showOrder = function(lessonId: string)
+    local lesson = lessonById[lessonId]
+
+    if lesson and lesson.Order then
+        showOrderPuzzle(lessonId, shuffledIndexes(#lesson.Order.Steps), {})
+    end
+end
+
+local function showOrderResult(result: any)
+    local lesson = lessonById[result.LessonId]
+    local puzzle = lesson and lesson.Order
+
+    if not lesson or not puzzle then
+        return
+    end
+
+    refreshCurrentView = nil
+    clearContent()
+
+    local list = contentList(56)
+    autoLabel(list, if result.Solved then "Puzzle solved!" else "Not quite yet", 24, Enum.Font.GothamBold, if result.Solved then COLORS.Success else COLORS.Danger, 1)
+
+    local summary = string.format("%d of %d steps are in the right place.", result.CorrectCount, result.Total)
+
+    if result.Solved and result.XPAwarded > 0 then
+        summary ..= string.format(" +%d XP", result.XPAwarded)
+    end
+
+    autoLabel(list, summary, 16, Enum.Font.GothamMedium, COLORS.Ink, 2)
+
+    if result.Solved then
+        local lines = {}
+
+        for position, step in ipairs(puzzle.Steps) do
+            table.insert(lines, string.format("%d. %s", position, step))
+        end
+
+        autoLabel(list, table.concat(lines, "\n"), 16, Enum.Font.Gotham, COLORS.Ink, 3)
+        autoLabel(list, puzzle.Explanation, 15, Enum.Font.Gotham, COLORS.SoftInk, 4)
+    else
+        local lines = {}
+
+        for position, stepIndex in ipairs(lastPlaced) do
+            local inPlace = type(result.InPlace) == "table" and result.InPlace[position] == true
+            local color = if inPlace then "#3F784E" else "#964A3C"
+            local mark = if inPlace then "right place" else "move this"
+            table.insert(lines, string.format('<font color="%s">%d. %s  (%s)</font>', color, position, puzzle.Steps[stepIndex] or "", mark))
+        end
+
+        local placedLabel = autoLabel(list, table.concat(lines, "\n"), 16, Enum.Font.GothamMedium, COLORS.Ink, 3)
+        placedLabel.RichText = true
+        autoLabel(list, "Review the lesson if you need to, then try again.", 15, Enum.Font.Gotham, COLORS.SoftInk, 4)
+    end
+
+    local bar = footer()
+
+    if not result.Solved then
+        footerButton(bar, "Try Again", COLORS.Gold, 1, function()
+            showOrder(lesson.Id)
+        end)
+    end
+
     footerButton(bar, "Back To Lessons", COLORS.Border, 2, function()
         showUnit(unitIdByLessonId[lesson.Id])
     end)
@@ -16290,7 +16774,13 @@ showLesson = function(lessonId: string, pageIndex: number)
             showLesson(lessonId, pageIndex + 1)
         end)
     else
-        footerButton(bar, "Take The Quiz", COLORS.Gold, 2, function()
+        if lesson.Order then
+            footerButton(bar, "Order Puzzle", COLORS.Success, 2, function()
+                showOrder(lessonId)
+            end)
+        end
+
+        footerButton(bar, "Take The Quiz", COLORS.Gold, 3, function()
             showQuestion(lessonId, 1, {})
         end)
     end
@@ -16619,6 +17109,15 @@ dailyResult.OnClientEvent:Connect(function(result: any)
     end
 end)
 
+orderResult.OnClientEvent:Connect(function(result: any)
+    if type(result) ~= "table" or result.LessonId ~= pendingOrderLessonId then
+        return
+    end
+
+    pendingOrderLessonId = nil
+    showOrderResult(result)
+end)
+
 quizResult.OnClientEvent:Connect(function(result: any)
     if type(result) ~= "table" or result.LessonId ~= pendingLessonId then
         return
@@ -16656,7 +17155,7 @@ player:GetAttributeChangedSignal("InStory"):Connect(closeIfBusy)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="55">
+      <Item class="LocalScript" referent="56">
         <Properties>
           <string name="Name">LearningTrailHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -16855,7 +17354,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="56">
+      <Item class="LocalScript" referent="57">
         <Properties>
           <string name="Name">MainMenu</string>
           <string name="Source"><![CDATA[--!nonstrict
@@ -17376,7 +17875,7 @@ showHome()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="57">
+      <Item class="LocalScript" referent="58">
         <Properties>
           <string name="Name">MannersHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -17499,7 +17998,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="58">
+      <Item class="LocalScript" referent="59">
         <Properties>
           <string name="Name">ProgressHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -17757,7 +18256,7 @@ requestProfile:FireServer()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="59">
+      <Item class="LocalScript" referent="60">
         <Properties>
           <string name="Name">ResponsiveUi</string>
           <string name="Source"><![CDATA[--!strict
@@ -17899,7 +18398,7 @@ playerGui.ChildAdded:Connect(watch)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="60">
+      <Item class="LocalScript" referent="61">
         <Properties>
           <string name="Name">ShopMenu</string>
           <string name="Source"><![CDATA[--!strict
@@ -18239,6 +18738,10 @@ local function rebuildCatalog()
 
         if skinDefinition.UnlockType == "GamePass" then
             unlockText = owned and "Unlocked from the shop." or "Unlock this skin through its matching pass above."
+        elseif skinDefinition.UnlockType == "Level" then
+            unlockText = if owned
+                then string.format("Earned by reaching level %d.", skinDefinition.UnlockLevel)
+                else string.format("Free reward: reach level %d to unlock it.", skinDefinition.UnlockLevel)
         end
 
         createCard(skinDefinition.DisplayName, unlockText, buttonText, buttonColor, function()
@@ -18366,7 +18869,7 @@ requestShopState:FireServer()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="61">
+      <Item class="LocalScript" referent="62">
         <Properties>
           <string name="Name">StoryHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -18562,7 +19065,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="62">
+      <Item class="LocalScript" referent="63">
         <Properties>
           <string name="Name">StudyCircleHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -18797,7 +19300,7 @@ player:GetAttributeChangedSignal("InStory"):Connect(hideIfBusy)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="63">
+      <Item class="LocalScript" referent="64">
         <Properties>
           <string name="Name">TriviaHud</string>
           <string name="Source"><![CDATA[--!strict

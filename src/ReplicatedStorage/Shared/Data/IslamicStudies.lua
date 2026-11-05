@@ -13,12 +13,21 @@ export type QuizQuestion = {
     Explanation: string,
 }
 
+-- An optional bonus puzzle: put the steps back in the right order.
+export type OrderPuzzle = {
+    Prompt: string,
+    -- Listed in the correct order. The hall shuffles them for the player.
+    Steps: { string },
+    Explanation: string,
+}
+
 export type Lesson = {
     Id: string,
     DisplayName: string,
     Summary: string,
     Pages: { string },
     Quiz: { QuizQuestion },
+    Order: OrderPuzzle?,
 }
 
 export type Unit = {
@@ -249,6 +258,20 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         "8) Wash your right foot to the ankle, then the left, three times each. Wudu is broken by things like using the toilet or deep sleep, so renew it before the next prayer.",
                         "Details can differ slightly between schools of thought. Ask a parent, teacher, or imam to show you the way your community follows.",
                     },
+                    Order = {
+                        Prompt = "Put the steps of wudu in order.",
+                        Steps = {
+                            "Intention and Bismillah",
+                            "Wash the hands",
+                            "Rinse the mouth",
+                            "Rinse the nose",
+                            "Wash the face",
+                            "Wash the arms to the elbows, right first",
+                            "Wipe the head and ears",
+                            "Wash the feet to the ankles, right first",
+                        },
+                        Explanation = "This is the order taught in the lesson, following Qur'an 5:6 and the Sunnah.",
+                    },
                     Quiz = {
                         {
                             Prompt = "What do you say when beginning wudu?",
@@ -289,6 +312,20 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         "6) Prostration (sujud): with forehead and nose, palms, knees, and toes on the ground, say 'Subhana Rabbiyal-A'la' (Glory be to my Lord, the Most High). Sit briefly, then make a second sujud.",
                         "That completes one rak'ah. After every two rak'ahs, and at the end, you sit and recite the tashahhud. The prayer ends by turning the head right then left saying 'As-salamu 'alaykum wa rahmatullah'.",
                         "Small details differ between schools of thought. Learn the full prayer with a trusted teacher or imam, and practice with your family.",
+                    },
+                    Order = {
+                        Prompt = "Put the steps of one rak'ah and the end of the prayer in order.",
+                        Steps = {
+                            "Face the qiblah with the intention",
+                            "Opening takbir: Allahu Akbar",
+                            "Stand and recite Al-Fatihah",
+                            "Bow in ruku'",
+                            "Rise: Sami'a Allahu liman hamidah",
+                            "Prostrate in sujud twice",
+                            "Sit for the tashahhud",
+                            "End with salam, right then left",
+                        },
+                        Explanation = "Each rak'ah repeats standing, ruku', rising, and two sujud. The tashahhud and salam come at the end.",
                     },
                     Quiz = {
                         {
@@ -706,6 +743,19 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         "Muslims love and believe in Isa, peace be upon him, as one of the greatest messengers of Allah.",
                         "Lesson: miracles come only by Allah's permission, and the prophets always pointed people to worship Allah alone.",
                     },
+                    Order = {
+                        Prompt = "Put these Prophets in the order they lived, earliest first.",
+                        Steps = {
+                            "Adam",
+                            "Nuh",
+                            "Ibrahim",
+                            "Yusuf",
+                            "Musa",
+                            "Sulayman",
+                            "Isa",
+                        },
+                        Explanation = "Adam was the first human. Yusuf was Ibrahim's great-grandson, Musa came after Yusuf's family settled in Egypt, Sulayman was the son of Dawud, and Isa came last before Muhammad, peace be upon them all.",
+                    },
                     Quiz = {
                         {
                             Prompt = "What did baby Isa say from the cradle?",
@@ -897,6 +947,20 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         "In his sermon he reminded the people that their lives, property, and honour are sacred, told them to treat women kindly, and asked them to convey the message to those who were absent.",
                         "He passed away in Madinah in 11 AH (632 CE). His message lives on in the Qur'an and his Sunnah.",
                         "Lesson: every Muslim helps carry the message forward by learning it and living it.",
+                    },
+                    Order = {
+                        Prompt = "Put these events from the Seerah in order, earliest first.",
+                        Steps = {
+                            "Birth in Makkah, in the Year of the Elephant",
+                            "First revelation in the cave of Hira",
+                            "The Hijrah to Madinah",
+                            "The Battle of Badr",
+                            "The Battle of Uhud",
+                            "The Treaty of Hudaybiyyah",
+                            "The Conquest of Makkah",
+                            "The Farewell Hajj",
+                        },
+                        Explanation = "Birth around 570 CE, first revelation at age 40, Hijrah in 1 AH, Badr in 2 AH, Uhud in 3 AH, Hudaybiyyah in 6 AH, the Conquest in 8 AH, and the Farewell Hajj in 10 AH.",
                     },
                     Quiz = {
                         {

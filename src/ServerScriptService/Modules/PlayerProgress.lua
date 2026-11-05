@@ -13,6 +13,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Daily = require(Shared.Modules.Daily)
 local Progression = require(Shared.Modules.Progression)
+local ShopCatalog = require(Shared.Data.ShopCatalog)
 
 type Profile = Progression.Profile
 
@@ -177,6 +178,14 @@ function PlayerProgress.AddXP(player: Player, amount: number, reason: string?): 
 
     if levelAfter > levelBefore then
         toast(player, "level", string.format("Level %d reached!", levelAfter), Progression.GetRankTitle(levelAfter))
+
+        for _, skin in pairs(ShopCatalog.SkinDefinitions) do
+            local unlockLevel = (skin :: any).UnlockLevel
+
+            if skin.UnlockType == "Level" and type(unlockLevel) == "number" and unlockLevel > levelBefore and unlockLevel <= levelAfter then
+                toast(player, "badge", string.format("Outfit unlocked: %s", skin.DisplayName), "Equip it from the Shop for your next battle.")
+            end
+        end
     end
 
     changed(player, profile)

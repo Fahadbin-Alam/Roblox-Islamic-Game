@@ -16,6 +16,8 @@ local profileUpdated = progressFolder:WaitForChild("ProfileUpdated") :: RemoteEv
 local openLearningHall = learningFolder:WaitForChild("OpenLearningHall") :: RemoteEvent
 local submitQuiz = learningFolder:WaitForChild("SubmitQuiz") :: RemoteEvent
 local quizResult = learningFolder:WaitForChild("QuizResult") :: RemoteEvent
+local submitOrder = learningFolder:WaitForChild("SubmitOrder") :: RemoteEvent
+local orderResult = learningFolder:WaitForChild("OrderResult") :: RemoteEvent
 local submitDailyAnswer = learningFolder:WaitForChild("SubmitDailyAnswer") :: RemoteEvent
 local dailyResult = learningFolder:WaitForChild("DailyResult") :: RemoteEvent
 
@@ -274,7 +276,7 @@ end
 
 local function footerButton(bar: Frame, text: string, color: Color3, order: number, onClick: () -> ())
     local footerBtn = button(bar, text, color, onClick)
-    footerBtn.Size = UDim2.new(0.32, 0, 0, 42)
+    footerBtn.Size = UDim2.new(0.3, 0, 0, 42)
     footerBtn.LayoutOrder = order
 end
 
@@ -282,6 +284,7 @@ local showUnit: (unitId: string) -> ()
 local showLesson: (lessonId: string, pageIndex: number) -> ()
 local showJournal: () -> ()
 local showToday: () -> ()
+local showOrder: (lessonId: string) -> ()
 
 local function showQuestion(lessonId: string, questionIndex: number, answers: { number })
     local lesson = lessonById[lessonId]
@@ -370,6 +373,191 @@ local function showResult(result: any)
         end)
     end
 
+    if lesson.Order then
+        footerButton(bar, "Order Puzzle", COLORS.Success, 2, function()
+            showOrder(lesson.Id)
+        end)
+    end
+
+    footerButton(bar, "Back To Lessons", COLORS.Border, 3, function()
+        showUnit(unitIdByLessonId[lesson.Id])
+    end)
+end
+
+local pendingOrderLessonId: string? = nil
+local lastPlaced: { number } = {}
+
+local function shuffledIndexes(count: number): { number }
+    local order = {}
+
+    for index = 1, count do
+        order[index] = index
+    end
+
+    -- Shuffle until the steps are out of order, so the puzzle never starts solved.
+    for _ = 1, 10 do
+        for index = count, 2, -1 do
+            local swap = math.random(1, index)
+            order[index], order[swap] = order[swap], order[index]
+        end
+
+        for index = 1, count do
+            if order[index] ~= index then
+                return order
+            end
+        end
+    end
+
+    return order
+end
+
+local function showOrderPuzzle(lessonId: string, shuffled: { number }, placed: { number })
+    local lesson = lessonById[lessonId]
+    local puzzle = lesson.Order
+
+    if not puzzle then
+        return
+    end
+
+    refreshCurrentView = nil
+    clearContent()
+
+    local accent = rgb(unitById[unitIdByLessonId[lessonId]].AccentRGB)
+    local list = contentList(56)
+    autoLabel(list, string.format("Order puzzle  ·  %s", lesson.DisplayName), 14, Enum.Font.GothamBold, COLORS.SoftInk, 1)
+    autoLabel(list, puzzle.Prompt, 20, Enum.Font.GothamBold, COLORS.Ink, 2)
+
+    local used = {}
+
+    for _, stepIndex in ipairs(placed) do
+        used[stepIndex] = true
+    end
+
+    local order = 3
+
+    if #placed > 0 then
+        local lines = {}
+
+        for position, stepIndex in ipairs(placed) do
+            table.insert(lines, string.format("%d. %s", position, puzzle.Steps[stepIndex]))
+        end
+
+        autoLabel(list, "Your order:\n" .. table.concat(lines, "\n"), 16, Enum.Font.GothamMedium, COLORS.Ink, order)
+        order += 1
+    end
+
+    autoLabel(list, string.format("Tap step %d of %d:", #placed + 1, #puzzle.Steps), 15, Enum.Font.GothamBold, COLORS.SoftInk, order)
+    order += 1
+
+    for _, stepIndex in ipairs(shuffled) do
+        if not used[stepIndex] then
+            local stepButton = button(list, puzzle.Steps[stepIndex], accent, function()
+                table.insert(placed, stepIndex)
+
+                if #placed < #puzzle.Steps then
+                    showOrderPuzzle(lessonId, shuffled, placed)
+                    return
+                end
+
+                clearContent()
+                autoLabel(content, "Checking your order...", 18, Enum.Font.GothamMedium, COLORS.SoftInk, 1)
+                pendingOrderLessonId = lessonId
+                lastPlaced = table.clone(placed)
+                submitOrder:FireServer(lessonId, placed)
+
+                task.delay(6, function()
+                    if pendingOrderLessonId == lessonId then
+                        pendingOrderLessonId = nil
+                        clearContent()
+                        autoLabel(content, "We could not check your order. Please try again.", 18, Enum.Font.GothamMedium, COLORS.Danger, 1)
+                        footerButton(footer(), "Try Again", COLORS.Gold, 1, function()
+                            showOrder(lessonId)
+                        end)
+                    end
+                end)
+            end)
+            stepButton.Size = UDim2.new(1, 0, 0, 44)
+            stepButton.LayoutOrder = order
+            order += 1
+        end
+    end
+
+    local bar = footer()
+
+    if #placed > 0 then
+        footerButton(bar, "Undo", COLORS.Gold, 1, function()
+            table.remove(placed)
+            showOrderPuzzle(lessonId, shuffled, placed)
+        end)
+    end
+
+    footerButton(bar, "Back To Lesson", COLORS.Border, 2, function()
+        showLesson(lessonId, 1)
+    end)
+end
+
+showOrder = function(lessonId: string)
+    local lesson = lessonById[lessonId]
+
+    if lesson and lesson.Order then
+        showOrderPuzzle(lessonId, shuffledIndexes(#lesson.Order.Steps), {})
+    end
+end
+
+local function showOrderResult(result: any)
+    local lesson = lessonById[result.LessonId]
+    local puzzle = lesson and lesson.Order
+
+    if not lesson or not puzzle then
+        return
+    end
+
+    refreshCurrentView = nil
+    clearContent()
+
+    local list = contentList(56)
+    autoLabel(list, if result.Solved then "Puzzle solved!" else "Not quite yet", 24, Enum.Font.GothamBold, if result.Solved then COLORS.Success else COLORS.Danger, 1)
+
+    local summary = string.format("%d of %d steps are in the right place.", result.CorrectCount, result.Total)
+
+    if result.Solved and result.XPAwarded > 0 then
+        summary ..= string.format(" +%d XP", result.XPAwarded)
+    end
+
+    autoLabel(list, summary, 16, Enum.Font.GothamMedium, COLORS.Ink, 2)
+
+    if result.Solved then
+        local lines = {}
+
+        for position, step in ipairs(puzzle.Steps) do
+            table.insert(lines, string.format("%d. %s", position, step))
+        end
+
+        autoLabel(list, table.concat(lines, "\n"), 16, Enum.Font.Gotham, COLORS.Ink, 3)
+        autoLabel(list, puzzle.Explanation, 15, Enum.Font.Gotham, COLORS.SoftInk, 4)
+    else
+        local lines = {}
+
+        for position, stepIndex in ipairs(lastPlaced) do
+            local inPlace = type(result.InPlace) == "table" and result.InPlace[position] == true
+            local color = if inPlace then "#3F784E" else "#964A3C"
+            local mark = if inPlace then "right place" else "move this"
+            table.insert(lines, string.format('<font color="%s">%d. %s  (%s)</font>', color, position, puzzle.Steps[stepIndex] or "", mark))
+        end
+
+        local placedLabel = autoLabel(list, table.concat(lines, "\n"), 16, Enum.Font.GothamMedium, COLORS.Ink, 3)
+        placedLabel.RichText = true
+        autoLabel(list, "Review the lesson if you need to, then try again.", 15, Enum.Font.Gotham, COLORS.SoftInk, 4)
+    end
+
+    local bar = footer()
+
+    if not result.Solved then
+        footerButton(bar, "Try Again", COLORS.Gold, 1, function()
+            showOrder(lesson.Id)
+        end)
+    end
+
     footerButton(bar, "Back To Lessons", COLORS.Border, 2, function()
         showUnit(unitIdByLessonId[lesson.Id])
     end)
@@ -403,7 +591,13 @@ showLesson = function(lessonId: string, pageIndex: number)
             showLesson(lessonId, pageIndex + 1)
         end)
     else
-        footerButton(bar, "Take The Quiz", COLORS.Gold, 2, function()
+        if lesson.Order then
+            footerButton(bar, "Order Puzzle", COLORS.Success, 2, function()
+                showOrder(lessonId)
+            end)
+        end
+
+        footerButton(bar, "Take The Quiz", COLORS.Gold, 3, function()
             showQuestion(lessonId, 1, {})
         end)
     end
@@ -730,6 +924,15 @@ dailyResult.OnClientEvent:Connect(function(result: any)
     if panel.Visible and refreshCurrentView == showToday then
         showToday()
     end
+end)
+
+orderResult.OnClientEvent:Connect(function(result: any)
+    if type(result) ~= "table" or result.LessonId ~= pendingOrderLessonId then
+        return
+    end
+
+    pendingOrderLessonId = nil
+    showOrderResult(result)
 end)
 
 quizResult.OnClientEvent:Connect(function(result: any)
