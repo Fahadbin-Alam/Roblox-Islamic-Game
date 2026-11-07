@@ -8,11 +8,14 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local BattleMissions = require(Shared.Data.BattleMissions)
 local BattleScenarios = require(Shared.Data.BattleScenarios)
+local MissionRules = require(Shared.Modules.MissionRules)
 local TravelRoute = require(Shared.Data.TravelRoute)
 local Progression = require(Shared.Modules.Progression)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
+local MissionDirector = require(script.Parent.Modules.MissionDirector)
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local battleFolder = remotesFolder:WaitForChild("Battle")
 local shopFolder = remotesFolder:WaitForChild("Shop")
@@ -20,6 +23,10 @@ local showBattleMessage = battleFolder:WaitForChild("ShowBattleMessage") :: Remo
 local showBattleSummary = battleFolder:WaitForChild("ShowBattleSummary") :: RemoteEvent
 local playReenactment = battleFolder:WaitForChild("PlayReenactment") :: RemoteEvent
 local requestJoinBattle = battleFolder:WaitForChild("RequestJoinBattle") :: RemoteEvent
+local missionUpdate = battleFolder:WaitForChild("MissionUpdate") :: RemoteEvent
+local missionResult = battleFolder:WaitForChild("MissionResult") :: RemoteEvent
+local submitReflection = battleFolder:WaitForChild("SubmitReflection") :: RemoteEvent
+local reflectionResult = battleFolder:WaitForChild("ReflectionResult") :: RemoteEvent
 
 local scenarioById = {}
 local queues = {}
@@ -27,8 +34,13 @@ local queueCountdowns = {}
 local activeSessions = {}
 local playerToSession = {}
 local promptConnections = {}
+-- "mission" (co-op story mission against server soldiers) or "skirmish" (players vs players).
+local queueModes: { [Player]: string } = {}
+local pendingReflections: { [Player]: string } = {}
+local MISSION_COUNTDOWN_SECONDS = 6
 local startSession
 local startFinalBossPhase
+local awardMission: (any, Player) -> any
 local COMBATANT_TAG = "BattleCombatant"
 local GOLD_ACCENT = Color3.fromRGB(193, 162, 86)
 
@@ -68,6 +80,8 @@ local function awardKnowledgeTokens(player: Player, amount: number, reason: stri
 end
 
 local function removePlayerFromQueues(player: Player)
+    queueModes[player] = nil
+
     for _, queuedPlayers in pairs(queues) do
         for index = #queuedPlayers, 1, -1 do
             if queuedPlayers[index] == player then
@@ -89,9 +103,11 @@ local function startQueueCountdown(scenarioId: string)
     end
 
     queueCountdowns[scenarioId] = true
+    local firstQueued = queues[scenarioId][1]
+    local countdown = (firstQueued and queueModes[firstQueued] == "mission") and MISSION_COUNTDOWN_SECONDS or scenario.CountdownSeconds
 
     task.spawn(function()
-        task.wait(scenario.CountdownSeconds)
+        task.wait(countdown)
         queueCountdowns[scenarioId] = nil
 
         if not activeSessions[scenarioId] then
@@ -596,6 +612,10 @@ local function getHumanLivingCount(session, teamId: string): number
 end
 
 local function cleanupSession(session)
+    if session.Director then
+        session.Director:Stop()
+    end
+
     for _, connection in ipairs(session.Connections) do
         connection:Disconnect()
     end
@@ -1196,6 +1216,67 @@ local function respawnPlayerToSpectator(player: Player, session)
     character:PivotTo(spectatorAnchor.CFrame)
 end
 
+-- Pays out one player's mission rewards and builds their results screen.
+awardMission = function(session, player: Player)
+    local outcome = session.MissionResult
+    local scenario = session.Scenario
+    local mission = BattleMissions.Get(scenario.Id)
+
+    if not outcome or not mission then
+        return nil
+    end
+
+    local personal = outcome.PerPlayer[player] or { Falls = 0, Defeated = 0, HeldSeconds = 0, BrokeOrder = false }
+    local stars, details = MissionRules.ComputeStars(mission, {
+        Completed = outcome.Completed,
+        Falls = outcome.Falls,
+        PlayerCount = outcome.PlayerCount,
+        SteadfastKept = outcome.SteadfastKept,
+    })
+    local starBonus = 0
+    local firstTime = false
+
+    if outcome.Completed then
+        awardKnowledgeTokens(player, (scenario.Rewards.KnowledgeTokens or 0) + stars * 20, string.format("%s complete", scenario.DisplayName))
+        firstTime = PlayerProgress.RecordCompletion(player, "battle", scenario.Id, scenario.DisplayName)
+        local previousBest = PlayerProgress.SetStatMax(player, "BestStars_" .. scenario.Id, stars)
+
+        if previousBest then
+            starBonus = MissionRules.StarBonus(previousBest, stars)
+
+            if starBonus > 0 then
+                PlayerProgress.AddXP(player, starBonus, string.format("New stars in the %s", scenario.DisplayName))
+            end
+        end
+
+        if mission.Steadfast.Kind == "Discipline" and not personal.BrokeOrder then
+            PlayerProgress.IncrementStat(player, "UhudPostKept", 1)
+        end
+    end
+
+    PlayerProgress.IncrementStat(player, "BattleOpponentsDriven", personal.Defeated)
+    pendingReflections[player] = scenario.Id
+
+    return {
+        ScenarioId = scenario.Id,
+        MissionName = mission.DisplayName,
+        Completed = outcome.Completed,
+        Reason = outcome.Reason,
+        FirstTime = firstTime,
+        Stars = stars,
+        StarDetails = details,
+        StarBonus = starBonus,
+        Defeated = personal.Defeated,
+        Falls = personal.Falls,
+        TeamFalls = outcome.Falls,
+        ObjectivesDone = outcome.ObjectivesDone,
+        ObjectiveCount = #mission.Objectives,
+        LessonTitle = scenario.StorySummary.Title,
+        LessonLines = scenario.StorySummary.Lines,
+        Reflection = MissionRules.ReflectionForClient(mission),
+    }
+end
+
 local function endSession(session, winnerTeamId: string?, reason: string)
     if session.Ended then
         return
@@ -1222,7 +1303,10 @@ local function endSession(session, winnerTeamId: string?, reason: string)
     task.spawn(function()
         freezePlayersForCutscene(session.Players)
 
-        local payload = buildReenactmentPayload(session, winnerText)
+        local missionOutcome = session.MissionResult
+        local isMission = session.Mode == "mission"
+        local missionFailed = isMission and not (missionOutcome and missionOutcome.Completed)
+        local payload = (not missionFailed) and buildReenactmentPayload(session, winnerText) or nil
         local totalDuration = 0
 
         if payload then
@@ -1236,7 +1320,7 @@ local function endSession(session, winnerTeamId: string?, reason: string)
                 playReenactment:FireClient(player, payload)
             end
         else
-            totalDuration = 6
+            totalDuration = missionFailed and 4 or 6
 
             for _, player in ipairs(session.Players) do
                 sendSummary(player, session.Scenario, winnerText)
@@ -1246,8 +1330,21 @@ local function endSession(session, winnerTeamId: string?, reason: string)
         task.wait(totalDuration + 0.4)
 
         for _, player in ipairs(session.Players) do
-            awardKnowledgeTokens(player, session.Scenario.Rewards.KnowledgeTokens or 0, string.format("%s complete", session.Scenario.DisplayName))
-            PlayerProgress.RecordCompletion(player, "battle", session.Scenario.Id, session.Scenario.DisplayName)
+            if isMission then
+                local resultPayload = awardMission(session, player)
+
+                if resultPayload then
+                    task.delay(2.5, function()
+                        if player.Parent then
+                            missionResult:FireClient(player, resultPayload)
+                        end
+                    end)
+                end
+            else
+                awardKnowledgeTokens(player, session.Scenario.Rewards.KnowledgeTokens or 0, string.format("%s complete", session.Scenario.DisplayName))
+                PlayerProgress.RecordCompletion(player, "battle", session.Scenario.Id, session.Scenario.DisplayName)
+            end
+
             clearPlayerBattleState(player)
             returnPlayerToHub(player, 0.15)
         end
@@ -1271,6 +1368,10 @@ local function getFinalBossConfig(session)
 end
 
 local function evaluateVictory(session)
+    if session.Mode == "mission" then
+        return
+    end
+
     local firstTeamId = session.Scenario.Teams[1].Id
     local secondTeamId = session.Scenario.Teams[2].Id
     local firstStartedHumans = session.InitialHumanCounts[firstTeamId] or 0
@@ -1481,6 +1582,146 @@ startFinalBossPhase = function(session, winningTeamId: string, defeatedTeamId: s
     sendMessage(session.Players, string.format(finalBossConfig.StartMessageTemplate or "Final phase: defeat the %s.", bossDisplayName), 6)
 end
 
+local function prepareMissionCharacter(session, player: Player, character: Model)
+    setCharacterAttributes(character, session.Scenario.Id, "medina")
+    player:SetAttribute("InBattle", true)
+    player:SetAttribute("CurrentScenarioId", session.Scenario.Id)
+    player:SetAttribute("CurrentBattleTeam", "medina")
+    tagCombatant(character, false, nil, nil)
+    BattleLoadout.GiveToPlayer(player)
+
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+    if humanoid then
+        humanoid.WalkSpeed = 16
+        humanoid.JumpPower = 50
+        humanoid.AutoRotate = true
+    end
+end
+
+local function respawnIntoMission(session, player: Player, cframe: CFrame): Model?
+    if session.Ended or not player.Parent then
+        return nil
+    end
+
+    BattleLoadout.ClearForPlayer(player)
+
+    local success = pcall(function()
+        player:LoadCharacter()
+    end)
+
+    if not success then
+        return nil
+    end
+
+    local character = getReadyCharacter(player, 10)
+
+    if not character or session.Ended then
+        return nil
+    end
+
+    character:PivotTo(cframe)
+    prepareMissionCharacter(session, player, character)
+
+    return character
+end
+
+-- Co-op story mission: every player is on the Medina side and the server runs the opponents.
+local function startMissionSession(scenario, arenaFolder: Folder, queuedPlayers: { Player })
+    local mission = BattleMissions.Get(scenario.Id)
+    local session: any = {
+        Scenario = scenario,
+        Arena = arenaFolder,
+        Players = {},
+        Mode = "mission",
+        Teams = {
+            [scenario.Teams[1].Id] = {},
+            [scenario.Teams[2].Id] = {},
+        },
+        InitialHumanCounts = {
+            [scenario.Teams[1].Id] = 0,
+            [scenario.Teams[2].Id] = 0,
+        },
+        SpawnAnchors = {},
+        DummyAnchors = {},
+        Dummies = {},
+        Connections = {},
+        Ended = false,
+        Director = nil,
+        MissionResult = nil,
+    }
+
+    activeSessions[scenario.Id] = session
+
+    local spawnFolder = arenaFolder:FindFirstChild("Spawns")
+    local anchors = spawnFolder and getAnchors(spawnFolder, "medina") or {}
+
+    for index, player in ipairs(queuedPlayers) do
+        local character = getCharacter(player)
+
+        if character and player.Parent then
+            if #anchors > 0 then
+                teleportCharacterToAnchor(character, anchors[((index - 1) % #anchors) + 1])
+            end
+
+            prepareMissionCharacter(session, player, character)
+            playerToSession[player] = session
+            table.insert(session.Players, player)
+        end
+    end
+
+    if #session.Players == 0 then
+        activeSessions[scenario.Id] = nil
+        return
+    end
+
+    freezePlayersForCutscene(session.Players)
+
+    local briefingPayload = buildBriefingPayload(session)
+    local briefingDuration = 0
+
+    if briefingPayload then
+        animateBriefing(session)
+
+        for _, scene in ipairs(briefingPayload.Scenes) do
+            briefingDuration += scene.DurationSeconds or 5
+        end
+
+        for _, player in ipairs(session.Players) do
+            playReenactment:FireClient(player, briefingPayload)
+        end
+    end
+
+    task.delay(briefingDuration + 0.4, function()
+        if session.Ended then
+            return
+        end
+
+        unfreezePlayersForBattle(session.Players)
+        sendMessage(session.Players, string.format("%s story mission. Follow the objective at the top of your screen.", scenario.DisplayName), 6)
+        sendMessage(session.Players, "Left click to strike, hold and release to shoot the bow, right click to raise your shield. Watch for the ! before an attack and block it.", 7)
+
+        local director = MissionDirector.new({
+            Mission = mission,
+            Arena = arenaFolder,
+            Players = session.Players,
+            Send = function(player: Player, payload)
+                missionUpdate:FireClient(player, payload)
+            end,
+            Respawn = function(player: Player, cframe: CFrame)
+                return respawnIntoMission(session, player, cframe)
+            end,
+            OnFinished = function(result)
+                session.MissionResult = result
+                endSession(session, if result.Completed then "medina" else nil, result.Reason)
+            end,
+        })
+
+        session.Director = director
+        director:Start()
+    end)
+end
+
 startSession = function(scenarioId: string)
     if activeSessions[scenarioId] then
         return
@@ -1493,14 +1734,51 @@ startSession = function(scenarioId: string)
         return
     end
 
-    local queuedPlayers = {}
-    local maxHumans = scenario.PlayersPerTeam * 2
+    local queue = queues[scenarioId]
+    local firstQueued = queue[1]
+    local mode = (firstQueued and queueModes[firstQueued]) or "skirmish"
 
-    while #queues[scenarioId] > 0 and #queuedPlayers < maxHumans do
-        table.insert(queuedPlayers, table.remove(queues[scenarioId], 1))
+    if mode == "mission" and not BattleMissions.Get(scenarioId) then
+        mode = "skirmish"
     end
 
-    if #queuedPlayers < scenario.MinPlayersToLaunch then
+    local mission = BattleMissions.Get(scenarioId)
+    local maxHumans = if mode == "mission" then mission.MaxPlayers else scenario.PlayersPerTeam * 2
+    local queuedPlayers: { Player } = {}
+    local index = 1
+
+    -- Take the players who asked for the same mode as the first player in line.
+    while index <= #queue and #queuedPlayers < maxHumans do
+        local candidate = queue[index]
+
+        if (queueModes[candidate] or "skirmish") == mode then
+            table.insert(queuedPlayers, table.remove(queue, index))
+            queueModes[candidate] = nil
+        else
+            index += 1
+        end
+    end
+
+    local minPlayers = if mode == "mission" then 1 else scenario.MinPlayersToLaunch
+
+    if #queuedPlayers < minPlayers then
+        -- Not enough players yet: put them back in line instead of dropping them.
+        for putBack = #queuedPlayers, 1, -1 do
+            table.insert(queue, 1, queuedPlayers[putBack])
+            queueModes[queuedPlayers[putBack]] = mode
+        end
+
+        sendMessage(queuedPlayers, string.format("Waiting for at least %d players for the %s team skirmish. The story mission can be played solo.", minPlayers, scenario.DisplayName), 5)
+        return
+    end
+
+    if mode == "mission" then
+        startMissionSession(scenario, arenaFolder, queuedPlayers)
+
+        if #queue > 0 then
+            startQueueCountdown(scenarioId)
+        end
+
         return
     end
 
@@ -1666,11 +1944,17 @@ startSession = function(scenarioId: string)
     end)
 end
 
-local function joinQueue(player: Player, scenarioId: string)
+local function joinQueue(player: Player, scenarioId: string, requestedMode: string?)
     local scenario = scenarioById[scenarioId]
 
     if not scenario then
         return
+    end
+
+    local mode = if requestedMode == "skirmish" then "skirmish" else "mission"
+
+    if mode == "mission" and not BattleMissions.Get(scenarioId) then
+        mode = "skirmish"
     end
 
     if player:GetAttribute("InStory") == true then
@@ -1690,7 +1974,22 @@ local function joinQueue(player: Player, scenarioId: string)
         return
     end
 
-    if activeSessions[scenarioId] then
+    local active = activeSessions[scenarioId]
+
+    -- Friends can drop into a story mission that is already under way.
+    if active and not active.Ended and active.Mode == "mission" and mode == "mission" and active.Director then
+        local mission = BattleMissions.Get(scenarioId)
+
+        if #active.Players < mission.MaxPlayers then
+            removePlayerFromQueues(player)
+            playerToSession[player] = active
+            active.Director:AddPlayer(player)
+            sendMessage({ player }, string.format("You joined the %s story mission in progress.", scenario.DisplayName), 5)
+            return
+        end
+    end
+
+    if active then
         sendMessage({ player }, string.format("%s is already running. You are queued for the next round.", scenario.DisplayName), 4)
     end
 
@@ -1703,14 +2002,61 @@ local function joinQueue(player: Player, scenarioId: string)
 
     removePlayerFromQueues(player)
     table.insert(queues[scenarioId], player)
-    sendMessage({ player }, string.format("Queued for %s. The round will begin soon.", scenario.DisplayName), 4)
+    queueModes[player] = mode
+
+    if mode == "mission" then
+        sendMessage({ player }, string.format("%s story mission starts in a few seconds. Friends who join now fight beside you.", scenario.DisplayName), 5)
+    else
+        sendMessage({ player }, string.format("Queued for the %s team skirmish. The round will begin soon.", scenario.DisplayName), 4)
+    end
+
     startQueueCountdown(scenarioId)
 end
 
-requestJoinBattle.OnServerEvent:Connect(function(player: Player, scenarioId: string)
+requestJoinBattle.OnServerEvent:Connect(function(player: Player, scenarioId: string, mode: string?)
     if typeof(scenarioId) == "string" then
-        joinQueue(player, scenarioId)
+        joinQueue(player, scenarioId, if typeof(mode) == "string" then mode else nil)
     end
+end)
+
+submitReflection.OnServerEvent:Connect(function(player: Player, scenarioId: string, answers)
+    if typeof(scenarioId) ~= "string" or pendingReflections[player] ~= scenarioId or typeof(answers) ~= "table" then
+        return
+    end
+
+    pendingReflections[player] = nil
+
+    local mission = BattleMissions.Get(scenarioId)
+
+    if not mission then
+        return
+    end
+
+    local cleanAnswers = {}
+
+    for index = 1, #mission.Reflection do
+        local value = answers[index]
+        cleanAnswers[index] = if typeof(value) == "number" then math.floor(value) else nil
+    end
+
+    local graded = MissionRules.GradeReflection(mission, cleanAnswers)
+    local xpBefore = (PlayerProgress.Get(player) or { XP = 0 }).XP
+
+    for index, result in ipairs(graded.Results) do
+        if result.Correct then
+            PlayerProgress.RecordCompletion(player, Progression.Categories.Reflection, result.Id, string.format("Reflection %d", index))
+        end
+    end
+
+    local xpAfter = (PlayerProgress.Get(player) or { XP = 0 }).XP
+
+    reflectionResult:FireClient(player, {
+        ScenarioId = scenarioId,
+        Correct = graded.Correct,
+        Total = graded.Total,
+        Results = graded.Results,
+        XPAwarded = math.max(0, xpAfter - xpBefore),
+    })
 end)
 
 local function connectBattlePrompt(prompt: ProximityPrompt)
@@ -1722,7 +2068,7 @@ local function connectBattlePrompt(prompt: ProximityPrompt)
         local scenarioId = prompt:GetAttribute("ScenarioId")
 
         if typeof(scenarioId) == "string" then
-            joinQueue(player, scenarioId)
+            joinQueue(player, scenarioId, "mission")
         end
     end)
 end
@@ -1749,8 +2095,29 @@ end)
 
 Players.PlayerRemoving:Connect(function(player)
     removePlayerFromQueues(player)
+    pendingReflections[player] = nil
 
     local session = playerToSession[player]
+
+    if session and session.Mode == "mission" then
+        playerToSession[player] = nil
+
+        if session.Director then
+            session.Director:RemovePlayer(player)
+        else
+            local index = table.find(session.Players, player)
+
+            if index then
+                table.remove(session.Players, index)
+            end
+
+            if #session.Players == 0 then
+                endSession(session, nil, "Everyone left the battlefield.")
+            end
+        end
+
+        return
+    end
 
     if session then
         for _, team in ipairs(session.Scenario.Teams) do
