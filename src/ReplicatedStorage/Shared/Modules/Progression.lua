@@ -368,7 +368,7 @@ Progression.Path = {
         Id = "haram_walk",
         Destination = "kaaba_courtyard",
         Title = "Take the Haram Learning Walk",
-        Hint = "Start at the gold marker on the south side of the Kaaba courtyard.",
+        Hint = "Start at the gold marker on the north side of the mataf, near where you arrive.",
         IsDone = function(profile)
             return totalCompleted(profile, Progression.Categories.Trail) >= 1
         end,
