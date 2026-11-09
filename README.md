@@ -97,7 +97,7 @@ Content added to `IslamicStudies.lua` should cite its Qur'an or hadith source, s
 
 - `tests/luau/run.sh <luau>` runs unit tests for the shared data and progression rules outside Studio.
 - `tests/analyze.sh <luau-lsp> <rojo> <globalTypes.d.luau>` type-checks every script against the Roblox API and fails on syntax errors, unknown globals, and broken requires.
-- `tests/hub/run.sh <luau>` builds the whole hub in a mock Roblox engine and checks it: part and light budgets, the 2048-stud part limit, clear spawn and tawaf areas, walkable gates and ramps, the 13 minarets, the clock and night lighting, and that no other district leaks into Masjid al-Haram.
+- `tests/hub/run.sh <luau>` builds the whole hub in a mock Roblox engine and checks it: part and light budgets, the 2048-stud part limit, clear spawn and tawaf areas, walkable gates and ramps, the 13 minarets, the clock and night lighting, tawaf pilgrims that never walk through a landmark, and that no other district leaks into Masjid al-Haram.
 
 To preview the hub without Studio, dump the parts and render a rough picture (shapes and colours only, no SurfaceGui detail):
 
@@ -108,7 +108,7 @@ python3 tests/hub/render.py parts.txt view.png --eye=0,40,170 --at=0,30,0
 
 ## Masjid al-Haram Hub
 
-`src/ServerScriptService/Modules/MasjidAlHaram.lua` builds the sanctuary after today's mosque: the Kaaba (kiswa, gold hizam, sitara, Black Stone, Rukn al-Yamani, Mizab, Shadharwan), Hijr Ismail, Maqam Ibrahim, the white marble mataf, the multi-level mataf expansion with ramps, the Ottoman riwaq, the Saudi galleries, the Safa-Marwa mas'a, the King Fahd and King Abdullah expansions with named gates, 13 minarets and the Abraj Al-Bait clock tower. In this world +Z is north, so the clock tower stands to the south and the road to Madinah leaves to the north. `HaramTimeService.server.lua` sets the clock to Makkah time and turns the night lighting on after dark.
+`src/ServerScriptService/Modules/MasjidAlHaram.lua` builds the sanctuary after today's mosque: the Kaaba (kiswa, gold hizam, sitara, Black Stone, Rukn al-Yamani, Mizab, Shadharwan), Hijr Ismail, Maqam Ibrahim, the white marble mataf, the multi-level mataf expansion with ramps, the Ottoman riwaq, the Saudi galleries, the Safa-Marwa mas'a, the King Fahd and King Abdullah expansions with named gates, 13 minarets and the Abraj Al-Bait clock tower. In this world +Z is north, so the clock tower stands to the south and the road to Madinah leaves to the north. `HaramTimeService.server.lua` sets the clock to Makkah time and turns the night lighting on after dark. Pilgrims in ihram are placed on the mataf by the server, and `TawafAmbience.client.lua` walks them anticlockwise around the Kaaba on each client while the player is nearby.
 
 ## Next Build Steps
 

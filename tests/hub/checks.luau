@@ -228,6 +228,48 @@ for _, item in ipairs(haram:FindFirstChild("MatafExpansion"):GetChildren()) do
 end
 check(ramps == 8 and #rampProblems == 0, string.format("%d mataf ramps are climbable", ramps) .. (#rampProblems > 0 and (": " .. table.concat(rampProblems, "; ")) or ""))
 
+-- Pilgrims walking tawaf are decoration only, and their circles miss every landmark on the mataf.
+local pilgrimFolder = haram:FindFirstChild("TawafPilgrims")
+local pilgrimCount, pilgrimSolid, pilgrimHits = 0, 0, {}
+local matafSolids = {}
+for _, item in ipairs(haram:GetDescendants()) do
+    if item:IsA("BasePart") and item.Transparency < 1 and not item:IsDescendantOf(pilgrimFolder) then
+        local lo, hi = bounds(item)
+        if hi.Y > floorY + 0.5 and lo.Y < floorY + 6 and math.max(math.abs(lo.X), math.abs(hi.X), math.abs(lo.Z), math.abs(hi.Z)) < 200 then
+            table.insert(matafSolids, item)
+        end
+    end
+end
+for _, pilgrim in ipairs(pilgrimFolder and pilgrimFolder:GetChildren() or {}) do
+    pilgrimCount += 1
+    for _, piece in ipairs(pilgrim:GetChildren()) do
+        if piece:IsA("BasePart") and (piece.CanCollide or piece.CanQuery or piece.CanTouch) then
+            pilgrimSolid += 1
+        end
+    end
+    local radius = pilgrim:GetAttribute("Radius")
+    for step = 0, 179 do
+        local a = step / 180 * math.pi * 2
+        local feet = center + Vector3.new(math.cos(a) * radius, 6.6, math.sin(a) * radius)
+        local hit = nil
+        for _, solid in ipairs(matafSolids) do
+            for _, dx in ipairs({ -1.2, 0, 1.2 }) do
+                for _, dz in ipairs({ -1.2, 0, 1.2 }) do
+                    if pointInside(solid, feet + Vector3.new(dx, 2, dz)) or pointInside(solid, feet + Vector3.new(dx, 4.5, dz)) then
+                        hit = solid.Name
+                    end
+                end
+            end
+        end
+        if hit then
+            table.insert(pilgrimHits, pilgrim.Name .. " walks through " .. hit)
+            break
+        end
+    end
+end
+check(pilgrimCount >= 24 and pilgrimSolid == 0, string.format("%d tawaf pilgrims are non-colliding decoration", pilgrimCount))
+check(#pilgrimHits == 0, "tawaf pilgrims never walk through a mataf landmark" .. (#pilgrimHits > 0 and (": " .. table.concat(pilgrimHits, "; ", 1, math.min(#pilgrimHits, 6))) or ""))
+
 -- No other district leaves parts inside the sanctuary footprint.
 local intruders = {}
 for _, district in ipairs(geometry:GetChildren()) do

@@ -287,6 +287,23 @@ local function decorateKiswaFace(parent: Instance, kaaba: CFrame, face: FaceInfo
         offset += step
     end
 
+    -- The kiswa is sewn from long vertical panels; their seams show as faint lines.
+    local panelW = 4.3
+    local seamX = panelW
+    while seamX < width - 1 do
+        guiBox(weaveGui, width, weaveH, seamX, weaveH * 0.5, 0.08, weaveH, Color3.fromRGB(6, 6, 6))
+        seamX += panelW
+    end
+
+    -- Embroidered roundels at each corner just under the band, and a small inscription panel
+    -- near the hem, both in gold thread.
+    local underBand = KAABA_HEIGHT - (HIZAM_CENTER - HIZAM_HEIGHT * 0.5) + 2.6
+    roundel(weaveGui, width, weaveH, 3.2, underBand, 3.4)
+    roundel(weaveGui, width, weaveH, width - 3.2, underBand, 3.4)
+    guiBox(weaveGui, width, weaveH, width * 0.5, weaveH - 3.1, width - 2, 0.12, EMBROIDERY_GOLD)
+    guiBox(weaveGui, width, weaveH, width * 0.5, weaveH - 1.1, width - 2, 0.12, EMBROIDERY_GOLD)
+    scriptRow(weaveGui, width, weaveH, 1.6, width - 1.6, weaveH - 1.5, 0.75, faceIndex * 211, Color3.fromRGB(176, 140, 62))
+
     -- Hizam: the embroidered band two-thirds up, panels of script between roundels.
     local band = facePanel(parent, "Hizam_" .. face.Name, kaaba, face, 0, HIZAM_CENTER, width + 0.6, HIZAM_HEIGHT, 0.2, Color3.fromRGB(22, 19, 14), Enum.Material.Fabric)
     local bandGui = newSurfaceGui(band, Enum.NormalId.Front, 40)
@@ -359,6 +376,8 @@ local function buildKaaba(parent: Instance, center: Vector3): CFrame
     local doorLateral = -halfL + 15.5
     local northEast = KAABA_FACES[1]
     facePanel(folder, "KaabaDoorFrame", kaaba, northEast, doorLateral, 8.6 + 7, 9.4, 14.2, 0.32, EMBROIDERY_GOLD, Enum.Material.Metal)
+    facePanel(folder, "KaabaDoorSill", kaaba, northEast, doorLateral, 8.2, 17.4, 0.8, 0.9, BRIGHT_GOLD, Enum.Material.Metal)
+    facePanel(folder, "KaabaDoorSillMarble", kaaba, northEast, doorLateral, 7.6, 18.2, 0.6, 0.7, Color3.fromRGB(226, 222, 212), Enum.Material.Marble)
     local sitaraH = 27
     local sitara = facePanel(folder, "Sitara", kaaba, northEast, doorLateral, 8.6 + sitaraH * 0.5 - 0.4, 15.6, sitaraH, 0.45, KISWA_BLACK, Enum.Material.Fabric)
     local sitaraGui = newSurfaceGui(sitara, Enum.NormalId.Front, 30)
@@ -382,6 +401,16 @@ local function buildKaaba(parent: Instance, center: Vector3): CFrame
     local stoneFrame = kaaba * CFrame.lookAt(corner + outward * 0.4, corner + outward * 2)
     part(folder, "BlackStoneSilverFrame", Vector3.new(3.4, 4.4, 2.2), stoneFrame, SILVER, Enum.Material.Metal, { Shape = Enum.PartType.Ball })
     decor(folder, "BlackStone", Vector3.new(1.9, 2.3, 1.3), stoneFrame * CFrame.new(0, 0.1, -0.75), Color3.fromRGB(38, 28, 28), Enum.Material.Slate)
+    decor(folder, "BlackStoneSilverRim", Vector3.new(4.0, 5.2, 1.0), stoneFrame * CFrame.new(0, 0, 0.35), Color3.fromRGB(176, 180, 186), Enum.Material.Metal).Shape = Enum.PartType.Ball
+    -- The kiswa is cut back around the stone and edged with gold embroidery on both faces.
+    for _, side in ipairs({ { Face = KAABA_FACES[1], Lateral = -halfL + 2.6 }, { Face = KAABA_FACES[4], Lateral = halfW - 2.6 } }) do
+        local edge = facePanel(folder, "BlackStoneKiswaEdge_" .. side.Face.Name, kaaba, side.Face, side.Lateral, 6.0, 4.6, 9.6, 0.3, KISWA_BLACK, Enum.Material.Fabric)
+        local edgeGui = newSurfaceGui(edge, Enum.NormalId.Front, 40)
+        guiBox(edgeGui, 4.6, 9.6, 2.3, 4.8, 4.4, 9.4, EMBROIDERY_GOLD)
+        guiBox(edgeGui, 4.6, 9.6, 2.3, 4.8, 3.8, 8.8, KISWA_BLACK)
+        scriptRow(edgeGui, 4.6, 9.6, 0.6, 4.0, 2.4, 0.5, 900 + side.Lateral, EMBROIDERY_GOLD)
+        scriptRow(edgeGui, 4.6, 9.6, 0.6, 4.0, 8.4, 0.5, 950 + side.Lateral, EMBROIDERY_GOLD)
+    end
 
     -- Rukn al-Yamani: the southern corner where the stone shows beneath the kiswa.
     local yemeni = Vector3.new(-halfL, 0, -halfW)
@@ -427,6 +456,20 @@ local function buildHijrIsmail(parent: Instance, kaaba: CFrame): Vector3
         vcyl(folder, string.format("HijrWallEnd_%d", index), 5.8, 2.9, (kaaba * CFrame.new(p + Vector3.new(0, 2.9, 0))).Position, Color3.fromRGB(240, 238, 232), Enum.Material.Marble)
     end
 
+    -- The two openings between the wall ends and the Kaaba corners, paved in grey marble.
+    for index, sign in ipairs({ -1, 1 }) do
+        decor(folder, string.format("HijrOpening_%d", index), Vector3.new(6.5, 0.12, 6), kaaba * CFrame.new(faceX + 4.5, 0.06, sign * (halfSpan - 2.5)), Color3.fromRGB(196, 192, 184), Enum.Material.Marble)
+    end
+    -- Brass lamps along the top of the wall.
+    for index, t in ipairs({ math.rad(-40), math.rad(0), math.rad(40) }) do
+        local p = point(t)
+        local lampBase = (kaaba * CFrame.new(p + Vector3.new(0, 5.6, 0))).Position
+        decor(folder, string.format("HijrLampStem_%d", index), Vector3.new(0.4, 3.2, 0.4), CFrame.new(lampBase + Vector3.new(0, 1.6, 0)), BRIGHT_GOLD, Enum.Material.Metal)
+        local glass = decor(folder, string.format("HijrLamp_%d", index), Vector3.new(1.3, 1.8, 1.3), CFrame.new(lampBase + Vector3.new(0, 3.9, 0)), Color3.fromRGB(255, 236, 196), Enum.Material.Glass, 0.2)
+        glowAtNight(glass)
+        decor(folder, string.format("HijrLampCap_%d", index), Vector3.new(1.6, 0.4, 1.6), CFrame.new(lampBase + Vector3.new(0, 4.95, 0)), BRIGHT_GOLD, Enum.Material.Metal)
+    end
+
     decor(folder, "HijrFloor", Vector3.new(depth - 2, 0.1, halfSpan * 2 - 4), kaaba * CFrame.new(faceX + depth * 0.45, 0.05, 0), Color3.fromRGB(236, 235, 230), Enum.Material.Marble)
 
     return (kaaba * CFrame.new(faceX + depth + 4, 0, 0)).Position
@@ -455,6 +498,13 @@ local function buildMaqamIbrahim(parent: Instance, kaaba: CFrame): Vector3
         r.Transparency = 0
     end
 
+    local crystal = part(folder, "MaqamCrystalDome", Vector3.new(3.4, 3.0, 3.4), CFrame.new(base + Vector3.new(0, 5.6, 0)), Color3.fromRGB(226, 240, 246), Enum.Material.Glass, { Shape = Enum.PartType.Ball, Transparency = 0.45, Decor = true })
+    crystal.CastShadow = false
+    for side = 1, 6 do
+        local a = side / 6 * math.pi * 2
+        decor(folder, string.format("MaqamBasePlate_%d", side), Vector3.new(3.6, 1.0, 0.35), CFrame.new(base + Vector3.new(math.cos(a) * 3.55, 2.45, math.sin(a) * 3.55)) * CFrame.Angles(0, math.pi * 0.5 - a, 0), Color3.fromRGB(196, 160, 82), Enum.Material.Metal)
+    end
+    vcyl(folder, "MaqamDomeBand", 0.7, 3.25, base + Vector3.new(0, 10.6, 0), Color3.fromRGB(196, 160, 82), Enum.Material.Metal, true)
     ball(folder, "MaqamDome", 6.4, base + Vector3.new(0, 10.4, 0), BRIGHT_GOLD, Enum.Material.Metal, true)
     vcyl(folder, "MaqamDomeNeck", 1.2, 0.8, base + Vector3.new(0, 14.0, 0), BRIGHT_GOLD, Enum.Material.Metal, true)
     ball(folder, "MaqamFinialBall", 1.3, base + Vector3.new(0, 15.1, 0), BRIGHT_GOLD, Enum.Material.Metal, true)
@@ -538,6 +588,12 @@ local function buildMatafExpansion(parent: Instance, center: Vector3)
             local half = (chordWidth(RING_INNER + 1.5, step) - 3) * 0.5
             arcadeBay(folder, string.format("%s_L%d_Arch", name, level), radialFrame(center, angle, RING_INNER + 0.6, 0), half, floorY + columnH * 0.55, LEVELS[level + 1] - 4.8, 1.2, Color3.fromRGB(236, 229, 213), ARCH_STONE)
         end
+
+        -- A brass-and-glass lantern hangs in each ground-floor arch.
+        local lanternAt = center + Vector3.new(math.cos(angle) * (RING_INNER + 1.4), LEVELS[2] - 9.5, math.sin(angle) * (RING_INNER + 1.4))
+        decor(folder, string.format("%s_LanternChain", name), Vector3.new(0.25, 3.2, 0.25), CFrame.new(lanternAt + Vector3.new(0, 2.6, 0)), BRIGHT_GOLD, Enum.Material.Metal)
+        local lantern = decor(folder, string.format("%s_Lantern", name), Vector3.new(1.8, 2.6, 1.8), CFrame.new(lanternAt) * CFrame.Angles(0, math.rad(45), 0), Color3.fromRGB(255, 232, 186), Enum.Material.Glass, 0.15)
+        glowAtNight(lantern)
 
         -- Roof parapet.
         decor(folder, string.format("%s_RoofParapet", name), Vector3.new(chordWidth(RING_OUTER, step) + 1, 3, 2), radialFrame(center, angle, RING_OUTER - 1, LEVELS[#LEVELS] + 1.5), GALLERY_CREAM, Enum.Material.Marble)
@@ -1043,6 +1099,70 @@ local function buildCourtyardLights(parent: Instance, center: Vector3)
     decor(folder, "TawafStartLight", Vector3.new(5, 5, 0.6), radialFrame(center, eastAngle, RING_INNER - 1.4, LEVELS[2] - 6), SAI_GREEN, Enum.Material.Neon)
 end
 
+---------------------------------------------------------------------------- pilgrims
+
+MasjidAlHaram.PilgrimFolderName = "TawafPilgrims"
+
+-- Bands of the mataf the pilgrims walk in. They keep clear of Hijr Ismail and Maqam Ibrahim
+-- (inside 74 studs) and of the arrival spawn, guide and leaderboard (about 88 to 112).
+local PILGRIM_RINGS = { 84, 92, 118, 126, 135, 145, 156, 168 }
+local SKIN_TONES = {
+    Color3.fromRGB(234, 192, 160), Color3.fromRGB(198, 146, 108), Color3.fromRGB(160, 110, 74),
+    Color3.fromRGB(112, 76, 52), Color3.fromRGB(222, 176, 138), Color3.fromRGB(86, 58, 40),
+}
+local ABAYA_COLOURS = { Color3.fromRGB(24, 24, 28), Color3.fromRGB(32, 36, 52), Color3.fromRGB(236, 234, 228), Color3.fromRGB(58, 48, 44) }
+local IHRAM_WHITE = Color3.fromRGB(242, 242, 238)
+
+-- Simple figures in ihram (men in two white sheets, women in modest abayas) walking
+-- anticlockwise, so the Kaaba is on their left. The server places them once; the
+-- TawafAmbience client script moves them locally so nothing is sent over the network.
+local function buildTawafPilgrims(parent: Instance, center: Vector3)
+    local folder = BuildUtils.CreateFolder(parent, MasjidAlHaram.PilgrimFolderName)
+    folder:SetAttribute("Center", center)
+    folder:SetAttribute("FloorY", center.Y + FLOOR)
+    local random = makeRandom(2024)
+    local index = 0
+
+    for ringIndex, radius in ipairs(PILGRIM_RINGS) do
+        for slot = 1, 4 do
+            index += 1
+            local pilgrim = BuildUtils.CreateFolder(folder, string.format("Pilgrim_%02d", index))
+            local startAngle = (slot - 1) * math.pi * 0.5 + ringIndex * 0.7 + random(-0.3, 0.3)
+            local speed = random(4.2, 5.6) / radius
+            pilgrim:SetAttribute("Radius", radius + random(-2, 2))
+            pilgrim:SetAttribute("StartAngle", startAngle)
+            pilgrim:SetAttribute("AngularSpeed", speed)
+            pilgrim:SetAttribute("Phase", random(0, 6.28))
+
+            local skin = SKIN_TONES[math.floor(random(1, #SKIN_TONES + 0.999))]
+            local woman = random(0, 1) < 0.4
+            local cloth = if woman then ABAYA_COLOURS[math.floor(random(1, #ABAYA_COLOURS + 0.999))] else IHRAM_WHITE
+            local scarf = if woman then (if random(0, 1) < 0.5 then IHRAM_WHITE else Color3.fromRGB(30, 30, 34)) else skin
+            local pieces = {
+                { Name = "Lower", Size = Vector3.new(1.9, 2.7, 1.1), Offset = CFrame.new(0, 1.35, 0), Color = cloth },
+                { Name = "Upper", Size = Vector3.new(2.0, 2.0, 1.05), Offset = CFrame.new(0, 3.7, 0), Color = cloth },
+                { Name = "ArmLeft", Size = Vector3.new(0.55, 2.0, 0.65), Offset = CFrame.new(-1.3, 3.55, 0), Color = if woman then cloth else skin },
+                { Name = "ArmRight", Size = Vector3.new(0.55, 2.0, 0.65), Offset = CFrame.new(1.3, 3.55, 0), Color = if woman then cloth else skin },
+                { Name = "Head", Size = Vector3.new(1.3, 1.3, 1.3), Offset = CFrame.new(0, 5.35, 0), Color = scarf },
+            }
+
+            for _, piece in ipairs(pieces) do
+                local figurePart = decor(pilgrim, piece.Name, piece.Size, CFrame.new(center + Vector3.new(math.cos(startAngle) * radius, FLOOR, math.sin(startAngle) * radius)) * piece.Offset, piece.Color, Enum.Material.Fabric)
+                figurePart:SetAttribute("Offset", piece.Offset)
+                if piece.Name == "Head" then
+                    figurePart.Shape = Enum.PartType.Ball
+                    figurePart.Material = Enum.Material.SmoothPlastic
+                end
+            end
+
+            if woman then
+                local face = decor(pilgrim, "Face", Vector3.new(0.8, 0.9, 0.2), CFrame.new(center + Vector3.new(math.cos(startAngle) * radius, FLOOR, math.sin(startAngle) * radius)) * CFrame.new(0, 5.3, -0.6), skin, Enum.Material.SmoothPlastic)
+                face:SetAttribute("Offset", CFrame.new(0, 5.3, -0.6))
+            end
+        end
+    end
+end
+
 ---------------------------------------------------------------------------- public
 
 export type Landmarks = {
@@ -1063,6 +1183,7 @@ function MasjidAlHaram.Build(parent: Instance, center: Vector3): Landmarks
     buildMatafExpansion(root, center)
     buildOttomanRiwaq(root, center)
     buildZamzamStations(root, center)
+    buildTawafPilgrims(root, center)
     buildCourtyardLights(root, center)
 
     -- First Saudi galleries on the south, west and north sides; the mas'a closes the east.

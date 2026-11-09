@@ -465,6 +465,16 @@ function Instance_.GetDescendants(self)
     walk(self)
     return result
 end
+function Instance_.IsDescendantOf(self, ancestor)
+    local node = self.Parent
+    while node do
+        if node == ancestor then
+            return true
+        end
+        node = node.Parent
+    end
+    return false
+end
 function Instance_.FindFirstChild(self, name, recursive)
     for _, child in ipairs(self.Children) do
         if child.Name == name then
