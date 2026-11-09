@@ -10,6 +10,7 @@ local HaramLearningTrail = require(Shared.Data.HaramLearningTrail)
 local MannersLessons = require(Shared.Data.MannersLessons)
 local TravelRoute = require(Shared.Data.TravelRoute)
 local BuildUtils = require(script.Parent.Modules.BuildUtils)
+local MasjidAlHaram = require(script.Parent.Modules.MasjidAlHaram)
 
 local MECCA_STONE = Color3.fromRGB(196, 186, 168)
 local MECCA_MARBLE = Color3.fromRGB(214, 208, 196)
@@ -21,7 +22,6 @@ local MEDINA_GREEN = Color3.fromRGB(77, 128, 88)
 local MEDINA_STONE = Color3.fromRGB(214, 210, 198)
 local GOLD_ACCENT = Color3.fromRGB(193, 162, 86)
 local GLASS_TINT = Color3.fromRGB(108, 119, 132)
-local DARK_PANEL = Color3.fromRGB(42, 45, 49)
 
 local function scaleColor(color: Color3, scale: number): Color3
     return Color3.fromRGB(
@@ -164,10 +164,19 @@ local function createSafetyBounds(parent: Instance, namePrefix: string, center: 
     local thickness = 12
     local barrierYOffset = 28
 
-    BuildUtils.CreatePart(parent, string.format("%s_NorthBarrier", namePrefix), Vector3.new(footprint.X, barrierHeight, thickness), CFrame.new(center + Vector3.new(0, barrierYOffset, footprint.Z * -0.5)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
-    BuildUtils.CreatePart(parent, string.format("%s_SouthBarrier", namePrefix), Vector3.new(footprint.X, barrierHeight, thickness), CFrame.new(center + Vector3.new(0, barrierYOffset, footprint.Z * 0.5)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
-    BuildUtils.CreatePart(parent, string.format("%s_WestBarrier", namePrefix), Vector3.new(thickness, barrierHeight, footprint.Z), CFrame.new(center + Vector3.new(footprint.X * -0.5, barrierYOffset, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
-    BuildUtils.CreatePart(parent, string.format("%s_EastBarrier", namePrefix), Vector3.new(thickness, barrierHeight, footprint.Z), CFrame.new(center + Vector3.new(footprint.X * 0.5, barrierYOffset, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
+    -- Each wall is split in two halves because Roblox caps a part at 2048 studs per side.
+    for _, wall in ipairs({
+        { Name = "North", Offset = Vector3.new(0, 0, footprint.Z * -0.5), Along = Vector3.new(1, 0, 0), Length = footprint.X },
+        { Name = "South", Offset = Vector3.new(0, 0, footprint.Z * 0.5), Along = Vector3.new(1, 0, 0), Length = footprint.X },
+        { Name = "West", Offset = Vector3.new(footprint.X * -0.5, 0, 0), Along = Vector3.new(0, 0, 1), Length = footprint.Z },
+        { Name = "East", Offset = Vector3.new(footprint.X * 0.5, 0, 0), Along = Vector3.new(0, 0, 1), Length = footprint.Z },
+    }) do
+        for half = -1, 1, 2 do
+            local size = wall.Along * (wall.Length * 0.5) + Vector3.new(0, barrierHeight, 0) + (Vector3.new(1, 0, 1) - wall.Along) * thickness
+            local position = center + wall.Offset + wall.Along * (half * wall.Length * 0.25) + Vector3.new(0, barrierYOffset, 0)
+            BuildUtils.CreatePart(parent, string.format("%s_%sBarrier_%d", namePrefix, wall.Name, half), size, CFrame.new(position), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
+        end
+    end
 end
 
 local function createLightPost(parent: Instance, name: string, position: Vector3, poleColor: Color3?)
@@ -307,52 +316,16 @@ local function createFloorInlayGrid(parent: Instance, namePrefix: string, center
     end
 end
 
-local function createRingTiles(parent: Instance, namePrefix: string, center: Vector3, radius: number, count: number, color: Color3, yOffset: number)
-    for index = 1, count do
-        local angle = (math.pi * 2) * (index / count)
-        local position = center + Vector3.new(math.cos(angle) * radius, yOffset, math.sin(angle) * radius)
-        BuildUtils.CreatePart(
-            parent,
-            string.format("%s_%d", namePrefix, index),
-            Vector3.new(13, 0.22, 2.2),
-            CFrame.new(position) * CFrame.Angles(0, -angle, 0),
-            color,
-            Enum.Material.Marble,
-            nil,
-            nil
-        )
-    end
-end
-
-local function createRadialFloorRays(parent: Instance, namePrefix: string, center: Vector3, innerRadius: number, outerRadius: number, count: number, color: Color3, yOffset: number)
-    local length = outerRadius - innerRadius
-    local midpointRadius = innerRadius + length * 0.5
-
-    for index = 1, count do
-        local angle = (math.pi * 2) * (index / count)
-        local direction = Vector3.new(math.cos(angle), 0, math.sin(angle))
-        local position = center + direction * midpointRadius
-        local ray = BuildUtils.CreatePart(
-            parent,
-            string.format("%s_%d", namePrefix, index),
-            Vector3.new(1.35, 0.18, length),
-            CFrame.new(position) * CFrame.Angles(0, math.pi * 0.5 - angle, 0),
-            color,
-            Enum.Material.Marble,
-            nil,
-            nil
-        )
-        ray.CanCollide = false
-    end
-end
-
 local function createLowBollard(parent: Instance, name: string, position: Vector3, accentColor: Color3)
     BuildUtils.CreateVerticalCylinder(parent, string.format("%s_Post", name), 5.5, 0.45, position + Vector3.new(0, 2.75, 0), Color3.fromRGB(117, 102, 77), Enum.Material.Metal, nil)
     BuildUtils.CreateSphere(parent, string.format("%s_Glow", name), 1.7, position + Vector3.new(0, 5.8, 0), accentColor, Enum.Material.Neon, nil)
 end
 
-local function createDistrictTerrainBand(parent: Instance, namePrefix: string, center: Vector3, radiusX: number, radiusZ: number, rockColor: Color3)
+-- `skip` names ridges or aprons (e.g. "NorthFrame", "Apron_3") that would land inside a
+-- neighbouring district.
+local function createDistrictTerrainBand(parent: Instance, namePrefix: string, center: Vector3, radiusX: number, radiusZ: number, rockColor: Color3, skip: { [string]: boolean }?)
     local band = BuildUtils.CreateFolder(parent, string.format("%sTerrainBand", namePrefix))
+    local skipped = skip or {}
 
     for index, ridge in ipairs({
         { Name = "WestNorthFrame", Offset = Vector3.new(-radiusX * 1.02, 0, -radiusZ * 0.52), Yaw = -20, Length = 360, Height = 122, Depth = 136 },
@@ -362,6 +335,10 @@ local function createDistrictTerrainBand(parent: Instance, namePrefix: string, c
         { Name = "NorthFrame", Offset = Vector3.new(0, 0, -radiusZ * 1.08), Yaw = 0, Length = 470, Height = 136, Depth = 108 },
         { Name = "SouthFrame", Offset = Vector3.new(0, 0, radiusZ * 1.12), Yaw = 180, Length = 500, Height = 142, Depth = 112 },
     }) do
+        if skipped[ridge.Name] then
+            continue
+        end
+
         createStylizedRidge(
             band,
             string.format("%s_%s_%d", namePrefix, ridge.Name, index),
@@ -380,6 +357,10 @@ local function createDistrictTerrainBand(parent: Instance, namePrefix: string, c
         { Offset = Vector3.new(0, 4, -radiusZ * 0.94), Size = Vector3.new(300, 10, 118), Yaw = 0 },
         { Offset = Vector3.new(0, 4, radiusZ * 0.98), Size = Vector3.new(320, 10, 122), Yaw = 0 },
     }) do
+        if skipped[string.format("Apron_%d", index)] then
+            continue
+        end
+
         makeDecorativePart(BuildUtils.CreatePart(
             band,
             string.format("%sApron_%d", namePrefix, index),
@@ -398,7 +379,7 @@ local function createWorldBackdrop(parent: Instance, center: Vector3)
 
     for index, ridge in ipairs({
         { Name = "FarNorthWest", Position = center + Vector3.new(-1120, 0, -1180), Length = 560, Height = 196, Depth = 194, Yaw = 16, Color = DESERT_ROCK },
-        { Name = "FarNorth", Position = center + Vector3.new(0, 0, -1300), Length = 760, Height = 228, Depth = 186, Yaw = -2, Color = Color3.fromRGB(142, 114, 83) },
+        { Name = "FarNorth", Position = center + Vector3.new(0, 0, -1990), Length = 760, Height = 228, Depth = 186, Yaw = -2, Color = Color3.fromRGB(142, 114, 83) },
         { Name = "FarNorthEast", Position = center + Vector3.new(1120, 0, -1160), Length = 560, Height = 192, Depth = 190, Yaw = -16, Color = DESERT_ROCK },
         { Name = "FarWest", Position = center + Vector3.new(-1320, 0, 260), Length = 470, Height = 182, Depth = 214, Yaw = 26, Color = Color3.fromRGB(136, 108, 79) },
         { Name = "FarEast", Position = center + Vector3.new(1320, 0, 260), Length = 470, Height = 182, Depth = 214, Yaw = -24, Color = Color3.fromRGB(140, 112, 81) },
@@ -408,83 +389,6 @@ local function createWorldBackdrop(parent: Instance, center: Vector3)
     }) do
         createStylizedRidge(backdrop, string.format("%sBackdrop_%d", ridge.Name, index), ridge.Position, ridge.Yaw, ridge.Length, ridge.Height, ridge.Depth, ridge.Color)
     end
-end
-
-local function createPrayerMatRows(parent: Instance, namePrefix: string, origin: Vector3, rowCount: number, columnCount: number, facingRadians: number, matColor: Color3)
-    local spacingX = 10
-    local spacingZ = 15
-
-    for row = 1, rowCount do
-        for column = 1, columnCount do
-            local localX = (column - (columnCount + 1) * 0.5) * spacingX
-            local localZ = (row - 1) * spacingZ
-            local cframe = CFrame.new(origin) * CFrame.Angles(0, facingRadians, 0) * CFrame.new(localX, 0, localZ)
-
-            BuildUtils.CreatePart(
-                parent,
-                string.format("%s_%d_%d", namePrefix, row, column),
-                Vector3.new(7, 0.18, 12),
-                cframe,
-                matColor,
-                Enum.Material.Fabric,
-                nil,
-                nil
-            )
-        end
-    end
-end
-
-local function createMaqamIbrahimMarker(parent: Instance, center: Vector3)
-    local markerFolder = BuildUtils.CreateFolder(parent, "MaqamIbrahimMarker")
-    local markerCenter = center + Vector3.new(48, 0, -54)
-
-    BuildUtils.CreateVerticalCylinder(markerFolder, "GoldBase", 2.2, 8, markerCenter + Vector3.new(0, 6.1, 0), GOLD_ACCENT, Enum.Material.Metal, nil)
-    BuildUtils.CreateVerticalCylinder(markerFolder, "GlassCover", 9, 5.4, markerCenter + Vector3.new(0, 12, 0), Color3.fromRGB(194, 217, 225), Enum.Material.Glass, 0.42)
-    BuildUtils.CreateSphere(markerFolder, "GoldDome", 11, markerCenter + Vector3.new(0, 17.8, 0), GOLD_ACCENT, Enum.Material.Metal, nil)
-    BuildUtils.CreatePart(markerFolder, "StoneInside", Vector3.new(5.2, 2.4, 5.2), CFrame.new(markerCenter + Vector3.new(0, 8.3, 0)), Color3.fromRGB(169, 150, 120), Enum.Material.Slate, nil, nil)
-    BuildUtils.CreatePart(markerFolder, "FootprintA", Vector3.new(1.2, 0.25, 2), CFrame.new(markerCenter + Vector3.new(-1, 9.62, 0)), Color3.fromRGB(103, 91, 73), Enum.Material.Slate, Enum.PartType.Ball, nil)
-    BuildUtils.CreatePart(markerFolder, "FootprintB", Vector3.new(1.2, 0.25, 2), CFrame.new(markerCenter + Vector3.new(1, 9.62, 0)), Color3.fromRGB(103, 91, 73), Enum.Material.Slate, Enum.PartType.Ball, nil)
-    createFloorPlaque(
-        markerFolder,
-        "MaqamPlaque",
-        CFrame.new(markerCenter + Vector3.new(0, 7.1, -20)) * CFrame.Angles(0, math.rad(180), 0),
-        Vector3.new(30, 0.45, 10),
-        "Maqam Ibrahim",
-        "Small marker, not a 1:1 replica.",
-        Color3.fromRGB(92, 78, 56),
-        nil
-    )
-end
-
-local function createHijrIsmailMarker(parent: Instance, center: Vector3)
-    local markerFolder = BuildUtils.CreateFolder(parent, "HijrIsmailMarker")
-    local arcCenter = center + Vector3.new(0, 0, 42)
-
-    for index = 1, 18 do
-        local angle = math.rad(180 + (index - 1) * 10)
-        local position = arcCenter + Vector3.new(math.cos(angle) * 38, 0, math.sin(angle) * 38)
-        BuildUtils.CreatePart(
-            markerFolder,
-            string.format("LowArcWall_%d", index),
-            Vector3.new(9, 3.2, 3.2),
-            CFrame.new(position + Vector3.new(0, 7.2, 0)) * CFrame.Angles(0, -angle, 0),
-            Color3.fromRGB(235, 230, 218),
-            Enum.Material.Marble,
-            nil,
-            nil
-        )
-    end
-
-    createFloorPlaque(
-        markerFolder,
-        "HijrPlaque",
-        CFrame.new(arcCenter + Vector3.new(0, 7.1, 58)),
-        Vector3.new(30, 0.45, 10),
-        "Hijr / Hateem",
-        "Low landmark marker.",
-        Color3.fromRGB(82, 75, 61),
-        nil
-    )
 end
 
 local function createArcadeBlock(parent: Instance, namePrefix: string, center: Vector3, width: number, depth: number, floorColor: Color3, wallColor: Color3, roofColor: Color3)
@@ -957,297 +861,6 @@ createLightPost(district, "ParkourLightWest", center + Vector3.new(-62, 0, 32))
 createLightPost(district, "ParkourLightEast", center + Vector3.new(62, 0, 32))
 end
 
-local function createHorizontalCylinder(parent: Instance, name: string, length: number, radius: number, cframe: CFrame, color: Color3, material: Enum.Material, transparency: number?): Part
-    return BuildUtils.CreatePart(
-        parent,
-        name,
-        Vector3.new(length, radius * 2, radius * 2),
-        cframe,
-        color,
-        material,
-        Enum.PartType.Cylinder,
-        transparency
-    )
-end
-
-local function createKaabaGoldMotifs(parent: Instance, center: Vector3, bodyHalfX: number, bodyHalfZ: number, bodyCenterY: number, bodyHeight: number, bandY: number, baseY: number)
-    local motifCountFront = 7
-    local motifCountSide = 5
-    local usableWidthFront = bodyHalfX * 2 - 18
-    local usableWidthSide = bodyHalfZ * 2 - 14
-    local gold = Color3.fromRGB(222, 184, 93)
-    local deepGold = Color3.fromRGB(166, 126, 46)
-
-    for index = 1, motifCountFront do
-        local alpha = (index - 1) / (motifCountFront - 1)
-        local offset = -usableWidthFront * 0.5 + usableWidthFront * alpha
-        local motifY = bandY - 7
-
-        BuildUtils.CreatePart(parent, string.format("KaabaFrontGoldMedallion_%d", index), Vector3.new(4.6, 2.6, 0.95), CFrame.new(center + Vector3.new(offset, motifY, -bodyHalfZ - 1.55)), gold, Enum.Material.Metal, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("KaabaBackGoldMedallion_%d", index), Vector3.new(4.6, 2.6, 0.95), CFrame.new(center + Vector3.new(offset, motifY, bodyHalfZ + 1.55)), gold, Enum.Material.Metal, nil, nil)
-    end
-
-    for index = 1, motifCountSide do
-        local alpha = (index - 1) / math.max(motifCountSide - 1, 1)
-        local offset = -usableWidthSide * 0.5 + usableWidthSide * alpha
-        local motifY = bandY - 7
-
-        BuildUtils.CreatePart(parent, string.format("KaabaLeftGoldMedallion_%d", index), Vector3.new(0.95, 2.6, 4.6), CFrame.new(center + Vector3.new(-bodyHalfX - 1.55, motifY, offset)), gold, Enum.Material.Metal, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("KaabaRightGoldMedallion_%d", index), Vector3.new(0.95, 2.6, 4.6), CFrame.new(center + Vector3.new(bodyHalfX + 1.55, motifY, offset)), gold, Enum.Material.Metal, nil, nil)
-    end
-
-    for _, side in ipairs({
-        { Name = "Front", Size = Vector3.new(bodyHalfX * 2 + 2, 1.15, 0.9), Offset = Vector3.new(0, baseY + 8.4, -bodyHalfZ - 1.35) },
-        { Name = "Back", Size = Vector3.new(bodyHalfX * 2 + 2, 1.15, 0.9), Offset = Vector3.new(0, baseY + 8.4, bodyHalfZ + 1.35) },
-        { Name = "Left", Size = Vector3.new(0.9, 1.15, bodyHalfZ * 2 + 2), Offset = Vector3.new(-bodyHalfX - 1.35, baseY + 8.4, 0) },
-        { Name = "Right", Size = Vector3.new(0.9, 1.15, bodyHalfZ * 2 + 2), Offset = Vector3.new(bodyHalfX + 1.35, baseY + 8.4, 0) },
-    }) do
-        BuildUtils.CreatePart(parent, string.format("KaabaLowerKiswahTrim%s", side.Name), side.Size, CFrame.new(center + side.Offset), deepGold, Enum.Material.Metal, nil, nil)
-    end
-
-    for row = 1, 3 do
-        for column = 1, 2 do
-            local x = (column == 1) and -2.45 or 2.45
-            local y = baseY + 10.8 + row * 4.25
-            BuildUtils.CreatePart(parent, string.format("KaabaDoorRaisedPanel_%d_%d", row, column), Vector3.new(3.2, 2.5, 2), CFrame.new(center + Vector3.new(x, y, -bodyHalfZ - 2.75)), gold, Enum.Material.Metal, nil, nil)
-        end
-    end
-
-    BuildUtils.CreatePart(parent, "KaabaDoorHandleLeft", Vector3.new(0.8, 3.2, 2.1), CFrame.new(center + Vector3.new(-2.1, baseY + 14.4, -bodyHalfZ - 3.05)), Color3.fromRGB(236, 205, 123), Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaDoorHandleRight", Vector3.new(0.8, 3.2, 2.1), CFrame.new(center + Vector3.new(2.1, baseY + 14.4, -bodyHalfZ - 3.05)), Color3.fromRGB(236, 205, 123), Enum.Material.Metal, nil, nil)
-
-    for index = 1, 10 do
-        local alpha = (index - 1) / 9
-        local x = -bodyHalfX + 6 + (bodyHalfX * 2 - 12) * alpha
-        local fringeY = bodyCenterY - bodyHeight * 0.5 + 3.4
-
-        BuildUtils.CreatePart(parent, string.format("KaabaFrontClothFringe_%d", index), Vector3.new(0.8, 6.2, 0.72), CFrame.new(center + Vector3.new(x, fringeY, -bodyHalfZ - 1.45)), Color3.fromRGB(4, 4, 4), Enum.Material.Fabric, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("KaabaBackClothFringe_%d", index), Vector3.new(0.8, 6.2, 0.72), CFrame.new(center + Vector3.new(x, fringeY, bodyHalfZ + 1.45)), Color3.fromRGB(4, 4, 4), Enum.Material.Fabric, nil, nil)
-    end
-
-    for index = 1, 8 do
-        local alpha = (index - 1) / 7
-        local z = -bodyHalfZ + 6 + (bodyHalfZ * 2 - 12) * alpha
-        local fringeY = bodyCenterY - bodyHeight * 0.5 + 3.4
-
-        BuildUtils.CreatePart(parent, string.format("KaabaLeftClothFringe_%d", index), Vector3.new(0.72, 6.2, 0.8), CFrame.new(center + Vector3.new(-bodyHalfX - 1.45, fringeY, z)), Color3.fromRGB(4, 4, 4), Enum.Material.Fabric, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("KaabaRightClothFringe_%d", index), Vector3.new(0.72, 6.2, 0.8), CFrame.new(center + Vector3.new(bodyHalfX + 1.45, fringeY, z)), Color3.fromRGB(4, 4, 4), Enum.Material.Fabric, nil, nil)
-    end
-end
-
-local function createDetailedKaaba(parent: Instance, center: Vector3)
-    local baseY = 7.8
-    local bodyHeight = 67
-    local bodyHalfX = 38
-    local bodyHalfZ = 31
-    local bodyCenterY = baseY + bodyHeight * 0.5
-    local bandY = baseY + bodyHeight - 11
-    local topY = baseY + bodyHeight
-    local blackCloth = Color3.fromRGB(12, 12, 12)
-    local blackPanel = Color3.fromRGB(22, 21, 20)
-    local deepPanel = Color3.fromRGB(7, 7, 7)
-
-    BuildUtils.CreatePart(parent, "KaabaFoundation", Vector3.new(104, 3.4, 92), CFrame.new(center + Vector3.new(0, 6.7, 0)), Color3.fromRGB(44, 43, 41), Enum.Material.Slate, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaBaseStone", Vector3.new(96, 1.4, 84), CFrame.new(center + Vector3.new(0, 8.45, 0)), Color3.fromRGB(206, 199, 184), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaRaisedMarbleStep", Vector3.new(90, 1.15, 78), CFrame.new(center + Vector3.new(0, 9.85, 0)), Color3.fromRGB(222, 214, 198), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaMainBody", Vector3.new(bodyHalfX * 2, bodyHeight, bodyHalfZ * 2), CFrame.new(center + Vector3.new(0, bodyCenterY, 0)), blackCloth, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaRoofLip", Vector3.new(bodyHalfX * 2 + 6, 2.8, bodyHalfZ * 2 + 6), CFrame.new(center + Vector3.new(0, topY + 1.4, 0)), Color3.fromRGB(18, 18, 17), Enum.Material.Slate, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaTopTrim", Vector3.new(bodyHalfX * 2 + 10, 1.0, bodyHalfZ * 2 + 10), CFrame.new(center + Vector3.new(0, topY + 3.4, 0)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaShadowHemFront", Vector3.new(bodyHalfX * 2 + 1.4, 3.4, 1), CFrame.new(center + Vector3.new(0, baseY + 3.8, -bodyHalfZ - 1.12)), Color3.fromRGB(5, 5, 5), Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaShadowHemBack", Vector3.new(bodyHalfX * 2 + 1.4, 3.4, 1), CFrame.new(center + Vector3.new(0, baseY + 3.8, bodyHalfZ + 1.12)), Color3.fromRGB(5, 5, 5), Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaShadowHemLeft", Vector3.new(1, 3.4, bodyHalfZ * 2 + 1.4), CFrame.new(center + Vector3.new(-bodyHalfX - 1.12, baseY + 3.8, 0)), Color3.fromRGB(5, 5, 5), Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaShadowHemRight", Vector3.new(1, 3.4, bodyHalfZ * 2 + 1.4), CFrame.new(center + Vector3.new(bodyHalfX + 1.12, baseY + 3.8, 0)), Color3.fromRGB(5, 5, 5), Enum.Material.Fabric, nil, nil)
-
-    BuildUtils.CreatePart(parent, "KaabaFrontClothPanel", Vector3.new(bodyHalfX * 2 - 4, bodyHeight - 5, 0.7), CFrame.new(center + Vector3.new(0, bodyCenterY - 1, -bodyHalfZ - 0.45)), blackPanel, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaBackClothPanel", Vector3.new(bodyHalfX * 2 - 4, bodyHeight - 5, 0.7), CFrame.new(center + Vector3.new(0, bodyCenterY - 1, bodyHalfZ + 0.45)), deepPanel, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaLeftClothPanel", Vector3.new(0.7, bodyHeight - 5, bodyHalfZ * 2 - 4), CFrame.new(center + Vector3.new(-bodyHalfX - 0.45, bodyCenterY - 1, 0)), blackPanel, Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaRightClothPanel", Vector3.new(0.7, bodyHeight - 5, bodyHalfZ * 2 - 4), CFrame.new(center + Vector3.new(bodyHalfX + 0.45, bodyCenterY - 1, 0)), deepPanel, Enum.Material.Fabric, nil, nil)
-
-    for _, side in ipairs({
-        { Name = "Front", Size = Vector3.new(bodyHalfX * 2 + 2, 3.2, 1), Offset = Vector3.new(0, bandY, -bodyHalfZ - 1) },
-        { Name = "Back", Size = Vector3.new(bodyHalfX * 2 + 2, 3.2, 1), Offset = Vector3.new(0, bandY, bodyHalfZ + 1) },
-        { Name = "Left", Size = Vector3.new(1, 3.2, bodyHalfZ * 2 + 2), Offset = Vector3.new(-bodyHalfX - 1, bandY, 0) },
-        { Name = "Right", Size = Vector3.new(1, 3.2, bodyHalfZ * 2 + 2), Offset = Vector3.new(bodyHalfX + 1, bandY, 0) },
-    }) do
-        local insetSize
-
-        if side.Name == "Front" or side.Name == "Back" then
-            insetSize = Vector3.new(side.Size.X - 10, 1.1, side.Size.Z + 0.08)
-        else
-            insetSize = Vector3.new(side.Size.X + 0.08, 1.1, side.Size.Z - 10)
-        end
-
-        BuildUtils.CreatePart(parent, string.format("KaabaKiswahBand%s", side.Name), side.Size, CFrame.new(center + side.Offset), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("KaabaKiswahBandInset%s", side.Name), insetSize, CFrame.new(center + side.Offset + Vector3.new(0, -0.05, 0)), Color3.fromRGB(145, 109, 38), Enum.Material.Metal, nil, nil)
-    end
-
-    for _, x in ipairs({ -29, -18, -7, 7, 18, 29 }) do
-        BuildUtils.CreatePart(parent, string.format("KaabaFrontSeam_%d", x), Vector3.new(0.6, bodyHeight - 8, 0.82), CFrame.new(center + Vector3.new(x, bodyCenterY - 2, -bodyHalfZ - 1.05)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("KaabaBackSeam_%d", x), Vector3.new(0.6, bodyHeight - 8, 0.82), CFrame.new(center + Vector3.new(x, bodyCenterY - 2, bodyHalfZ + 1.05)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
-    end
-
-    for _, z in ipairs({ -21, -11, 0, 11, 21 }) do
-        BuildUtils.CreatePart(parent, string.format("KaabaLeftSeam_%d", z), Vector3.new(0.82, bodyHeight - 8, 0.6), CFrame.new(center + Vector3.new(-bodyHalfX - 1.05, bodyCenterY - 2, z)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("KaabaRightSeam_%d", z), Vector3.new(0.82, bodyHeight - 8, 0.6), CFrame.new(center + Vector3.new(bodyHalfX + 1.05, bodyCenterY - 2, z)), Color3.fromRGB(3, 3, 3), Enum.Material.Fabric, nil, nil)
-    end
-
-    for _, corner in ipairs({
-        Vector3.new(-bodyHalfX - 0.8, bodyCenterY - 0.8, -bodyHalfZ - 0.8),
-        Vector3.new(bodyHalfX + 0.8, bodyCenterY - 0.8, -bodyHalfZ - 0.8),
-        Vector3.new(-bodyHalfX - 0.8, bodyCenterY - 0.8, bodyHalfZ + 0.8),
-        Vector3.new(bodyHalfX + 0.8, bodyCenterY - 0.8, bodyHalfZ + 0.8),
-    }) do
-        BuildUtils.CreatePart(parent, string.format("KaabaCornerTrim_%d_%d", corner.X, corner.Z), Vector3.new(1.1, bodyHeight - 4, 1.1), CFrame.new(center + corner), Color3.fromRGB(18, 18, 18), Enum.Material.Slate, nil, nil)
-    end
-
-    BuildUtils.CreatePart(parent, "KaabaDoorGoldFrame", Vector3.new(14, 26, 1.4), CFrame.new(center + Vector3.new(0, baseY + 17.4, -bodyHalfZ - 1.8)), Color3.fromRGB(191, 151, 62), Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaDoorInset", Vector3.new(10, 20.5, 1.6), CFrame.new(center + Vector3.new(0, baseY + 16.5, -bodyHalfZ - 2.2)), Color3.fromRGB(145, 104, 37), Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaDoorCenterPattern", Vector3.new(1.2, 19.5, 1.8), CFrame.new(center + Vector3.new(0, baseY + 16.5, -bodyHalfZ - 2.5)), Color3.fromRGB(229, 197, 112), Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(parent, "KaabaDoorUpperPanel", Vector3.new(11, 4.8, 1.8), CFrame.new(center + Vector3.new(0, baseY + 26.3, -bodyHalfZ - 2.55)), Color3.fromRGB(230, 192, 90), Enum.Material.Metal, nil, nil)
-
-    BuildUtils.CreateSphere(parent, "HajarAswadSilverFrame", 7.2, center + Vector3.new(bodyHalfX + 0.6, baseY + 10.4, -bodyHalfZ - 0.6), Color3.fromRGB(205, 207, 203), Enum.Material.Metal, nil)
-    BuildUtils.CreateSphere(parent, "HajarAswadMarker", 4.6, center + Vector3.new(bodyHalfX + 1.1, baseY + 10.4, -bodyHalfZ - 1.1), Color3.fromRGB(8, 8, 8), Enum.Material.Slate, nil)
-    BuildUtils.CreatePart(parent, "KaabaGoldSpoutMarker", Vector3.new(14, 1.3, 1.8), CFrame.new(center + Vector3.new(-9, topY + 0.5, bodyHalfZ + 4.2)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-
-    createKaabaGoldMotifs(parent, center, bodyHalfX, bodyHalfZ, bodyCenterY, bodyHeight, bandY, baseY)
-
-    for index = 1, 8 do
-        local angle = (math.pi * 2) * (index / 8)
-        createLowBollard(parent, string.format("KaabaInnerLamp_%d", index), center + Vector3.new(math.cos(angle) * 62, 0, math.sin(angle) * 62), Color3.fromRGB(255, 226, 170))
-    end
-end
-
-local function createGrandArcadeAccent(parent: Instance, center: Vector3, name: string, radius: number, count: number)
-    for index = 1, count do
-        local angle = (math.pi * 2) * (index / count)
-        local position = center + Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
-
-        BuildUtils.CreateVerticalCylinder(parent, string.format("%s_Column_%d", name, index), 26, 2.6, position + Vector3.new(0, 17, 0), MECCA_MARBLE, Enum.Material.Marble, nil)
-
-        if index % 2 == 0 then
-            BuildUtils.CreatePart(parent, string.format("%s_Lantern_%d", name, index), Vector3.new(3.2, 5.2, 3.2), CFrame.new(position + Vector3.new(0, 33.5, 0)), Color3.fromRGB(255, 228, 175), Enum.Material.Neon, nil, 0.08)
-        end
-    end
-end
-
-local function createLayeredHaramSideFacade(parent: Instance, namePrefix: string, sideCenter: Vector3, yawDegrees: number, length: number)
-    local baseCFrame = CFrame.new(sideCenter) * CFrame.Angles(0, math.rad(yawDegrees), 0)
-    local bayCount = 18
-    local spacing = length / bayCount
-
-    BuildUtils.CreatePart(parent, string.format("%s_BasePlinth", namePrefix), Vector3.new(length + 48, 6, 26), baseCFrame * CFrame.new(0, 9, 0), Color3.fromRGB(222, 216, 202), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(parent, string.format("%s_LowerCornice", namePrefix), Vector3.new(length + 28, 4, 18), baseCFrame * CFrame.new(0, 23, -1), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(parent, string.format("%s_UpperGalleryWall", namePrefix), Vector3.new(length + 36, 20, 22), baseCFrame * CFrame.new(0, 42, 0), Color3.fromRGB(237, 232, 220), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(parent, string.format("%s_UpperCornice", namePrefix), Vector3.new(length + 52, 5, 28), baseCFrame * CFrame.new(0, 55, 0), Color3.fromRGB(231, 225, 212), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(parent, string.format("%s_RoofGoldTrim", namePrefix), Vector3.new(length + 50, 1.2, 29), baseCFrame * CFrame.new(0, 58.5, 0), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-
-    for index = 0, bayCount do
-        local x = -length * 0.5 + index * spacing
-
-        BuildUtils.CreatePart(parent, string.format("%s_LowerPier_%d", namePrefix, index + 1), Vector3.new(5.5, 35, 9), baseCFrame * CFrame.new(x, 28, -7), MECCA_MARBLE, Enum.Material.Marble, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("%s_UpperPier_%d", namePrefix, index + 1), Vector3.new(4, 21, 8), baseCFrame * CFrame.new(x, 43, 7), MECCA_STONE, Enum.Material.Marble, nil, nil)
-
-        if index % 2 == 0 then
-            BuildUtils.CreatePart(parent, string.format("%s_PierGoldStripe_%d", namePrefix, index + 1), Vector3.new(6.2, 1.5, 9.6), baseCFrame * CFrame.new(x, 44, -7), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-        end
-    end
-
-    for bay = 1, bayCount do
-        local x = -length * 0.5 + (bay - 0.5) * spacing
-        local bayWidth = spacing - 10
-
-        BuildUtils.CreatePart(parent, string.format("%s_ShadowArchBack_%d", namePrefix, bay), Vector3.new(bayWidth, 21, 1.1), baseCFrame * CFrame.new(x, 31, -12.2), DARK_PANEL, Enum.Material.SmoothPlastic, nil, 0.08)
-        createHorizontalCylinder(parent, string.format("%s_RoundedArch_%d", namePrefix, bay), bayWidth, 5.4, baseCFrame * CFrame.new(x, 40.8, -12), MECCA_MARBLE, Enum.Material.Marble, nil)
-        BuildUtils.CreatePart(parent, string.format("%s_GlassBalcony_%d", namePrefix, bay), Vector3.new(math.max(6, bayWidth - 6), 7, 1.1), baseCFrame * CFrame.new(x, 49, 13), GLASS_TINT, Enum.Material.Glass, nil, 0.24)
-        BuildUtils.CreatePart(parent, string.format("%s_ArchGoldSill_%d", namePrefix, bay), Vector3.new(bayWidth, 1.2, 2.6), baseCFrame * CFrame.new(x, 22.5, -12), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-    end
-end
-
-local function createGrandHaramGate(parent: Instance, name: string, gateCenter: Vector3, yawDegrees: number, accentColor: Color3)
-    local baseCFrame = CFrame.new(gateCenter) * CFrame.Angles(0, math.rad(yawDegrees), 0)
-    local bayCenters = { -78, -28, 28, 78 }
-
-    BuildUtils.CreatePart(parent, string.format("%s_GatePlatform", name), Vector3.new(236, 6, 48), baseCFrame * CFrame.new(0, 8.5, 0), Color3.fromRGB(225, 219, 207), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(parent, string.format("%s_GrandFacade", name), Vector3.new(226, 40, 24), baseCFrame * CFrame.new(0, 30, 0), Color3.fromRGB(226, 219, 204), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(parent, string.format("%s_UpperBand", name), Vector3.new(238, 7, 28), baseCFrame * CFrame.new(0, 54, 0), Color3.fromRGB(235, 229, 216), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(parent, string.format("%s_GoldNameBand", name), Vector3.new(174, 3, 29), baseCFrame * CFrame.new(0, 48, -0.4), accentColor, Enum.Material.Metal, nil, nil)
-
-    for index, x in ipairs({ -110, -55, 0, 55, 110 }) do
-        BuildUtils.CreatePart(parent, string.format("%s_GateColumn_%d", name, index), Vector3.new(9, 48, 14), baseCFrame * CFrame.new(x, 31, -3), MECCA_MARBLE, Enum.Material.Marble, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("%s_GateColumnCap_%d", name, index), Vector3.new(14, 4, 18), baseCFrame * CFrame.new(x, 56, -3), accentColor, Enum.Material.Metal, nil, nil)
-    end
-
-    for index, x in ipairs(bayCenters) do
-        BuildUtils.CreatePart(parent, string.format("%s_DeepEntryShadow_%d", name, index), Vector3.new(35, 30, 2.4), baseCFrame * CFrame.new(x, 26, -15), Color3.fromRGB(38, 39, 39), Enum.Material.SmoothPlastic, nil, 0.12)
-        createHorizontalCylinder(parent, string.format("%s_EntryArch_%d", name, index), 34, 8.2, baseCFrame * CFrame.new(x, 40, -15), MECCA_MARBLE, Enum.Material.Marble, nil)
-        BuildUtils.CreatePart(parent, string.format("%s_EntryGoldThreshold_%d", name, index), Vector3.new(36, 1.4, 5.4), baseCFrame * CFrame.new(x, 12.5, -17), accentColor, Enum.Material.Metal, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("%s_EntryGlassGlow_%d", name, index), Vector3.new(24, 12, 1.6), baseCFrame * CFrame.new(x, 29, -18), Color3.fromRGB(199, 218, 224), Enum.Material.Glass, nil, 0.28)
-    end
-
-    for index, x in ipairs({ -134, 134 }) do
-        local minaretBase = (baseCFrame * CFrame.new(x, 0, 0)).Position
-        BuildUtils.CreateMinaret(parent, string.format("%s_FlankingMinaret_%d", name, index), minaretBase, 104, MECCA_MARBLE, accentColor)
-    end
-end
-
-local function createClockHotelDetail(parent: Instance, position: Vector3, footprint: Vector2, height: number)
-    local podiumHeight = math.max(14, math.floor(height * 0.18))
-    local clockY = podiumHeight + height - 50
-    local faceZ = footprint.Y * 0.5 + 1.8
-    local facePosition = position + Vector3.new(0, clockY, faceZ)
-
-    BuildUtils.CreatePart(parent, "MakkahClockHotelCrownBase", Vector3.new(132, 18, 82), CFrame.new(position + Vector3.new(0, podiumHeight + height + 16, 0)), Color3.fromRGB(229, 224, 211), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(parent, "MakkahClockHotelCrownGold", Vector3.new(112, 4, 72), CFrame.new(position + Vector3.new(0, podiumHeight + height + 28, 0)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-    BuildUtils.CreateVerticalCylinder(parent, "MakkahClockHotelSpire", 74, 3.2, position + Vector3.new(0, podiumHeight + height + 70, 0), GOLD_ACCENT, Enum.Material.Metal, nil)
-    BuildUtils.CreateSphere(parent, "MakkahClockHotelSpireCrescentMarker", 15, position + Vector3.new(0, podiumHeight + height + 111, 0), GOLD_ACCENT, Enum.Material.Metal, nil)
-
-    BuildUtils.CreatePart(parent, "MakkahClockFaceBackplate", Vector3.new(62, 54, 3), CFrame.new(facePosition + Vector3.new(0, 0, 0.2)), Color3.fromRGB(31, 54, 45), Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(parent, "MakkahClockFace", Vector3.new(2.4, 45, 45), CFrame.new(facePosition + Vector3.new(0, 0, 2.2)) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(242, 234, 208), Enum.Material.SmoothPlastic, Enum.PartType.Cylinder, nil)
-
-    for tick = 1, 12 do
-        local angle = (math.pi * 2) * (tick / 12)
-        local x = math.sin(angle) * 18
-        local y = math.cos(angle) * 18
-        BuildUtils.CreatePart(parent, string.format("MakkahClockTick_%d", tick), Vector3.new(1.2, (tick % 3 == 0) and 5.5 or 3.2, 1.6), CFrame.new(facePosition + Vector3.new(x, y, 4.3)) * CFrame.Angles(0, 0, -angle), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-    end
-
-    BuildUtils.CreatePart(parent, "MakkahClockMinuteHand", Vector3.new(1.3, 24, 1.8), CFrame.new(facePosition + Vector3.new(0, 4.5, 4.8)) * CFrame.Angles(0, 0, math.rad(-22)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(parent, "MakkahClockHourHand", Vector3.new(1.6, 17, 2), CFrame.new(facePosition + Vector3.new(3.8, 0, 5)) * CFrame.Angles(0, 0, math.rad(48)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-    BuildUtils.CreateSphere(parent, "MakkahClockCenterPin", 4.2, facePosition + Vector3.new(0, 0, 5.3), GOLD_ACCENT, Enum.Material.Metal, nil)
-end
-
-local function createGlassRing(parent: Instance, center: Vector3, name: string, radius: number, count: number, yOffset: number)
-    for index = 1, count do
-        local angle = (math.pi * 2) * (index / count)
-        local position = center + Vector3.new(math.cos(angle) * radius, yOffset, math.sin(angle) * radius)
-        local panel = BuildUtils.CreatePart(
-            parent,
-            string.format("%s_Glass_%d", name, index),
-            Vector3.new(18, 5, 1.1),
-            CFrame.new(position) * CFrame.Angles(0, -angle, 0),
-            Color3.fromRGB(178, 205, 218),
-            Enum.Material.Glass,
-            nil,
-            0.32
-        )
-        panel.CanCollide = false
-
-        if index % 2 == 0 then
-            local trim = BuildUtils.CreatePart(
-                parent,
-                string.format("%s_GoldTrim_%d", name, index),
-                Vector3.new(18, 0.55, 1.35),
-                CFrame.new(position + Vector3.new(0, 2.8, 0)) * CFrame.Angles(0, -angle, 0),
-                GOLD_ACCENT,
-                Enum.Material.Metal,
-                nil,
-                nil
-            )
-            trim.CanCollide = false
-        end
-    end
-end
-
 local function createTrailPulse(parent: Instance, name: string, position: Vector3, phase: number)
     local pulse = BuildUtils.CreateSphere(parent, name, 2, position + Vector3.new(0, 8.2, 0), Color3.fromRGB(247, 208, 117), Enum.Material.Neon, 0.22)
     pulse.CanCollide = false
@@ -1287,7 +900,7 @@ local function createLearningTrailStation(parent: Instance, step, stepIndex: num
         Vector3.new(24, 0.5, 14),
         step.Title,
         step.LocationName,
-        Color3.fromRGB(55, 58, 51),
+        Color3.fromRGB(28, 70, 54),
         {
             ActionText = (stepIndex == 1) and "Begin Walk" or "Study Stop",
             ObjectText = "Learning Trail",
@@ -1300,125 +913,40 @@ local function createLearningTrailStation(parent: Instance, step, stepIndex: num
     sign.Material = Enum.Material.Metal
 end
 
-local function createHaramLearningTrail(parent: Instance, center: Vector3)
+-- Stops sit beside the landmarks they teach about, on the open mataf floor (and the last one
+-- under the multi-level mataf expansion), with plaques turned to face the Kaaba.
+local function createHaramLearningTrail(parent: Instance, center: Vector3, landmarks: MasjidAlHaram.Landmarks)
     local trailFolder = BuildUtils.CreateFolder(parent, "HaramLearningTrail")
+    local floorOffset = Vector3.new(0, MasjidAlHaram.FloorHeight - 6.6, 0)
+
+    local function besideLandmark(landmark: Vector3, distance: number): Vector3
+        local flat = Vector3.new(landmark.X - center.X, 0, landmark.Z - center.Z)
+        return center + flat.Unit * (flat.Magnitude + distance)
+    end
+
+    local blackStoneCorner = (landmarks.Kaaba * CFrame.new(-26, 0, 22)).Position
     local stationPositions = {
-        center + Vector3.new(0, 0, 520),
-        center + Vector3.new(314, 0, 404),
-        center + Vector3.new(-522, 0, 76),
-        center + Vector3.new(454, 0, -236),
-        center + Vector3.new(-338, 0, 432),
-        center + Vector3.new(0, 0, -558),
+        center + Vector3.new(0, 0, 150), -- arrival side, north
+        besideLandmark(blackStoneCorner, 70), -- facing the Black Stone corner, east
+        center + Vector3.new(150, 0, -30), -- west side of the tawaf circle
+        besideLandmark(landmarks.MaqamIbrahim, 22),
+        besideLandmark(landmarks.HijrIsmail, 24),
+        center + Vector3.new(-40, 0, 232), -- under the mataf expansion galleries, north
     }
-    local stationOrientations = { 0, 230, 90, 212, 12, 180 }
 
     for index, step in ipairs(HaramLearningTrail.Steps) do
         local position = stationPositions[index]
 
         if position then
-            createLearningTrailStation(trailFolder, step, index, position, stationOrientations[index] or 0)
+            position += floorOffset
+            local toKaaba = center - position
+            local facing = math.deg(math.atan2(-toKaaba.X, -toKaaba.Z))
+            createLearningTrailStation(trailFolder, step, index, position, facing)
 
             if index > 1 then
-                createTrailDotsBetween(trailFolder, string.format("Trail_%d_%d", index - 1, index), stationPositions[index - 1], position, index)
+                createTrailDotsBetween(trailFolder, string.format("Trail_%d_%d", index - 1, index), stationPositions[index - 1] + floorOffset, position, index)
             end
         end
-    end
-end
-
-local function createGalleryStairway(parent: Instance, name: string, center: Vector3, angle: number)
-    local stairCount = 12
-    local totalLength = 168
-    local yaw = -angle
-
-    for step = 1, stairCount do
-        local localX = (step - (stairCount + 1) * 0.5) * (totalLength / stairCount)
-        local stepHeight = 9.6 + step * 1.35
-        local stepCFrame = CFrame.new(center + Vector3.new(0, stepHeight, 0)) * CFrame.Angles(0, yaw, 0) * CFrame.new(localX, 0, 0)
-
-        BuildUtils.CreatePart(
-            parent,
-            string.format("%s_Step_%02d", name, step),
-            Vector3.new(14, 1.25, 22),
-            stepCFrame,
-            Color3.fromRGB(218, 211, 197),
-            Enum.Material.Marble,
-            nil,
-            nil
-        )
-    end
-
-    BuildUtils.CreatePart(
-        parent,
-        string.format("%s_RailNorth", name),
-        Vector3.new(totalLength + 10, 2.2, 2.2),
-        CFrame.new(center + Vector3.new(0, 20, 0)) * CFrame.Angles(0, yaw, 0) * CFrame.new(0, 0, -12),
-        GOLD_ACCENT,
-        Enum.Material.Metal,
-        nil,
-        nil
-    )
-    BuildUtils.CreatePart(
-        parent,
-        string.format("%s_RailSouth", name),
-        Vector3.new(totalLength + 10, 2.2, 2.2),
-        CFrame.new(center + Vector3.new(0, 20, 0)) * CFrame.Angles(0, yaw, 0) * CFrame.new(0, 0, 12),
-        GOLD_ACCENT,
-        Enum.Material.Metal,
-        nil,
-        nil
-    )
-    BuildUtils.CreatePart(
-        parent,
-        string.format("%s_SupportA", name),
-        Vector3.new(4, 24, 4),
-        CFrame.new(center + Vector3.new(0, 12, 0)) * CFrame.Angles(0, yaw, 0) * CFrame.new(-totalLength * 0.35, 0, -9),
-        MECCA_STONE,
-        Enum.Material.Marble,
-        nil,
-        nil
-    )
-    BuildUtils.CreatePart(
-        parent,
-        string.format("%s_SupportB", name),
-        Vector3.new(4, 24, 4),
-        CFrame.new(center + Vector3.new(0, 12, 0)) * CFrame.Angles(0, yaw, 0) * CFrame.new(totalLength * 0.35, 0, 9),
-        MECCA_STONE,
-        Enum.Material.Marble,
-        nil,
-        nil
-    )
-end
-
-local function createModernHaramDetailLayer(parent: Instance, center: Vector3)
-    local outerRadius = 566
-    local innerRadius = 326
-
-    for _, gallery in ipairs({
-        { Name = "Upper", Radius = outerRadius, Height = 35, Width = 56, Span = 1060, RailHeight = 41, RailCount = 84 },
-        { Name = "Sky", Radius = outerRadius + 64, Height = 58, Width = 40, Span = 1180, RailHeight = 64, RailCount = 96 },
-        { Name = "Inner", Radius = innerRadius, Height = 24, Width = 34, Span = 720, RailHeight = 30, RailCount = 60 },
-    }) do
-        BuildUtils.CreatePart(parent, string.format("%sGalleryNorth", gallery.Name), Vector3.new(gallery.Span, 8, gallery.Width), CFrame.new(center + Vector3.new(0, gallery.Height, -gallery.Radius)), Color3.fromRGB(239, 236, 229), Enum.Material.Marble, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("%sGallerySouth", gallery.Name), Vector3.new(gallery.Span, 8, gallery.Width), CFrame.new(center + Vector3.new(0, gallery.Height, gallery.Radius)), Color3.fromRGB(239, 236, 229), Enum.Material.Marble, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("%sGalleryWest", gallery.Name), Vector3.new(gallery.Width, 8, gallery.Span), CFrame.new(center + Vector3.new(-gallery.Radius, gallery.Height, 0)), Color3.fromRGB(239, 236, 229), Enum.Material.Marble, nil, nil)
-        BuildUtils.CreatePart(parent, string.format("%sGalleryEast", gallery.Name), Vector3.new(gallery.Width, 8, gallery.Span), CFrame.new(center + Vector3.new(gallery.Radius, gallery.Height, 0)), Color3.fromRGB(239, 236, 229), Enum.Material.Marble, nil, nil)
-
-        createGlassRing(parent, center, string.format("%sGalleryRail", gallery.Name), gallery.Radius, gallery.RailCount, gallery.RailHeight)
-    end
-
-    for index, angle in ipairs({
-        math.rad(28),
-        math.rad(62),
-        math.rad(118),
-        math.rad(152),
-        math.rad(208),
-        math.rad(242),
-        math.rad(298),
-        math.rad(332),
-    }) do
-        local direction = Vector3.new(math.cos(angle), 0, math.sin(angle))
-        local midpoint = center + direction * 432
-        createGalleryStairway(parent, string.format("UpperGalleryStairway_%d", index), midpoint, angle)
     end
 end
 
@@ -1429,104 +957,18 @@ local function buildKaabaHub(parent: Instance, center: Vector3)
     BuildUtils.CreatePart(district, "ExpansionDeck", Vector3.new(1600, 4, 1600), CFrame.new(center + Vector3.new(0, 1.5, 0)), Color3.fromRGB(207, 196, 176), Enum.Material.Marble, nil, nil)
     BuildUtils.CreatePart(district, "StonePlaza", Vector3.new(1420, 4, 1420), CFrame.new(center + Vector3.new(0, 2.3, 0)), Color3.fromRGB(228, 223, 212), Enum.Material.Marble, nil, nil)
     BuildUtils.CreatePart(district, "OuterWalk", Vector3.new(1010, 1, 1010), CFrame.new(center + Vector3.new(0, 4.85, 0)), MECCA_MARBLE, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "InnerCourt", Vector3.new(660, 1, 660), CFrame.new(center + Vector3.new(0, 5.95, 0)), Color3.fromRGB(232, 228, 218), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "CentralFocusCourt", Vector3.new(560, 1, 560), CFrame.new(center + Vector3.new(0, 6.08, 0)), Color3.fromRGB(238, 233, 224), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "NorthFocusBorder", Vector3.new(570, 0.26, 8), CFrame.new(center + Vector3.new(0, 6.62, -284)), Color3.fromRGB(193, 183, 163), Enum.Material.Slate, nil, nil).CanCollide = false
-    BuildUtils.CreatePart(district, "SouthFocusBorder", Vector3.new(570, 0.26, 8), CFrame.new(center + Vector3.new(0, 6.62, 284)), Color3.fromRGB(193, 183, 163), Enum.Material.Slate, nil, nil).CanCollide = false
-    BuildUtils.CreatePart(district, "WestFocusBorder", Vector3.new(8, 0.26, 570), CFrame.new(center + Vector3.new(-284, 6.62, 0)), Color3.fromRGB(193, 183, 163), Enum.Material.Slate, nil, nil).CanCollide = false
-    BuildUtils.CreatePart(district, "EastFocusBorder", Vector3.new(8, 0.26, 570), CFrame.new(center + Vector3.new(284, 6.62, 0)), Color3.fromRGB(193, 183, 163), Enum.Material.Slate, nil, nil).CanCollide = false
-    BuildUtils.CreatePart(district, "NorthProcessionalWalk", Vector3.new(94, 0.24, 200), CFrame.new(center + Vector3.new(0, 6.5, -392)), Color3.fromRGB(228, 219, 200), Enum.Material.Marble, nil, nil).CanCollide = false
-    BuildUtils.CreatePart(district, "SouthProcessionalWalk", Vector3.new(94, 0.24, 200), CFrame.new(center + Vector3.new(0, 6.5, 392)), Color3.fromRGB(228, 219, 200), Enum.Material.Marble, nil, nil).CanCollide = false
-    BuildUtils.CreatePart(district, "WestProcessionalWalk", Vector3.new(200, 0.24, 94), CFrame.new(center + Vector3.new(-392, 6.5, 0)), Color3.fromRGB(228, 219, 200), Enum.Material.Marble, nil, nil).CanCollide = false
-    BuildUtils.CreatePart(district, "EastProcessionalWalk", Vector3.new(200, 0.24, 94), CFrame.new(center + Vector3.new(392, 6.5, 0)), Color3.fromRGB(228, 219, 200), Enum.Material.Marble, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "SouthPlaza", Vector3.new(560, 1, 300), CFrame.new(center + Vector3.new(0, 4.86, -600)), Color3.fromRGB(236, 233, 226), Enum.Material.Marble, nil, nil)
 
-    createArcadeBlock(district, "NorthArcade", center + Vector3.new(0, 0, -334), 760, 100, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createArcadeBlock(district, "SouthArcade", center + Vector3.new(0, 0, 334), 760, 100, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createArcadeBlock(district, "WestArcade", center + Vector3.new(-334, 0, 0), 100, 650, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createArcadeBlock(district, "EastArcade", center + Vector3.new(334, 0, 0), 100, 650, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createArcadeBlock(district, "NorthOuterArcade", center + Vector3.new(0, 0, -622), 1190, 96, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createArcadeBlock(district, "SouthOuterArcade", center + Vector3.new(0, 0, 622), 1190, 96, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createArcadeBlock(district, "WestOuterArcade", center + Vector3.new(-622, 0, 0), 96, 1190, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createArcadeBlock(district, "EastOuterArcade", center + Vector3.new(622, 0, 0), 96, 1190, MECCA_MARBLE, MECCA_STONE, MECCA_STONE)
-    createLayeredHaramSideFacade(district, "NorthModernFacade", center + Vector3.new(0, 0, -630), 0, 1240)
-    createLayeredHaramSideFacade(district, "SouthModernFacade", center + Vector3.new(0, 0, 630), 180, 1240)
-    createLayeredHaramSideFacade(district, "EastModernFacade", center + Vector3.new(630, 0, 0), 90, 1240)
-    createLayeredHaramSideFacade(district, "WestModernFacade", center + Vector3.new(-630, 0, 0), -90, 1240)
-    createGrandArcadeAccent(district, center, "InnerColonnade", 268, 36)
-    createGrandArcadeAccent(district, center, "OuterColonnade", 468, 48)
-    BuildUtils.CreatePart(district, "NorthGate", Vector3.new(184, 42, 22), CFrame.new(center + Vector3.new(0, 21, -660)), MECCA_DARK, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "SouthGate", Vector3.new(184, 42, 22), CFrame.new(center + Vector3.new(0, 21, 660)), MECCA_DARK, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "EastGate", Vector3.new(22, 42, 184), CFrame.new(center + Vector3.new(660, 21, 0)), MECCA_DARK, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "WestGate", Vector3.new(22, 42, 184), CFrame.new(center + Vector3.new(-660, 21, 0)), MECCA_DARK, Enum.Material.Marble, nil, nil)
-    createGrandHaramGate(district, "NorthGrandHaramGate", center + Vector3.new(0, 0, -696), 0, GOLD_ACCENT)
-    createGrandHaramGate(district, "SouthGrandHaramGate", center + Vector3.new(0, 0, 696), 180, Color3.fromRGB(207, 168, 86))
-    createGrandHaramGate(district, "EastGrandHaramGate", center + Vector3.new(696, 0, 0), 90, Color3.fromRGB(207, 168, 86))
-    createGrandHaramGate(district, "WestGrandHaramGate", center + Vector3.new(-696, 0, 0), -90, GOLD_ACCENT)
+    local landmarks = MasjidAlHaram.Build(district, center)
+    createHaramLearningTrail(district, center, landmarks)
 
-    createDetailedKaaba(district, center)
-    createModernHaramDetailLayer(district, center)
-
-    createFloorInlayGrid(district, "MeccaMarbleInlay", center, 274, 36, Color3.fromRGB(213, 204, 184), 6.28)
-    createRadialFloorRays(district, "TawafMarbleRayInner", center, 78, 248, 84, Color3.fromRGB(224, 216, 198), 6.41)
-    createRadialFloorRays(district, "TawafMarbleRayOuter", center, 266, 520, 96, Color3.fromRGB(218, 209, 190), 5.16)
-    createRingTiles(district, "TawafGuideInner", center, 82, 48, Color3.fromRGB(216, 205, 180), 6.34)
-    createRingTiles(district, "TawafGuideOuter", center, 132, 68, Color3.fromRGB(226, 218, 202), 6.36)
-    createRingTiles(district, "TawafGuideWide", center, 196, 96, Color3.fromRGB(238, 231, 216), 6.38)
-    createRingTiles(district, "TawafGuideGallery", center, 286, 132, Color3.fromRGB(230, 222, 203), 6.4)
-    createRingTiles(district, "TawafGuideOuterGallery", center, 396, 160, Color3.fromRGB(234, 226, 210), 5.18)
-
-    createMaqamIbrahimMarker(district, center)
-    createHijrIsmailMarker(district, center)
-    createHaramLearningTrail(district, center)
-    createPrayerMatRows(district, "NorthPrayerMat", center + Vector3.new(0, 6.48, -386), 7, 24, 0, Color3.fromRGB(83, 118, 88))
-    createPrayerMatRows(district, "SouthPrayerMat", center + Vector3.new(0, 6.48, 344), 7, 24, math.rad(180), Color3.fromRGB(83, 118, 88))
-    createPrayerMatRows(district, "EastPrayerMat", center + Vector3.new(390, 6.48, -104), 7, 15, math.rad(90), Color3.fromRGB(98, 121, 96))
-    createPrayerMatRows(district, "WestPrayerMat", center + Vector3.new(-390, 6.48, 104), 7, 15, math.rad(-90), Color3.fromRGB(98, 121, 96))
-
-    for index = 1, 24 do
-        local angle = (math.pi * 2) * (index / 24)
-        createLowBollard(
-            district,
-            string.format("KaabaBollard_%d", index),
-            center + Vector3.new(math.cos(angle) * 214, 0, math.sin(angle) * 214),
-            Color3.fromRGB(255, 234, 185)
-        )
-    end
-
-    for _, offset in ipairs({
-        Vector3.new(-472, 0, -176),
-        Vector3.new(472, 0, -176),
-        Vector3.new(-472, 0, 176),
-        Vector3.new(472, 0, 176),
-        Vector3.new(-176, 0, -472),
-        Vector3.new(176, 0, -472),
-        Vector3.new(-176, 0, 472),
-        Vector3.new(176, 0, 472),
-    }) do
-        createLightPost(district, string.format("MeccaLight_%d_%d", offset.X, offset.Z), center + offset, Color3.fromRGB(128, 112, 89))
-    end
-
+    -- Hotels around the sanctuary; the Abraj Al-Bait complex itself is built by MasjidAlHaram.
     BuildUtils.CreateModernTower(district, "MakkahTowerWest", center + Vector3.new(-560, 0, -844), Vector2.new(72, 54), 224, Color3.fromRGB(210, 201, 186), GLASS_TINT)
-    BuildUtils.CreateModernTower(district, "MakkahTowerCenter", center + Vector3.new(0, 0, -902), Vector2.new(108, 72), 322, Color3.fromRGB(217, 209, 195), GLASS_TINT)
     BuildUtils.CreateModernTower(district, "MakkahTowerEast", center + Vector3.new(560, 0, -844), Vector2.new(72, 54), 224, Color3.fromRGB(210, 201, 186), GLASS_TINT)
     BuildUtils.CreateModernTower(district, "MakkahHotelSouthWest", center + Vector3.new(-812, 0, 676), Vector2.new(78, 60), 198, Color3.fromRGB(215, 208, 194), GLASS_TINT)
     BuildUtils.CreateModernTower(district, "MakkahHotelSouthEast", center + Vector3.new(812, 0, 676), Vector2.new(78, 60), 198, Color3.fromRGB(215, 208, 194), GLASS_TINT)
     BuildUtils.CreateModernTower(district, "MakkahHotelNorthWest", center + Vector3.new(-836, 0, -542), Vector2.new(74, 56), 208, Color3.fromRGB(214, 207, 193), GLASS_TINT)
     BuildUtils.CreateModernTower(district, "MakkahHotelNorthEast", center + Vector3.new(836, 0, -542), Vector2.new(74, 56), 208, Color3.fromRGB(214, 207, 193), GLASS_TINT)
-    local clockHotelPosition = center + Vector3.new(0, 0, -1048)
-    BuildUtils.CreateModernTower(district, "MakkahClockHotelMarker", clockHotelPosition, Vector2.new(134, 82), 378, Color3.fromRGB(205, 198, 184), GLASS_TINT)
-    createClockHotelDetail(district, clockHotelPosition, Vector2.new(134, 82), 378)
-    BuildUtils.CreateMinaret(district, "MakkahNorthWestMinaret", center + Vector3.new(-386, 0, -386), 128, MECCA_MARBLE, GOLD_ACCENT)
-    BuildUtils.CreateMinaret(district, "MakkahNorthEastMinaret", center + Vector3.new(386, 0, -386), 128, MECCA_MARBLE, GOLD_ACCENT)
-    BuildUtils.CreateMinaret(district, "MakkahSouthWestMinaret", center + Vector3.new(-386, 0, 386), 112, MECCA_MARBLE, GOLD_ACCENT)
-    BuildUtils.CreateMinaret(district, "MakkahSouthEastMinaret", center + Vector3.new(386, 0, 386), 112, MECCA_MARBLE, GOLD_ACCENT)
-    BuildUtils.CreateMinaret(district, "MakkahFarNorthWestMinaret", center + Vector3.new(-610, 0, -610), 96, MECCA_MARBLE, GOLD_ACCENT)
-    BuildUtils.CreateMinaret(district, "MakkahFarNorthEastMinaret", center + Vector3.new(610, 0, -610), 96, MECCA_MARBLE, GOLD_ACCENT)
-    BuildUtils.CreateMinaret(district, "MakkahFarSouthWestMinaret", center + Vector3.new(-610, 0, 610), 96, MECCA_MARBLE, GOLD_ACCENT)
-    BuildUtils.CreateMinaret(district, "MakkahFarSouthEastMinaret", center + Vector3.new(610, 0, 610), 96, MECCA_MARBLE, GOLD_ACCENT)
-    BuildUtils.CreateMinaret(district, "MakkahNorthCentralMinaret", center + Vector3.new(0, 0, -760), 118, MECCA_MARBLE, GOLD_ACCENT)
-    BuildUtils.CreateMinaret(district, "MakkahSouthCentralMinaret", center + Vector3.new(0, 0, 760), 110, MECCA_MARBLE, GOLD_ACCENT)
-
 end
 
 local function buildMedinaDistrict(parent: Instance, center: Vector3)
@@ -1640,8 +1082,19 @@ worldFolder.Parent = Workspace
 local geometryFolder = BuildUtils.CreateFolder(worldFolder, "Geometry")
 local teleportFolder = BuildUtils.CreateFolder(worldFolder, "TeleportPoints")
 
-BuildUtils.CreatePart(geometryFolder, "WorldGround", Vector3.new(2600, 2, 3080), CFrame.new(0, -1, 720), DESERT_SAND, Enum.Material.Sand, nil, nil)
-BuildUtils.CreatePart(geometryFolder, "WorldSafetyPlate", Vector3.new(2800, 14, 3300), CFrame.new(0, -14, 720), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
+-- Roblox caps a part at 2048 studs per side, so the ground is laid in tiles.
+for tileX = -1, 1, 2 do
+    for tileZ = -1, 1, 2 do
+        local tileCenter = Vector3.new(tileX * 650, 0, 720 + tileZ * 770)
+        BuildUtils.CreatePart(geometryFolder, string.format("WorldGround_%d_%d", tileX, tileZ), Vector3.new(1300, 2, 1540), CFrame.new(tileCenter + Vector3.new(0, -1, 0)), DESERT_SAND, Enum.Material.Sand, nil, nil)
+        BuildUtils.CreatePart(geometryFolder, string.format("WorldSafetyPlate_%d_%d", tileX, tileZ), Vector3.new(1400, 14, 1650), CFrame.new(tileCenter + Vector3.new(tileX * 50, -14, tileZ * 55)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
+    end
+end
+
+-- Desert beyond the south plaza, under the Abraj Al-Bait towers and the far ridge.
+for tileX = -1, 1, 2 do
+    BuildUtils.CreatePart(geometryFolder, string.format("WorldGroundSouth_%d", tileX), Vector3.new(1300, 2, 760), CFrame.new(tileX * 650, -1, -1200), DESERT_SAND, Enum.Material.Sand, nil, nil)
+end
 createSafetyBounds(geometryFolder, "HubBounds", Vector3.new(0, 0, 720), Vector3.new(2360, 0, 2760))
 
 for _, destination in ipairs(TravelRoute.Destinations) do
@@ -1677,9 +1130,11 @@ createPromenadePath(geometryFolder, "SupportPromenade", meccaCenter + Vector3.ne
 createPromenadePath(geometryFolder, "BadrGatePromenade", meccaCenter + Vector3.new(-714, 0, -560), badrGateCenter + Vector3.new(98, 0, 0), 62, Color3.fromRGB(191, 171, 136), Color3.fromRGB(118, 96, 70))
 createPromenadePath(geometryFolder, "UhudGatePromenade", meccaCenter + Vector3.new(-714, 0, 520), uhudGateCenter + Vector3.new(98, 0, 0), 62, Color3.fromRGB(191, 171, 136), Color3.fromRGB(118, 96, 70))
 createPromenadePath(geometryFolder, "JourneyPromenade", meccaCenter + Vector3.new(0, 0, 714), desertCenter + Vector3.new(0, 0, -152), 70, Color3.fromRGB(202, 187, 159), Color3.fromRGB(128, 109, 82))
-createDistrictTerrainBand(geometryFolder, "MeccaWorld", meccaCenter, 980, 940, DESERT_ROCK)
+-- The north ridge and apron of the Makkah band would sit on the Abraj Al-Bait site.
+createDistrictTerrainBand(geometryFolder, "MeccaWorld", meccaCenter, 980, 940, DESERT_ROCK, { NorthFrame = true, Apron_3 = true })
 createDistrictTerrainBand(geometryFolder, "MedinaWorld", medinaCenter, 640, 540, Color3.fromRGB(133, 110, 84))
-createDistrictTerrainBand(geometryFolder, "JourneyWorld", desertCenter, 520, 720, Color3.fromRGB(141, 114, 84))
+-- Its northern ridges would land inside Masjid al-Haram and its south ridge in the Medina courtyard.
+createDistrictTerrainBand(geometryFolder, "JourneyWorld", desertCenter, 520, 720, Color3.fromRGB(141, 114, 84), { NorthFrame = true, SouthFrame = true, WestNorthFrame = true, EastNorthFrame = true, Apron_3 = true, Apron_4 = true })
 createWorldBackdrop(geometryFolder, Vector3.new(0, 0, 720))
 
 local spawnLocation = Instance.new("SpawnLocation")

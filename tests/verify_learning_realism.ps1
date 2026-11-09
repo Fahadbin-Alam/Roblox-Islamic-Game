@@ -43,10 +43,9 @@ $battleHud = Get-Content -LiteralPath $battleHudPath -Raw
 $build = Get-Content -LiteralPath $buildPath -Raw
 
 $hubChecks = @(
-    'createLayeredHaramSideFacade(district, "NorthModernFacade"',
-    'createModernHaramDetailLayer(district, center)',
-    'MakkahHotelNorthWest',
-    'MakkahNorthCentralMinaret'
+    'MasjidAlHaram.Build(district, center)',
+    'createHaramLearningTrail(district, center, landmarks)',
+    'MakkahHotelNorthWest'
 )
 
 $lessonChecks = @(
