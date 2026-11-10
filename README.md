@@ -89,6 +89,17 @@ The best first playable version is:
 - `ResponsiveUi.client.lua` shrinks fixed-size menus so they fit on phone screens.
 - To also award real Roblox badges, create them in Creator Hub and set `RobloxBadgeId` on the matching badge in `Progression.lua`.
 
+## Battle Story Missions
+
+The battle gates offer two modes: **Story Mission** (co-op, 1 to 8 players) and **Team Skirmish** (the original PvP mode).
+
+- `Shared/Data/BattleMissions.lua` defines each mission as a list of objectives (reach, hold, defend, defeat, discipline, narration), the enemy waves and lanes, the allied soldiers, and cited narration cards between steps.
+- **Badr**: march to the wells, hold them, the rain falls (Qur'an 8:11), defend the banner through three waves, face the Makkan captain, then show mercy to the captives.
+- **Uhud**: take position on the Archers' Hill, cover the army, then hold your post while the spoils tempt you. Allied archers leave their post as the historical archers did, and if players leave too, the cavalry flank arrives in force. The mission ends with the climb to the mountain and the regrouping.
+- `ServerScriptService/Modules/BattleNpc.lua` runs the soldiers: R6 rigs with walk and attack animations, telegraphed sword swings, arrows with gravity, formations, and pathfinding when they get stuck. `MissionDirector.lua` runs the objectives, waves, respawns, and the HUD state.
+- Missions earn up to 3 stars (complete, keep the steadfast goal, few falls) and end with a reflection quiz graded on the server. New badges: three stars at Badr and at Uhud, "Kept the Post", "Lessons of the Battles", and "Battle Veteran".
+- Soldiers are generic and unnamed. The Prophet ﷺ and the Companions are never shown, and named historical figures appear only in narration.
+
 Content added to `IslamicStudies.lua` should cite its Qur'an or hadith source, stay general where schools of thought differ, and never depict a Prophet.
 
 ## Automated Checks
@@ -109,6 +120,7 @@ python3 tests/hub/render.py parts.txt view.png --eye=0,40,170 --at=0,30,0
 ## Masjid al-Haram Hub
 
 `src/ServerScriptService/Modules/MasjidAlHaram.lua` builds the sanctuary after today's mosque: the Kaaba (kiswa, gold hizam, sitara, Black Stone, Rukn al-Yamani, Mizab, Shadharwan), Hijr Ismail, Maqam Ibrahim, the white marble mataf, the multi-level mataf expansion with ramps, the Ottoman riwaq, the Saudi galleries, the Safa-Marwa mas'a, the King Fahd and King Abdullah expansions with named gates, 13 minarets and the Abraj Al-Bait clock tower. In this world +Z is north, so the clock tower stands to the south and the road to Madinah leaves to the north. `HaramTimeService.server.lua` sets the clock to Makkah time and turns the night lighting on after dark. Pilgrims in ihram are placed on the mataf by the server, and `TawafAmbience.client.lua` walks them anticlockwise around the Kaaba on each client while the player is nearby.
+- `tests/world/run.sh <luau>` builds the battle arenas against a mock Roblox engine and checks that every mission point has ground, every enemy lane and player route can be walked, and no spawn is inside rock.
 
 ## Next Build Steps
 

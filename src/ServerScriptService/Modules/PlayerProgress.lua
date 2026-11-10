@@ -237,6 +237,31 @@ end
 
 -- Counts today's visit toward the streak and pays the visit reward the first time each day.
 -- Players who stay in a server past midnight UTC get it when ProgressionService checks again.
+-- Raises a stat to `value` if it is higher than what is saved (best scores). Returns the
+-- previous value, or nil when the profile is not loaded.
+function PlayerProgress.SetStatMax(player: Player, stat: string, value: number): number?
+    local profile = profiles[player]
+
+    if not profile then
+        return nil
+    end
+
+    local previous = profile.Stats[stat] or 0
+
+    if value > previous then
+        profile.Stats[stat] = value
+        changed(player, profile)
+    end
+
+    return previous
+end
+
+function PlayerProgress.GetStat(player: Player, stat: string): number
+    local profile = profiles[player]
+
+    return profile and profile.Stats[stat] or 0
+end
+
 function PlayerProgress.RecordDailyVisit(player: Player)
     local profile = profiles[player]
 

@@ -4,6 +4,7 @@
 -- client (which only displays it). Nothing here touches Roblox services, so the rules
 -- can be unit tested outside Studio.
 
+local BattleMissions = require(script.Parent.Parent.Data.BattleMissions)
 local BattleScenarios = require(script.Parent.Parent.Data.BattleScenarios)
 local CompanionStories = require(script.Parent.Parent.Data.CompanionStories)
 local IslamicStudies = require(script.Parent.Parent.Data.IslamicStudies)
@@ -39,6 +40,7 @@ Progression.Categories = {
     Manners = "manners",
     Path = "path",
     Order = "order",
+    Reflection = "reflection",
 }
 
 -- XP for the first completion of each kind of activity. Repeats give RepeatMultiplier of it,
@@ -53,6 +55,7 @@ Progression.Rewards = {
     StudyCircle = 40,
     path = 25,
     order = 30,
+    reflection = 15,
     RepeatMultiplier = 0.25,
 }
 
@@ -290,6 +293,62 @@ local function buildBadges(): { Badge }
             IsEarned = allCompleted(Progression.Categories.Battle, { scenario.Id }),
         })
     end
+
+    table.insert(badges, {
+        Id = "badr_three_stars",
+        DisplayName = "Defender Of The Wells",
+        Description = "Earn all three stars in the Battle of Badr story mission.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.BestStars_badr or 0) >= 3
+        end,
+    })
+
+    table.insert(badges, {
+        Id = "uhud_kept_post",
+        DisplayName = "Kept The Post",
+        Description = "Stay on the Archers' Hill through the test of the spoils at Uhud.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.UhudPostKept or 0) >= 1
+        end,
+    })
+
+    table.insert(badges, {
+        Id = "uhud_three_stars",
+        DisplayName = "Steadfast At Uhud",
+        Description = "Earn all three stars in the Battle of Uhud story mission.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.BestStars_uhud or 0) >= 3
+        end,
+    })
+
+    local reflectionIds = {}
+
+    for _, missionId in ipairs(BattleMissions.Order) do
+        for _, question in ipairs(BattleMissions.Get(missionId).Reflection) do
+            table.insert(reflectionIds, question.Id)
+        end
+    end
+
+    table.insert(badges, {
+        Id = "battle_lessons",
+        DisplayName = "Lessons Of The Battles",
+        Description = "Answer every after-battle reflection question correctly.",
+        RobloxBadgeId = 0,
+        IsEarned = allCompleted(Progression.Categories.Reflection, reflectionIds),
+    })
+
+    table.insert(badges, {
+        Id = "battle_veteran",
+        DisplayName = "Steady In Every Step",
+        Description = "Complete 40 battle mission objectives.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.BattleObjectives or 0) >= 40
+        end,
+    })
 
     table.insert(badges, {
         Id = "study_circle",
