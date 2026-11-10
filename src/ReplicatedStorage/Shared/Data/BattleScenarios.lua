@@ -32,9 +32,9 @@ local BattleScenarios = {
         },
         SpawnPositions = {
             medina = {
-                Vector3.new(-1320, 10, 720),
-                Vector3.new(-1310, 10, 752),
-                Vector3.new(-1290, 10, 692),
+                Vector3.new(-1460, 10, 640),
+                Vector3.new(-1460, 10, 668),
+                Vector3.new(-1440, 10, 612),
             },
             makkah = {
                 Vector3.new(-982, 10, 720),
@@ -89,7 +89,7 @@ local BattleScenarios = {
                 {
                     CameraName = "BriefingMap4",
                     Title = "The Opposing Side",
-                    Body = "Quraysh leaders remembered in this conflict include Abu Jahl, Umayyah ibn Khalaf, and Utbah ibn Rabi'ah. This mode now stays fully player-versus-player with no filler bots or boss dummy.",
+                    Body = "Quraysh leaders remembered in this conflict include Abu Jahl, Umayyah ibn Khalaf, and Utbah ibn Rabi'ah. In the game, opponents are generic Quraysh soldiers, never these named people.",
                     DurationSeconds = 8,
                     FieldOfView = 60,
                     CameraDrift = Vector3.new(-10, 1, -5),
@@ -97,7 +97,7 @@ local BattleScenarios = {
                 {
                     CameraName = "BriefingMap5",
                     Title = "Your Objective",
-                    Body = "Fight the round as a direct clash between both player teams, use the valley and wells, then watch the reenactment to connect the action to courage, preparation, unity, and gratitude.",
+                    Body = "Take the wells, hold the line, and break the advance. The reenactment at the end connects the action to courage, preparation, unity, and gratitude.",
                     DurationSeconds = 7,
                     FieldOfView = 60,
                     CameraDrift = Vector3.new(8, 0, -8),
@@ -126,7 +126,7 @@ local BattleScenarios = {
                 {
                     CameraName = "Scene3",
                     Title = "The Opposing Command",
-                    Body = "The Quraysh side had powerful chiefs and confidence from Makkah. In gameplay, the mode now stays focused on two player teams meeting in the valley without bot fill.",
+                    Body = "The Quraysh side had powerful chiefs, a larger army, and confidence from Makkah, yet the smaller army that stood firm together held the field.",
                     DurationSeconds = 7,
                     FieldOfView = 61,
                     CameraDrift = Vector3.new(-9, 0, 8),
@@ -154,7 +154,7 @@ local BattleScenarios = {
             Lines = {
                 "Badr took place on 17 Ramadan, 2 AH / 624 CE and became a major victory for the early Muslim community.",
                 "The battle strengthened morale and marked a turning point in the public standing of the community.",
-                "This battle mode now stays player-only so the reenactment carries the teaching while the round itself stays focused and readable.",
+                "The lessons: preparation, standing firm, unity, gratitude after victory, and mercy toward captives.",
             },
         },
         Rewards = {
@@ -196,14 +196,14 @@ local BattleScenarios = {
         },
         SpawnPositions = {
             medina = {
-                Vector3.new(-1320, 10, 1180),
-                Vector3.new(-1304, 10, 1210),
-                Vector3.new(-1288, 10, 1148),
+                Vector3.new(-1420, 10, 1262),
+                Vector3.new(-1400, 10, 1282),
+                Vector3.new(-1440, 10, 1290),
             },
             makkah = {
-                Vector3.new(-982, 10, 1180),
-                Vector3.new(-996, 10, 1210),
-                Vector3.new(-1010, 10, 1148),
+                Vector3.new(-1170, 10, 1262),
+                Vector3.new(-1180, 10, 1282),
+                Vector3.new(-1160, 10, 1244),
             },
         },
         GameplayPhases = {
@@ -346,7 +346,7 @@ local BattleScenarios = {
             Lines = {
                 "Qur'an 3:121, 3:152, and 3:153 frame Uhud through placement, early success, disobedience, confusion, and the cost of a broken position.",
                 "Sunan Abi Dawud 2662 preserves the command to the archers, while Sahih Muslim 1789 and 1790a preserve the pressure, wounds, and rescue of the late battle.",
-                "Uhud now runs as a player-only battle with no filler bots, so the focus stays on the field, the ridge, and the lesson itself.",
+                "The lesson of Uhud is obedience: one broken position changed the day, and patience after pain is what the Qur'an praises.",
             },
         },
         -- Uhud builds on the lessons of Badr, so it opens after Badr or once a player has

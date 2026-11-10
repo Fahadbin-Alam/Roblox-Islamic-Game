@@ -130,6 +130,576 @@ return table.freeze(GameConfig)
         </Properties>
         <Item class="ModuleScript" referent="6">
           <Properties>
+            <string name="Name">BattleMissions</string>
+            <string name="Source"><![CDATA[--!nonstrict
+
+-- Story missions for the battle scenarios: solo or co-op, every player on the Medina side,
+-- fighting generic, unnamed Quraysh soldiers controlled by the server.
+--
+-- Content rules for this file:
+-- * The Prophet Muhammad, peace be upon him, is never shown, voiced, or represented by any
+--   character. Narration may describe what happened, the way a teacher would.
+-- * Named companions are not played by NPCs either. Allies and opponents are generic soldiers
+--   ("Medina Fighter", "Quraysh Swordsman"); named people appear only in narration.
+-- * Every narration line that states a historical detail cites its Qur'an, hadith, or sirah source.
+-- * Fallen soldiers simply fade away; there is no gore.
+--
+-- Positions are battlefield coordinates. Their Y is ignored: the server drops every point onto
+-- the ground under it, and tests/world/ checks that each point has ground and that each lane
+-- can be walked in straight lines.
+
+local BattleMissions = {}
+
+-- Soldier types. Team "makkah" are opponents, team "medina" are allies of the players.
+BattleMissions.Units = {
+    Swordsman = {
+        DisplayName = "Quraysh Swordsman",
+        Team = "makkah",
+        Style = "Melee",
+        Health = 80,
+        WalkSpeed = 14,
+        Damage = 9,
+        Reach = 6.5,
+        WindupSeconds = 0.5,
+        CooldownSeconds = 1.5,
+        Robe = Color3.fromRGB(122, 64, 52),
+        Accent = Color3.fromRGB(64, 40, 34),
+        Weapon = "Sword",
+    },
+    Spearman = {
+        DisplayName = "Quraysh Spearman",
+        Team = "makkah",
+        Style = "Melee",
+        Health = 95,
+        WalkSpeed = 13,
+        Damage = 11,
+        Reach = 8.5,
+        WindupSeconds = 0.62,
+        CooldownSeconds = 1.8,
+        Robe = Color3.fromRGB(110, 78, 50),
+        Accent = Color3.fromRGB(58, 44, 32),
+        Weapon = "Spear",
+    },
+    Archer = {
+        DisplayName = "Quraysh Archer",
+        Team = "makkah",
+        Style = "Ranged",
+        Health = 60,
+        WalkSpeed = 13,
+        Damage = 8,
+        Reach = 95,
+        MinRange = 26,
+        WindupSeconds = 0.9,
+        CooldownSeconds = 2.4,
+        Robe = Color3.fromRGB(132, 92, 60),
+        Accent = Color3.fromRGB(70, 48, 36),
+        Weapon = "Bow",
+    },
+    Raider = {
+        DisplayName = "Quraysh Flank Rider",
+        Team = "makkah",
+        Style = "Melee",
+        Health = 90,
+        WalkSpeed = 21,
+        Damage = 11,
+        Reach = 7,
+        WindupSeconds = 0.45,
+        CooldownSeconds = 1.4,
+        Robe = Color3.fromRGB(86, 52, 46),
+        Accent = Color3.fromRGB(40, 30, 28),
+        Weapon = "Spear",
+    },
+    Captain = {
+        DisplayName = "Quraysh Vanguard Captain",
+        Team = "makkah",
+        Style = "Melee",
+        Health = 520,
+        WalkSpeed = 13,
+        Damage = 16,
+        Reach = 7.5,
+        WindupSeconds = 0.7,
+        CooldownSeconds = 1.6,
+        Robe = Color3.fromRGB(96, 40, 38),
+        Accent = Color3.fromRGB(193, 162, 86),
+        Weapon = "Sword",
+        Boss = true,
+        Scale = 1.2,
+    },
+    AllyFighter = {
+        DisplayName = "Medina Fighter",
+        Team = "medina",
+        Style = "Melee",
+        Health = 170,
+        WalkSpeed = 15,
+        Damage = 10,
+        Reach = 6.5,
+        WindupSeconds = 0.5,
+        CooldownSeconds = 1.6,
+        Robe = Color3.fromRGB(226, 220, 204),
+        Accent = Color3.fromRGB(62, 125, 82),
+        Weapon = "Sword",
+    },
+    AllyArcher = {
+        DisplayName = "Medina Archer",
+        Team = "medina",
+        Style = "Ranged",
+        Health = 120,
+        WalkSpeed = 14,
+        Damage = 8,
+        Reach = 100,
+        MinRange = 18,
+        WindupSeconds = 0.9,
+        CooldownSeconds = 2.6,
+        Robe = Color3.fromRGB(214, 206, 186),
+        Accent = Color3.fromRGB(48, 108, 70),
+        Weapon = "Bow",
+    },
+}
+
+BattleMissions.Missions = {
+    badr = {
+        Id = "badr",
+        DisplayName = "Battle of Badr",
+        Subtitle = "17 Ramadan, 2 AH | 624 CE",
+        MaxPlayers = 8,
+        RespawnSeconds = 4,
+        TimeLimitSeconds = 900,
+        Layout = {
+            Points = {
+                Camp = Vector3.new(-1470, 0, 630),
+                Wells = Vector3.new(-1215, 0, 706),
+                Banner = Vector3.new(-1252, 0, 700),
+                Line = Vector3.new(-1268, 0, 706),
+            },
+            SpawnFacing = Vector3.new(-1215, 0, 706),
+            Lanes = {
+                North = {
+                    Vector3.new(-870, 0, 630),
+                    Vector3.new(-1150, 0, 630),
+                    Vector3.new(-1205, 0, 688),
+                },
+                South = {
+                    Vector3.new(-880, 0, 750),
+                    Vector3.new(-1180, 0, 750),
+                    Vector3.new(-1212, 0, 722),
+                },
+            },
+            -- Straight walks a player is expected to make between objectives.
+            Routes = {
+                { From = "Camp", To = "Wells" },
+                { From = "Wells", To = "Camp" },
+            },
+        },
+        Allies = {
+            { Unit = "AllyFighter", Count = 5, Point = "Line" },
+        },
+        Objectives = {
+            {
+                Id = "march",
+                Type = "Reach",
+                Title = "March To The Wells",
+                Instruction = "Lead the way east to the wells of Badr.",
+                Zone = "Wells",
+                Radius = 34,
+                AllyPoint = "Line",
+                Narration = {
+                    Title = "The Small Army",
+                    Body = "About three hundred and thirteen believers came to Badr, facing a Quraysh army roughly three times larger.",
+                    Reference = "Sahih al-Bukhari 3959",
+                },
+            },
+            {
+                Id = "wells",
+                Type = "Hold",
+                Title = "Secure The Wells",
+                Instruction = "Stand inside the ring by the wells. Quraysh scouts will try to push you off.",
+                Zone = "Wells",
+                Radius = 34,
+                Seconds = 40,
+                AllyPoint = "Wells",
+                Narration = {
+                    Title = "Taking The Wells",
+                    Body = "The sirah reports that the companion al-Hubab ibn al-Mundhir advised camping by the nearest well, so the army would hold the water.",
+                    Reference = "Sirat Ibn Hisham",
+                },
+                Waves = {
+                    { AtSecond = 2, Spawns = { { Unit = "Swordsman", Count = 2, PerExtraPlayer = 1, Lane = "North" } } },
+                    { AtSecond = 16, Spawns = { { Unit = "Swordsman", Count = 2, PerExtraPlayer = 1, Lane = "South" } } },
+                    { AtSecond = 28, Spawns = { { Unit = "Archer", Count = 1, PerExtraPlayer = 1, Lane = "North" } } },
+                },
+            },
+            {
+                Id = "rain",
+                Type = "Narration",
+                Title = "Rain And Calm",
+                Instruction = "Rest a moment. Your strength returns.",
+                Seconds = 9,
+                HealPlayers = true,
+                ClearEnemies = true,
+                AllyPoint = "Line",
+                Narration = {
+                    Title = "Rain Before The Battle",
+                    Body = "Allah sent rest over the believers and rain from the sky to purify them and make their footing firm.",
+                    Reference = "Qur'an 8:11",
+                },
+            },
+            {
+                Id = "line",
+                Type = "Defend",
+                Title = "Hold The Line",
+                Instruction = "Protect the banner of the Medina line until every wave is driven back.",
+                Target = "Banner",
+                TargetHealth = 600,
+                AllyPoint = "Line",
+                Narration = {
+                    Title = "Stand Firm",
+                    Body = "When you meet a force, stand firm and remember Allah much. Obey, do not dispute with one another, and be patient.",
+                    Reference = "Qur'an 8:45-46",
+                },
+                Waves = {
+                    { AtSecond = 2, Spawns = {
+                        { Unit = "Swordsman", Count = 3, PerExtraPlayer = 1, Lane = "North" },
+                        { Unit = "Spearman", Count = 1, PerExtraPlayer = 1, Lane = "South" },
+                    } },
+                    { AfterCleared = true, Spawns = {
+                        { Unit = "Spearman", Count = 2, PerExtraPlayer = 1, Lane = "North" },
+                        { Unit = "Swordsman", Count = 2, PerExtraPlayer = 1, Lane = "South" },
+                        { Unit = "Archer", Count = 1, PerExtraPlayer = 0.5, Lane = "South" },
+                    } },
+                    { AfterCleared = true, Spawns = {
+                        { Unit = "Swordsman", Count = 3, PerExtraPlayer = 1, Lane = "South" },
+                        { Unit = "Spearman", Count = 2, PerExtraPlayer = 1, Lane = "North" },
+                        { Unit = "Archer", Count = 2, PerExtraPlayer = 0.5, Lane = "North" },
+                    } },
+                },
+            },
+            {
+                Id = "captain",
+                Type = "Defeat",
+                Title = "Break The Advance",
+                Instruction = "The Quraysh vanguard makes a final push. Defeat its captain and his guard.",
+                AllyPoint = "Wells",
+                Narration = {
+                    Title = "The Opening Duels",
+                    Body = "Before the main clash, Hamzah, 'Ali, and 'Ubaydah ibn al-Harith answered the Quraysh challenge to single combat. The verse 'These are two opponents' was revealed about that day.",
+                    Reference = "Sahih al-Bukhari 3965 · Qur'an 22:19",
+                },
+                Waves = {
+                    { AtSecond = 1, Spawns = {
+                        { Unit = "Captain", Count = 1, Lane = "North" },
+                        { Unit = "Swordsman", Count = 2, PerExtraPlayer = 1, Lane = "North" },
+                        { Unit = "Spearman", Count = 2, PerExtraPlayer = 1, Lane = "South" },
+                    } },
+                },
+            },
+            {
+                Id = "mercy",
+                Type = "Reach",
+                Title = "Mercy After Victory",
+                Instruction = "Return to the Medina camp in the west.",
+                Zone = "Camp",
+                Radius = 30,
+                ClearEnemies = true,
+                AllyPoint = "Camp",
+                Narration = {
+                    Title = "How The Captives Were Treated",
+                    Body = "Captives who could not pay a ransom could earn their freedom by teaching the children of Medina to read and write.",
+                    Reference = "Musnad Ahmad 2216 · Qur'an 8:70",
+                },
+            },
+        },
+        Steadfast = {
+            Label = "Banner kept above half strength",
+            Kind = "TargetHealth",
+            Objective = "line",
+            Fraction = 0.5,
+        },
+        Reflection = {
+            {
+                Id = "badr_stand_firm",
+                Prompt = "What did Qur'an 8:45-46 tell the believers to do when they meet an army?",
+                Choices = {
+                    "Stand firm, remember Allah, obey, and not dispute",
+                    "Wait for the other side to leave",
+                    "Each person should fight their own way",
+                },
+                Answer = 1,
+                Explanation = "Firmness, remembrance, obedience, and unity are the lessons of Badr. Arguing breaks courage.",
+            },
+            {
+                Id = "badr_numbers",
+                Prompt = "About how many believers fought at Badr?",
+                Choices = { "About 313", "About 3,000", "About 10,000" },
+                Answer = 1,
+                Explanation = "Sahih al-Bukhari 3959 says they were three hundred and ten-odd, facing a much larger army.",
+            },
+            {
+                Id = "badr_captives",
+                Prompt = "How could some captives of Badr earn their freedom?",
+                Choices = { "By teaching children to read and write", "By leaving Arabia", "There was no way" },
+                Answer = 1,
+                Explanation = "Knowledge was valued so highly that teaching it could pay a ransom (Musnad Ahmad 2216).",
+            },
+        },
+    },
+    uhud = {
+        Id = "uhud",
+        DisplayName = "Battle of Uhud",
+        Subtitle = "Shawwal, 3 AH | 625 CE",
+        MaxPlayers = 8,
+        RespawnSeconds = 4,
+        TimeLimitSeconds = 960,
+        Layout = {
+            Points = {
+                Camp = Vector3.new(-1430, 0, 1272),
+                Line = Vector3.new(-1395, 0, 1270),
+                HillTop = Vector3.new(-1470, 0, 1357),
+                HillFoot = Vector3.new(-1470, 0, 1300),
+                Spoils = Vector3.new(-1330, 0, 1300),
+                RampFoot = Vector3.new(-1540, 0, 1306),
+                Rally = Vector3.new(-1540, 0, 1195),
+            },
+            SpawnFacing = Vector3.new(-1150, 0, 1260),
+            Lanes = {
+                Front = {
+                    Vector3.new(-1165, 0, 1272),
+                    Vector3.new(-1375, 0, 1272),
+                },
+                FrontSouth = {
+                    Vector3.new(-1170, 0, 1290),
+                    Vector3.new(-1330, 0, 1296),
+                    Vector3.new(-1420, 0, 1296),
+                },
+                Flank = {
+                    Vector3.new(-1560, 0, 1440),
+                    Vector3.new(-1530, 0, 1312),
+                    Vector3.new(-1440, 0, 1286),
+                },
+                Mountain = {
+                    Vector3.new(-1165, 0, 1272),
+                    Vector3.new(-1395, 0, 1288),
+                    Vector3.new(-1540, 0, 1304),
+                    Vector3.new(-1540, 0, 1210),
+                },
+                MountainFlank = {
+                    Vector3.new(-1560, 0, 1440),
+                    Vector3.new(-1540, 0, 1304),
+                    Vector3.new(-1540, 0, 1210),
+                },
+            },
+            Routes = {
+                { From = "Camp", To = "HillFoot" },
+                { From = "HillFoot", To = "HillTop" },
+                { From = "HillTop", To = "HillFoot" },
+                { From = "HillFoot", To = "Spoils" },
+                { From = "Spoils", To = "RampFoot" },
+                { From = "HillFoot", To = "RampFoot" },
+                { From = "RampFoot", To = "Rally" },
+            },
+        },
+        -- The Archers' Hill and the path up the slope of Uhud are built only for this layout.
+        Structures = {
+            ArchersHill = { Center = Vector3.new(-1470, 0, 1357), Size = Vector3.new(46, 14, 40), Slope = 26 },
+            -- A rock shelf against the west face of the mountain, reached by a path from the field.
+            MountainShelf = { Center = Vector3.new(-1540, 0, 1198), Size = Vector3.new(60, 30, 72), PathWidth = 24, PathRun = 62 },
+        },
+        Allies = {
+            { Unit = "AllyFighter", Count = 4, Point = "Line" },
+            { Unit = "AllyArcher", Count = 4, Point = "HillTop", Tag = "HillArcher" },
+        },
+        Objectives = {
+            {
+                Id = "post",
+                Type = "Reach",
+                Title = "Take Your Post",
+                Instruction = "Climb the Archers' Hill south-west of the camp. Use the slope on its north side.",
+                Zone = "HillTop",
+                Radius = 22,
+                AllyPoint = "Line",
+                Narration = {
+                    Title = "The Order To The Archers",
+                    Body = "Fifty archers under 'Abdullah ibn Jubayr were placed on the hill and told: do not leave your place, even if you see birds snatching us, until you are sent for.",
+                    Reference = "Sahih al-Bukhari 3039",
+                },
+            },
+            {
+                Id = "cover",
+                Type = "Defeat",
+                Title = "Cover The Line",
+                Instruction = "Stay on the hill and drive back the Quraysh advance with your bow.",
+                RespawnPoint = "HillFoot",
+                Zone = "HillTop",
+                Radius = 22,
+                AllyPoint = "Line",
+                Narration = {
+                    Title = "Early Success",
+                    Body = "Allah fulfilled His promise to you when you were defeating them by His permission.",
+                    Reference = "Qur'an 3:152",
+                },
+                Waves = {
+                    { AtSecond = 1, Spawns = {
+                        { Unit = "Swordsman", Count = 3, PerExtraPlayer = 1, Lane = "Front" },
+                        { Unit = "Spearman", Count = 2, PerExtraPlayer = 1, Lane = "FrontSouth" },
+                    } },
+                    { AfterCleared = true, Spawns = {
+                        { Unit = "Swordsman", Count = 3, PerExtraPlayer = 1, Lane = "FrontSouth" },
+                        { Unit = "Archer", Count = 2, PerExtraPlayer = 0.5, Lane = "Front" },
+                    } },
+                },
+            },
+            {
+                Id = "spoils",
+                Type = "Discipline",
+                Title = "The Test Of The Spoils",
+                Instruction = "The field looks won and spoils lie below. Your order is to stay on the hill.",
+                Zone = "HillTop",
+                Radius = 22,
+                Seconds = 25,
+                ClearEnemies = true,
+                AllyPoint = "Line",
+                -- Most of the hill archers leave, as the report describes.
+                DesertingAllies = { Tag = "HillArcher", Keep = 1, To = "Spoils" },
+                Narration = {
+                    Title = "\"The Spoils!\"",
+                    Body = "When the archers saw the enemy fleeing, most of them said 'The spoils!' Their commander reminded them of the order, but they left the hill anyway.",
+                    Reference = "Sahih al-Bukhari 3039",
+                },
+            },
+            {
+                Id = "flank",
+                Type = "Defeat",
+                Title = "The Flank Turns",
+                Instruction = "Riders sweep around the hill from behind. Hold together and drive them off.",
+                AllyPoint = "Line",
+                Narration = {
+                    Title = "From Behind The Hill",
+                    Body = "Among you were some who desired this world and some who desired the Hereafter. Then He turned you back from them to test you.",
+                    Reference = "Qur'an 3:152",
+                },
+                Waves = {
+                    { AtSecond = 1, Spawns = {
+                        { Unit = "Raider", Count = 4, PerExtraPlayer = 1, Lane = "Flank" },
+                        { Unit = "Swordsman", Count = 2, PerExtraPlayer = 1, Lane = "Front" },
+                    } },
+                    { AtSecond = 12, Spawns = {
+                        { Unit = "Raider", Count = 2, PerExtraPlayer = 1, Lane = "Flank" },
+                    } },
+                },
+                -- Leaving the hill during the test of the spoils brings a larger flank attack.
+                BrokenOrderExtra = { { Unit = "Raider", Count = 3, PerExtraPlayer = 1, Lane = "Flank" } },
+            },
+            {
+                Id = "climb",
+                Type = "Reach",
+                Title = "Climb The Slope Of Uhud",
+                Instruction = "Regroup on the mountain. Take the stone path up to the shelf in the north-west.",
+                Zone = "Rally",
+                Radius = 24,
+                AllyPoint = "Rally",
+                Narration = {
+                    Title = "Up The Mountain",
+                    Body = "You were climbing and not looking back at anyone, while the Messenger was calling you from behind.",
+                    Reference = "Qur'an 3:153",
+                },
+            },
+            {
+                Id = "mountain",
+                Type = "Hold",
+                Title = "Hold The Mountain Path",
+                Instruction = "Hold the ground on the slope until the attack breaks.",
+                RespawnPoint = "Rally",
+                Zone = "Rally",
+                Radius = 24,
+                Seconds = 50,
+                AllyPoint = "Rally",
+                Narration = {
+                    Title = "The Few Who Stood",
+                    Body = "When the pressure closed in, a small group of the Ansar stood their ground one after another to protect the Messenger of Allah, peace be upon him.",
+                    Reference = "Sahih Muslim 1789",
+                },
+                Waves = {
+                    { AtSecond = 3, Spawns = {
+                        { Unit = "Swordsman", Count = 3, PerExtraPlayer = 1, Lane = "Mountain" },
+                        { Unit = "Spearman", Count = 1, PerExtraPlayer = 1, Lane = "MountainFlank" },
+                    } },
+                    { AtSecond = 20, Spawns = {
+                        { Unit = "Raider", Count = 2, PerExtraPlayer = 1, Lane = "MountainFlank" },
+                        { Unit = "Archer", Count = 1, PerExtraPlayer = 0.5, Lane = "Mountain" },
+                    } },
+                    { AtSecond = 34, Spawns = {
+                        { Unit = "Swordsman", Count = 2, PerExtraPlayer = 1, Lane = "Mountain" },
+                        { Unit = "Spearman", Count = 2, PerExtraPlayer = 1, Lane = "MountainFlank" },
+                    } },
+                },
+            },
+            {
+                Id = "withdraw",
+                Type = "Narration",
+                Title = "The Quraysh Withdraw",
+                Instruction = "The attack breaks and Quraysh turn back toward Makkah.",
+                RespawnPoint = "Rally",
+                Seconds = 10,
+                ClearEnemies = true,
+                HealPlayers = true,
+                AllyPoint = "Rally",
+                Narration = {
+                    Title = "Do Not Weaken",
+                    Body = "Do not weaken and do not grieve, for you will be superior if you are believers. Those who answered Allah and the Messenger after being wounded have a great reward.",
+                    Reference = "Qur'an 3:139 · Qur'an 3:172",
+                },
+            },
+        },
+        Steadfast = {
+            Label = "Every player kept their post on the hill",
+            Kind = "Discipline",
+            Objective = "spoils",
+        },
+        Reflection = {
+            {
+                Id = "uhud_order",
+                Prompt = "What order were the archers given at Uhud?",
+                Choices = {
+                    "Stay on the hill no matter what, until sent for",
+                    "Join the fighting once it looks won",
+                    "Collect the spoils first",
+                },
+                Answer = 1,
+                Explanation = "Sahih al-Bukhari 3039: do not leave your place even if you see birds snatching us.",
+            },
+            {
+                Id = "uhud_turn",
+                Prompt = "What turned the battle at Uhud?",
+                Choices = {
+                    "Most archers left their post for the spoils",
+                    "The Muslims ran out of water",
+                    "A storm stopped the fighting",
+                },
+                Answer = 1,
+                Explanation = "When the hill was left open, riders came around behind the Muslim line (Qur'an 3:152).",
+            },
+            {
+                Id = "uhud_lesson",
+                Prompt = "What does Qur'an 3:139 tell the believers after Uhud?",
+                Choices = { "Do not weaken and do not grieve", "Never fight again", "Blame one another" },
+                Answer = 1,
+                Explanation = "Uhud teaches obedience, patience after pain, and getting back up.",
+            },
+        },
+    },
+}
+
+BattleMissions.Order = { "badr", "uhud" }
+
+function BattleMissions.Get(scenarioId: string)
+    return (BattleMissions.Missions :: any)[scenarioId]
+end
+
+return BattleMissions
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="7">
+          <Properties>
             <string name="Name">BattleScenarios</string>
             <string name="Source"><![CDATA[--!strict
 
@@ -165,9 +735,9 @@ local BattleScenarios = {
         },
         SpawnPositions = {
             medina = {
-                Vector3.new(-1320, 10, 720),
-                Vector3.new(-1310, 10, 752),
-                Vector3.new(-1290, 10, 692),
+                Vector3.new(-1460, 10, 640),
+                Vector3.new(-1460, 10, 668),
+                Vector3.new(-1440, 10, 612),
             },
             makkah = {
                 Vector3.new(-982, 10, 720),
@@ -222,7 +792,7 @@ local BattleScenarios = {
                 {
                     CameraName = "BriefingMap4",
                     Title = "The Opposing Side",
-                    Body = "Quraysh leaders remembered in this conflict include Abu Jahl, Umayyah ibn Khalaf, and Utbah ibn Rabi'ah. This mode now stays fully player-versus-player with no filler bots or boss dummy.",
+                    Body = "Quraysh leaders remembered in this conflict include Abu Jahl, Umayyah ibn Khalaf, and Utbah ibn Rabi'ah. In the game, opponents are generic Quraysh soldiers, never these named people.",
                     DurationSeconds = 8,
                     FieldOfView = 60,
                     CameraDrift = Vector3.new(-10, 1, -5),
@@ -230,7 +800,7 @@ local BattleScenarios = {
                 {
                     CameraName = "BriefingMap5",
                     Title = "Your Objective",
-                    Body = "Fight the round as a direct clash between both player teams, use the valley and wells, then watch the reenactment to connect the action to courage, preparation, unity, and gratitude.",
+                    Body = "Take the wells, hold the line, and break the advance. The reenactment at the end connects the action to courage, preparation, unity, and gratitude.",
                     DurationSeconds = 7,
                     FieldOfView = 60,
                     CameraDrift = Vector3.new(8, 0, -8),
@@ -259,7 +829,7 @@ local BattleScenarios = {
                 {
                     CameraName = "Scene3",
                     Title = "The Opposing Command",
-                    Body = "The Quraysh side had powerful chiefs and confidence from Makkah. In gameplay, the mode now stays focused on two player teams meeting in the valley without bot fill.",
+                    Body = "The Quraysh side had powerful chiefs, a larger army, and confidence from Makkah, yet the smaller army that stood firm together held the field.",
                     DurationSeconds = 7,
                     FieldOfView = 61,
                     CameraDrift = Vector3.new(-9, 0, 8),
@@ -287,7 +857,7 @@ local BattleScenarios = {
             Lines = {
                 "Badr took place on 17 Ramadan, 2 AH / 624 CE and became a major victory for the early Muslim community.",
                 "The battle strengthened morale and marked a turning point in the public standing of the community.",
-                "This battle mode now stays player-only so the reenactment carries the teaching while the round itself stays focused and readable.",
+                "The lessons: preparation, standing firm, unity, gratitude after victory, and mercy toward captives.",
             },
         },
         Rewards = {
@@ -329,14 +899,14 @@ local BattleScenarios = {
         },
         SpawnPositions = {
             medina = {
-                Vector3.new(-1320, 10, 1180),
-                Vector3.new(-1304, 10, 1210),
-                Vector3.new(-1288, 10, 1148),
+                Vector3.new(-1420, 10, 1262),
+                Vector3.new(-1400, 10, 1282),
+                Vector3.new(-1440, 10, 1290),
             },
             makkah = {
-                Vector3.new(-982, 10, 1180),
-                Vector3.new(-996, 10, 1210),
-                Vector3.new(-1010, 10, 1148),
+                Vector3.new(-1170, 10, 1262),
+                Vector3.new(-1180, 10, 1282),
+                Vector3.new(-1160, 10, 1244),
             },
         },
         GameplayPhases = {
@@ -479,7 +1049,7 @@ local BattleScenarios = {
             Lines = {
                 "Qur'an 3:121, 3:152, and 3:153 frame Uhud through placement, early success, disobedience, confusion, and the cost of a broken position.",
                 "Sunan Abi Dawud 2662 preserves the command to the archers, while Sahih Muslim 1789 and 1790a preserve the pressure, wounds, and rescue of the late battle.",
-                "Uhud now runs as a player-only battle with no filler bots, so the focus stays on the field, the ridge, and the lesson itself.",
+                "The lesson of Uhud is obedience: one broken position changed the day, and patience after pain is what the Qur'an praises.",
             },
         },
         -- Uhud builds on the lessons of Badr, so it opens after Badr or once a player has
@@ -502,7 +1072,7 @@ return table.freeze(BattleScenarios)
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="7">
+        <Item class="ModuleScript" referent="8">
           <Properties>
             <string name="Name">CompanionStories</string>
             <string name="Source"><![CDATA[--!strict
@@ -954,7 +1524,7 @@ return table.freeze(CompanionStories)
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="8">
+        <Item class="ModuleScript" referent="9">
           <Properties>
             <string name="Name">DailyReflections</string>
             <string name="Source"><![CDATA[--!strict
@@ -1075,7 +1645,7 @@ return DailyReflections
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="9">
+        <Item class="ModuleScript" referent="10">
           <Properties>
             <string name="Name">Guides</string>
             <string name="Source"><![CDATA[--!strict
@@ -1151,7 +1721,7 @@ return Guides
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="10">
+        <Item class="ModuleScript" referent="11">
           <Properties>
             <string name="Name">HaramLearningTrail</string>
             <string name="Source"><![CDATA[--!strict
@@ -1231,7 +1801,7 @@ return table.freeze(HaramLearningTrail)
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="11">
+        <Item class="ModuleScript" referent="12">
           <Properties>
             <string name="Name">IslamicStudies</string>
             <string name="Source"><![CDATA[--!strict
@@ -2298,7 +2868,7 @@ return IslamicStudies
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="12">
+        <Item class="ModuleScript" referent="13">
           <Properties>
             <string name="Name">MannersLessons</string>
             <string name="Source"><![CDATA[--!strict
@@ -2380,7 +2950,7 @@ return table.freeze(MannersLessons)
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="13">
+        <Item class="ModuleScript" referent="14">
           <Properties>
             <string name="Name">ShopCatalog</string>
             <string name="Source"><![CDATA[--!strict
@@ -2537,7 +3107,7 @@ return table.freeze(ShopCatalog)
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="14">
+        <Item class="ModuleScript" referent="15">
           <Properties>
             <string name="Name">TravelRoute</string>
             <string name="Source"><![CDATA[--!strict
@@ -2649,7 +3219,7 @@ return table.freeze(TravelRoute)
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="15">
+        <Item class="ModuleScript" referent="16">
           <Properties>
             <string name="Name">TriviaQuestions</string>
             <string name="Source"><![CDATA[--!strict
@@ -2819,11 +3389,11 @@ return table.freeze(TriviaQuestions)
           </Properties>
         </Item>
       </Item>
-      <Item class="Folder" referent="16">
+      <Item class="Folder" referent="17">
         <Properties>
           <string name="Name">Modules</string>
         </Properties>
-        <Item class="ModuleScript" referent="17">
+        <Item class="ModuleScript" referent="18">
           <Properties>
             <string name="Name">ContentIndex</string>
             <string name="Source"><![CDATA[--!strict
@@ -2858,7 +3428,7 @@ return ContentIndex
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="18">
+        <Item class="ModuleScript" referent="19">
           <Properties>
             <string name="Name">Daily</string>
             <string name="Source"><![CDATA[--!strict
@@ -2988,7 +3558,135 @@ return Daily
 ]]></string>
           </Properties>
         </Item>
-        <Item class="ModuleScript" referent="19">
+        <Item class="ModuleScript" referent="20">
+          <Properties>
+            <string name="Name">MissionRules</string>
+            <string name="Source"><![CDATA[--!strict
+
+-- Pure rules for the battle story missions, shared by the server (which runs the mission)
+-- and the client (which shows it). No Roblox services, so it can be unit tested.
+
+local MissionRules = {}
+
+MissionRules.StarBonusXP = 40
+MissionRules.MaxAliveEnemiesBase = 10
+MissionRules.MaxAliveEnemiesPerPlayer = 3
+MissionRules.MaxAliveEnemiesCap = 26
+
+-- Opponent count for one spawn entry, grown for each player beyond the first.
+function MissionRules.ScaleCount(spawn: { Count: number, PerExtraPlayer: number? }, playerCount: number): number
+    local extraPlayers = math.max(0, math.floor(playerCount) - 1)
+    local count = spawn.Count + (spawn.PerExtraPlayer or 0) * extraPlayers
+
+    return math.max(0, math.floor(count + 0.5))
+end
+
+-- Opponents get a little tougher as more players join, so co-op stays a challenge.
+function MissionRules.HealthMultiplier(playerCount: number): number
+    return math.min(2.2, 1 + 0.18 * math.max(0, playerCount - 1))
+end
+
+function MissionRules.MaxAliveEnemies(playerCount: number): number
+    return math.min(
+        MissionRules.MaxAliveEnemiesCap,
+        MissionRules.MaxAliveEnemiesBase + MissionRules.MaxAliveEnemiesPerPlayer * math.max(1, playerCount)
+    )
+end
+
+-- Advances a hold timer. Holding needs at least one player in the ring, and pauses while the
+-- ring is contested by more than twice as many opponents as players.
+function MissionRules.StepHold(progress: number, deltaSeconds: number, required: number, playersInZone: number, enemiesInZone: number): (number, string)
+    if playersInZone <= 0 then
+        return progress, "Empty"
+    end
+
+    if enemiesInZone > playersInZone * 2 then
+        return progress, "Contested"
+    end
+
+    return math.min(required, progress + deltaSeconds), "Holding"
+end
+
+export type MissionResult = {
+    Completed: boolean,
+    Falls: number,
+    PlayerCount: number,
+    SteadfastKept: boolean,
+}
+
+-- Three stars: finish the mission, keep the mission's steadfast condition, and fall no more
+-- than once per player.
+function MissionRules.ComputeStars(mission: any, result: MissionResult): (number, { { Label: string, Earned: boolean } })
+    local details = {
+        { Label = "Complete the mission", Earned = result.Completed },
+        { Label = (mission.Steadfast and mission.Steadfast.Label) or "Stay steadfast", Earned = result.Completed and result.SteadfastKept },
+        { Label = "No more than one fall per player", Earned = result.Completed and result.Falls <= math.max(1, result.PlayerCount) },
+    }
+    local stars = 0
+
+    for _, detail in ipairs(details) do
+        if detail.Earned then
+            stars += 1
+        end
+    end
+
+    return stars, details
+end
+
+-- XP for beating a previous best star count. Replays only pay for new stars.
+function MissionRules.StarBonus(previousBest: number, stars: number): number
+    return math.max(0, stars - math.max(0, previousBest)) * MissionRules.StarBonusXP
+end
+
+-- Grades reflection answers. `answers[i]` is the chosen index for question i.
+function MissionRules.GradeReflection(mission: any, answers: any)
+    local results = {}
+    local correct = 0
+    local questions = mission.Reflection or {}
+
+    for index, question in ipairs(questions) do
+        local chosen = type(answers) == "table" and answers[index] or nil
+        local isCorrect = type(chosen) == "number" and chosen == question.Answer
+
+        if isCorrect then
+            correct += 1
+        end
+
+        table.insert(results, {
+            Id = question.Id,
+            Correct = isCorrect,
+            Answer = question.Answer,
+            Explanation = question.Explanation,
+        })
+    end
+
+    return {
+        Correct = correct,
+        Total = #questions,
+        Results = results,
+    }
+end
+
+-- Questions as the client sees them: no answers.
+function MissionRules.ReflectionForClient(mission: any)
+    local questions = {}
+
+    for _, question in ipairs(mission.Reflection or {}) do
+        table.insert(questions, {
+            Id = question.Id,
+            Prompt = question.Prompt,
+            Choices = question.Choices,
+        })
+    end
+
+    return questions
+end
+
+return MissionRules
+]]></string>
+          </Properties>
+        </Item>
+        <Item class="ModuleScript" referent="21">
           <Properties>
             <string name="Name">Progression</string>
             <string name="Source"><![CDATA[--!strict
@@ -2997,6 +3695,7 @@ return Daily
 -- client (which only displays it). Nothing here touches Roblox services, so the rules
 -- can be unit tested outside Studio.
 
+local BattleMissions = require(script.Parent.Parent.Data.BattleMissions)
 local BattleScenarios = require(script.Parent.Parent.Data.BattleScenarios)
 local CompanionStories = require(script.Parent.Parent.Data.CompanionStories)
 local IslamicStudies = require(script.Parent.Parent.Data.IslamicStudies)
@@ -3032,6 +3731,7 @@ Progression.Categories = {
     Manners = "manners",
     Path = "path",
     Order = "order",
+    Reflection = "reflection",
 }
 
 -- XP for the first completion of each kind of activity. Repeats give RepeatMultiplier of it,
@@ -3046,6 +3746,7 @@ Progression.Rewards = {
     StudyCircle = 40,
     path = 25,
     order = 30,
+    reflection = 15,
     RepeatMultiplier = 0.25,
 }
 
@@ -3283,6 +3984,62 @@ local function buildBadges(): { Badge }
             IsEarned = allCompleted(Progression.Categories.Battle, { scenario.Id }),
         })
     end
+
+    table.insert(badges, {
+        Id = "badr_three_stars",
+        DisplayName = "Defender Of The Wells",
+        Description = "Earn all three stars in the Battle of Badr story mission.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.BestStars_badr or 0) >= 3
+        end,
+    })
+
+    table.insert(badges, {
+        Id = "uhud_kept_post",
+        DisplayName = "Kept The Post",
+        Description = "Stay on the Archers' Hill through the test of the spoils at Uhud.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.UhudPostKept or 0) >= 1
+        end,
+    })
+
+    table.insert(badges, {
+        Id = "uhud_three_stars",
+        DisplayName = "Steadfast At Uhud",
+        Description = "Earn all three stars in the Battle of Uhud story mission.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.BestStars_uhud or 0) >= 3
+        end,
+    })
+
+    local reflectionIds = {}
+
+    for _, missionId in ipairs(BattleMissions.Order) do
+        for _, question in ipairs(BattleMissions.Get(missionId).Reflection) do
+            table.insert(reflectionIds, question.Id)
+        end
+    end
+
+    table.insert(badges, {
+        Id = "battle_lessons",
+        DisplayName = "Lessons Of The Battles",
+        Description = "Answer every after-battle reflection question correctly.",
+        RobloxBadgeId = 0,
+        IsEarned = allCompleted(Progression.Categories.Reflection, reflectionIds),
+    })
+
+    table.insert(badges, {
+        Id = "battle_veteran",
+        DisplayName = "Steady In Every Step",
+        Description = "Complete 40 battle mission objectives.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.BattleObjectives or 0) >= 40
+        end,
+    })
 
     table.insert(badges, {
         Id = "study_circle",
@@ -3572,11 +4329,11 @@ return Progression
       </Item>
     </Item>
   </Item>
-  <Item class="ServerScriptService" referent="20">
+  <Item class="ServerScriptService" referent="22">
     <Properties>
       <string name="Name">ServerScriptService</string>
     </Properties>
-    <Item class="Script" referent="21">
+    <Item class="Script" referent="23">
       <Properties>
         <string name="Name">BattleArenaBuilder</string>
         <token name="RunContext">0</token>
@@ -3587,9 +4344,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BattleScenarios = require(Shared.Data.BattleScenarios)
+local BattleMissions = require(Shared.Data.BattleMissions)
 local BuildUtils = require(script.Parent.Modules.BuildUtils)
 
 local ARENA_FOLDER_NAME = "GeneratedBattles"
+-- Top of each arena's BaseFloor (a 2-stud slab centred at y = 1).
+local ARENA_FLOOR_TOP = 2
 
 local function scaleColor(color: Color3, scale: number): Color3
     return Color3.fromRGB(
@@ -4216,8 +4976,8 @@ local function buildUhudArena(parent: Instance, scenario)
     createMesaMass(geometry, "UhudRidgeWest", Vector3.new(-1458, 0, 992), 6, 402, 220, 210, Color3.fromRGB(147, 118, 84))
     createMesaMass(geometry, "UhudMainMass", Vector3.new(-1150, 0, 948), 0, 640, 286, 282, Color3.fromRGB(144, 116, 82))
     createMesaMass(geometry, "UhudRidgeEast", Vector3.new(-854, 0, 1004), -6, 392, 212, 204, Color3.fromRGB(149, 121, 86))
-    createMesaMass(geometry, "UhudRearSlope", Vector3.new(-1152, 0, 846), 180, 474, 142, 136, Color3.fromRGB(145, 118, 86))
-    createMesaMass(geometry, "UhudNorthWall", Vector3.new(-1152, 0, 732), 180, 716, 196, 124, Color3.fromRGB(132, 106, 77))
+    -- No masses north of UhudMainMass: the Badr valley starts at z = 490 and its battlefield runs
+    -- through z = 720, so anything placed there lands in the middle of the Badr arena.
     createMesaMass(geometry, "UhudPassShelfWest", Vector3.new(-1360, 0, 1168), -18, 278, 92, 134, Color3.fromRGB(136, 110, 81))
     createMesaMass(geometry, "UhudPassShelfEast", Vector3.new(-964, 0, 1108), 16, 270, 84, 126, Color3.fromRGB(141, 115, 84))
     createStoneShelf(geometry, "SouthSlope", CFrame.new(-1180, 9, 1416) * CFrame.Angles(0, math.rad(2), 0), Vector3.new(412, 18, 148), Color3.fromRGB(194, 164, 122))
@@ -4272,6 +5032,98 @@ local function buildUhudArena(parent: Instance, scenario)
     arenaFolder:SetAttribute("ScenarioId", scenario.Id)
 end
 
+-- A wedge whose high edge faces `towards` (a unit direction on the ground plane).
+local function createSlope(parent: Instance, name: string, center: Vector3, across: number, height: number, run: number, towards: Vector3, color: Color3): WedgePart
+    local yaw = math.atan2(towards.X, towards.Z)
+    local cframe = CFrame.new(center.X, ARENA_FLOOR_TOP + height * 0.5, center.Z) * CFrame.Angles(0, yaw, 0)
+
+    return BuildUtils.CreateWedge(parent, name, Vector3.new(across, height, run), cframe, color, Enum.Material.Slate, nil)
+end
+
+local function createDecorRock(parent: Instance, name: string, position: Vector3, size: Vector3, color: Color3, yawDegrees: number)
+    local rock = BuildUtils.CreatePart(parent, name, size, CFrame.new(position) * CFrame.Angles(math.rad(6), math.rad(yawDegrees), math.rad(-4)), color, Enum.Material.Rock, nil, nil)
+    rock.CanCollide = false
+end
+
+-- The Archers' Hill: a flat-topped mound with a walkable slope on every side.
+local function createArchersHill(parent: Instance, config)
+    local folder = BuildUtils.CreateFolder(parent, "ArchersHill")
+    local center: Vector3 = config.Center
+    local size: Vector3 = config.Size
+    local run: number = config.Slope
+    local rock = Color3.fromRGB(150, 122, 88)
+    local top = ARENA_FLOOR_TOP + size.Y
+
+    BuildUtils.CreatePart(folder, "Plateau", size, CFrame.new(center.X, ARENA_FLOOR_TOP + size.Y * 0.5, center.Z), rock, Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(folder, "PlateauSand", Vector3.new(size.X - 4, 0.3, size.Z - 4), CFrame.new(center.X, top + 0.15, center.Z), Color3.fromRGB(196, 168, 124), Enum.Material.Sand, nil, nil).CanCollide = false
+
+    createSlope(folder, "NorthSlope", Vector3.new(center.X, 0, center.Z - size.Z * 0.5 - run * 0.5), size.X, size.Y, run, Vector3.new(0, 0, 1), scaleColor(rock, 1.04))
+    createSlope(folder, "SouthSlope", Vector3.new(center.X, 0, center.Z + size.Z * 0.5 + run * 0.5), size.X, size.Y, run, Vector3.new(0, 0, -1), scaleColor(rock, 0.94))
+    createSlope(folder, "EastSlope", Vector3.new(center.X + size.X * 0.5 + run * 0.5, 0, center.Z), size.Z, size.Y, run, Vector3.new(-1, 0, 0), scaleColor(rock, 0.98))
+    createSlope(folder, "WestSlope", Vector3.new(center.X - size.X * 0.5 - run * 0.5, 0, center.Z), size.Z, size.Y, run, Vector3.new(1, 0, 0), scaleColor(rock, 0.9))
+
+    for index, offset in ipairs({
+        Vector3.new(-1, 0, -1),
+        Vector3.new(1, 0, -1),
+        Vector3.new(1, 0, 1),
+        Vector3.new(-1, 0, 1),
+    }) do
+        local cornerPosition = center + Vector3.new(offset.X * (size.X * 0.5 + run * 0.35), 0, offset.Z * (size.Z * 0.5 + run * 0.35))
+        createDecorRock(folder, string.format("CornerRock_%d", index), cornerPosition + Vector3.new(0, ARENA_FLOOR_TOP + size.Y * 0.32, 0), Vector3.new(run * 0.9, size.Y * 0.62, run * 0.9), scaleColor(rock, 0.86 + index * 0.03), index * 37)
+    end
+
+    BuildUtils.CreateBanner(folder, "HillBanner", Vector3.new(center.X - size.X * 0.5 + 4, top, center.Z + size.Z * 0.5 - 4), Color3.fromRGB(62, 125, 82))
+    createArenaTorch(folder, "HillTorchWest", Vector3.new(center.X - size.X * 0.5 + 3, top, center.Z - size.Z * 0.5 + 3))
+    createArenaTorch(folder, "HillTorchEast", Vector3.new(center.X + size.X * 0.5 - 3, top, center.Z - size.Z * 0.5 + 3))
+    local sign = BuildUtils.CreateWallSign(folder, "HillStory", Vector3.new(center.X + size.X * 0.5 - 6, top, center.Z + size.Z * 0.5 - 3), Vector3.new(28, 8, 1.6), "The Archers' Hill", "Sahih al-Bukhari 3039: do not leave your place until you are sent for.", Color3.fromRGB(68, 91, 66), nil)
+    sign.Orientation = Vector3.new(0, 180, 0)
+end
+
+-- A rock shelf against the mountain's west face, with a path up from the field on its south side.
+local function createMountainShelf(parent: Instance, config)
+    local folder = BuildUtils.CreateFolder(parent, "MountainShelf")
+    local center: Vector3 = config.Center
+    local size: Vector3 = config.Size
+    local rock = Color3.fromRGB(141, 114, 84)
+    local top = ARENA_FLOOR_TOP + size.Y
+    local southEdge = center.Z + size.Z * 0.5
+
+    BuildUtils.CreatePart(folder, "Shelf", size, CFrame.new(center.X, ARENA_FLOOR_TOP + size.Y * 0.5, center.Z), rock, Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(folder, "ShelfCap", Vector3.new(size.X + 4, 3, size.Z + 2), CFrame.new(center.X, top - 1.2, center.Z), scaleColor(rock, 0.9), Enum.Material.Rock, nil, nil)
+    createSlope(folder, "Path", Vector3.new(center.X, 0, southEdge + config.PathRun * 0.5), config.PathWidth, size.Y, config.PathRun, Vector3.new(0, 0, -1), Color3.fromRGB(160, 132, 98))
+
+    for index = 1, 3 do
+        local alpha = index / 4
+        local z = southEdge + config.PathRun * (1 - alpha)
+        createArenaTorch(folder, string.format("PathTorch_%d", index), Vector3.new(center.X + config.PathWidth * 0.5 - 1.5, ARENA_FLOOR_TOP + size.Y * alpha, z))
+    end
+
+    for index, offset in ipairs({ Vector3.new(-0.42, 0, -0.3), Vector3.new(0.4, 0, -0.38), Vector3.new(-0.3, 0, 0.36) }) do
+        createDecorRock(folder, string.format("ShelfRock_%d", index), Vector3.new(center.X + offset.X * size.X, top + 2.5, center.Z + offset.Z * size.Z), Vector3.new(9, 6, 8), scaleColor(rock, 0.8 + index * 0.05), index * 50)
+    end
+
+    BuildUtils.CreateBanner(folder, "RallyBanner", Vector3.new(center.X - size.X * 0.5 + 6, top, southEdge - 6), Color3.fromRGB(62, 125, 82))
+end
+
+local function buildMissionStructures(arenaFolder: Instance, scenarioId: string)
+    local mission = BattleMissions.Get(scenarioId)
+    local structures = mission and mission.Structures
+
+    if not structures then
+        return
+    end
+
+    local folder = BuildUtils.CreateFolder(arenaFolder, "MissionStructures")
+
+    if structures.ArchersHill then
+        createArchersHill(folder, structures.ArchersHill)
+    end
+
+    if structures.MountainShelf then
+        createMountainShelf(folder, structures.MountainShelf)
+    end
+end
+
 local existingFolder = Workspace:FindFirstChild(ARENA_FOLDER_NAME)
 
 if existingFolder and existingFolder:GetAttribute("GeneratedBy") == "BattleArenaBuilder" then
@@ -4289,11 +5141,17 @@ for _, scenario in ipairs(BattleScenarios) do
     elseif scenario.Id == "uhud" then
         buildUhudArena(arenasFolder, scenario)
     end
+
+    local arenaFolder = arenasFolder:FindFirstChild(scenario.Id)
+
+    if arenaFolder then
+        buildMissionStructures(arenaFolder, scenario.Id)
+    end
 end
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="22">
+    <Item class="Script" referent="24">
       <Properties>
         <string name="Name">BattleService</string>
         <token name="RunContext">0</token>
@@ -4307,11 +5165,14 @@ local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
+local BattleMissions = require(Shared.Data.BattleMissions)
 local BattleScenarios = require(Shared.Data.BattleScenarios)
+local MissionRules = require(Shared.Modules.MissionRules)
 local TravelRoute = require(Shared.Data.TravelRoute)
 local Progression = require(Shared.Modules.Progression)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
+local MissionDirector = require(script.Parent.Modules.MissionDirector)
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local battleFolder = remotesFolder:WaitForChild("Battle")
 local shopFolder = remotesFolder:WaitForChild("Shop")
@@ -4319,6 +5180,10 @@ local showBattleMessage = battleFolder:WaitForChild("ShowBattleMessage") :: Remo
 local showBattleSummary = battleFolder:WaitForChild("ShowBattleSummary") :: RemoteEvent
 local playReenactment = battleFolder:WaitForChild("PlayReenactment") :: RemoteEvent
 local requestJoinBattle = battleFolder:WaitForChild("RequestJoinBattle") :: RemoteEvent
+local missionUpdate = battleFolder:WaitForChild("MissionUpdate") :: RemoteEvent
+local missionResult = battleFolder:WaitForChild("MissionResult") :: RemoteEvent
+local submitReflection = battleFolder:WaitForChild("SubmitReflection") :: RemoteEvent
+local reflectionResult = battleFolder:WaitForChild("ReflectionResult") :: RemoteEvent
 
 local scenarioById = {}
 local queues = {}
@@ -4326,8 +5191,13 @@ local queueCountdowns = {}
 local activeSessions = {}
 local playerToSession = {}
 local promptConnections = {}
+-- "mission" (co-op story mission against server soldiers) or "skirmish" (players vs players).
+local queueModes: { [Player]: string } = {}
+local pendingReflections: { [Player]: string } = {}
+local MISSION_COUNTDOWN_SECONDS = 6
 local startSession
 local startFinalBossPhase
+local awardMission: (any, Player) -> any
 local COMBATANT_TAG = "BattleCombatant"
 local GOLD_ACCENT = Color3.fromRGB(193, 162, 86)
 
@@ -4367,6 +5237,8 @@ local function awardKnowledgeTokens(player: Player, amount: number, reason: stri
 end
 
 local function removePlayerFromQueues(player: Player)
+    queueModes[player] = nil
+
     for _, queuedPlayers in pairs(queues) do
         for index = #queuedPlayers, 1, -1 do
             if queuedPlayers[index] == player then
@@ -4388,9 +5260,11 @@ local function startQueueCountdown(scenarioId: string)
     end
 
     queueCountdowns[scenarioId] = true
+    local firstQueued = queues[scenarioId][1]
+    local countdown = (firstQueued and queueModes[firstQueued] == "mission") and MISSION_COUNTDOWN_SECONDS or scenario.CountdownSeconds
 
     task.spawn(function()
-        task.wait(scenario.CountdownSeconds)
+        task.wait(countdown)
         queueCountdowns[scenarioId] = nil
 
         if not activeSessions[scenarioId] then
@@ -4895,6 +5769,10 @@ local function getHumanLivingCount(session, teamId: string): number
 end
 
 local function cleanupSession(session)
+    if session.Director then
+        session.Director:Stop()
+    end
+
     for _, connection in ipairs(session.Connections) do
         connection:Disconnect()
     end
@@ -5495,6 +6373,67 @@ local function respawnPlayerToSpectator(player: Player, session)
     character:PivotTo(spectatorAnchor.CFrame)
 end
 
+-- Pays out one player's mission rewards and builds their results screen.
+awardMission = function(session, player: Player)
+    local outcome = session.MissionResult
+    local scenario = session.Scenario
+    local mission = BattleMissions.Get(scenario.Id)
+
+    if not outcome or not mission then
+        return nil
+    end
+
+    local personal = outcome.PerPlayer[player] or { Falls = 0, Defeated = 0, HeldSeconds = 0, BrokeOrder = false }
+    local stars, details = MissionRules.ComputeStars(mission, {
+        Completed = outcome.Completed,
+        Falls = outcome.Falls,
+        PlayerCount = outcome.PlayerCount,
+        SteadfastKept = outcome.SteadfastKept,
+    })
+    local starBonus = 0
+    local firstTime = false
+
+    if outcome.Completed then
+        awardKnowledgeTokens(player, (scenario.Rewards.KnowledgeTokens or 0) + stars * 20, string.format("%s complete", scenario.DisplayName))
+        firstTime = PlayerProgress.RecordCompletion(player, "battle", scenario.Id, scenario.DisplayName)
+        local previousBest = PlayerProgress.SetStatMax(player, "BestStars_" .. scenario.Id, stars)
+
+        if previousBest then
+            starBonus = MissionRules.StarBonus(previousBest, stars)
+
+            if starBonus > 0 then
+                PlayerProgress.AddXP(player, starBonus, string.format("New stars in the %s", scenario.DisplayName))
+            end
+        end
+
+        if mission.Steadfast.Kind == "Discipline" and not personal.BrokeOrder then
+            PlayerProgress.IncrementStat(player, "UhudPostKept", 1)
+        end
+    end
+
+    PlayerProgress.IncrementStat(player, "BattleOpponentsDriven", personal.Defeated)
+    pendingReflections[player] = scenario.Id
+
+    return {
+        ScenarioId = scenario.Id,
+        MissionName = mission.DisplayName,
+        Completed = outcome.Completed,
+        Reason = outcome.Reason,
+        FirstTime = firstTime,
+        Stars = stars,
+        StarDetails = details,
+        StarBonus = starBonus,
+        Defeated = personal.Defeated,
+        Falls = personal.Falls,
+        TeamFalls = outcome.Falls,
+        ObjectivesDone = outcome.ObjectivesDone,
+        ObjectiveCount = #mission.Objectives,
+        LessonTitle = scenario.StorySummary.Title,
+        LessonLines = scenario.StorySummary.Lines,
+        Reflection = MissionRules.ReflectionForClient(mission),
+    }
+end
+
 local function endSession(session, winnerTeamId: string?, reason: string)
     if session.Ended then
         return
@@ -5521,7 +6460,10 @@ local function endSession(session, winnerTeamId: string?, reason: string)
     task.spawn(function()
         freezePlayersForCutscene(session.Players)
 
-        local payload = buildReenactmentPayload(session, winnerText)
+        local missionOutcome = session.MissionResult
+        local isMission = session.Mode == "mission"
+        local missionFailed = isMission and not (missionOutcome and missionOutcome.Completed)
+        local payload = (not missionFailed) and buildReenactmentPayload(session, winnerText) or nil
         local totalDuration = 0
 
         if payload then
@@ -5535,7 +6477,7 @@ local function endSession(session, winnerTeamId: string?, reason: string)
                 playReenactment:FireClient(player, payload)
             end
         else
-            totalDuration = 6
+            totalDuration = missionFailed and 4 or 6
 
             for _, player in ipairs(session.Players) do
                 sendSummary(player, session.Scenario, winnerText)
@@ -5545,8 +6487,21 @@ local function endSession(session, winnerTeamId: string?, reason: string)
         task.wait(totalDuration + 0.4)
 
         for _, player in ipairs(session.Players) do
-            awardKnowledgeTokens(player, session.Scenario.Rewards.KnowledgeTokens or 0, string.format("%s complete", session.Scenario.DisplayName))
-            PlayerProgress.RecordCompletion(player, "battle", session.Scenario.Id, session.Scenario.DisplayName)
+            if isMission then
+                local resultPayload = awardMission(session, player)
+
+                if resultPayload then
+                    task.delay(2.5, function()
+                        if player.Parent then
+                            missionResult:FireClient(player, resultPayload)
+                        end
+                    end)
+                end
+            else
+                awardKnowledgeTokens(player, session.Scenario.Rewards.KnowledgeTokens or 0, string.format("%s complete", session.Scenario.DisplayName))
+                PlayerProgress.RecordCompletion(player, "battle", session.Scenario.Id, session.Scenario.DisplayName)
+            end
+
             clearPlayerBattleState(player)
             returnPlayerToHub(player, 0.15)
         end
@@ -5570,6 +6525,10 @@ local function getFinalBossConfig(session)
 end
 
 local function evaluateVictory(session)
+    if session.Mode == "mission" then
+        return
+    end
+
     local firstTeamId = session.Scenario.Teams[1].Id
     local secondTeamId = session.Scenario.Teams[2].Id
     local firstStartedHumans = session.InitialHumanCounts[firstTeamId] or 0
@@ -5780,6 +6739,146 @@ startFinalBossPhase = function(session, winningTeamId: string, defeatedTeamId: s
     sendMessage(session.Players, string.format(finalBossConfig.StartMessageTemplate or "Final phase: defeat the %s.", bossDisplayName), 6)
 end
 
+local function prepareMissionCharacter(session, player: Player, character: Model)
+    setCharacterAttributes(character, session.Scenario.Id, "medina")
+    player:SetAttribute("InBattle", true)
+    player:SetAttribute("CurrentScenarioId", session.Scenario.Id)
+    player:SetAttribute("CurrentBattleTeam", "medina")
+    tagCombatant(character, false, nil, nil)
+    BattleLoadout.GiveToPlayer(player)
+
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+    if humanoid then
+        humanoid.WalkSpeed = 16
+        humanoid.JumpPower = 50
+        humanoid.AutoRotate = true
+    end
+end
+
+local function respawnIntoMission(session, player: Player, cframe: CFrame): Model?
+    if session.Ended or not player.Parent then
+        return nil
+    end
+
+    BattleLoadout.ClearForPlayer(player)
+
+    local success = pcall(function()
+        player:LoadCharacter()
+    end)
+
+    if not success then
+        return nil
+    end
+
+    local character = getReadyCharacter(player, 10)
+
+    if not character or session.Ended then
+        return nil
+    end
+
+    character:PivotTo(cframe)
+    prepareMissionCharacter(session, player, character)
+
+    return character
+end
+
+-- Co-op story mission: every player is on the Medina side and the server runs the opponents.
+local function startMissionSession(scenario, arenaFolder: Folder, queuedPlayers: { Player })
+    local mission = BattleMissions.Get(scenario.Id)
+    local session: any = {
+        Scenario = scenario,
+        Arena = arenaFolder,
+        Players = {},
+        Mode = "mission",
+        Teams = {
+            [scenario.Teams[1].Id] = {},
+            [scenario.Teams[2].Id] = {},
+        },
+        InitialHumanCounts = {
+            [scenario.Teams[1].Id] = 0,
+            [scenario.Teams[2].Id] = 0,
+        },
+        SpawnAnchors = {},
+        DummyAnchors = {},
+        Dummies = {},
+        Connections = {},
+        Ended = false,
+        Director = nil,
+        MissionResult = nil,
+    }
+
+    activeSessions[scenario.Id] = session
+
+    local spawnFolder = arenaFolder:FindFirstChild("Spawns")
+    local anchors = spawnFolder and getAnchors(spawnFolder, "medina") or {}
+
+    for index, player in ipairs(queuedPlayers) do
+        local character = getCharacter(player)
+
+        if character and player.Parent then
+            if #anchors > 0 then
+                teleportCharacterToAnchor(character, anchors[((index - 1) % #anchors) + 1])
+            end
+
+            prepareMissionCharacter(session, player, character)
+            playerToSession[player] = session
+            table.insert(session.Players, player)
+        end
+    end
+
+    if #session.Players == 0 then
+        activeSessions[scenario.Id] = nil
+        return
+    end
+
+    freezePlayersForCutscene(session.Players)
+
+    local briefingPayload = buildBriefingPayload(session)
+    local briefingDuration = 0
+
+    if briefingPayload then
+        animateBriefing(session)
+
+        for _, scene in ipairs(briefingPayload.Scenes) do
+            briefingDuration += scene.DurationSeconds or 5
+        end
+
+        for _, player in ipairs(session.Players) do
+            playReenactment:FireClient(player, briefingPayload)
+        end
+    end
+
+    task.delay(briefingDuration + 0.4, function()
+        if session.Ended then
+            return
+        end
+
+        unfreezePlayersForBattle(session.Players)
+        sendMessage(session.Players, string.format("%s story mission. Follow the objective at the top of your screen.", scenario.DisplayName), 6)
+        sendMessage(session.Players, "Left click to strike, hold and release to shoot the bow, right click to raise your shield. Watch for the ! before an attack and block it.", 7)
+
+        local director = MissionDirector.new({
+            Mission = mission,
+            Arena = arenaFolder,
+            Players = session.Players,
+            Send = function(player: Player, payload)
+                missionUpdate:FireClient(player, payload)
+            end,
+            Respawn = function(player: Player, cframe: CFrame)
+                return respawnIntoMission(session, player, cframe)
+            end,
+            OnFinished = function(result)
+                session.MissionResult = result
+                endSession(session, if result.Completed then "medina" else nil, result.Reason)
+            end,
+        })
+
+        session.Director = director
+        director:Start()
+    end)
+end
+
 startSession = function(scenarioId: string)
     if activeSessions[scenarioId] then
         return
@@ -5792,14 +6891,51 @@ startSession = function(scenarioId: string)
         return
     end
 
-    local queuedPlayers = {}
-    local maxHumans = scenario.PlayersPerTeam * 2
+    local queue = queues[scenarioId]
+    local firstQueued = queue[1]
+    local mode = (firstQueued and queueModes[firstQueued]) or "skirmish"
 
-    while #queues[scenarioId] > 0 and #queuedPlayers < maxHumans do
-        table.insert(queuedPlayers, table.remove(queues[scenarioId], 1))
+    if mode == "mission" and not BattleMissions.Get(scenarioId) then
+        mode = "skirmish"
     end
 
-    if #queuedPlayers < scenario.MinPlayersToLaunch then
+    local mission = BattleMissions.Get(scenarioId)
+    local maxHumans = if mode == "mission" then mission.MaxPlayers else scenario.PlayersPerTeam * 2
+    local queuedPlayers: { Player } = {}
+    local index = 1
+
+    -- Take the players who asked for the same mode as the first player in line.
+    while index <= #queue and #queuedPlayers < maxHumans do
+        local candidate = queue[index]
+
+        if (queueModes[candidate] or "skirmish") == mode then
+            table.insert(queuedPlayers, table.remove(queue, index))
+            queueModes[candidate] = nil
+        else
+            index += 1
+        end
+    end
+
+    local minPlayers = if mode == "mission" then 1 else scenario.MinPlayersToLaunch
+
+    if #queuedPlayers < minPlayers then
+        -- Not enough players yet: put them back in line instead of dropping them.
+        for putBack = #queuedPlayers, 1, -1 do
+            table.insert(queue, 1, queuedPlayers[putBack])
+            queueModes[queuedPlayers[putBack]] = mode
+        end
+
+        sendMessage(queuedPlayers, string.format("Waiting for at least %d players for the %s team skirmish. The story mission can be played solo.", minPlayers, scenario.DisplayName), 5)
+        return
+    end
+
+    if mode == "mission" then
+        startMissionSession(scenario, arenaFolder, queuedPlayers)
+
+        if #queue > 0 then
+            startQueueCountdown(scenarioId)
+        end
+
         return
     end
 
@@ -5965,11 +7101,17 @@ startSession = function(scenarioId: string)
     end)
 end
 
-local function joinQueue(player: Player, scenarioId: string)
+local function joinQueue(player: Player, scenarioId: string, requestedMode: string?)
     local scenario = scenarioById[scenarioId]
 
     if not scenario then
         return
+    end
+
+    local mode = if requestedMode == "skirmish" then "skirmish" else "mission"
+
+    if mode == "mission" and not BattleMissions.Get(scenarioId) then
+        mode = "skirmish"
     end
 
     if player:GetAttribute("InStory") == true then
@@ -5989,7 +7131,22 @@ local function joinQueue(player: Player, scenarioId: string)
         return
     end
 
-    if activeSessions[scenarioId] then
+    local active = activeSessions[scenarioId]
+
+    -- Friends can drop into a story mission that is already under way.
+    if active and not active.Ended and active.Mode == "mission" and mode == "mission" and active.Director then
+        local mission = BattleMissions.Get(scenarioId)
+
+        if #active.Players < mission.MaxPlayers then
+            removePlayerFromQueues(player)
+            playerToSession[player] = active
+            active.Director:AddPlayer(player)
+            sendMessage({ player }, string.format("You joined the %s story mission in progress.", scenario.DisplayName), 5)
+            return
+        end
+    end
+
+    if active then
         sendMessage({ player }, string.format("%s is already running. You are queued for the next round.", scenario.DisplayName), 4)
     end
 
@@ -6002,14 +7159,61 @@ local function joinQueue(player: Player, scenarioId: string)
 
     removePlayerFromQueues(player)
     table.insert(queues[scenarioId], player)
-    sendMessage({ player }, string.format("Queued for %s. The round will begin soon.", scenario.DisplayName), 4)
+    queueModes[player] = mode
+
+    if mode == "mission" then
+        sendMessage({ player }, string.format("%s story mission starts in a few seconds. Friends who join now fight beside you.", scenario.DisplayName), 5)
+    else
+        sendMessage({ player }, string.format("Queued for the %s team skirmish. The round will begin soon.", scenario.DisplayName), 4)
+    end
+
     startQueueCountdown(scenarioId)
 end
 
-requestJoinBattle.OnServerEvent:Connect(function(player: Player, scenarioId: string)
+requestJoinBattle.OnServerEvent:Connect(function(player: Player, scenarioId: string, mode: string?)
     if typeof(scenarioId) == "string" then
-        joinQueue(player, scenarioId)
+        joinQueue(player, scenarioId, if typeof(mode) == "string" then mode else nil)
     end
+end)
+
+submitReflection.OnServerEvent:Connect(function(player: Player, scenarioId: string, answers)
+    if typeof(scenarioId) ~= "string" or pendingReflections[player] ~= scenarioId or typeof(answers) ~= "table" then
+        return
+    end
+
+    pendingReflections[player] = nil
+
+    local mission = BattleMissions.Get(scenarioId)
+
+    if not mission then
+        return
+    end
+
+    local cleanAnswers = {}
+
+    for index = 1, #mission.Reflection do
+        local value = answers[index]
+        cleanAnswers[index] = if typeof(value) == "number" then math.floor(value) else nil
+    end
+
+    local graded = MissionRules.GradeReflection(mission, cleanAnswers)
+    local xpBefore = (PlayerProgress.Get(player) or { XP = 0 }).XP
+
+    for index, result in ipairs(graded.Results) do
+        if result.Correct then
+            PlayerProgress.RecordCompletion(player, Progression.Categories.Reflection, result.Id, string.format("Reflection %d", index))
+        end
+    end
+
+    local xpAfter = (PlayerProgress.Get(player) or { XP = 0 }).XP
+
+    reflectionResult:FireClient(player, {
+        ScenarioId = scenarioId,
+        Correct = graded.Correct,
+        Total = graded.Total,
+        Results = graded.Results,
+        XPAwarded = math.max(0, xpAfter - xpBefore),
+    })
 end)
 
 local function connectBattlePrompt(prompt: ProximityPrompt)
@@ -6021,7 +7225,7 @@ local function connectBattlePrompt(prompt: ProximityPrompt)
         local scenarioId = prompt:GetAttribute("ScenarioId")
 
         if typeof(scenarioId) == "string" then
-            joinQueue(player, scenarioId)
+            joinQueue(player, scenarioId, "mission")
         end
     end)
 end
@@ -6048,8 +7252,29 @@ end)
 
 Players.PlayerRemoving:Connect(function(player)
     removePlayerFromQueues(player)
+    pendingReflections[player] = nil
 
     local session = playerToSession[player]
+
+    if session and session.Mode == "mission" then
+        playerToSession[player] = nil
+
+        if session.Director then
+            session.Director:RemovePlayer(player)
+        else
+            local index = table.find(session.Players, player)
+
+            if index then
+                table.remove(session.Players, index)
+            end
+
+            if #session.Players == 0 then
+                endSession(session, nil, "Everyone left the battlefield.")
+            end
+        end
+
+        return
+    end
 
     if session then
         for _, team in ipairs(session.Scenario.Teams) do
@@ -6066,7 +7291,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="23">
+    <Item class="Script" referent="25">
       <Properties>
         <string name="Name">CamelMountService</string>
         <token name="RunContext">0</token>
@@ -6303,7 +7528,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="24">
+    <Item class="Script" referent="26">
       <Properties>
         <string name="Name">FallGuard</string>
         <token name="RunContext">0</token>
@@ -6439,7 +7664,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="25">
+    <Item class="Script" referent="27">
       <Properties>
         <string name="Name">GameBootstrap</string>
         <token name="RunContext">0</token>
@@ -6508,6 +7733,10 @@ ensureRemoteEvent(battleFolder, "ShowBattleSummary")
 ensureRemoteEvent(battleFolder, "PlayReenactment")
 ensureRemoteEvent(battleFolder, "RequestJoinBattle")
 ensureRemoteEvent(battleFolder, "RequestBlock")
+ensureRemoteEvent(battleFolder, "MissionUpdate")
+ensureRemoteEvent(battleFolder, "MissionResult")
+ensureRemoteEvent(battleFolder, "SubmitReflection")
+ensureRemoteEvent(battleFolder, "ReflectionResult")
 ensureRemoteEvent(storyFolder, "ShowStoryDialogue")
 ensureRemoteEvent(storyFolder, "UpdateStoryMission")
 ensureRemoteEvent(storyFolder, "ClearStoryMission")
@@ -6552,7 +7781,7 @@ print(string.format(
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="26">
+    <Item class="Script" referent="28">
       <Properties>
         <string name="Name">GuideService</string>
         <token name="RunContext">0</token>
@@ -6745,7 +7974,7 @@ end
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="27">
+    <Item class="Script" referent="29">
       <Properties>
         <string name="Name">HaramLearningTrailService</string>
         <token name="RunContext">0</token>
@@ -7001,7 +8230,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="28">
+    <Item class="Script" referent="30">
       <Properties>
         <string name="Name">HubAtmosphere</string>
         <token name="RunContext">0</token>
@@ -7283,7 +8512,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="29">
+    <Item class="Script" referent="31">
       <Properties>
         <string name="Name">HubTeleportService</string>
         <token name="RunContext">0</token>
@@ -7415,7 +8644,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="30">
+    <Item class="Script" referent="32">
       <Properties>
         <string name="Name">HubWorldBuilder</string>
         <token name="RunContext">0</token>
@@ -9118,7 +10347,7 @@ worldFolder:SetAttribute("Built", true)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="31">
+    <Item class="Script" referent="33">
       <Properties>
         <string name="Name">LeaderboardService</string>
         <token name="RunContext">0</token>
@@ -9388,7 +10617,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="32">
+    <Item class="Script" referent="34">
       <Properties>
         <string name="Name">MannersService</string>
         <token name="RunContext">0</token>
@@ -9492,11 +10721,11 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Folder" referent="33">
+    <Item class="Folder" referent="35">
       <Properties>
         <string name="Name">Modules</string>
       </Properties>
-      <Item class="ModuleScript" referent="34">
+      <Item class="ModuleScript" referent="36">
         <Properties>
           <string name="Name">BattleBots</string>
           <string name="Source"><![CDATA[--!nonstrict
@@ -9914,13 +11143,14 @@ return BattleBots
 ]]></string>
         </Properties>
       </Item>
-      <Item class="ModuleScript" referent="35">
+      <Item class="ModuleScript" referent="37">
         <Properties>
           <string name="Name">BattleLoadout</string>
           <string name="Source"><![CDATA[--!strict
 
 local CollectionService = game:GetService("CollectionService")
 local Debris = game:GetService("Debris")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -10134,6 +11364,13 @@ local function applyDamage(attackerCharacter: Model, targetHumanoid: Humanoid?, 
 
     if blocked then
         finalDamage = math.max(3, math.floor(damage * BLOCK_DAMAGE_MULTIPLIER))
+    end
+
+    -- Remember who landed the hit so story missions can credit the player who drove a soldier back.
+    local attackerPlayer = Players:GetPlayerFromCharacter(attackerCharacter)
+
+    if attackerPlayer then
+        targetHumanoid:SetAttribute("LastAttackerUserId", attackerPlayer.UserId)
     end
 
     targetHumanoid:TakeDamage(finalDamage)
@@ -10785,7 +12022,7 @@ requestBlock.OnServerEvent:Connect(function(player: Player)
     setBlocking(player)
 end)
 
-game:GetService("Players").PlayerRemoving:Connect(function(player: Player)
+Players.PlayerRemoving:Connect(function(player: Player)
     blockCooldowns[player] = nil
 end)
 
@@ -10793,7 +12030,1084 @@ return BattleLoadout
 ]]></string>
         </Properties>
       </Item>
-      <Item class="ModuleScript" referent="36">
+      <Item class="ModuleScript" referent="38">
+        <Properties>
+          <string name="Name">BattleNpc</string>
+          <string name="Source"><![CDATA[--!nonstrict
+
+-- Server-controlled soldiers for the story missions: an R6 rig built from parts, dressed in
+-- simple robes, driven by Humanoid:MoveTo so it walks on the real ground, and animated with
+-- Roblox's stock R6 animations. Opponents and allies share this code; `Team` decides who they fight.
+--
+-- Soldiers are generic and unnamed. Nothing here represents the Prophet, peace be upon him,
+-- or any named companion.
+
+local CollectionService = game:GetService("CollectionService")
+local Debris = game:GetService("Debris")
+local Players = game:GetService("Players")
+local PathfindingService = game:GetService("PathfindingService")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+
+local BattleNpc = {}
+
+local COMBATANT_TAG = "BattleCombatant"
+local BLOCK_DAMAGE_MULTIPLIER = 0.28
+local THINK_SECONDS = 0.2
+local AGGRO_RADIUS = 75
+local ALLY_AGGRO_RADIUS = 60
+local ALLY_LEASH = 46
+local STRUCTURE_AGGRO = 46
+local ARROW_SPEED = 120
+local ARROW_GRAVITY = 38
+
+-- Stock Roblox R6 animations (the same ones the default Animate script uses).
+local ANIMATIONS = {
+    Idle = "rbxassetid://180435571",
+    Walk = "rbxassetid://180426354",
+    Slash = "rbxassetid://129967390",
+    Lunge = "rbxassetid://129967478",
+    Hold = "rbxassetid://182393478",
+}
+
+local SWING_SOUND = "rbxasset://sounds/swordslash.wav"
+local HIT_SOUND = "rbxasset://sounds/swordlunge.wav"
+local BOW_SOUND = "rbxasset://sounds/unsheath.wav"
+local BLOCK_SOUND = "rbxasset://sounds/collide.wav"
+
+local SKIN_TONES = {
+    Color3.fromRGB(198, 150, 110),
+    Color3.fromRGB(176, 127, 88),
+    Color3.fromRGB(150, 104, 70),
+    Color3.fromRGB(214, 172, 130),
+    Color3.fromRGB(124, 86, 58),
+}
+
+-- Standard R6 joint frames.
+local JOINTS = {
+    { Name = "RootJoint", Part0 = "HumanoidRootPart", Part1 = "Torso", C0 = { 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 1, 0 }, C1 = { 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, 1, 0 } },
+    { Name = "Neck", Part0 = "Torso", Part1 = "Head", C0 = { 0, 1, 0, -1, 0, 0, 0, 0, 1, 0, 1, 0 }, C1 = { 0, -0.5, 0, -1, 0, 0, 0, 0, 1, 0, 1, 0 } },
+    { Name = "Right Shoulder", Part0 = "Torso", Part1 = "Right Arm", C0 = { 1, 0.5, 0, 0, 0, 1, 0, 1, 0, -1, 0, 0 }, C1 = { -0.5, 0.5, 0, 0, 0, 1, 0, 1, 0, -1, 0, 0 } },
+    { Name = "Left Shoulder", Part0 = "Torso", Part1 = "Left Arm", C0 = { -1, 0.5, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0 }, C1 = { 0.5, 0.5, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0 } },
+    { Name = "Right Hip", Part0 = "Torso", Part1 = "Right Leg", C0 = { 1, -1, 0, 0, 0, 1, 0, 1, 0, -1, 0, 0 }, C1 = { 0.5, 1, 0, 0, 0, 1, 0, 1, 0, -1, 0, 0 } },
+    { Name = "Left Hip", Part0 = "Torso", Part1 = "Left Leg", C0 = { -1, -1, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0 }, C1 = { -0.5, 1, 0, 0, 0, -1, 0, 1, 0, 1, 0, 0 } },
+}
+
+local function scaledFrame(values, scale: number): CFrame
+    return CFrame.new(
+        values[1] * scale, values[2] * scale, values[3] * scale,
+        values[4], values[5], values[6],
+        values[7], values[8], values[9],
+        values[10], values[11], values[12]
+    )
+end
+
+local function shade(color: Color3, factor: number): Color3
+    return Color3.new(math.clamp(color.R * factor, 0, 1), math.clamp(color.G * factor, 0, 1), math.clamp(color.B * factor, 0, 1))
+end
+
+local function playSound(parent: Instance, soundId: string, volume: number, speed: number?)
+    local sound = Instance.new("Sound")
+    sound.SoundId = soundId
+    sound.Volume = volume
+    sound.PlaybackSpeed = speed or 1
+    sound.RollOffMaxDistance = 120
+    sound.Parent = parent
+    sound:Play()
+    Debris:AddItem(sound, 3)
+end
+
+local function bodyPart(model: Model, name: string, size: Vector3, color: Color3, material: Enum.Material?): Part
+    local part = Instance.new("Part")
+    part.Name = name
+    part.Size = size
+    part.Color = color
+    part.Material = material or Enum.Material.SmoothPlastic
+    part.TopSurface = Enum.SurfaceType.Smooth
+    part.BottomSurface = Enum.SurfaceType.Smooth
+    part.CanCollide = false
+    part.Parent = model
+
+    return part
+end
+
+-- Decorative part welded to a body part. Massless and non-colliding so it never trips the rig.
+local function dress(model: Model, base: BasePart, name: string, size: Vector3, offset: CFrame, color: Color3, material: Enum.Material, shape: Enum.PartType?): Part
+    local part = Instance.new("Part")
+    part.Name = name
+    part.Size = size
+    part.Color = color
+    part.Material = material
+    part.CanCollide = false
+    part.CanTouch = true
+    part.CanQuery = true
+    part.Massless = true
+    part.CastShadow = true
+    part.TopSurface = Enum.SurfaceType.Smooth
+    part.BottomSurface = Enum.SurfaceType.Smooth
+
+    if shape then
+        part.Shape = shape
+    end
+
+    part.CFrame = base.CFrame * offset
+    part.Parent = model
+
+    local weld = Instance.new("WeldConstraint")
+    weld.Part0 = base
+    weld.Part1 = part
+    weld.Parent = part
+
+    return part
+end
+
+local function dressWeapon(model: Model, unit, scale: number)
+    local rightArm = model:FindFirstChild("Right Arm") :: BasePart
+    local leftArm = model:FindFirstChild("Left Arm") :: BasePart
+    local torso = model:FindFirstChild("Torso") :: BasePart
+    local wood = Color3.fromRGB(104, 72, 44)
+    local steel = Color3.fromRGB(205, 205, 200)
+    local s = scale
+
+    if unit.Weapon == "Sword" then
+        -- Held point-forward from the right hand.
+        dress(model, rightArm, "SwordGrip", Vector3.new(0.3, 0.3, 1.1) * s, CFrame.new(0, -1.05 * s, -0.4 * s), wood, Enum.Material.Wood)
+        dress(model, rightArm, "SwordGuard", Vector3.new(1.2, 0.2, 0.25) * s, CFrame.new(0, -1.05 * s, -1 * s), Color3.fromRGB(184, 152, 88), Enum.Material.Metal)
+        dress(model, rightArm, "SwordBlade", Vector3.new(0.18, 0.32, 3.2) * s, CFrame.new(0, -1.05 * s, -2.7 * s), steel, Enum.Material.Metal)
+        dress(model, leftArm, "Shield", Vector3.new(0.3, 2.6, 2.6) * s, CFrame.new(-0.62 * s, -0.2 * s, 0), Color3.fromRGB(98, 74, 46), Enum.Material.WoodPlanks, Enum.PartType.Cylinder)
+        dress(model, leftArm, "ShieldBoss", Vector3.new(0.4, 0.7, 0.7) * s, CFrame.new(-0.8 * s, -0.2 * s, 0), Color3.fromRGB(184, 152, 88), Enum.Material.Metal, Enum.PartType.Ball)
+    elseif unit.Weapon == "Spear" then
+        dress(model, rightArm, "SpearShaft", Vector3.new(0.22, 0.22, 8.5) * s, CFrame.new(0, -1.05 * s, -1.6 * s), wood, Enum.Material.Wood)
+        dress(model, rightArm, "SpearHead", Vector3.new(0.3, 0.12, 1.1) * s, CFrame.new(0, -1.05 * s, -6.3 * s), steel, Enum.Material.Metal)
+        dress(model, leftArm, "Shield", Vector3.new(0.3, 2.3, 2.3) * s, CFrame.new(-0.62 * s, -0.2 * s, 0), Color3.fromRGB(110, 84, 52), Enum.Material.WoodPlanks, Enum.PartType.Cylinder)
+    elseif unit.Weapon == "Bow" then
+        dress(model, leftArm, "BowGrip", Vector3.new(0.2, 0.2, 0.5) * s, CFrame.new(0, -1.05 * s, -0.3 * s), wood, Enum.Material.Wood)
+        dress(model, leftArm, "BowUpper", Vector3.new(0.16, 2.1, 0.16) * s, CFrame.new(0, -0.1 * s, -0.55 * s) * CFrame.Angles(math.rad(-16), 0, 0), wood, Enum.Material.Wood)
+        dress(model, leftArm, "BowLower", Vector3.new(0.16, 2.1, 0.16) * s, CFrame.new(0, -2 * s, -0.55 * s) * CFrame.Angles(math.rad(16), 0, 0), wood, Enum.Material.Wood)
+        dress(model, torso, "Quiver", Vector3.new(0.8, 2.2, 0.8) * s, CFrame.new(0.5 * s, 0.4 * s, 0.75 * s) * CFrame.Angles(0, 0, math.rad(-20)), Color3.fromRGB(96, 64, 40), Enum.Material.Fabric)
+    end
+end
+
+local function buildRig(unit, name: string, position: Vector3, facing: Vector3): Model
+    local s = unit.Scale or 1
+    local model = Instance.new("Model")
+    model.Name = name
+    local skin = SKIN_TONES[math.random(1, #SKIN_TONES)]
+    local robe: Color3 = unit.Robe
+    local accent: Color3 = unit.Accent
+
+    local root = bodyPart(model, "HumanoidRootPart", Vector3.new(2, 2, 1) * s, robe)
+    root.Transparency = 1
+    root.CanCollide = true
+    local torso = bodyPart(model, "Torso", Vector3.new(2, 2, 1) * s, robe, Enum.Material.Fabric)
+    torso.CanCollide = true
+    local head = bodyPart(model, "Head", Vector3.new(2, 1, 1) * s, skin)
+    head.CanCollide = true
+    bodyPart(model, "Right Arm", Vector3.new(1, 2, 1) * s, robe, Enum.Material.Fabric)
+    bodyPart(model, "Left Arm", Vector3.new(1, 2, 1) * s, robe, Enum.Material.Fabric)
+    bodyPart(model, "Right Leg", Vector3.new(1, 2, 1) * s, shade(robe, 0.86), Enum.Material.Fabric)
+    bodyPart(model, "Left Leg", Vector3.new(1, 2, 1) * s, shade(robe, 0.86), Enum.Material.Fabric)
+
+    local headMesh = Instance.new("SpecialMesh")
+    headMesh.MeshType = Enum.MeshType.Head
+    headMesh.Scale = Vector3.new(1.25, 1.25, 1.25)
+    headMesh.Parent = head
+
+    local face = Instance.new("Decal")
+    face.Name = "face"
+    face.Texture = "rbxasset://textures/face.png"
+    face.Face = Enum.NormalId.Front
+    face.Parent = head
+
+    local rootFrame = CFrame.lookAt(position, Vector3.new(facing.X, position.Y, facing.Z))
+    root.CFrame = rootFrame
+    torso.CFrame = rootFrame
+    head.CFrame = rootFrame * CFrame.new(0, 1.5 * s, 0)
+    for limbName, offset in pairs({
+        ["Right Arm"] = Vector3.new(1.5, 0, 0),
+        ["Left Arm"] = Vector3.new(-1.5, 0, 0),
+        ["Right Leg"] = Vector3.new(0.5, -2, 0),
+        ["Left Leg"] = Vector3.new(-0.5, -2, 0),
+    }) do
+        local limb = model:FindFirstChild(limbName) :: BasePart
+        limb.CFrame = rootFrame * CFrame.new(offset * s)
+    end
+
+    for _, joint in ipairs(JOINTS) do
+        local motor = Instance.new("Motor6D")
+        motor.Name = joint.Name
+        motor.Part0 = model:FindFirstChild(joint.Part0) :: BasePart
+        motor.Part1 = model:FindFirstChild(joint.Part1) :: BasePart
+        motor.C0 = scaledFrame(joint.C0, s)
+        motor.C1 = scaledFrame(joint.C1, s)
+        motor.MaxVelocity = 0.1
+        motor.Parent = joint.Part0 == "HumanoidRootPart" and root or torso
+    end
+
+    -- Clothing: a long robe over the legs, a sash, and a head wrap.
+    dress(model, torso, "Robe", Vector3.new(2.15, 2.5, 1.2) * s, CFrame.new(0, -1.9 * s, 0), robe, Enum.Material.Fabric)
+    dress(model, torso, "Belt", Vector3.new(2.12, 0.3, 1.12) * s, CFrame.new(0, -0.8 * s, 0), accent, Enum.Material.Fabric)
+    dress(model, torso, "Sash", Vector3.new(0.36, 2.25, 1.1) * s, CFrame.new(0.2 * s, 0.05 * s, 0) * CFrame.Angles(0, 0, math.rad(-38)), accent, Enum.Material.Fabric)
+    dress(model, head, "HeadWrap", Vector3.new(1.45, 0.75, 1.45) * s, CFrame.new(0, 0.42 * s, 0), unit.Team == "medina" and Color3.fromRGB(236, 232, 220) or shade(accent, 1.4), Enum.Material.Fabric, Enum.PartType.Ball)
+    dress(model, head, "WrapTail", Vector3.new(0.5, 1, 0.25) * s, CFrame.new(0, -0.2 * s, 0.62 * s), unit.Team == "medina" and Color3.fromRGB(228, 222, 206) or accent, Enum.Material.Fabric)
+
+    if unit.Boss then
+        dress(model, torso, "Mantle", Vector3.new(2.6, 0.5, 1.4) * s, CFrame.new(0, 0.95 * s, 0), accent, Enum.Material.Metal)
+        dress(model, torso, "Cape", Vector3.new(2.3, 3.6, 0.2) * s, CFrame.new(0, -0.7 * s, 0.62 * s), Color3.fromRGB(110, 34, 30), Enum.Material.Fabric)
+    end
+
+    dressWeapon(model, unit, s)
+
+    local humanoid = Instance.new("Humanoid")
+    humanoid.RigType = Enum.HumanoidRigType.R6
+    humanoid.MaxHealth = unit.Health
+    humanoid.Health = unit.Health
+    humanoid.WalkSpeed = unit.WalkSpeed
+    humanoid.DisplayName = unit.DisplayName
+    humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
+    humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.DisplayWhenDamaged
+    humanoid.NameDisplayDistance = unit.Boss and 140 or 55
+    humanoid.HealthDisplayDistance = unit.Boss and 140 or 55
+    humanoid.BreakJointsOnDeath = false
+    humanoid.Parent = model
+
+    local animator = Instance.new("Animator")
+    animator.Parent = humanoid
+
+    model.PrimaryPart = root
+
+    return model
+end
+
+local function loadTrack(animator: Animator, id: string, priority: Enum.AnimationPriority, looped: boolean): AnimationTrack?
+    local animation = Instance.new("Animation")
+    animation.AnimationId = id
+
+    local ok, track = pcall(function()
+        return animator:LoadAnimation(animation)
+    end)
+
+    if not ok or not track then
+        return nil
+    end
+
+    track.Priority = priority
+    track.Looped = looped
+
+    return track
+end
+
+local function flatDistance(a: Vector3, b: Vector3): number
+    return Vector3.new(a.X - b.X, 0, a.Z - b.Z).Magnitude
+end
+
+local function isBlocking(model: Instance): boolean
+    local untilTime = model:GetAttribute("BlockingUntil")
+
+    return type(untilTime) == "number" and untilTime > os.clock()
+end
+
+local function flash(position: Vector3, color: Color3, size: number)
+    local part = Instance.new("Part")
+    part.Name = "HitFlash"
+    part.Shape = Enum.PartType.Ball
+    part.Size = Vector3.new(size, size, size)
+    part.Material = Enum.Material.Neon
+    part.Color = color
+    part.Transparency = 0.35
+    part.Anchored = true
+    part.CanCollide = false
+    part.CanTouch = false
+    part.CanQuery = false
+    part.CFrame = CFrame.new(position)
+    part.Parent = Workspace
+    Debris:AddItem(part, 0.18)
+end
+
+local function showWarning(npc)
+    local head = npc.Model:FindFirstChild("Head")
+
+    if not head then
+        return
+    end
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "AttackWarning"
+    billboard.Size = UDim2.fromOffset(34, 34)
+    billboard.StudsOffset = Vector3.new(0, 2.6 * (npc.Unit.Scale or 1), 0)
+    billboard.AlwaysOnTop = true
+    billboard.MaxDistance = 70
+    billboard.Adornee = head
+    billboard.Parent = head
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.fromScale(1, 1)
+    label.BackgroundTransparency = 1
+    label.Font = Enum.Font.GothamBlack
+    label.Text = "!"
+    label.TextScaled = true
+    label.TextColor3 = npc.Team == "makkah" and Color3.fromRGB(255, 120, 82) or Color3.fromRGB(150, 230, 160)
+    label.TextStrokeTransparency = 0.2
+    label.Parent = billboard
+
+    Debris:AddItem(billboard, npc.Unit.WindupSeconds + 0.1)
+end
+
+-- World -------------------------------------------------------------------------------
+
+local World = {}
+World.__index = World
+
+-- `options.Folder`: where soldiers and arrows live. `options.GetPlayers`: players in the mission.
+-- `options.OnDeath(npc, killerPlayer)`: called once when a soldier falls.
+function BattleNpc.NewWorld(options)
+    local world = setmetatable({
+        Folder = options.Folder,
+        GetPlayers = options.GetPlayers,
+        OnDeath = options.OnDeath,
+        OnStructureDamaged = options.OnStructureDamaged,
+        Npcs = {},
+        Structures = {},
+        Running = true,
+        HealthMultiplier = 1,
+        DamageMultiplier = 1,
+    }, World)
+
+    local arrowFolder = Instance.new("Folder")
+    arrowFolder.Name = "Arrows"
+    arrowFolder.Parent = options.Folder
+    world.ArrowFolder = arrowFolder
+
+    local cursor = 0
+
+    world.Connection = RunService.Heartbeat:Connect(function(deltaTime)
+        if not world.Running then
+            return
+        end
+
+        -- Spread the thinking across frames so every soldier thinks about every THINK_SECONDS.
+        local count = #world.Npcs
+
+        if count == 0 then
+            return
+        end
+
+        local budget = math.clamp(math.ceil(count * deltaTime / THINK_SECONDS), 1, count)
+
+        for _ = 1, budget do
+            cursor = (cursor % count) + 1
+            local npc = world.Npcs[cursor]
+
+            if npc and npc.Alive then
+                local ok, err = pcall(world.Think, world, npc)
+
+                if not ok then
+                    warn("[BattleNpc] think failed:", err)
+                end
+            end
+        end
+    end)
+
+    return world
+end
+
+-- A destructible objective (the Badr banner). Opponents attack it when no one stands in the way.
+function World:AddStructure(structure)
+    structure.Alive = true
+    table.insert(self.Structures, structure)
+end
+
+function World:DamageStructure(structure, amount: number)
+    if not structure.Alive then
+        return
+    end
+
+    structure.Health = math.max(0, structure.Health - amount)
+
+    if self.OnStructureDamaged then
+        self.OnStructureDamaged(structure)
+    end
+
+    if structure.Health <= 0 then
+        structure.Alive = false
+    end
+end
+
+function World:CountAlive(team: string, tag: string?): number
+    local count = 0
+
+    for _, npc in ipairs(self.Npcs) do
+        if npc.Alive and npc.Team == team and (tag == nil or npc.Tag == tag) then
+            count += 1
+        end
+    end
+
+    return count
+end
+
+function World:GetAlive(team: string, tag: string?)
+    local list = {}
+
+    for _, npc in ipairs(self.Npcs) do
+        if npc.Alive and npc.Team == team and (tag == nil or npc.Tag == tag) then
+            table.insert(list, npc)
+        end
+    end
+
+    return list
+end
+
+-- Spawns one soldier standing at `position` (already on the ground). `lane` is an optional
+-- list of ground points to walk through before fighting at `goal`.
+function World:Spawn(unit, position: Vector3, facing: Vector3, options)
+    options = options or {}
+    local s = unit.Scale or 1
+    local model = buildRig(unit, unit.DisplayName, position + Vector3.new(0, 3 * s + 0.2, 0), facing)
+    local humanoid = model:FindFirstChildOfClass("Humanoid") :: Humanoid
+    local root = model:FindFirstChild("HumanoidRootPart") :: BasePart
+
+    if not unit.Boss and self.HealthMultiplier ~= 1 and unit.Team == "makkah" then
+        humanoid.MaxHealth = math.floor(unit.Health * self.HealthMultiplier)
+        humanoid.Health = humanoid.MaxHealth
+    elseif unit.Boss then
+        humanoid.MaxHealth = math.floor(unit.Health * (1 + (self.HealthMultiplier - 1) * 1.5))
+        humanoid.Health = humanoid.MaxHealth
+    end
+
+    model:SetAttribute("BattleTeam", unit.Team)
+    model:SetAttribute("MissionNpc", true)
+    model:SetAttribute("BattleCommander", unit.Boss == true)
+    model.Parent = self.Folder
+    CollectionService:AddTag(model, COMBATANT_TAG)
+
+    pcall(function()
+        root:SetNetworkOwner(nil)
+    end)
+
+    local animator = humanoid:FindFirstChildOfClass("Animator") :: Animator
+    local npc = {
+        Unit = unit,
+        Team = unit.Team,
+        Tag = options.Tag,
+        Model = model,
+        Humanoid = humanoid,
+        Root = root,
+        Alive = true,
+        Lane = options.Lane,
+        LaneIndex = 1,
+        Goal = options.Goal,
+        HoldPoint = options.HoldPoint,
+        FormationOffset = options.FormationOffset or Vector3.zero,
+        LastAttack = os.clock() + math.random() * 0.8,
+        Busy = false,
+        LastPosition = root.Position,
+        LastMovedAt = os.clock(),
+        Path = nil,
+        PathIndex = 0,
+        PathUntil = 0,
+        Tracks = {
+            Idle = loadTrack(animator, ANIMATIONS.Idle, Enum.AnimationPriority.Idle, true),
+            Walk = loadTrack(animator, ANIMATIONS.Walk, Enum.AnimationPriority.Movement, true),
+            Slash = loadTrack(animator, unit.Weapon == "Spear" and ANIMATIONS.Lunge or ANIMATIONS.Slash, Enum.AnimationPriority.Action, false),
+            Hold = loadTrack(animator, ANIMATIONS.Hold, Enum.AnimationPriority.Core, true),
+        },
+    }
+
+    if npc.Tracks.Idle then
+        npc.Tracks.Idle:Play()
+    end
+
+    if npc.Tracks.Hold then
+        npc.Tracks.Hold:Play()
+    end
+
+    humanoid.Running:Connect(function(speed)
+        local walk = npc.Tracks.Walk
+
+        if not walk then
+            return
+        end
+
+        if speed > 0.6 and not walk.IsPlaying then
+            walk:Play(0.15)
+        elseif speed <= 0.6 and walk.IsPlaying then
+            walk:Stop(0.2)
+        end
+
+        if walk.IsPlaying then
+            walk:AdjustSpeed(math.clamp(speed / 14, 0.6, 1.6))
+        end
+    end)
+
+    humanoid.Died:Connect(function()
+        self:HandleDeath(npc)
+    end)
+
+    -- Forget soldiers whose fade-out has finished.
+    for index = #self.Npcs, 1, -1 do
+        local old = self.Npcs[index]
+
+        if not old.Alive and not old.Model.Parent then
+            table.remove(self.Npcs, index)
+        end
+    end
+
+    table.insert(self.Npcs, npc)
+
+    return npc
+end
+
+function World:HandleDeath(npc)
+    if not npc.Alive then
+        return
+    end
+
+    npc.Alive = false
+    CollectionService:RemoveTag(npc.Model, COMBATANT_TAG)
+
+    local killer = nil
+    local attackerId = npc.Humanoid:GetAttribute("LastAttackerUserId")
+
+    if type(attackerId) == "number" then
+        killer = Players:GetPlayerByUserId(attackerId)
+    end
+
+    if self.OnDeath then
+        task.spawn(self.OnDeath, npc, killer)
+    end
+
+    -- Fade away rather than lying on the field.
+    task.spawn(function()
+        task.wait(0.6)
+
+        for step = 1, 10 do
+            for _, part in ipairs(npc.Model:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                    part.Transparency = math.max(part.Transparency, step / 10)
+                elseif part:IsA("Decal") then
+                    part.Transparency = step / 10
+                end
+            end
+
+            task.wait(0.06)
+        end
+
+        npc.Model:Destroy()
+    end)
+end
+
+-- Removes a soldier quietly (end of an objective, or the mission is over).
+function World:Dismiss(npc)
+    if not npc.Alive then
+        return
+    end
+
+    npc.Alive = false
+    CollectionService:RemoveTag(npc.Model, COMBATANT_TAG)
+
+    task.spawn(function()
+        for step = 1, 8 do
+            for _, part in ipairs(npc.Model:GetDescendants()) do
+                if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+                    part.Transparency = math.max(part.Transparency, step / 8)
+                elseif part:IsA("Decal") then
+                    part.Transparency = step / 8
+                end
+            end
+
+            task.wait(0.05)
+        end
+
+        npc.Model:Destroy()
+    end)
+end
+
+function World:DismissTeam(team: string)
+    for _, npc in ipairs(self.Npcs) do
+        if npc.Alive and npc.Team == team then
+            self:Dismiss(npc)
+        end
+    end
+end
+
+function World:Destroy()
+    self.Running = false
+
+    if self.Connection then
+        self.Connection:Disconnect()
+        self.Connection = nil
+    end
+
+    for _, npc in ipairs(self.Npcs) do
+        if npc.Model.Parent then
+            CollectionService:RemoveTag(npc.Model, COMBATANT_TAG)
+            npc.Model:Destroy()
+        end
+    end
+
+    table.clear(self.Npcs)
+    self.ArrowFolder:Destroy()
+end
+
+-- Target selection ------------------------------------------------------------------------
+
+local function characterTarget(character: Model)
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local root = character:FindFirstChild("HumanoidRootPart")
+
+    if humanoid and humanoid.Health > 0 and root and root:IsA("BasePart") then
+        return { Kind = "Character", Model = character, Humanoid = humanoid, Root = root }
+    end
+
+    return nil
+end
+
+function World:FindTarget(npc)
+    local origin = npc.Root.Position
+    local radius = npc.Team == "makkah" and AGGRO_RADIUS or ALLY_AGGRO_RADIUS
+    local best, bestScore = nil, math.huge
+
+    if npc.Team == "makkah" then
+        for _, player in ipairs(self.GetPlayers()) do
+            local character = player.Character
+
+            if character and character:GetAttribute("BattleTeam") == "medina" then
+                local target = characterTarget(character)
+
+                if target then
+                    -- Players are preferred a little over allied soldiers.
+                    local score = (target.Root.Position - origin).Magnitude - 6
+
+                    if score < radius and score < bestScore then
+                        best, bestScore = target, score
+                    end
+                end
+            end
+        end
+    end
+
+    for _, other in ipairs(self.Npcs) do
+        if other.Alive and other.Team ~= npc.Team then
+            local score = (other.Root.Position - origin).Magnitude
+
+            if score < radius and score < bestScore then
+                best, bestScore = { Kind = "Npc", Npc = other, Model = other.Model, Humanoid = other.Humanoid, Root = other.Root }, score
+            end
+        end
+    end
+
+    if npc.Team == "makkah" then
+        for _, structure in ipairs(self.Structures) do
+            if structure.Alive then
+                local distance = flatDistance(structure.Position, origin)
+
+                -- Go for the banner when it is close and nobody is closer to fight.
+                if distance < STRUCTURE_AGGRO and (best == nil or bestScore > 14) then
+                    best, bestScore = { Kind = "Structure", Structure = structure, Position = structure.Position }, distance
+                end
+            end
+        end
+    end
+
+    return best
+end
+
+local function targetPosition(target): Vector3
+    if target.Kind == "Structure" then
+        return target.Position
+    end
+
+    return target.Root.Position
+end
+
+local function targetAlive(target): boolean
+    if target.Kind == "Structure" then
+        return target.Structure.Alive
+    end
+
+    return target.Humanoid.Health > 0 and target.Model.Parent ~= nil
+end
+
+-- Movement ----------------------------------------------------------------------------
+
+function World:MoveTowards(npc, destination: Vector3)
+    local now = os.clock()
+    local root = npc.Root
+    local humanoid = npc.Humanoid
+    humanoid.AutoRotate = true
+
+    if (root.Position - npc.LastPosition).Magnitude > 1.2 then
+        npc.LastPosition = root.Position
+        npc.LastMovedAt = now
+    end
+
+    -- Following a computed path around an obstacle.
+    if npc.Path and now < npc.PathUntil then
+        local waypoint = npc.Path[npc.PathIndex]
+
+        if waypoint then
+            if flatDistance(waypoint.Position, root.Position) < 4 then
+                npc.PathIndex += 1
+                waypoint = npc.Path[npc.PathIndex]
+            end
+
+            if waypoint then
+                if waypoint.Action == Enum.PathWaypointAction.Jump then
+                    humanoid.Jump = true
+                end
+
+                humanoid:MoveTo(waypoint.Position)
+
+                return
+            end
+        end
+
+        npc.Path = nil
+    end
+
+    humanoid:MoveTo(destination)
+
+    local stuckFor = now - npc.LastMovedAt
+
+    if stuckFor > 1.1 and flatDistance(destination, root.Position) > 6 then
+        humanoid.Jump = true
+    end
+
+    if stuckFor > 2.4 and flatDistance(destination, root.Position) > 8 and not npc.Pathing then
+        npc.Pathing = true
+        npc.LastMovedAt = now
+
+        task.spawn(function()
+            local path = PathfindingService:CreatePath({
+                AgentRadius = 2 * (npc.Unit.Scale or 1),
+                AgentHeight = 5 * (npc.Unit.Scale or 1),
+                AgentCanJump = true,
+            })
+            local ok = pcall(function()
+                path:ComputeAsync(root.Position, destination)
+            end)
+
+            if ok and path.Status == Enum.PathStatus.Success and npc.Alive then
+                npc.Path = path:GetWaypoints()
+                npc.PathIndex = 2
+                npc.PathUntil = os.clock() + 8
+            end
+
+            npc.Pathing = false
+        end)
+    end
+end
+
+function World:StopMoving(npc)
+    npc.Humanoid:MoveTo(npc.Root.Position)
+    npc.LastMovedAt = os.clock()
+end
+
+local function faceTowards(npc, position: Vector3)
+    local root = npc.Root
+    local flat = Vector3.new(position.X, root.Position.Y, position.Z)
+
+    if (flat - root.Position).Magnitude > 0.1 then
+        npc.Humanoid.AutoRotate = false
+        root.CFrame = CFrame.lookAt(root.Position, flat)
+    end
+end
+
+-- Combat ------------------------------------------------------------------------------
+
+function World:ApplyHit(npc, target, damage: number, impact: Vector3)
+    if target.Kind == "Structure" then
+        self:DamageStructure(target.Structure, damage)
+        flash(impact, Color3.fromRGB(240, 196, 120), 2.2)
+        return
+    end
+
+    local humanoid = target.Humanoid
+    local model = target.Model
+
+    if humanoid.Health <= 0 or model:GetAttribute("BattleTeam") == npc.Team then
+        return
+    end
+
+    local finalDamage = damage
+
+    if isBlocking(model) then
+        finalDamage = math.max(2, math.floor(damage * BLOCK_DAMAGE_MULTIPLIER))
+        playSound(target.Root, BLOCK_SOUND, 0.7, 1.1)
+        flash(impact, Color3.fromRGB(222, 198, 126), 3)
+    else
+        playSound(target.Root, HIT_SOUND, 0.5, 1)
+        flash(impact, npc.Team == "makkah" and Color3.fromRGB(214, 120, 84) or Color3.fromRGB(120, 196, 140), 2)
+    end
+
+    humanoid:TakeDamage(finalDamage)
+end
+
+function World:MeleeAttack(npc, target)
+    npc.Busy = true
+    npc.LastAttack = os.clock()
+    showWarning(npc)
+
+    if npc.Tracks.Slash then
+        npc.Tracks.Slash:Play(0.05, 1, 0.85)
+    end
+
+    task.delay(npc.Unit.WindupSeconds, function()
+        npc.Busy = false
+
+        if not npc.Alive or not targetAlive(target) then
+            return
+        end
+
+        local reach = npc.Unit.Reach + (target.Kind == "Structure" and 3 or 1.8)
+        local position = targetPosition(target)
+
+        if flatDistance(position, npc.Root.Position) > reach then
+            return
+        end
+
+        playSound(npc.Root, SWING_SOUND, 0.45, 0.95 + math.random() * 0.1)
+        local damage = math.floor(npc.Unit.Damage * (npc.Team == "makkah" and self.DamageMultiplier or 1))
+        self:ApplyHit(npc, target, damage, position + Vector3.new(0, 1.5, 0))
+    end)
+end
+
+function World:FireArrow(npc, target)
+    npc.Busy = true
+    npc.LastAttack = os.clock()
+    showWarning(npc)
+
+    task.delay(npc.Unit.WindupSeconds, function()
+        npc.Busy = false
+
+        if not npc.Alive or not targetAlive(target) or target.Kind == "Structure" then
+            return
+        end
+
+        local origin = npc.Root.Position + Vector3.new(0, 1.6 * (npc.Unit.Scale or 1), 0)
+        local aimPoint = target.Root.Position + Vector3.new(0, 0.8, 0)
+        local velocity = target.Root.AssemblyLinearVelocity
+        local travel = (aimPoint - origin).Magnitude / ARROW_SPEED
+        -- Lead the target a little and aim up to cancel the drop, with a small spread.
+        aimPoint += Vector3.new(velocity.X, 0, velocity.Z) * travel * 0.6
+        aimPoint += Vector3.new(0, 0.5 * ARROW_GRAVITY * travel * travel, 0)
+        aimPoint += Vector3.new(math.random() - 0.5, math.random() - 0.5, math.random() - 0.5) * (2 + travel * 6)
+
+        playSound(npc.Root, BOW_SOUND, 0.4, 1.3)
+        self:LaunchArrow(npc, origin, (aimPoint - origin).Unit * ARROW_SPEED)
+    end)
+end
+
+function World:LaunchArrow(npc, origin: Vector3, velocity: Vector3)
+    local arrow = Instance.new("Part")
+    arrow.Name = "Arrow"
+    arrow.Size = Vector3.new(0.18, 0.18, 3.4)
+    arrow.Color = Color3.fromRGB(116, 80, 48)
+    arrow.Material = Enum.Material.Wood
+    arrow.Anchored = true
+    arrow.CanCollide = false
+    arrow.CanTouch = false
+    arrow.CanQuery = false
+    arrow.CFrame = CFrame.lookAt(origin, origin + velocity)
+    arrow.Parent = self.ArrowFolder
+
+    local tip = Instance.new("Part")
+    tip.Name = "Tip"
+    tip.Size = Vector3.new(0.26, 0.26, 0.5)
+    tip.Color = Color3.fromRGB(190, 190, 186)
+    tip.Material = Enum.Material.Metal
+    tip.Anchored = true
+    tip.CanCollide = false
+    tip.CanTouch = false
+    tip.CanQuery = false
+    tip.Parent = arrow
+
+    local params = RaycastParams.new()
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    params.FilterDescendantsInstances = { npc.Model, self.ArrowFolder }
+
+    local position = origin
+    local currentVelocity = velocity
+    local age = 0
+    local connection
+
+    connection = RunService.Heartbeat:Connect(function(deltaTime)
+        age += deltaTime
+
+        if age > 3 or not arrow.Parent then
+            connection:Disconnect()
+            arrow:Destroy()
+            return
+        end
+
+        currentVelocity += Vector3.new(0, -ARROW_GRAVITY * deltaTime, 0)
+        local step = currentVelocity * deltaTime
+        local result = Workspace:Raycast(position, step, params)
+
+        if result then
+            connection:Disconnect()
+            local hitModel = result.Instance:FindFirstAncestorOfClass("Model")
+            local humanoid = hitModel and hitModel:FindFirstChildOfClass("Humanoid")
+
+            if humanoid and hitModel:GetAttribute("BattleTeam") and hitModel:GetAttribute("BattleTeam") ~= npc.Team then
+                local hitRoot = hitModel:FindFirstChild("HumanoidRootPart")
+                self:ApplyHit(npc, {
+                    Kind = "Character",
+                    Model = hitModel,
+                    Humanoid = humanoid,
+                    Root = hitRoot and hitRoot:IsA("BasePart") and hitRoot or result.Instance,
+                }, npc.Unit.Damage, result.Position)
+                arrow:Destroy()
+            else
+                -- Stick in the ground for a moment.
+                arrow.CFrame = CFrame.lookAt(result.Position, result.Position + currentVelocity)
+                tip.CFrame = arrow.CFrame * CFrame.new(0, 0, -1.6)
+                Debris:AddItem(arrow, 2)
+            end
+
+            return
+        end
+
+        position += step
+        arrow.CFrame = CFrame.lookAt(position, position + currentVelocity)
+        tip.CFrame = arrow.CFrame * CFrame.new(0, 0, -1.8)
+    end)
+end
+
+-- Thinking ----------------------------------------------------------------------------
+
+function World:Think(npc)
+    local humanoid = npc.Humanoid
+
+    if humanoid.Health <= 0 or not npc.Model.Parent then
+        return
+    end
+
+    if npc.Busy then
+        return
+    end
+
+    local root = npc.Root
+    local unit = npc.Unit
+    local origin = root.Position
+
+    -- Deserting allies walk to their destination and ignore the fight.
+    if npc.ForcedDestination then
+        humanoid.AutoRotate = true
+
+        if flatDistance(npc.ForcedDestination, origin) > 5 then
+            self:MoveTowards(npc, npc.ForcedDestination)
+        else
+            self:StopMoving(npc)
+        end
+
+        return
+    end
+
+    -- Follow the approach lane first.
+    if npc.Lane and npc.LaneIndex <= #npc.Lane then
+        local waypoint = npc.Lane[npc.LaneIndex]
+
+        if flatDistance(waypoint, origin) < 9 then
+            npc.LaneIndex += 1
+        end
+
+        local nearby = self:FindTarget(npc)
+
+        if not nearby or (targetPosition(nearby) - origin).Magnitude > 32 then
+            if npc.LaneIndex <= #npc.Lane then
+                humanoid.AutoRotate = true
+                self:MoveTowards(npc, npc.Lane[npc.LaneIndex])
+                return
+            end
+        else
+            npc.LaneIndex = #npc.Lane + 1
+        end
+    end
+
+    local target = self:FindTarget(npc)
+
+    -- Allies stay near the point they were told to hold.
+    if npc.Team == "medina" and npc.HoldPoint then
+        local holdPoint = npc.HoldPoint + npc.FormationOffset
+
+        if flatDistance(holdPoint, origin) > ALLY_LEASH or (target and flatDistance(targetPosition(target), holdPoint) > ALLY_LEASH + 12) then
+            humanoid.AutoRotate = true
+            self:MoveTowards(npc, holdPoint)
+            return
+        end
+
+        if not target then
+            if flatDistance(holdPoint, origin) > 4 then
+                humanoid.AutoRotate = true
+                self:MoveTowards(npc, holdPoint)
+            else
+                self:StopMoving(npc)
+            end
+
+            return
+        end
+    end
+
+    if not target then
+        local goal = npc.Goal
+
+        if goal and flatDistance(goal, origin) > 6 then
+            humanoid.AutoRotate = true
+            self:MoveTowards(npc, goal + npc.FormationOffset)
+        else
+            self:StopMoving(npc)
+        end
+
+        return
+    end
+
+    local position = targetPosition(target)
+    local distance = flatDistance(position, origin)
+    local now = os.clock()
+
+    if unit.Style == "Ranged" and target.Kind ~= "Structure" then
+        if distance > unit.Reach then
+            humanoid.AutoRotate = true
+            self:MoveTowards(npc, position)
+        elseif distance < (unit.MinRange or 20) then
+            local away = (origin - position)
+            away = Vector3.new(away.X, 0, away.Z)
+            humanoid.AutoRotate = true
+            self:MoveTowards(npc, origin + (away.Magnitude > 0.1 and away.Unit or Vector3.xAxis) * 14)
+        else
+            self:StopMoving(npc)
+            faceTowards(npc, position)
+
+            if now - npc.LastAttack >= unit.CooldownSeconds then
+                self:FireArrow(npc, target)
+            end
+        end
+
+        return
+    end
+
+    local reach = unit.Reach + (target.Kind == "Structure" and 2.5 or 0)
+
+    if distance > reach then
+        humanoid.AutoRotate = true
+        self:MoveTowards(npc, position)
+        return
+    end
+
+    self:StopMoving(npc)
+    faceTowards(npc, position)
+
+    if now - npc.LastAttack >= unit.CooldownSeconds then
+        self:MeleeAttack(npc, target)
+    end
+end
+
+return BattleNpc
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="39">
         <Properties>
           <string name="Name">BuildUtils</string>
           <string name="Source"><![CDATA[--!strict
@@ -11504,7 +13818,1095 @@ return BuildUtils
 ]]></string>
         </Properties>
       </Item>
-      <Item class="ModuleScript" referent="37">
+      <Item class="ModuleScript" referent="40">
+        <Properties>
+          <string name="Name">MissionDirector</string>
+          <string name="Source"><![CDATA[--!nonstrict
+
+-- Runs one battle story mission: walks through its objectives in order, spawns the waves,
+-- keeps allies at their posts, tracks falls and the steadfast condition, respawns players,
+-- and streams the state to every player's mission HUD.
+--
+-- BattleService owns the session (queue, briefing, reenactment, rewards) and hands this module
+-- the players and two callbacks: Respawn(player, cframe) and OnFinished(result).
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Workspace = game:GetService("Workspace")
+
+local Shared = ReplicatedStorage:WaitForChild("Shared")
+local BattleMissions = require(Shared.Data.BattleMissions)
+local MissionRules = require(Shared.Modules.MissionRules)
+local BattleNpc = require(script.Parent.BattleNpc)
+local PlayerProgress = require(script.Parent.PlayerProgress)
+
+local MissionDirector = {}
+MissionDirector.__index = MissionDirector
+
+local TICK_SECONDS = 0.25
+local STATE_EVERY_TICKS = 2
+local DISCIPLINE_GRACE_SECONDS = 8
+local ZONE_COLOR = Color3.fromRGB(236, 200, 112)
+local MEDINA_GREEN = Color3.fromRGB(62, 125, 82)
+
+local function flatDistance(a: Vector3, b: Vector3): number
+    return Vector3.new(a.X - b.X, 0, a.Z - b.Z).Magnitude
+end
+
+local function anchoredPart(parent: Instance, name: string, size: Vector3, cframe: CFrame, color: Color3, material: Enum.Material, transparency: number?): Part
+    local part = Instance.new("Part")
+    part.Name = name
+    part.Size = size
+    part.CFrame = cframe
+    part.Color = color
+    part.Material = material
+    part.Transparency = transparency or 0
+    part.Anchored = true
+    part.CanCollide = false
+    part.CanQuery = false
+    part.CanTouch = false
+    part.CastShadow = false
+    part.Parent = parent
+
+    return part
+end
+
+-- options: Mission, Arena, Players (array), Send(player, payload), Respawn(player, cframe) -> Model?,
+-- OnFinished(result)
+function MissionDirector.new(options)
+    local mission = options.Mission
+    local runtime = Instance.new("Folder")
+    runtime.Name = "MissionRuntime"
+    runtime.Parent = options.Arena
+
+    local self = setmetatable({
+        Mission = mission,
+        Arena = options.Arena,
+        Runtime = runtime,
+        Players = options.Players,
+        Send = function(player: Player, payload)
+            -- A player who is leaving can no longer be messaged; never let that stop the mission.
+            pcall(options.Send, player, payload)
+        end,
+        Respawn = options.Respawn,
+        OnFinished = options.OnFinished,
+        Points = {},
+        Lanes = {},
+        PlayerState = {},
+        Connections = {},
+        Finished = false,
+        StartedAt = os.clock(),
+        TeamFalls = 0,
+        PeakPlayers = #options.Players,
+        OrderBroken = false,
+        ObjectivesDone = 0,
+        Objective = nil,
+        ObjectiveIndex = 0,
+        ObjectiveState = {},
+        SpawnQueue = {},
+        ObjectiveEnemies = {},
+        Zone = nil,
+        Structure = nil,
+        StructureFractions = {},
+    }, MissionDirector)
+
+    self:ResolveLayout()
+
+    self.World = BattleNpc.NewWorld({
+        Folder = runtime,
+        GetPlayers = function()
+            return self.Players
+        end,
+        OnDeath = function(npc, killer)
+            self:OnNpcDeath(npc, killer)
+        end,
+        OnStructureDamaged = function(structure)
+            self:UpdateStructureVisual(structure)
+        end,
+    })
+    self.World.HealthMultiplier = MissionRules.HealthMultiplier(#self.Players)
+
+    return self
+end
+
+-- Drops a battlefield point onto the ground under it.
+function MissionDirector:Drop(point: Vector3): Vector3
+    local params = RaycastParams.new()
+    params.FilterType = Enum.RaycastFilterType.Exclude
+    local exclude = { self.Runtime }
+
+    for _, player in ipairs(Players:GetPlayers()) do
+        if player.Character then
+            table.insert(exclude, player.Character)
+        end
+    end
+
+    params.FilterDescendantsInstances = exclude
+    params.IgnoreWater = true
+
+    local result = Workspace:Raycast(Vector3.new(point.X, 400, point.Z), Vector3.new(0, -600, 0), params)
+
+    if result then
+        return result.Position
+    end
+
+    return Vector3.new(point.X, 2, point.Z)
+end
+
+function MissionDirector:ResolveLayout()
+    local layout = self.Mission.Layout
+
+    for name, point in pairs(layout.Points) do
+        self.Points[name] = self:Drop(point)
+    end
+
+    for name, lane in pairs(layout.Lanes) do
+        local resolved = {}
+
+        for _, point in ipairs(lane) do
+            table.insert(resolved, self:Drop(point))
+        end
+
+        self.Lanes[name] = resolved
+    end
+
+    self.Facing = self:Drop(layout.SpawnFacing)
+end
+
+-- Messaging -------------------------------------------------------------------------------
+
+function MissionDirector:Broadcast(payload)
+    for _, player in ipairs(self.Players) do
+        if player.Parent then
+            self.Send(player, payload)
+        end
+    end
+end
+
+function MissionDirector:Toast(text: string, players: { Player }?)
+    local payload = { Kind = "Toast", Text = text }
+
+    for _, player in ipairs(players or self.Players) do
+        if player.Parent then
+            self.Send(player, payload)
+        end
+    end
+end
+
+-- Players ----------------------------------------------------------------------------------
+
+function MissionDirector:GetState(player: Player)
+    local state = self.PlayerState[player]
+
+    if not state then
+        state = { Falls = 0, Defeated = 0, Connections = {}, Respawning = false, OutsideSince = nil, BrokeOrder = false }
+        self.PlayerState[player] = state
+    end
+
+    return state
+end
+
+function MissionDirector:WatchCharacter(player: Player, character: Model)
+    local state = self:GetState(player)
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+
+    for _, connection in ipairs(state.Connections) do
+        connection:Disconnect()
+    end
+
+    table.clear(state.Connections)
+
+    if not humanoid then
+        return
+    end
+
+    table.insert(state.Connections, humanoid.Died:Connect(function()
+        self:OnPlayerFell(player)
+    end))
+end
+
+function MissionDirector:GetRespawnPoint(): Vector3
+    local objective = self.Objective
+    local name = (objective and objective.RespawnPoint) or "Camp"
+
+    return self.Points[name] or self.Points.Camp
+end
+
+function MissionDirector:RespawnCFrame(index: number): CFrame
+    local base = self:GetRespawnPoint()
+    local angle = (index % 8) * math.pi / 4
+    local position = base + Vector3.new(math.cos(angle) * 5, 0, math.sin(angle) * 5)
+    position = self:Drop(position) + Vector3.new(0, 3, 0)
+
+    return CFrame.lookAt(position, Vector3.new(self.Facing.X, position.Y, self.Facing.Z))
+end
+
+function MissionDirector:OnPlayerFell(player: Player)
+    if self.Finished then
+        return
+    end
+
+    local state = self:GetState(player)
+
+    if state.Respawning then
+        return
+    end
+
+    state.Respawning = true
+    state.Falls += 1
+    self.TeamFalls += 1
+    self:Toast(string.format("%s fell. Back on your feet in %d seconds.", player.DisplayName, self.Mission.RespawnSeconds))
+
+    task.delay(self.Mission.RespawnSeconds, function()
+        state.Respawning = false
+
+        if self.Finished or not player.Parent or not table.find(self.Players, player) then
+            return
+        end
+
+        local character = self.Respawn(player, self:RespawnCFrame(table.find(self.Players, player) or 1))
+
+        if character then
+            self:WatchCharacter(player, character)
+        end
+    end)
+end
+
+function MissionDirector:AddPlayer(player: Player)
+    if self.Finished or table.find(self.Players, player) then
+        return
+    end
+
+    table.insert(self.Players, player)
+    self.PeakPlayers = math.max(self.PeakPlayers, #self.Players)
+    self.World.HealthMultiplier = MissionRules.HealthMultiplier(#self.Players)
+
+    local character = self.Respawn(player, self:RespawnCFrame(#self.Players))
+
+    if character then
+        self:WatchCharacter(player, character)
+    end
+
+    self:Toast(string.format("%s joined the mission.", player.DisplayName))
+
+    if self.Objective then
+        self.Send(player, {
+            Kind = "Narration",
+            Title = self.Objective.Narration.Title,
+            Body = self.Objective.Narration.Body,
+            Reference = self.Objective.Narration.Reference,
+            ObjectiveTitle = self.Objective.Title,
+        })
+    end
+end
+
+function MissionDirector:RemovePlayer(player: Player)
+    local index = table.find(self.Players, player)
+
+    if index then
+        table.remove(self.Players, index)
+    end
+
+    local state = self.PlayerState[player]
+
+    if state then
+        for _, connection in ipairs(state.Connections) do
+            connection:Disconnect()
+        end
+    end
+
+    self.Send(player, { Kind = "Clear" })
+
+    if not self.Finished and #self.Players == 0 then
+        self:Finish(false, "Everyone left the battlefield.")
+    end
+end
+
+local function getRoot(player: Player): BasePart?
+    local character = player.Character
+    local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+    local root = character and character:FindFirstChild("HumanoidRootPart")
+
+    if humanoid and humanoid.Health > 0 and root and root:IsA("BasePart") then
+        return root
+    end
+
+    return nil
+end
+
+function MissionDirector:InZone(position: Vector3, center: Vector3, radius: number): boolean
+    return flatDistance(position, center) <= radius and math.abs(position.Y - center.Y) <= 22
+end
+
+function MissionDirector:PlayersInZone(center: Vector3, radius: number): { Player }
+    local inside = {}
+
+    for _, player in ipairs(self.Players) do
+        local root = getRoot(player)
+
+        if root and self:InZone(root.Position, center, radius) then
+            table.insert(inside, player)
+        end
+    end
+
+    return inside
+end
+
+function MissionDirector:EnemiesInZone(center: Vector3, radius: number): number
+    local count = 0
+
+    for _, npc in ipairs(self.World:GetAlive("makkah")) do
+        if self:InZone(npc.Root.Position, center, radius) then
+            count += 1
+        end
+    end
+
+    return count
+end
+
+function MissionDirector:HealPlayers()
+    for _, player in ipairs(self.Players) do
+        local character = player.Character
+        local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+
+        if humanoid and humanoid.Health > 0 then
+            humanoid.Health = humanoid.MaxHealth
+        end
+    end
+end
+
+-- Soldiers -----------------------------------------------------------------------------------
+
+function MissionDirector:OnNpcDeath(npc, killer: Player?)
+    if npc.Team ~= "makkah" then
+        if npc.Team == "medina" and not self.Finished then
+            self:Toast("A Medina soldier has fallen.")
+        end
+
+        return
+    end
+
+    if killer then
+        local state = self:GetState(killer)
+        state.Defeated += 1
+    end
+end
+
+function MissionDirector:SpawnAllies()
+    for _, group in ipairs(self.Mission.Allies) do
+        local unit = BattleMissions.Units[group.Unit]
+        local base = self.Points[group.Point]
+
+        for index = 1, group.Count do
+            local offset = self:FormationOffset(index, group.Count, group.Tag ~= nil)
+            local position = self:Drop(base + offset)
+            local npc = self.World:Spawn(unit, position, self.Facing, {
+                Tag = group.Tag,
+                HoldPoint = base,
+                FormationOffset = offset,
+            })
+            npc.HomePoint = group.Point
+        end
+    end
+end
+
+-- A loose line facing the enemy, or a tight cluster for archers on a hilltop.
+function MissionDirector:FormationOffset(index: number, count: number, tight: boolean): Vector3
+    if tight then
+        local angle = (index / math.max(1, count)) * math.pi * 2
+        return Vector3.new(math.cos(angle) * 9, 0, math.sin(angle) * 9)
+    end
+
+    local toward = (self.Facing - (self.Points.Line or self.Points.Camp))
+    toward = Vector3.new(toward.X, 0, toward.Z)
+    local forward = toward.Magnitude > 0.1 and toward.Unit or Vector3.xAxis
+    local side = Vector3.new(-forward.Z, 0, forward.X)
+    local column = index - (count + 1) / 2
+
+    return side * (column * 7) + forward * ((index % 2 == 0) and 3 or -3)
+end
+
+function MissionDirector:SetAllyPoint(pointName: string?)
+    local point = pointName and self.Points[pointName]
+
+    if not point then
+        return
+    end
+
+    for _, npc in ipairs(self.World:GetAlive("medina")) do
+        if not npc.ForcedDestination then
+            -- Hill archers keep their own post until they desert it.
+            if npc.Tag == "HillArcher" and not npc.Deserted then
+                continue
+            end
+
+            npc.HoldPoint = point
+        end
+    end
+end
+
+function MissionDirector:QueueSpawns(spawns)
+    local playerCount = math.max(1, #self.Players)
+
+    for _, spawn in ipairs(spawns) do
+        local unit = BattleMissions.Units[spawn.Unit]
+        local count = MissionRules.ScaleCount(spawn, playerCount)
+
+        for _ = 1, count do
+            table.insert(self.SpawnQueue, { Unit = unit, Lane = spawn.Lane })
+        end
+    end
+end
+
+function MissionDirector:PumpSpawns()
+    local limit = MissionRules.MaxAliveEnemies(#self.Players)
+    local spawned = 0
+
+    while #self.SpawnQueue > 0 and spawned < 2 and self.World:CountAlive("makkah") < limit do
+        local request = table.remove(self.SpawnQueue, 1)
+        local lane = self.Lanes[request.Lane]
+        local start = lane[1]
+        local jitter = Vector3.new(math.random(-8, 8), 0, math.random(-8, 8))
+        local position = self:Drop(start + jitter)
+        local laneCopy = {}
+
+        for index = 2, #lane do
+            table.insert(laneCopy, lane[index] + jitter * 0.4)
+        end
+
+        local goal = (self.Objective and self:ObjectiveFocus(self.Objective)) or lane[#lane]
+        local npc = self.World:Spawn(request.Unit, position, lane[2] or goal, {
+            Lane = laneCopy,
+            Goal = goal,
+            FormationOffset = jitter * 0.5,
+        })
+        table.insert(self.ObjectiveEnemies, npc)
+
+        if request.Unit.Boss then
+            self.Boss = npc
+            self:Toast(string.format("%s has entered the field.", request.Unit.DisplayName))
+        end
+
+        spawned += 1
+    end
+end
+
+function MissionDirector:ObjectiveFocus(objective): Vector3?
+    if objective.Target then
+        return self.Points[objective.Target]
+    end
+
+    if objective.Zone then
+        return self.Points[objective.Zone]
+    end
+
+    if objective.AllyPoint then
+        return self.Points[objective.AllyPoint]
+    end
+
+    return nil
+end
+
+function MissionDirector:ObjectiveEnemiesAlive(): number
+    local alive = 0
+
+    for _, npc in ipairs(self.ObjectiveEnemies) do
+        if npc.Alive then
+            alive += 1
+        end
+    end
+
+    return alive
+end
+
+-- Fires due waves. Returns true once every wave has spawned and been driven back.
+function MissionDirector:UpdateWaves(objective, elapsed: number): boolean
+    local waves = objective.Waves
+
+    if not waves then
+        return true
+    end
+
+    local state = self.ObjectiveState
+    state.NextWave = state.NextWave or 1
+
+    local wave = waves[state.NextWave]
+
+    if wave then
+        local due = false
+
+        if wave.AtSecond then
+            due = elapsed >= wave.AtSecond
+        elseif wave.AfterCleared then
+            if #self.SpawnQueue == 0 and self:ObjectiveEnemiesAlive() == 0 then
+                state.ClearedAt = state.ClearedAt or elapsed
+                due = elapsed - state.ClearedAt >= 3
+            else
+                state.ClearedAt = nil
+            end
+        end
+
+        if due then
+            local spawns = table.clone(wave.Spawns)
+
+            if state.NextWave == 1 and self.OrderBroken and objective.BrokenOrderExtra then
+                for _, extra in ipairs(objective.BrokenOrderExtra) do
+                    table.insert(spawns, extra)
+                end
+
+                self:Toast("The hill was left open. More riders pour through the gap.")
+            end
+
+            self:QueueSpawns(spawns)
+            state.NextWave += 1
+            state.ClearedAt = nil
+
+            if state.NextWave > 2 then
+                self:Toast(string.format("Wave %d of %d.", state.NextWave - 1, #waves))
+            end
+        end
+    end
+
+    self:PumpSpawns()
+
+    return state.NextWave > #waves and #self.SpawnQueue == 0 and self:ObjectiveEnemiesAlive() == 0
+end
+
+-- Zone and structure visuals ----------------------------------------------------------------
+
+function MissionDirector:ShowZone(center: Vector3, radius: number)
+    self:HideZone()
+
+    local folder = Instance.new("Folder")
+    folder.Name = "ObjectiveZone"
+    folder.Parent = self.Runtime
+
+    anchoredPart(folder, "Disc", Vector3.new(0.3, radius * 2, radius * 2), CFrame.new(center + Vector3.new(0, 0.2, 0)) * CFrame.Angles(0, 0, math.rad(90)), ZONE_COLOR, Enum.Material.Neon, 0.82).Shape = Enum.PartType.Cylinder
+    anchoredPart(folder, "Ring", Vector3.new(0.5, radius * 2 + 1.2, radius * 2 + 1.2), CFrame.new(center + Vector3.new(0, 0.12, 0)) * CFrame.Angles(0, 0, math.rad(90)), ZONE_COLOR, Enum.Material.Neon, 0.55).Shape = Enum.PartType.Cylinder
+    local beam = anchoredPart(folder, "Beacon", Vector3.new(1.4, 90, 1.4), CFrame.new(center + Vector3.new(0, 45, 0)), ZONE_COLOR, Enum.Material.Neon, 0.7)
+    local light = Instance.new("PointLight")
+    light.Color = ZONE_COLOR
+    light.Range = 24
+    light.Brightness = 1.4
+    light.Parent = beam
+
+    self.Zone = folder
+end
+
+function MissionDirector:HideZone()
+    if self.Zone then
+        self.Zone:Destroy()
+        self.Zone = nil
+    end
+end
+
+function MissionDirector:BuildStructure(center: Vector3, health: number)
+    local model = Instance.new("Model")
+    model.Name = "MedinaBanner"
+    model.Parent = self.Runtime
+
+    anchoredPart(model, "Base", Vector3.new(6, 1.2, 6), CFrame.new(center + Vector3.new(0, 0.6, 0)), Color3.fromRGB(150, 128, 96), Enum.Material.Slate).CanCollide = true
+    anchoredPart(model, "Pole", Vector3.new(0.8, 18, 0.8), CFrame.new(center + Vector3.new(0, 9.6, 0)), Color3.fromRGB(110, 80, 50), Enum.Material.Wood).CanCollide = true
+    anchoredPart(model, "Cloth", Vector3.new(0.3, 5, 7.5), CFrame.new(center + Vector3.new(0, 15, 3.9)), MEDINA_GREEN, Enum.Material.Fabric)
+    anchoredPart(model, "Finial", Vector3.new(1.2, 1.2, 1.2), CFrame.new(center + Vector3.new(0, 19.2, 0)), Color3.fromRGB(214, 180, 96), Enum.Material.Metal).Shape = Enum.PartType.Ball
+
+    local billboard = Instance.new("BillboardGui")
+    billboard.Name = "HealthBar"
+    billboard.Size = UDim2.fromOffset(160, 22)
+    billboard.StudsOffset = Vector3.new(0, 22, 0)
+    billboard.AlwaysOnTop = true
+    billboard.MaxDistance = 220
+    billboard.Adornee = model:FindFirstChild("Pole") :: BasePart
+    billboard.Parent = model
+
+    local back = Instance.new("Frame")
+    back.Size = UDim2.fromScale(1, 1)
+    back.BackgroundColor3 = Color3.fromRGB(32, 28, 24)
+    back.BorderSizePixel = 0
+    back.Parent = billboard
+
+    local fill = Instance.new("Frame")
+    fill.Name = "Fill"
+    fill.Size = UDim2.fromScale(1, 1)
+    fill.BackgroundColor3 = Color3.fromRGB(96, 178, 112)
+    fill.BorderSizePixel = 0
+    fill.Parent = back
+
+    local structure = {
+        Name = "Medina Banner",
+        Position = center,
+        Health = health,
+        MaxHealth = health,
+        Model = model,
+        Fill = fill,
+    }
+
+    self.World:AddStructure(structure)
+    self.Structure = structure
+
+    return structure
+end
+
+function MissionDirector:UpdateStructureVisual(structure)
+    local fraction = structure.Health / structure.MaxHealth
+
+    if structure.Fill then
+        structure.Fill.Size = UDim2.fromScale(math.clamp(fraction, 0, 1), 1)
+        structure.Fill.BackgroundColor3 = fraction > 0.5 and Color3.fromRGB(96, 178, 112) or (fraction > 0.25 and Color3.fromRGB(222, 176, 82) or Color3.fromRGB(206, 86, 70))
+    end
+
+    local now = os.clock()
+
+    if fraction < 0.5 and not structure.WarnedHalf then
+        structure.WarnedHalf = true
+        self:Toast("The banner is under heavy attack. Protect it!")
+    elseif now - (structure.LastHitToast or 0) > 8 then
+        structure.LastHitToast = now
+        self:Toast("Opponents are attacking the banner!")
+    end
+end
+
+function MissionDirector:RemoveStructure()
+    if self.Structure then
+        self.Structure.Alive = false
+
+        if self.Structure.Model then
+            self.Structure.Model:Destroy()
+        end
+
+        table.clear(self.World.Structures)
+        self.Structure = nil
+    end
+end
+
+function MissionDirector:BuildSpoils(center: Vector3)
+    local folder = Instance.new("Model")
+    folder.Name = "Spoils"
+    folder.Parent = self.Runtime
+    local gold = Color3.fromRGB(226, 186, 92)
+
+    for index = 1, 5 do
+        local angle = index * 1.3
+        local offset = Vector3.new(math.cos(angle) * (3 + index), 0, math.sin(angle) * (3 + index))
+        local crate = anchoredPart(folder, "Crate", Vector3.new(3, 2.2, 2.4), CFrame.new(self:Drop(center + offset) + Vector3.new(0, 1.1, 0)) * CFrame.Angles(0, angle, 0), Color3.fromRGB(122, 86, 52), Enum.Material.WoodPlanks)
+        crate.CanCollide = true
+        anchoredPart(folder, "Coins", Vector3.new(2.4, 0.5, 1.8), crate.CFrame * CFrame.new(0, 1.3, 0), gold, Enum.Material.Neon, 0.1)
+    end
+
+    local anchor = anchoredPart(folder, "PromptAnchor", Vector3.new(1, 1, 1), CFrame.new(self:Drop(center) + Vector3.new(0, 2, 0)), gold, Enum.Material.Neon, 1)
+    local sparkle = Instance.new("Sparkles")
+    sparkle.SparkleColor = gold
+    sparkle.Parent = anchor
+
+    local prompt = Instance.new("ProximityPrompt")
+    prompt.ActionText = "Collect the spoils"
+    prompt.ObjectText = "Spoils of the field"
+    prompt.HoldDuration = 0.4
+    prompt.MaxActivationDistance = 14
+    prompt.RequiresLineOfSight = false
+    prompt.Parent = anchor
+
+    table.insert(self.Connections, prompt.Triggered:Connect(function(player)
+        if table.find(self.Players, player) then
+            self:BreakOrder(player, "left the hill for the spoils")
+        end
+    end))
+
+    self.Spoils = folder
+end
+
+function MissionDirector:RemoveSpoils()
+    if self.Spoils then
+        self.Spoils:Destroy()
+        self.Spoils = nil
+    end
+end
+
+function MissionDirector:BreakOrder(player: Player, why: string)
+    local state = self:GetState(player)
+
+    if state.BrokeOrder then
+        return
+    end
+
+    state.BrokeOrder = true
+    self.OrderBroken = true
+    self:Toast(string.format("%s %s. The order was to stay.", player.DisplayName, why))
+end
+
+-- Objectives ------------------------------------------------------------------------------------
+
+function MissionDirector:BeginObjective(index: number, objective)
+    self.Objective = objective
+    self.ObjectiveIndex = index
+    self.ObjectiveState = {}
+    self.ObjectiveEnemies = {}
+    self.SpawnQueue = {}
+    self.Boss = nil
+
+    if objective.ClearEnemies then
+        self.World:DismissTeam("makkah")
+    end
+
+    if objective.HealPlayers then
+        self:HealPlayers()
+    end
+
+    self:SetAllyPoint(objective.AllyPoint)
+
+    local focus = self:ObjectiveFocus(objective)
+
+    if objective.Zone then
+        self:ShowZone(self.Points[objective.Zone], objective.Radius)
+    else
+        self:HideZone()
+    end
+
+    -- Opponents already on the field turn toward the new objective.
+    if focus then
+        for _, npc in ipairs(self.World:GetAlive("makkah")) do
+            npc.Goal = focus
+        end
+    end
+
+    if objective.Type == "Defend" then
+        self:BuildStructure(self.Points[objective.Target], objective.TargetHealth)
+    end
+
+    if objective.Type == "Discipline" then
+        self:BuildSpoils(self.Points.Spoils or focus)
+
+        local desert = objective.DesertingAllies
+
+        if desert then
+            local archers = self.World:GetAlive("medina", desert.Tag)
+
+            for archerIndex, npc in ipairs(archers) do
+                if archerIndex > (desert.Keep or 0) then
+                    task.delay(2 + archerIndex * 1.2, function()
+                        if npc.Alive then
+                            npc.Deserted = true
+                            npc.ForcedDestination = self.Points[desert.To] + Vector3.new(archerIndex * 3, 0, 0)
+                        end
+                    end)
+                end
+            end
+        end
+    end
+
+    self:Broadcast({
+        Kind = "Narration",
+        Title = objective.Narration.Title,
+        Body = objective.Narration.Body,
+        Reference = objective.Narration.Reference,
+        ObjectiveTitle = objective.Title,
+    })
+end
+
+function MissionDirector:EndObjective(objective)
+    self.ObjectivesDone += 1
+
+    for _, player in ipairs(self.Players) do
+        PlayerProgress.IncrementStat(player, "BattleObjectives", 1)
+    end
+
+    if objective.Type == "Defend" and self.Structure then
+        self.StructureFractions[objective.Id] = self.Structure.Health / self.Structure.MaxHealth
+        self:RemoveStructure()
+    end
+
+    if objective.Type == "Discipline" then
+        self:RemoveSpoils()
+
+        -- The archers who left are now caught on the open field; send them back to the line.
+        for _, npc in ipairs(self.World:GetAlive("medina")) do
+            if npc.ForcedDestination then
+                npc.ForcedDestination = nil
+                npc.HoldPoint = self.Points.Line or self.Points.Camp
+            end
+        end
+
+        if self.OrderBroken then
+            self:Toast("Not everyone kept their post.")
+        else
+            self:Toast("Every player kept their post. Well done.")
+        end
+    end
+
+    self:HideZone()
+    self:Broadcast({ Kind = "ObjectiveComplete", Title = objective.Title })
+end
+
+-- Runs one objective. Returns "done", "failed" (with a reason), or "stopped".
+function MissionDirector:RunObjective(objective): (string, string?)
+    local elapsed = 0
+    local tick = 0
+    local holdProgress = 0
+    local holdStatus = "Empty"
+    local mission = self.Mission
+
+    while true do
+        task.wait(TICK_SECONDS)
+        elapsed += TICK_SECONDS
+        tick += 1
+
+        if self.Finished then
+            return "stopped"
+        end
+
+        if os.clock() - self.StartedAt > mission.TimeLimitSeconds then
+            return "failed", "The day ran out before the mission was finished."
+        end
+
+        local done = false
+        local progress = nil
+        local progressText = nil
+        local zoneCenter = objective.Zone and self.Points[objective.Zone]
+        local wavesDone = self:UpdateWaves(objective, elapsed)
+
+        if objective.Type == "Reach" then
+            local nearest = math.huge
+
+            for _, player in ipairs(self.Players) do
+                local root = getRoot(player)
+
+                if root then
+                    nearest = math.min(nearest, flatDistance(root.Position, zoneCenter))
+                end
+            end
+
+            done = #self:PlayersInZone(zoneCenter, objective.Radius) > 0
+            progressText = nearest < math.huge and string.format("%d studs away", math.max(0, math.floor(nearest - objective.Radius))) or nil
+        elseif objective.Type == "Hold" then
+            local inside = #self:PlayersInZone(zoneCenter, objective.Radius)
+            local enemies = self:EnemiesInZone(zoneCenter, objective.Radius)
+            holdProgress, holdStatus = MissionRules.StepHold(holdProgress, TICK_SECONDS, objective.Seconds, inside, enemies)
+
+            for _, player in ipairs(self:PlayersInZone(zoneCenter, objective.Radius)) do
+                local state = self:GetState(player)
+                state.HeldSeconds = (state.HeldSeconds or 0) + TICK_SECONDS
+            end
+
+            progress = holdProgress / objective.Seconds
+            progressText = string.format("%s %d / %d s", holdStatus == "Contested" and "Contested!" or (holdStatus == "Empty" and "Step into the ring" or "Holding"), math.floor(holdProgress), objective.Seconds)
+            done = holdProgress >= objective.Seconds
+        elseif objective.Type == "Defend" then
+            local structure = self.Structure
+
+            if structure and not structure.Alive then
+                return "failed", "The banner of the Medina line fell."
+            end
+
+            progress = structure and structure.Health / structure.MaxHealth or 0
+            progressText = string.format("Banner %d / %d", structure and math.ceil(structure.Health) or 0, structure and structure.MaxHealth or 0)
+            done = wavesDone
+        elseif objective.Type == "Defeat" then
+            local remaining = self:ObjectiveEnemiesAlive() + #self.SpawnQueue
+            progressText = remaining > 0 and string.format("%d opponents on the field", remaining) or "Waiting for the next wave"
+            done = wavesDone
+        elseif objective.Type == "Discipline" then
+            local insidePlayers = self:PlayersInZone(zoneCenter, objective.Radius)
+
+            if elapsed > DISCIPLINE_GRACE_SECONDS then
+                for _, player in ipairs(self.Players) do
+                    local root = getRoot(player)
+
+                    if root and not table.find(insidePlayers, player) then
+                        self:BreakOrder(player, "left the hill")
+                    end
+                end
+            elseif tick % 8 == 0 then
+                for _, player in ipairs(self.Players) do
+                    local root = getRoot(player)
+
+                    if root and not table.find(insidePlayers, player) then
+                        self:Toast("Get back on the hill. Your post is up there.", { player })
+                    end
+                end
+            end
+
+            progress = math.min(1, elapsed / objective.Seconds)
+            progressText = string.format("Hold your post %d / %d s", math.floor(math.min(elapsed, objective.Seconds)), objective.Seconds)
+            done = elapsed >= objective.Seconds
+        elseif objective.Type == "Narration" then
+            progress = math.min(1, elapsed / objective.Seconds)
+            done = elapsed >= objective.Seconds
+        end
+
+        if tick % STATE_EVERY_TICKS == 0 or done then
+            self:SendState(objective, progress, progressText, holdStatus)
+        end
+
+        if done then
+            return "done"
+        end
+    end
+end
+
+function MissionDirector:SendState(objective, progress: number?, progressText: string?, holdStatus: string?)
+    local boss = nil
+
+    if self.Boss and self.Boss.Alive then
+        boss = {
+            Name = self.Boss.Unit.DisplayName,
+            Health = self.Boss.Humanoid.Health / self.Boss.Humanoid.MaxHealth,
+        }
+    end
+
+    local zone = objective.Zone and self.Points[objective.Zone]
+    local target = objective.Target and self.Points[objective.Target]
+
+    self:Broadcast({
+        Kind = "State",
+        Mission = self.Mission.DisplayName,
+        Subtitle = self.Mission.Subtitle,
+        Index = self.ObjectiveIndex,
+        Count = #self.Mission.Objectives,
+        Title = objective.Title,
+        Instruction = objective.Instruction,
+        Type = objective.Type,
+        Progress = progress,
+        ProgressText = progressText,
+        Contested = holdStatus == "Contested",
+        ZonePosition = zone,
+        ZoneRadius = objective.Radius,
+        TargetPosition = target,
+        EnemiesLeft = self.World:CountAlive("makkah") + #self.SpawnQueue,
+        AlliesLeft = self.World:CountAlive("medina"),
+        Boss = boss,
+        Falls = self.TeamFalls,
+        OrderKept = if self.Mission.Steadfast.Kind == "Discipline" and self.ObjectiveIndex > self:IndexOf(self.Mission.Steadfast.Objective) - 1 then not self.OrderBroken else nil,
+        Elapsed = os.clock() - self.StartedAt,
+        TimeLimit = self.Mission.TimeLimitSeconds,
+    })
+end
+
+function MissionDirector:IndexOf(objectiveId: string): number
+    for index, objective in ipairs(self.Mission.Objectives) do
+        if objective.Id == objectiveId then
+            return index
+        end
+    end
+
+    return math.huge
+end
+
+function MissionDirector:SteadfastKept(): boolean
+    local rule = self.Mission.Steadfast
+
+    if rule.Kind == "Discipline" then
+        return not self.OrderBroken
+    elseif rule.Kind == "TargetHealth" then
+        local fraction = self.StructureFractions[rule.Objective]
+        return fraction ~= nil and fraction >= rule.Fraction
+    end
+
+    return true
+end
+
+function MissionDirector:Start()
+    for index, player in ipairs(self.Players) do
+        local character = player.Character
+
+        if character then
+            self:WatchCharacter(player, character)
+            character:PivotTo(self:RespawnCFrame(index))
+        end
+    end
+
+    self:SpawnAllies()
+
+    task.spawn(function()
+        for index, objective in ipairs(self.Mission.Objectives) do
+            if self.Finished then
+                return
+            end
+
+            self:BeginObjective(index, objective)
+            local outcome, reason = self:RunObjective(objective)
+
+            if outcome == "stopped" then
+                return
+            elseif outcome == "failed" then
+                self:Finish(false, reason or "The mission failed.")
+                return
+            end
+
+            self:EndObjective(objective)
+            task.wait(1.5)
+        end
+
+        self:Finish(true, string.format("%s complete.", self.Mission.DisplayName))
+    end)
+end
+
+function MissionDirector:Finish(completed: boolean, reason: string)
+    if self.Finished then
+        return
+    end
+
+    self.Finished = true
+
+    local perPlayer = {}
+
+    for player, state in pairs(self.PlayerState) do
+        perPlayer[player] = {
+            Falls = state.Falls,
+            Defeated = state.Defeated,
+            HeldSeconds = math.floor(state.HeldSeconds or 0),
+            BrokeOrder = state.BrokeOrder,
+        }
+    end
+
+    local result = {
+        Completed = completed,
+        Reason = reason,
+        Falls = self.TeamFalls,
+        PlayerCount = math.max(1, self.PeakPlayers),
+        SteadfastKept = completed and self:SteadfastKept(),
+        OrderBroken = self.OrderBroken,
+        ObjectivesDone = self.ObjectivesDone,
+        PerPlayer = perPlayer,
+    }
+
+    self:Broadcast({ Kind = "Clear" })
+    self:Cleanup()
+
+    if self.OnFinished then
+        task.spawn(self.OnFinished, result)
+    end
+end
+
+function MissionDirector:Stop()
+    if self.Finished then
+        return
+    end
+
+    self.Finished = true
+    self:Broadcast({ Kind = "Clear" })
+    self:Cleanup()
+end
+
+function MissionDirector:Cleanup()
+    for _, connection in ipairs(self.Connections) do
+        connection:Disconnect()
+    end
+
+    for _, state in pairs(self.PlayerState) do
+        for _, connection in ipairs(state.Connections) do
+            connection:Disconnect()
+        end
+    end
+
+    self.World:Destroy()
+    self.Runtime:Destroy()
+end
+
+return MissionDirector
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="ModuleScript" referent="41">
         <Properties>
           <string name="Name">PlayerProgress</string>
           <string name="Source"><![CDATA[--!strict
@@ -11746,6 +15148,31 @@ end
 
 -- Counts today's visit toward the streak and pays the visit reward the first time each day.
 -- Players who stay in a server past midnight UTC get it when ProgressionService checks again.
+-- Raises a stat to `value` if it is higher than what is saved (best scores). Returns the
+-- previous value, or nil when the profile is not loaded.
+function PlayerProgress.SetStatMax(player: Player, stat: string, value: number): number?
+    local profile = profiles[player]
+
+    if not profile then
+        return nil
+    end
+
+    local previous = profile.Stats[stat] or 0
+
+    if value > previous then
+        profile.Stats[stat] = value
+        changed(player, profile)
+    end
+
+    return previous
+end
+
+function PlayerProgress.GetStat(player: Player, stat: string): number
+    local profile = profiles[player]
+
+    return profile and profile.Stats[stat] or 0
+end
+
 function PlayerProgress.RecordDailyVisit(player: Player)
     local profile = profiles[player]
 
@@ -11883,7 +15310,7 @@ return PlayerProgress
         </Properties>
       </Item>
     </Item>
-    <Item class="Script" referent="38">
+    <Item class="Script" referent="42">
       <Properties>
         <string name="Name">ProgressionService</string>
         <token name="RunContext">0</token>
@@ -12137,7 +15564,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="39">
+    <Item class="Script" referent="43">
       <Properties>
         <string name="Name">RankTagService</string>
         <token name="RunContext">0</token>
@@ -12237,7 +15664,7 @@ end
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="40">
+    <Item class="Script" referent="44">
       <Properties>
         <string name="Name">ShopService</string>
         <token name="RunContext">0</token>
@@ -12828,7 +16255,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="41">
+    <Item class="Script" referent="45">
       <Properties>
         <string name="Name">StoryService</string>
         <token name="RunContext">0</token>
@@ -13288,7 +16715,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="42">
+    <Item class="Script" referent="46">
       <Properties>
         <string name="Name">StoryWorldBuilder</string>
         <token name="RunContext">0</token>
@@ -13485,7 +16912,7 @@ end
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="43">
+    <Item class="Script" referent="47">
       <Properties>
         <string name="Name">StudyCircleService</string>
         <token name="RunContext">0</token>
@@ -13793,7 +17220,7 @@ end)
 ]]></string>
       </Properties>
     </Item>
-    <Item class="Script" referent="44">
+    <Item class="Script" referent="48">
       <Properties>
         <string name="Name">TriviaService</string>
         <token name="RunContext">0</token>
@@ -14131,15 +17558,15 @@ end)
       </Properties>
     </Item>
   </Item>
-  <Item class="StarterPlayer" referent="45">
+  <Item class="StarterPlayer" referent="49">
     <Properties>
       <string name="Name">StarterPlayer</string>
     </Properties>
-    <Item class="StarterPlayerScripts" referent="46">
+    <Item class="StarterPlayerScripts" referent="50">
       <Properties>
         <string name="Name">StarterPlayerScripts</string>
       </Properties>
-      <Item class="LocalScript" referent="47">
+      <Item class="LocalScript" referent="51">
         <Properties>
           <string name="Name">BattleCamera</string>
           <string name="Source"><![CDATA[--!strict
@@ -14174,7 +17601,7 @@ applyBattleCameraMode()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="48">
+      <Item class="LocalScript" referent="52">
         <Properties>
           <string name="Name">BattleControls</string>
           <string name="Source"><![CDATA[--!strict
@@ -14226,7 +17653,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="49">
+      <Item class="LocalScript" referent="53">
         <Properties>
           <string name="Name">BattleHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -14836,7 +18263,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="50">
+      <Item class="LocalScript" referent="54">
         <Properties>
           <string name="Name">BattleWeaponAnimation</string>
           <string name="Source"><![CDATA[--!strict
@@ -15424,7 +18851,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="51">
+      <Item class="LocalScript" referent="55">
         <Properties>
           <string name="Name">ClientBootstrap</string>
           <string name="Source"><![CDATA[--!strict
@@ -15449,7 +18876,7 @@ print(string.format(
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="52">
+      <Item class="LocalScript" referent="56">
         <Properties>
           <string name="Name">GuideDialogue</string>
           <string name="Source"><![CDATA[--!strict
@@ -15708,7 +19135,7 @@ requestProfile:FireServer()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="53">
+      <Item class="LocalScript" referent="57">
         <Properties>
           <string name="Name">HubAmbience</string>
           <string name="Source"><![CDATA[--!strict
@@ -15951,7 +19378,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="54">
+      <Item class="LocalScript" referent="58">
         <Properties>
           <string name="Name">HubQuickButtons</string>
           <string name="Source"><![CDATA[--!strict
@@ -16178,7 +19605,7 @@ updateAvailability()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="55">
+      <Item class="LocalScript" referent="59">
         <Properties>
           <string name="Name">LearningHall</string>
           <string name="Source"><![CDATA[--!strict
@@ -17155,7 +20582,7 @@ player:GetAttributeChangedSignal("InStory"):Connect(closeIfBusy)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="56">
+      <Item class="LocalScript" referent="60">
         <Properties>
           <string name="Name">LearningTrailHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -17354,7 +20781,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="57">
+      <Item class="LocalScript" referent="61">
         <Properties>
           <string name="Name">MainMenu</string>
           <string name="Source"><![CDATA[--!nonstrict
@@ -17369,16 +20796,16 @@ local playerGui = player:WaitForChild("PlayerGui")
 local MENU_ITEMS = {
     {
         Label = "Battle of Badr",
-        Detail = "Join the Badr battle route and watch the lesson briefing.",
+        Detail = "Play the Badr story mission alone or with friends, or join a team skirmish.",
         Accent = Color3.fromRGB(118, 91, 54),
-        Action = "battle",
+        Action = "battle_menu",
         Id = "badr",
     },
     {
         Label = "Battle of Uhud",
-        Detail = "Join the Uhud route with the mountain pass and archer ridge lesson.",
+        Detail = "Hold the Archers' Hill in the Uhud story mission, or join a team skirmish.",
         Accent = Color3.fromRGB(92, 77, 59),
-        Action = "battle",
+        Action = "battle_menu",
         Id = "uhud",
     },
     {
@@ -17666,8 +21093,8 @@ local function canUseMenu()
     return true
 end
 
-local function joinBattle(scenarioId, label)
-    if canUseMenu() and fireRemote("Battle", "RequestJoinBattle", scenarioId) then
+local function joinBattle(scenarioId, label, mode)
+    if canUseMenu() and fireRemote("Battle", "RequestJoinBattle", scenarioId, mode or "mission") then
         statusLabel.Text = "Joining: " .. label
         closeMenu()
     end
@@ -17772,6 +21199,7 @@ end
 
 local showSahabiMenu: () -> ()
 local showMannersMenu: () -> ()
+local showBattleMenu: (item: any) -> ()
 
 local function showHome()
     clearButtons()
@@ -17782,6 +21210,8 @@ local function showHome()
         addMenuButton(index, item, function()
             if item.Action == "battle" then
                 joinBattle(item.Id, item.Label)
+            elseif item.Action == "battle_menu" then
+                showBattleMenu(item)
             elseif item.Action == "sahabi_menu" then
                 showSahabiMenu()
             elseif item.Action == "manners_menu" then
@@ -17793,6 +21223,34 @@ local function showHome()
             end
         end)
     end
+end
+
+showBattleMenu = function(item)
+    clearButtons()
+    sectionTitle.Text = item.Label
+    sectionSubtitle.Text = "Story missions follow the history step by step. Skirmishes are player against player."
+
+    addMenuButton(1, {
+        Label = "Back To Main Menu",
+        Detail = "Return to battles, sahabis, manners, trivia, and Medina travel.",
+        Accent = Color3.fromRGB(104, 91, 67),
+    }, showHome)
+
+    addMenuButton(2, {
+        Label = "Story Mission",
+        Detail = "Solo or co-op. Everyone fights on the Medina side through the real turning points of the battle. Friends can join a mission already in progress.",
+        Accent = Color3.fromRGB(70, 118, 82),
+    }, function()
+        joinBattle(item.Id, item.Label .. " story mission", "mission")
+    end)
+
+    addMenuButton(3, {
+        Label = "Team Skirmish",
+        Detail = "Player against player on the same battlefield. Needs at least two players.",
+        Accent = Color3.fromRGB(120, 92, 62),
+    }, function()
+        joinBattle(item.Id, item.Label .. " team skirmish", "skirmish")
+    end)
 end
 
 showSahabiMenu = function()
@@ -17875,7 +21333,7 @@ showHome()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="58">
+      <Item class="LocalScript" referent="62">
         <Properties>
           <string name="Name">MannersHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -17998,7 +21456,612 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="59">
+      <Item class="LocalScript" referent="63">
+        <Properties>
+          <string name="Name">MissionHud</string>
+          <string name="Source"><![CDATA[--!nonstrict
+
+-- Story mission HUD: the objective tracker, a waypoint to the current objective, cited
+-- narration cards, the opponent captain's health bar, and the results screen with stars and
+-- the after-battle reflection questions.
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local TweenService = game:GetService("TweenService")
+local Workspace = game:GetService("Workspace")
+
+local battleFolder = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Battle")
+local missionUpdate = battleFolder:WaitForChild("MissionUpdate") :: RemoteEvent
+local missionResult = battleFolder:WaitForChild("MissionResult") :: RemoteEvent
+local submitReflection = battleFolder:WaitForChild("SubmitReflection") :: RemoteEvent
+local reflectionResult = battleFolder:WaitForChild("ReflectionResult") :: RemoteEvent
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local GOLD = Color3.fromRGB(226, 192, 112)
+local CREAM = Color3.fromRGB(247, 242, 226)
+local MUTED = Color3.fromRGB(205, 196, 172)
+local PANEL = Color3.fromRGB(28, 33, 29)
+local GREEN = Color3.fromRGB(86, 168, 104)
+local RED = Color3.fromRGB(206, 92, 74)
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "MissionHud"
+screenGui.ResetOnSpawn = false
+screenGui.IgnoreGuiInset = true
+screenGui.DisplayOrder = 30
+screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+screenGui.Parent = playerGui
+
+local function corner(parent: Instance, radius: number)
+    local c = Instance.new("UICorner")
+    c.CornerRadius = UDim.new(0, radius)
+    c.Parent = parent
+end
+
+local function stroke(parent: Instance, color: Color3, thickness: number, transparency: number?)
+    local s = Instance.new("UIStroke")
+    s.Color = color
+    s.Thickness = thickness
+    s.Transparency = transparency or 0
+    s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    s.Parent = parent
+end
+
+local function label(parent: Instance, name: string, text: string, font: Enum.Font, size: number, color: Color3, position: UDim2, frameSize: UDim2): TextLabel
+    local l = Instance.new("TextLabel")
+    l.Name = name
+    l.BackgroundTransparency = 1
+    l.Font = font
+    l.Text = text
+    l.TextSize = size
+    l.TextColor3 = color
+    l.TextWrapped = true
+    l.TextXAlignment = Enum.TextXAlignment.Left
+    l.TextYAlignment = Enum.TextYAlignment.Top
+    l.Position = position
+    l.Size = frameSize
+    l.Parent = parent
+
+    return l
+end
+
+local function bar(parent: Instance, name: string, position: UDim2, size: UDim2, color: Color3): (Frame, Frame)
+    local track = Instance.new("Frame")
+    track.Name = name
+    track.BackgroundColor3 = Color3.fromRGB(14, 16, 14)
+    track.BorderSizePixel = 0
+    track.Position = position
+    track.Size = size
+    track.Parent = parent
+    corner(track, 5)
+
+    local fill = Instance.new("Frame")
+    fill.Name = "Fill"
+    fill.BackgroundColor3 = color
+    fill.BorderSizePixel = 0
+    fill.Size = UDim2.fromScale(0, 1)
+    fill.Parent = track
+    corner(fill, 5)
+
+    return track, fill
+end
+
+-- Objective tracker -----------------------------------------------------------------------
+
+local tracker = Instance.new("Frame")
+tracker.Name = "Tracker"
+tracker.Position = UDim2.fromOffset(18, 70)
+tracker.Size = UDim2.fromOffset(360, 196)
+tracker.BackgroundColor3 = PANEL
+tracker.BackgroundTransparency = 0.12
+tracker.Visible = false
+tracker.Parent = screenGui
+corner(tracker, 14)
+stroke(tracker, GOLD, 1.5, 0.25)
+
+local missionLabel = label(tracker, "Mission", "", Enum.Font.GothamBold, 13, GOLD, UDim2.fromOffset(14, 10), UDim2.new(1, -28, 0, 16))
+local stepLabel = label(tracker, "Step", "", Enum.Font.Gotham, 12, MUTED, UDim2.fromOffset(14, 26), UDim2.new(1, -28, 0, 14))
+local titleLabel = label(tracker, "Title", "", Enum.Font.GothamBlack, 20, CREAM, UDim2.fromOffset(14, 44), UDim2.new(1, -28, 0, 24))
+local instructionLabel = label(tracker, "Instruction", "", Enum.Font.Gotham, 14, MUTED, UDim2.fromOffset(14, 70), UDim2.new(1, -28, 0, 40))
+local progressTrack, progressFill = bar(tracker, "Progress", UDim2.fromOffset(14, 116), UDim2.new(1, -28, 0, 10), GOLD)
+local progressLabel = label(tracker, "ProgressText", "", Enum.Font.GothamBold, 13, CREAM, UDim2.fromOffset(14, 130), UDim2.new(1, -28, 0, 16))
+local infoLabel = label(tracker, "Info", "", Enum.Font.Gotham, 12, MUTED, UDim2.fromOffset(14, 150), UDim2.new(1, -28, 0, 16))
+local orderLabel = label(tracker, "Order", "", Enum.Font.GothamBold, 12, GREEN, UDim2.fromOffset(14, 168), UDim2.new(1, -28, 0, 16))
+
+-- Captain health bar --------------------------------------------------------------------
+
+local bossFrame = Instance.new("Frame")
+bossFrame.Name = "Boss"
+bossFrame.AnchorPoint = Vector2.new(0.5, 0)
+bossFrame.Position = UDim2.new(0.5, 0, 0, 86)
+bossFrame.Size = UDim2.fromOffset(420, 46)
+bossFrame.BackgroundColor3 = Color3.fromRGB(40, 24, 22)
+bossFrame.BackgroundTransparency = 0.15
+bossFrame.Visible = false
+bossFrame.Parent = screenGui
+corner(bossFrame, 10)
+stroke(bossFrame, Color3.fromRGB(196, 120, 92), 1.5, 0.2)
+local bossName = label(bossFrame, "Name", "", Enum.Font.GothamBold, 14, CREAM, UDim2.fromOffset(12, 6), UDim2.new(1, -24, 0, 16))
+bossName.TextXAlignment = Enum.TextXAlignment.Center
+local _, bossFill = bar(bossFrame, "Health", UDim2.fromOffset(12, 26), UDim2.new(1, -24, 0, 12), RED)
+
+-- Narration card ------------------------------------------------------------------------
+
+local narration = Instance.new("Frame")
+narration.Name = "Narration"
+narration.AnchorPoint = Vector2.new(0.5, 1)
+narration.Position = UDim2.new(0.5, 0, 1, -110)
+narration.Size = UDim2.fromOffset(640, 130)
+narration.BackgroundColor3 = Color3.fromRGB(34, 30, 24)
+narration.BackgroundTransparency = 0.08
+narration.Visible = false
+narration.Parent = screenGui
+corner(narration, 14)
+stroke(narration, GOLD, 1.5, 0.15)
+
+local narrationKicker = label(narration, "Kicker", "", Enum.Font.GothamBold, 12, GOLD, UDim2.fromOffset(18, 12), UDim2.new(1, -36, 0, 14))
+local narrationTitle = label(narration, "Title", "", Enum.Font.GothamBlack, 20, CREAM, UDim2.fromOffset(18, 28), UDim2.new(1, -36, 0, 24))
+local narrationBody = label(narration, "Body", "", Enum.Font.Gotham, 15, Color3.fromRGB(232, 226, 210), UDim2.fromOffset(18, 54), UDim2.new(1, -36, 0, 50))
+local narrationReference = label(narration, "Reference", "", Enum.Font.GothamBold, 12, Color3.fromRGB(176, 214, 180), UDim2.new(0, 18, 1, -24), UDim2.new(1, -36, 0, 14))
+
+-- Center banner and toasts ----------------------------------------------------------------
+
+local banner = label(screenGui, "Banner", "", Enum.Font.GothamBlack, 30, CREAM, UDim2.new(0.5, -320, 0.32, 0), UDim2.fromOffset(640, 44))
+banner.TextXAlignment = Enum.TextXAlignment.Center
+banner.TextStrokeTransparency = 0.4
+banner.Visible = false
+
+local toastLabel = label(screenGui, "Toast", "", Enum.Font.GothamBold, 16, CREAM, UDim2.new(0.5, -260, 0, 140), UDim2.fromOffset(520, 34))
+toastLabel.TextXAlignment = Enum.TextXAlignment.Center
+toastLabel.TextYAlignment = Enum.TextYAlignment.Center
+toastLabel.BackgroundColor3 = Color3.fromRGB(30, 35, 32)
+toastLabel.BackgroundTransparency = 0.2
+toastLabel.Visible = false
+corner(toastLabel, 10)
+
+-- Waypoint ---------------------------------------------------------------------------------
+
+local waypointPart = Instance.new("Part")
+waypointPart.Name = "MissionWaypoint"
+waypointPart.Anchored = true
+waypointPart.CanCollide = false
+waypointPart.CanQuery = false
+waypointPart.CanTouch = false
+waypointPart.Transparency = 1
+waypointPart.Size = Vector3.new(1, 1, 1)
+
+local waypoint = Instance.new("BillboardGui")
+waypoint.Name = "MissionWaypoint"
+waypoint.AlwaysOnTop = true
+waypoint.Size = UDim2.fromOffset(150, 46)
+waypoint.LightInfluence = 0
+waypoint.Adornee = waypointPart
+waypoint.Enabled = false
+waypoint.Parent = screenGui
+
+local waypointLabel = label(waypoint, "Text", "", Enum.Font.GothamBold, 14, GOLD, UDim2.fromScale(0, 0), UDim2.fromScale(1, 1))
+waypointLabel.TextXAlignment = Enum.TextXAlignment.Center
+waypointLabel.TextYAlignment = Enum.TextYAlignment.Center
+waypointLabel.TextStrokeTransparency = 0.3
+
+local waypointPosition: Vector3? = nil
+local waypointKind = ""
+
+local function setWaypoint(position: Vector3?, kind: string)
+    waypointPosition = position
+    waypointKind = kind
+
+    if position then
+        waypointPart.Position = position + Vector3.new(0, 7, 0)
+        waypointPart.Parent = Workspace
+        waypoint.Enabled = true
+    else
+        waypoint.Enabled = false
+        waypointPart.Parent = nil
+    end
+end
+
+RunService.RenderStepped:Connect(function()
+    if not waypointPosition then
+        return
+    end
+
+    local character = player.Character
+    local root = character and character:FindFirstChild("HumanoidRootPart")
+
+    if root and root:IsA("BasePart") then
+        local distance = math.floor((root.Position - waypointPosition).Magnitude)
+        waypointLabel.Text = string.format("%s\n%d studs", waypointKind, distance)
+    end
+end)
+
+-- Behaviour ------------------------------------------------------------------------------
+
+local toastToken = 0
+local bannerToken = 0
+local narrationToken = 0
+
+local function showToast(text: string)
+    toastToken += 1
+    local token = toastToken
+    toastLabel.Text = text
+    toastLabel.Visible = true
+
+    task.delay(3.2, function()
+        if token == toastToken then
+            toastLabel.Visible = false
+        end
+    end)
+end
+
+local function showBanner(text: string, color: Color3)
+    bannerToken += 1
+    local token = bannerToken
+    banner.Text = text
+    banner.TextColor3 = color
+    banner.TextTransparency = 1
+    banner.Visible = true
+    TweenService:Create(banner, TweenInfo.new(0.3), { TextTransparency = 0 }):Play()
+
+    task.delay(2.6, function()
+        if token == bannerToken then
+            TweenService:Create(banner, TweenInfo.new(0.4), { TextTransparency = 1 }):Play()
+            task.wait(0.45)
+
+            if token == bannerToken then
+                banner.Visible = false
+            end
+        end
+    end)
+end
+
+local function showNarration(payload)
+    narrationToken += 1
+    local token = narrationToken
+    narrationKicker.Text = string.upper(payload.ObjectiveTitle or "")
+    narrationTitle.Text = payload.Title or ""
+    narrationBody.Text = payload.Body or ""
+    narrationReference.Text = payload.Reference and ("Source: " .. payload.Reference) or ""
+    narration.BackgroundTransparency = 1
+    narration.Visible = true
+    TweenService:Create(narration, TweenInfo.new(0.35), { BackgroundTransparency = 0.08 }):Play()
+
+    -- Longer passages stay up longer.
+    local readSeconds = math.clamp(#(payload.Body or "") / 18, 7, 13)
+
+    task.delay(readSeconds, function()
+        if token == narrationToken then
+            narration.Visible = false
+        end
+    end)
+end
+
+local TYPE_LABELS = {
+    Reach = "Go to the marker",
+    Hold = "Hold the ring",
+    Defend = "Protect the banner",
+    Defeat = "Drive them back",
+    Discipline = "Keep your post",
+    Narration = "Listen",
+}
+
+local function formatTime(seconds: number): string
+    seconds = math.max(0, math.floor(seconds))
+    return string.format("%d:%02d", seconds // 60, seconds % 60)
+end
+
+local function applyState(state)
+    tracker.Visible = true
+    missionLabel.Text = string.format("%s  ·  %s", state.Mission or "", state.Subtitle or "")
+    stepLabel.Text = string.format("Objective %d of %d  ·  %s", state.Index or 0, state.Count or 0, TYPE_LABELS[state.Type] or "")
+    titleLabel.Text = state.Title or ""
+    instructionLabel.Text = state.Instruction or ""
+
+    if state.Progress then
+        progressTrack.Visible = true
+        progressFill.Size = UDim2.fromScale(math.clamp(state.Progress, 0, 1), 1)
+        progressFill.BackgroundColor3 = state.Contested and RED or (state.Type == "Defend" and GREEN or GOLD)
+    else
+        progressTrack.Visible = false
+    end
+
+    progressLabel.Text = state.ProgressText or ""
+    progressLabel.TextColor3 = state.Contested and RED or CREAM
+
+    local remaining = (state.TimeLimit or 0) - (state.Elapsed or 0)
+    infoLabel.Text = string.format("Opponents %d  ·  Allies %d  ·  Falls %d  ·  Time %s", state.EnemiesLeft or 0, state.AlliesLeft or 0, state.Falls or 0, formatTime(remaining))
+
+    if state.OrderKept == nil then
+        orderLabel.Text = ""
+    elseif state.OrderKept then
+        orderLabel.Text = "The order is being kept."
+        orderLabel.TextColor3 = GREEN
+    else
+        orderLabel.Text = "The order was broken. Expect a harder fight."
+        orderLabel.TextColor3 = RED
+    end
+
+    if state.Boss then
+        bossFrame.Visible = true
+        bossName.Text = state.Boss.Name
+        bossFill.Size = UDim2.fromScale(math.clamp(state.Boss.Health, 0, 1), 1)
+    else
+        bossFrame.Visible = false
+    end
+
+    if state.ZonePosition then
+        setWaypoint(state.ZonePosition, state.Title or "Objective")
+    elseif state.TargetPosition then
+        setWaypoint(state.TargetPosition, "Banner")
+    else
+        setWaypoint(nil, "")
+    end
+end
+
+local function clearHud()
+    tracker.Visible = false
+    bossFrame.Visible = false
+    narration.Visible = false
+    setWaypoint(nil, "")
+end
+
+missionUpdate.OnClientEvent:Connect(function(payload)
+    if type(payload) ~= "table" then
+        return
+    end
+
+    if payload.Kind == "State" then
+        applyState(payload)
+    elseif payload.Kind == "Narration" then
+        showNarration(payload)
+    elseif payload.Kind == "Toast" then
+        showToast(payload.Text or "")
+    elseif payload.Kind == "ObjectiveComplete" then
+        showBanner("Objective complete: " .. (payload.Title or ""), GOLD)
+    elseif payload.Kind == "Clear" then
+        clearHud()
+    end
+end)
+
+player:GetAttributeChangedSignal("InBattle"):Connect(function()
+    if player:GetAttribute("InBattle") ~= true then
+        clearHud()
+    end
+end)
+
+-- Results and reflection -------------------------------------------------------------------
+
+local results = Instance.new("Frame")
+results.Name = "Results"
+results.AnchorPoint = Vector2.new(0.5, 0.5)
+results.Position = UDim2.fromScale(0.5, 0.5)
+results.Size = UDim2.fromOffset(620, 520)
+results.BackgroundColor3 = Color3.fromRGB(30, 34, 30)
+results.Visible = false
+results.Parent = screenGui
+corner(results, 18)
+stroke(results, GOLD, 2, 0.1)
+
+local resultsTitle = label(results, "Title", "", Enum.Font.GothamBlack, 26, CREAM, UDim2.fromOffset(24, 18), UDim2.new(1, -48, 0, 32))
+local resultsReason = label(results, "Reason", "", Enum.Font.Gotham, 14, MUTED, UDim2.fromOffset(24, 52), UDim2.new(1, -48, 0, 18))
+local starsLabel = label(results, "Stars", "", Enum.Font.GothamBlack, 34, GOLD, UDim2.fromOffset(24, 76), UDim2.new(1, -48, 0, 40))
+local starDetails = label(results, "StarDetails", "", Enum.Font.Gotham, 14, CREAM, UDim2.fromOffset(24, 118), UDim2.new(1, -48, 0, 64))
+local statsLabel = label(results, "Stats", "", Enum.Font.GothamBold, 13, MUTED, UDim2.fromOffset(24, 186), UDim2.new(1, -48, 0, 18))
+
+local body = Instance.new("ScrollingFrame")
+body.Name = "Body"
+body.Position = UDim2.fromOffset(24, 212)
+body.Size = UDim2.new(1, -48, 1, -276)
+body.BackgroundTransparency = 1
+body.BorderSizePixel = 0
+body.ScrollBarThickness = 6
+body.AutomaticCanvasSize = Enum.AutomaticSize.Y
+body.CanvasSize = UDim2.new()
+body.Parent = results
+
+local bodyLayout = Instance.new("UIListLayout")
+bodyLayout.Padding = UDim.new(0, 8)
+bodyLayout.SortOrder = Enum.SortOrder.LayoutOrder
+bodyLayout.Parent = body
+
+local function makeButton(parent: Instance, text: string, color: Color3): TextButton
+    local button = Instance.new("TextButton")
+    button.AutoButtonColor = true
+    button.BackgroundColor3 = color
+    button.Font = Enum.Font.GothamBold
+    button.Text = text
+    button.TextSize = 15
+    button.TextColor3 = CREAM
+    button.TextWrapped = true
+    button.Parent = parent
+    corner(button, 10)
+
+    return button
+end
+
+local submitButton = makeButton(results, "Submit Reflection", Color3.fromRGB(70, 118, 82))
+submitButton.AnchorPoint = Vector2.new(0, 1)
+submitButton.Position = UDim2.new(0, 24, 1, -16)
+submitButton.Size = UDim2.fromOffset(250, 44)
+
+local closeButton = makeButton(results, "Close", Color3.fromRGB(96, 84, 64))
+closeButton.AnchorPoint = Vector2.new(1, 1)
+closeButton.Position = UDim2.new(1, -24, 1, -16)
+closeButton.Size = UDim2.fromOffset(150, 44)
+
+local currentResult = nil
+local answers = {}
+local questionWidgets = {}
+
+local function clearBody()
+    for _, child in ipairs(body:GetChildren()) do
+        if not child:IsA("UIListLayout") then
+            child:Destroy()
+        end
+    end
+
+    table.clear(questionWidgets)
+end
+
+local function bodyText(text: string, font: Enum.Font, size: number, color: Color3, order: number): TextLabel
+    local l = Instance.new("TextLabel")
+    l.BackgroundTransparency = 1
+    l.Font = font
+    l.TextSize = size
+    l.TextColor3 = color
+    l.TextWrapped = true
+    l.TextXAlignment = Enum.TextXAlignment.Left
+    l.Text = text
+    l.Size = UDim2.new(1, -10, 0, 0)
+    l.AutomaticSize = Enum.AutomaticSize.Y
+    l.LayoutOrder = order
+    l.Parent = body
+
+    return l
+end
+
+local function refreshChoices(questionIndex: number)
+    local widget = questionWidgets[questionIndex]
+
+    for choiceIndex, button in ipairs(widget.Buttons) do
+        button.BackgroundColor3 = answers[questionIndex] == choiceIndex and Color3.fromRGB(150, 122, 62) or Color3.fromRGB(58, 64, 56)
+    end
+end
+
+local function buildReflection(questions)
+    local order = 10
+    bodyText("Reflect on the battle", Enum.Font.GothamBlack, 18, GOLD, order)
+
+    for questionIndex, question in ipairs(questions) do
+        order += 1
+        bodyText(string.format("%d. %s", questionIndex, question.Prompt), Enum.Font.GothamBold, 15, CREAM, order)
+
+        local widget = { Buttons = {} }
+
+        for choiceIndex, choice in ipairs(question.Choices) do
+            order += 1
+            local button = makeButton(body, choice, Color3.fromRGB(58, 64, 56))
+            button.Size = UDim2.new(1, -10, 0, 36)
+            button.TextSize = 14
+            button.LayoutOrder = order
+            button.Activated:Connect(function()
+                if submitButton.Active then
+                    answers[questionIndex] = choiceIndex
+                    refreshChoices(questionIndex)
+                end
+            end)
+            table.insert(widget.Buttons, button)
+        end
+
+        questionWidgets[questionIndex] = widget
+    end
+end
+
+missionResult.OnClientEvent:Connect(function(payload)
+    if type(payload) ~= "table" then
+        return
+    end
+
+    currentResult = payload
+    table.clear(answers)
+    clearBody()
+
+    resultsTitle.Text = payload.Completed and (payload.MissionName .. " complete") or (payload.MissionName .. ": try again")
+    resultsTitle.TextColor3 = payload.Completed and CREAM or Color3.fromRGB(240, 196, 170)
+    resultsReason.Text = payload.Reason or ""
+    starsLabel.Text = string.rep("★", payload.Stars or 0) .. string.rep("☆", 3 - (payload.Stars or 0))
+
+    local lines = {}
+
+    for _, detail in ipairs(payload.StarDetails or {}) do
+        table.insert(lines, string.format("%s  %s", detail.Earned and "✓" or "✗", detail.Label))
+    end
+
+    if (payload.StarBonus or 0) > 0 then
+        table.insert(lines, string.format("+%d XP for new stars", payload.StarBonus))
+    end
+
+    starDetails.Text = table.concat(lines, "\n")
+    statsLabel.Text = string.format("Objectives %d / %d  ·  Opponents you drove back %d  ·  Your falls %d", payload.ObjectivesDone or 0, payload.ObjectiveCount or 0, payload.Defeated or 0, payload.Falls or 0)
+
+    if payload.LessonTitle then
+        bodyText(payload.LessonTitle, Enum.Font.GothamBlack, 18, GOLD, 1)
+        bodyText(table.concat(payload.LessonLines or {}, "\n\n"), Enum.Font.Gotham, 14, Color3.fromRGB(226, 220, 204), 2)
+    end
+
+    local questions = payload.Reflection or {}
+
+    if #questions > 0 then
+        buildReflection(questions)
+        submitButton.Visible = true
+        submitButton.Active = true
+        submitButton.Text = "Submit Reflection"
+    else
+        submitButton.Visible = false
+    end
+
+    results.Visible = true
+end)
+
+submitButton.Activated:Connect(function()
+    if not currentResult or not submitButton.Active then
+        return
+    end
+
+    local questions = currentResult.Reflection or {}
+
+    for index = 1, #questions do
+        if not answers[index] then
+            submitButton.Text = "Answer every question first"
+            task.delay(1.6, function()
+                if submitButton.Active then
+                    submitButton.Text = "Submit Reflection"
+                end
+            end)
+            return
+        end
+    end
+
+    submitButton.Active = false
+    submitButton.Text = "Checking..."
+    submitReflection:FireServer(currentResult.ScenarioId, answers)
+end)
+
+reflectionResult.OnClientEvent:Connect(function(payload)
+    if type(payload) ~= "table" or not currentResult or payload.ScenarioId ~= currentResult.ScenarioId then
+        return
+    end
+
+    for index, result in ipairs(payload.Results or {}) do
+        local widget = questionWidgets[index]
+
+        if widget then
+            for choiceIndex, button in ipairs(widget.Buttons) do
+                if choiceIndex == result.Answer then
+                    button.BackgroundColor3 = Color3.fromRGB(64, 132, 82)
+                elseif choiceIndex == answers[index] then
+                    button.BackgroundColor3 = Color3.fromRGB(150, 70, 58)
+                end
+            end
+        end
+
+        bodyText(string.format("%d. %s", index, result.Explanation or ""), Enum.Font.Gotham, 13, result.Correct and Color3.fromRGB(176, 220, 184) or Color3.fromRGB(240, 196, 170), 100 + index)
+    end
+
+    submitButton.Text = string.format("%d / %d correct  ·  +%d XP", payload.Correct or 0, payload.Total or 0, payload.XPAwarded or 0)
+end)
+
+closeButton.Activated:Connect(function()
+    results.Visible = false
+    currentResult = nil
+end)
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="LocalScript" referent="64">
         <Properties>
           <string name="Name">ProgressHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -18256,7 +22319,7 @@ requestProfile:FireServer()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="60">
+      <Item class="LocalScript" referent="65">
         <Properties>
           <string name="Name">ResponsiveUi</string>
           <string name="Source"><![CDATA[--!strict
@@ -18282,6 +22345,7 @@ local TARGETS: { [string]: { Recenter: boolean } } = {
     StoryHud = { Recenter = false },
     LearningTrailHud = { Recenter = false },
     BattleHud = { Recenter = false },
+    MissionHud = { Recenter = false },
 }
 
 type Original = { AnchorPoint: Vector2, Position: UDim2 }
@@ -18398,7 +22462,7 @@ playerGui.ChildAdded:Connect(watch)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="61">
+      <Item class="LocalScript" referent="66">
         <Properties>
           <string name="Name">ShopMenu</string>
           <string name="Source"><![CDATA[--!strict
@@ -18869,7 +22933,7 @@ requestShopState:FireServer()
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="62">
+      <Item class="LocalScript" referent="67">
         <Properties>
           <string name="Name">StoryHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -19065,7 +23129,7 @@ end)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="63">
+      <Item class="LocalScript" referent="68">
         <Properties>
           <string name="Name">StudyCircleHud</string>
           <string name="Source"><![CDATA[--!strict
@@ -19300,7 +23364,7 @@ player:GetAttributeChangedSignal("InStory"):Connect(hideIfBusy)
 ]]></string>
         </Properties>
       </Item>
-      <Item class="LocalScript" referent="64">
+      <Item class="LocalScript" referent="69">
         <Properties>
           <string name="Name">TriviaHud</string>
           <string name="Source"><![CDATA[--!strict
