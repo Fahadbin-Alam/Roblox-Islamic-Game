@@ -75,15 +75,19 @@ function MissionRules.StarBonus(previousBest: number, stars: number): number
     return math.max(0, stars - math.max(0, previousBest)) * MissionRules.StarBonusXP
 end
 
--- Grades reflection answers. `answers[i]` is the chosen index for question i.
-function MissionRules.GradeReflection(mission: any, answers: any)
+-- Grades reflection answers. `answers[i]` is the chosen index for question i. `keys` is the
+-- server-only answer table (ServerScriptService/Modules/ReflectionAnswers.lua), keyed by
+-- question Id; the mission data the client can read has no answers.
+function MissionRules.GradeReflection(mission: any, answers: any, keys: { [string]: { Answer: number, Explanation: string } })
     local results = {}
     local correct = 0
     local questions = mission.Reflection or {}
 
     for index, question in ipairs(questions) do
+        local key = keys[question.Id]
+        assert(key ~= nil, string.format("No reflection answer for %s", tostring(question.Id)))
         local chosen = type(answers) == "table" and answers[index] or nil
-        local isCorrect = type(chosen) == "number" and chosen == question.Answer
+        local isCorrect = type(chosen) == "number" and chosen == key.Answer
 
         if isCorrect then
             correct += 1
@@ -92,8 +96,8 @@ function MissionRules.GradeReflection(mission: any, answers: any)
         table.insert(results, {
             Id = question.Id,
             Correct = isCorrect,
-            Answer = question.Answer,
-            Explanation = question.Explanation,
+            Answer = key.Answer,
+            Explanation = key.Explanation,
         })
     end
 
