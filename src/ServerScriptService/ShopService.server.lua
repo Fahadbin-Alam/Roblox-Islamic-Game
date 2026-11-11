@@ -1,8 +1,13 @@
 --!strict
 
+-- Shop, battle skins, ultimate charges and Robux purchases. The monetization profile
+-- (equipped skin, ultimate charges, tokens, support points) is saved through SessionStore,
+-- and a developer product is only reported to Roblox as granted after the grant is saved.
+
 local CollectionService = game:GetService("CollectionService")
 local DataStoreService = game:GetService("DataStoreService")
 local Debris = game:GetService("Debris")
+local HttpService = game:GetService("HttpService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,6 +18,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ShopCatalog = require(Shared.Data.ShopCatalog)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
+local SessionStore = require(script.Parent.Modules.SessionStore)
 
 local shopFolder = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Shop")
 local requestShopState = shopFolder:WaitForChild("RequestShopState") :: RemoteEvent
@@ -32,13 +38,41 @@ if not grantCurrency then
 end
 
 local profileStore = DataStoreService:GetDataStore("PlayerMonetization_v1")
-local receiptStore = DataStoreService:GetDataStore("ProcessedReceipts_v1")
+local sessionStore = SessionStore.new(profileStore :: any, {
+    JobId = game.JobId,
+    Now = os.time,
+    Wait = function(seconds: number)
+        task.wait(seconds)
+    end,
+    NewId = function()
+        return HttpService:GenerateGUID(false)
+    end,
+    Log = function(message: string)
+        warn("[ShopService] " .. message)
+    end,
+})
 
-local playerProfiles: { [Player]: { EquippedSkin: string, UltimateCharges: number, KnowledgeTokens: number, SupportPoints: number } } = {}
+type ShopProfile = {
+    EquippedSkin: string,
+    UltimateCharges: number,
+    KnowledgeTokens: number,
+    SupportPoints: number,
+    -- Recent developer-product PurchaseIds already granted, saved in the same record as the
+    -- grant itself, so a receipt Roblox retries can never be granted twice or lost.
+    PurchaseIds: { string },
+}
+
+local playerProfiles: { [Player]: ShopProfile } = {}
 local playerPassOwnership: { [Player]: { [string]: boolean } } = {}
 local ultimateCooldowns: { [Player]: number } = {}
-local unsavedProfiles: { [Player]: boolean } = {}
+-- Open DataStore sessions. A player without one (the load failed) keeps a working default
+-- profile that is never saved, so an outage cannot wipe their real data.
+local sessions: { [Player]: any } = {}
+local loading: { [Player]: boolean } = {}
+local closingCount = 0
 local COMBATANT_TAG = "BattleCombatant"
+local MAX_REMEMBERED_PURCHASES = 100
+local LOCK_REFRESH_SECONDS = 10 * 60
 
 local gamePassByKey = {}
 local gamePassByProductId = {}
@@ -61,21 +95,23 @@ for _, item in ipairs(ShopCatalog.DeveloperProducts) do
     end
 end
 
-local function buildDefaultProfile()
+local function buildDefaultProfile(): ShopProfile
     return {
         EquippedSkin = "default",
         UltimateCharges = 0,
         KnowledgeTokens = 0,
         SupportPoints = 0,
+        PurchaseIds = {},
     }
 end
 
-local function cloneProfile(source)
+local function cloneProfile(source: ShopProfile)
     return {
         EquippedSkin = source.EquippedSkin,
         UltimateCharges = source.UltimateCharges,
         KnowledgeTokens = source.KnowledgeTokens,
         SupportPoints = source.SupportPoints,
+        PurchaseIds = table.clone(source.PurchaseIds),
     }
 end
 
@@ -127,11 +163,17 @@ local function sanitizeEquippedSkin(player: Player, profile, ownedPasses: { [str
 end
 
 local function applyPlayerAttributes(player: Player)
-    local profile = playerProfiles[player] or buildDefaultProfile()
+    local profile = playerProfiles[player]
+
+    -- Not loaded yet: loadProfile applies the attributes when it finishes. Creating a blank
+    -- profile here would make the shop look loaded before it is.
+    if not profile then
+        return
+    end
+
     local ownedPasses = playerPassOwnership[player] or {}
 
     sanitizeEquippedSkin(player, profile, ownedPasses)
-    playerProfiles[player] = profile
 
     player:SetAttribute("EquippedBattleSkin", profile.EquippedSkin)
     player:SetAttribute("UltimateCharges", profile.UltimateCharges)
@@ -140,27 +182,28 @@ local function applyPlayerAttributes(player: Player)
     player:SetAttribute("HasFounderSupport", ownedPasses.founder_support == true)
 end
 
-local function saveProfile(player: Player)
+-- Saves now and yields until the DataStore answers. Returns true when the data is stored.
+local function saveProfileNow(player: Player): boolean
     local profile = playerProfiles[player]
+    local session = sessions[player]
 
     -- A profile that failed to load is a blank default; saving it would wipe the player's real data.
-    if not profile or unsavedProfiles[player] then
-        return
+    if not profile or not session then
+        return false
     end
 
-    local profileCopy = cloneProfile(profile)
-    local userId = player.UserId
-    local playerName = player.Name
+    local saved = session:Save(cloneProfile(profile))
 
-    task.spawn(function()
-        local success, errorMessage = pcall(function()
-            profileStore:SetAsync(string.format("player_%d", userId), profileCopy)
-        end)
+    if not saved then
+        warn(string.format("[ShopService] Failed to save profile for %s%s", player.Name, if session.Lost then " (open in another server)" else ""))
+    end
 
-        if not success then
-            warn(string.format("[ShopService] Failed to save profile for %s: %s", playerName, tostring(errorMessage)))
-        end
-    end)
+    return saved
+end
+
+-- Saves in the background. SessionStore queues saves per player, so they land in order.
+local function saveProfile(player: Player)
+    task.spawn(saveProfileNow, player)
 end
 
 local function refreshPassOwnership(player: Player)
@@ -216,26 +259,30 @@ local function sendShopState(player: Player, statusText: string?)
     })
 end
 
+local function closeSession(player: Player, session: any, data: ShopProfile)
+    closingCount += 1
+    local saved = session:Close(cloneProfile(data))
+    closingCount -= 1
+
+    if not saved and not session.Lost then
+        warn(string.format("[ShopService] Final save failed for %s", player.Name))
+    end
+end
+
 local function loadProfile(player: Player)
-    local profile = buildDefaultProfile()
-
-    local success, storedProfile
-
-    for attempt = 1, 3 do
-        success, storedProfile = pcall(function()
-            return profileStore:GetAsync(string.format("player_%d", player.UserId))
-        end)
-
-        if success then
-            break
-        end
-
-        task.wait(attempt)
+    -- PlayerAdded and the client's first RequestShopState both arrive while the load is
+    -- still waiting on the DataStore; only one load may run, or the second would replace a
+    -- profile that may already hold a new purchase.
+    if loading[player] or playerProfiles[player] then
+        return
     end
 
-    unsavedProfiles[player] = not success or nil
+    loading[player] = true
+    local profile = buildDefaultProfile()
+    local session, storedProfile = sessionStore:Open(string.format("player_%d", player.UserId), { player.UserId })
+    loading[player] = nil
 
-    if success and type(storedProfile) == "table" then
+    if session and type(storedProfile) == "table" then
         if type(storedProfile.EquippedSkin) == "string" then
             profile.EquippedSkin = storedProfile.EquippedSkin
         end
@@ -251,38 +298,79 @@ local function loadProfile(player: Player)
         if type(storedProfile.SupportPoints) == "number" then
             profile.SupportPoints = storedProfile.SupportPoints
         end
-    elseif not success then
-        warn(string.format("[ShopService] Failed to load profile for %s: %s", player.Name, tostring(storedProfile)))
+
+        if type(storedProfile.PurchaseIds) == "table" then
+            for _, purchaseId in ipairs(storedProfile.PurchaseIds) do
+                if type(purchaseId) == "string" then
+                    table.insert(profile.PurchaseIds, purchaseId)
+                end
+            end
+        end
+    elseif not session then
+        warn(string.format("[ShopService] Failed to load profile for %s; purchases are paused for this visit", player.Name))
     end
 
+    if not player.Parent then
+        -- Left while loading: write back what was loaded and release the lock.
+        if session then
+            closeSession(player, session, profile)
+        end
+
+        return
+    end
+
+    sessions[player] = session
     playerProfiles[player] = profile
     refreshPassOwnership(player)
     sendShopState(player, "Shop ready.")
 end
 
-local function grantDeveloperProduct(player: Player, product)
-    local profile = playerProfiles[player]
+local function applyGrants(profile: ShopProfile, product, sign: number)
+    local grants = product.Grants
 
-    if not profile then
+    if not grants then
+        return
+    end
+
+    profile.UltimateCharges += sign * (grants.UltimateCharges or 0)
+    profile.KnowledgeTokens += sign * (grants.KnowledgeTokens or 0)
+    profile.SupportPoints += sign * (grants.SupportPoints or 0)
+end
+
+-- Grants a developer product and returns true only once the grant (and its PurchaseId) is
+-- saved. On a failed save the grant is undone, so Roblox's retry of the receipt grants it
+-- for real instead of the player losing it when they leave.
+local function grantDeveloperProduct(player: Player, product, purchaseId: string): boolean
+    local profile = playerProfiles[player]
+    local session = sessions[player]
+
+    if not profile or not session or session.Lost then
         return false
     end
 
-    if product.Grants then
-        if product.Grants.UltimateCharges then
-            profile.UltimateCharges += product.Grants.UltimateCharges
+    if table.find(profile.PurchaseIds, purchaseId) then
+        return true
+    end
+
+    applyGrants(profile, product, 1)
+    table.insert(profile.PurchaseIds, purchaseId)
+
+    while #profile.PurchaseIds > MAX_REMEMBERED_PURCHASES do
+        table.remove(profile.PurchaseIds, 1)
+    end
+
+    if not saveProfileNow(player) then
+        applyGrants(profile, product, -1)
+        local index = table.find(profile.PurchaseIds, purchaseId)
+
+        if index then
+            table.remove(profile.PurchaseIds, index)
         end
 
-        if product.Grants.KnowledgeTokens then
-            profile.KnowledgeTokens += product.Grants.KnowledgeTokens
-        end
-
-        if product.Grants.SupportPoints then
-            profile.SupportPoints += product.Grants.SupportPoints
-        end
+        return false
     end
 
     applyPlayerAttributes(player)
-    saveProfile(player)
     sendShopState(player, string.format("%s granted.", product.DisplayName))
     sendFeedback(player, string.format("Purchase complete: %s", product.DisplayName), "success")
 
@@ -450,6 +538,7 @@ end
 
 requestShopState.OnServerEvent:Connect(function(player: Player)
     if not playerProfiles[player] then
+        -- Still loading (the state is sent when it finishes) or the first load never ran.
         loadProfile(player)
         return
     end
@@ -505,47 +594,15 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
 
     local player = Players:GetPlayerByUserId(receiptInfo.PlayerId)
 
-    if not player then
+    -- Not in this server, or their data is not loaded and saveable: Roblox retries the
+    -- receipt later (including when they next join), so nothing is lost by waiting.
+    if not player or not playerProfiles[player] or not sessions[player] then
         return Enum.ProductPurchaseDecision.NotProcessedYet
     end
 
-    local receiptKey = string.format("receipt_%s", tostring(receiptInfo.PurchaseId))
-    local alreadyProcessed = false
-
-    local success, errorMessage = pcall(function()
-        receiptStore:UpdateAsync(receiptKey, function(existing)
-            if existing then
-                alreadyProcessed = true
-                return existing
-            end
-
-            return {
-                ProductId = receiptInfo.ProductId,
-                PlayerId = receiptInfo.PlayerId,
-                ProcessedAt = os.time(),
-            }
-        end)
-    end)
-
-    if not success then
-        warn(string.format("[ShopService] Failed to lock receipt %s: %s", tostring(receiptInfo.PurchaseId), tostring(errorMessage)))
-        return Enum.ProductPurchaseDecision.NotProcessedYet
-    end
-
-    if alreadyProcessed then
+    if grantDeveloperProduct(player, item, tostring(receiptInfo.PurchaseId)) then
         return Enum.ProductPurchaseDecision.PurchaseGranted
     end
-
-    local granted = grantDeveloperProduct(player, item)
-
-    if granted then
-        return Enum.ProductPurchaseDecision.PurchaseGranted
-    end
-
-    -- Release the lock so Roblox's retry of this receipt can still grant the purchase.
-    pcall(function()
-        receiptStore:RemoveAsync(receiptKey)
-    end)
 
     return Enum.ProductPurchaseDecision.NotProcessedYet
 end
@@ -560,13 +617,21 @@ Players.PlayerAdded:Connect(function(player)
     loadProfile(player)
 end)
 
-Players.PlayerRemoving:Connect(function(player)
-    saveProfile(player)
+local function releasePlayer(player: Player)
+    local profile = playerProfiles[player]
+    local session = sessions[player]
+
     playerProfiles[player] = nil
+    sessions[player] = nil
     playerPassOwnership[player] = nil
     ultimateCooldowns[player] = nil
-    unsavedProfiles[player] = nil
-end)
+
+    if profile and session and not session.Lost then
+        closeSession(player, session, profile)
+    end
+end
+
+Players.PlayerRemoving:Connect(releasePlayer)
 
 for _, player in ipairs(Players:GetPlayers()) do
     task.spawn(function()
@@ -575,10 +640,28 @@ for _, player in ipairs(Players:GetPlayers()) do
 end
 
 game:BindToClose(function()
-    for _, player in ipairs(Players:GetPlayers()) do
-        saveProfile(player)
+    for player in pairs(playerProfiles) do
+        task.spawn(releasePlayer, player)
     end
 
-    -- saveProfile writes on its own threads; give them time to finish before shutdown.
-    task.wait(3)
+    -- Wait for every final save in flight, including those PlayerRemoving started.
+    local deadline = os.clock() + 25
+
+    while closingCount > 0 and os.clock() < deadline do
+        task.wait(0.1)
+    end
+end)
+
+-- Shop data only saves when it changes, so refresh the session lock now and then; a lock
+-- that is never refreshed would look like a crashed server to the player's next server.
+task.spawn(function()
+    while true do
+        task.wait(60)
+
+        for player, session in pairs(sessions) do
+            if not session.Lost and os.time() - session.LastSavedAt >= LOCK_REFRESH_SECONDS then
+                saveProfile(player)
+            end
+        end
+    end
 end)
