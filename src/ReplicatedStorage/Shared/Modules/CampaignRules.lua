@@ -194,4 +194,15 @@ function CampaignRules.Answer(run: Run, optionIndex: number): (boolean, string?)
     return false, nil
 end
 
+-- Where item `index` of a Collect chapter lies, as an offset from the site's arrival point.
+-- Items ring the site at two distances; on mountain ledges they stay close to the cave.
+function CampaignRules.ItemOffset(chapter: SeerahCampaign.Chapter, index: number, onLedge: boolean): Vector3
+    local count = (chapter.Activity and chapter.Activity.Count) or 1
+    local angle = (index - 1) * (2 * math.pi / count) + chapter.Number * 0.7
+    local near, far = if onLedge then 10 else 24, if onLedge then 18 else 44
+    local radius = if index % 2 == 0 then far else near
+
+    return Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
+end
+
 return CampaignRules

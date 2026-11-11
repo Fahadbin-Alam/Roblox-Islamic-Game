@@ -10,6 +10,7 @@ local HaramLearningTrail = require(Shared.Data.HaramLearningTrail)
 local MannersLessons = require(Shared.Data.MannersLessons)
 local TravelRoute = require(Shared.Data.TravelRoute)
 local BuildUtils = require(script.Parent.Modules.BuildUtils)
+local ParkourCourses = require(Shared.Data.ParkourCourses)
 local MasjidAlHaram = require(script.Parent.Modules.MasjidAlHaram)
 
 local MECCA_STONE = Color3.fromRGB(196, 186, 168)
@@ -802,46 +803,44 @@ end
 
 local function buildParkourCourse(parent: Instance, center: Vector3)
     local district = BuildUtils.CreateFolder(parent, "ParkourCourse")
+    local course = ParkourCourses.LobbyTower
 
     BuildUtils.CreatePart(district, "BaseDeck", Vector3.new(160, 4, 100), CFrame.new(center + Vector3.new(0, 2, 0)), Color3.fromRGB(220, 210, 193), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "TowerCore", Vector3.new(28, 132, 28), CFrame.new(center + Vector3.new(0, 66, 0)), MECCA_DARK, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "TowerTop", Vector3.new(54, 4, 54), CFrame.new(center + Vector3.new(0, 134, 0)), Color3.fromRGB(237, 232, 221), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "TowerCore", course.CoreSize, CFrame.new(center + Vector3.new(0, 4 + course.CoreSize.Y / 2, 0)), MECCA_DARK, Enum.Material.Marble, nil, nil)
+    BuildUtils.CreateVerticalCylinder(district, "TowerTop", course.SummitThickness, course.SummitRadius, center + Vector3.new(0, course.SummitHeight - course.SummitThickness / 2, 0), Color3.fromRGB(237, 232, 221), Enum.Material.Marble, nil)
 
-    local platformOffsets = {
-        Vector3.new(-34, 14, 0),
-        Vector3.new(28, 24, -16),
-        Vector3.new(-18, 34, -38),
-        Vector3.new(38, 44, 6),
-        Vector3.new(-36, 56, 24),
-        Vector3.new(20, 68, 38),
-        Vector3.new(-8, 80, -42),
-        Vector3.new(42, 92, -12),
-        Vector3.new(-40, 104, 8),
-        Vector3.new(0, 118, 44),
-    }
+    -- A spiral of steps around the core (see Shared/Data/ParkourCourses; the unit tests check
+    -- every jump is possible with default movement). Checkpoint steps are gold.
+    local checkpointPlatforms = {}
 
-    for index, offset in ipairs(platformOffsets) do
+    for _, checkpoint in ipairs(course.Checkpoints) do
+        checkpointPlatforms[checkpoint.Offset] = true
+    end
+
+    for index, platform in ipairs(course.Platforms) do
+        local isCheckpoint = checkpointPlatforms[platform.Offset] == true
+        local color = if isCheckpoint then Color3.fromRGB(214, 178, 99) elseif index % 4 == 0 then Color3.fromRGB(150, 120, 86) elseif index % 2 == 0 then Color3.fromRGB(198, 181, 149) else Color3.fromRGB(232, 224, 209)
         BuildUtils.CreatePart(
             district,
             string.format("Platform_%d", index),
-            Vector3.new(18, 2, 18),
-            CFrame.new(center + offset),
-            (index % 2 == 0) and Color3.fromRGB(198, 181, 149) or Color3.fromRGB(232, 224, 209),
+            platform.Size,
+            CFrame.new(center + platform.Offset - Vector3.new(0, platform.Size.Y / 2, 0)) * CFrame.Angles(0, math.rad(platform.Yaw), 0),
+            color,
             Enum.Material.Marble,
             nil,
             nil
         )
     end
 
-    BuildUtils.CreatePart(district, "StartPad", Vector3.new(24, 2, 24), CFrame.new(center + Vector3.new(-58, 6, 0)), Color3.fromRGB(94, 128, 88), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "FinishPad", Vector3.new(24, 2, 24), CFrame.new(center + Vector3.new(0, 138, 0)), Color3.fromRGB(182, 152, 84), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "StartPad", course.StartSize, CFrame.new(center + course.StartOffset - Vector3.new(0, course.StartSize.Y / 2, 0)), Color3.fromRGB(94, 128, 88), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "FinishPad", Vector3.new(12, 0.4, 12), CFrame.new(center + Vector3.new(0, course.SummitHeight + 0.2, 0)), Color3.fromRGB(182, 152, 84), Enum.Material.Marble, nil, nil).CanCollide = false
     createWallPanel(
         district,
         "ParkourSign",
-        center + Vector3.new(-44, 0, -34),
+        center + Vector3.new(-62, 0, -34),
         Vector3.new(52, 11, 2.5),
         "Lobby Parkour",
-        "Climb the tower while you wait for battles, stories, or friends.",
+        "Step on the green pad to start the timer. Gold steps are checkpoints: fall and you return to the last one.",
         Color3.fromRGB(63, 94, 66),
         90,
         nil
@@ -849,16 +848,16 @@ local function buildParkourCourse(parent: Instance, center: Vector3)
     createWallPanel(
         district,
         "SummitSign",
-        center + Vector3.new(0, 132, 18),
-        Vector3.new(44, 10, 2.5),
+        center + Vector3.new(0, course.SummitHeight, 12),
+        Vector3.new(30, 8, 2),
         "Summit",
         "The top gives you a wide view over Makkah, the desert route, and Medina.",
         GOLD_ACCENT,
         180,
         nil
     )
-createLightPost(district, "ParkourLightWest", center + Vector3.new(-62, 0, 32))
-createLightPost(district, "ParkourLightEast", center + Vector3.new(62, 0, 32))
+    createLightPost(district, "ParkourLightWest", center + Vector3.new(-62, 0, 32))
+    createLightPost(district, "ParkourLightEast", center + Vector3.new(62, 0, 32))
 end
 
 local function createTrailPulse(parent: Instance, name: string, position: Vector3, phase: number)

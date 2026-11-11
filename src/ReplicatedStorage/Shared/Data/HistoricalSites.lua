@@ -104,8 +104,24 @@ for _, entry in ipairs(zones) do
     zoneById[entry.Id] = entry
 end
 
+-- Height of the cave ledge on Mountain sites.
+local MOUNTAIN_LEDGE = 36
+
+-- Where a player must stand to begin a chapter at this site: the cave ledge on mountains,
+-- the ground in front of everything else.
+local function arrivalPoint(entry: Site): Vector3
+    if entry.Kind == "Mountain" then
+        return entry.Position + Vector3.new(0, 4 + MOUNTAIN_LEDGE, 0)
+    end
+
+    return entry.Position + Vector3.new(0, 4, 0)
+end
+
 return {
     FolderName = "HistoricalWorld",
+    GroundTop = 4,
+    MountainLedge = MOUNTAIN_LEDGE,
+    ArrivalPoint = arrivalPoint,
     Zones = zones,
     Sites = sites,
     GetSite = function(id: string): Site?

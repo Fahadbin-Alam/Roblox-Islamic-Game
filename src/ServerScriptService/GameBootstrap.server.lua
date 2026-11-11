@@ -99,6 +99,13 @@ ensureRemoteEvent(shopFolder, "UseUltimate")
 ensureRemoteEvent(shopFolder, "ShopState")
 ensureRemoteEvent(shopFolder, "PurchaseFeedback")
 
+-- Systems added for the Seerah campaign, mysteries, activities, social tools, and support.
+for _, name in ipairs({ "Campaign", "Mystery", "Parkour", "Coop", "Pvp", "Social", "Support" }) do
+    local folder = ensureFolder(remotesFolder, name)
+    ensureRemoteEvent(folder, "Request")
+    ensureRemoteEvent(folder, "State")
+end
+
 print(string.format(
     "[GameBootstrap] %s loaded with %d stories, %d Islamic Studies units, %d battle scenarios, %d travel landmarks, and %d premium products.",
     content.Config.GameName,

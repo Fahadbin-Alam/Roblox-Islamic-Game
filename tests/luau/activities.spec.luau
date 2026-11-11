@@ -102,3 +102,73 @@ test("new activities are saved categories with rewards, badges, and reachable pa
     end
     assert(ids.seerah_complete and ids.mystery_all and ids.coop_trials and ids.pvp_match, "new badges exist")
 end)
+
+test("every jump on the parkour tower is possible with default Roblox movement", function()
+    local ParkourCourses = load("Data/ParkourCourses")
+    local course = ParkourCourses.LobbyTower
+    local gravity = 196.2
+    local launch = math.sqrt(2 * gravity * ParkourCourses.Movement.JumpHeight)
+    local speed = ParkourCourses.Movement.WalkSpeed
+
+    -- Longest horizontal distance covered while still above `rise` studs.
+    local function reach(rise)
+        local disc = launch * launch - 2 * gravity * rise
+        assert(disc > 0, "rise " .. rise .. " is above jump height")
+        return speed * (launch + math.sqrt(disc)) / gravity
+    end
+
+    -- Edge-to-edge distance between two platforms on the spiral, measured along the spiral
+    -- (platforms are 10 long along it).
+    local function flat(a, b)
+        return math.sqrt((a.X - b.X) ^ 2 + (a.Z - b.Z) ^ 2)
+    end
+
+    local steps = {}
+    table.insert(steps, { From = course.StartOffset, To = course.Platforms[1].Offset, HalfFrom = course.StartSize.X / 2, HalfTo = 5, Label = "start -> 1" })
+
+    for index = 2, #course.Platforms do
+        table.insert(steps, { From = course.Platforms[index - 1].Offset, To = course.Platforms[index].Offset, HalfFrom = 5, HalfTo = 5, Label = (index - 1) .. " -> " .. index })
+    end
+
+    local last = course.Platforms[#course.Platforms]
+
+    for _, step in ipairs(steps) do
+        local rise = step.To.Y - step.From.Y
+        local gap = flat(step.From, step.To) - step.HalfFrom - step.HalfTo
+        assert(rise <= 5, step.Label .. " rises " .. rise)
+        assert(gap <= reach(math.max(rise, 0)) - 1, string.format("%s gap %.1f is too far for a %.1f rise", step.Label, gap, rise))
+    end
+
+    -- Last step onto the round summit: inner edge of the platform to the summit's rim.
+    local rise = course.SummitHeight - last.Offset.Y
+    local gap = course.Radius - last.Size.X / 2 - course.SummitRadius
+    assert(gap >= 0 and gap <= reach(rise) - 1, string.format("summit gap %.1f for rise %.1f", gap, rise))
+
+    -- No platform sits under the summit deck, where a player would hit their head.
+    for index, platform in ipairs(course.Platforms) do
+        local inner = course.Radius - platform.Size.X / 2
+        assert(inner > course.SummitRadius or platform.Offset.Y < course.SummitHeight - course.SummitThickness - 12, "platform " .. index .. " is under the summit")
+    end
+
+    expectEqual(course.Checkpoints[#course.Checkpoints].Name, "Summit", "finish is the summit")
+end)
+
+test("retention counts new players, returns, and D1/D7/D30 correctly", function()
+    local Retention = load("Modules/Retention")
+    local new = Retention.Fields(nil, nil, 100)
+    expectEqual(new.Joins, 1, "a join is counted")
+    expectEqual(new.NewPlayers, 1, "first visit is a new player")
+    expectEqual(new.ReturningPlayers, nil, "a new player is not returning")
+
+    local sameDay = Retention.Fields(100, 100, 100)
+    expectEqual(sameDay.ReturningPlayers, nil, "a second join the same day is not a return")
+
+    expectEqual(Retention.Fields(100, 100, 101).D1Returns, 1, "next day is D1")
+    expectEqual(Retention.Fields(100, 103, 107).D7Returns, 1, "seventh day is D7")
+    expectEqual(Retention.Fields(100, 120, 130).D30Returns, 1, "thirtieth day is D30")
+
+    local later = Retention.Fields(100, 101, 105)
+    expectEqual(later.ReturningPlayers, 1, "any later day is a return")
+    expectEqual(later.D1Returns, nil, "day 5 is not D1")
+    expectEqual(later.D7Returns, nil, "day 5 is not D7")
+end)

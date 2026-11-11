@@ -154,6 +154,7 @@ local BattleScenarios = {
             Lines = {
                 "Badr took place on 17 Ramadan, 2 AH / 624 CE and became a major victory for the early Muslim community.",
                 "The battle strengthened morale and marked a turning point in the public standing of the community.",
+                "How it ended: the Quraysh line broke and they fled back to Makkah. About 70 of them were killed, including Abu Jahl, and about 70 were taken captive; 14 Muslims were martyred (Ibn Hisham; Sahih al-Bukhari 3976).",
                 "The lessons: preparation, standing firm, unity, gratitude after victory, and mercy toward captives.",
             },
         },
@@ -346,6 +347,7 @@ local BattleScenarios = {
             Lines = {
                 "Qur'an 3:121, 3:152, and 3:153 frame Uhud through placement, early success, disobedience, confusion, and the cost of a broken position.",
                 "Sunan Abi Dawud 2662 preserves the command to the archers, while Sahih Muslim 1789 and 1790a preserve the pressure, wounds, and rescue of the late battle.",
+                "How it ended: the Muslims regrouped on the slope of the mountain and the Quraysh withdrew to Makkah without taking Madinah. About 70 Muslims were martyred, including Hamzah; the next day the Muslims marched out to Hamra al-Asad to show they were still standing (Ibn Hisham; Sahih al-Bukhari 4043, 4077).",
                 "The lesson of Uhud is obedience: one broken position changed the day, and patience after pain is what the Qur'an praises.",
             },
         },
