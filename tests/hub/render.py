@@ -5,8 +5,9 @@
     python3 tests/hub/render.py parts.txt out.png --eye 0,60,260 --at 0,30,0 [--night]
 
 It reads the PART| lines from tests/hub/dump.luau and draws every block, cylinder, ball and
-wedge with a z-buffer, flat sun shading and fog. It is a rough preview of shapes, scale and
-colour, not a match for Roblox lighting or materials.
+wedge with a z-buffer, sun shading with cast shadows, simple procedural material patterns
+(brick courses, planks, sand grain, stone) and fog. It is a preview of shapes, scale and colour;
+Roblox's own lighting, real material textures, SurfaceGui text and avatars are not drawn.
 """
 import argparse
 import math
@@ -32,6 +33,7 @@ def parse(path):
                 "alpha": 1.0 - nums[18],
                 "shape": f[21],
                 "glow": f[22] == "1",
+                "material": f[23] if len(f) > 23 else "Plastic",
             })
     return parts
 
@@ -84,6 +86,91 @@ def faces_for(part):
         yield (face * size) @ part["rot"].T + part["pos"]
 
 
+MATERIAL_KIND = {
+    "Brick": "brick", "Sandstone": "brick", "Limestone": "block", "Cobblestone": "block",
+    "Pavement": "block", "Marble": "marble", "Granite": "stone", "Slate": "stone", "Rock": "stone",
+    "Basalt": "stone", "Concrete": "grain", "Sand": "grain", "Ground": "grain", "Mud": "grain",
+    "Fabric": "cloth", "Wood": "wood", "WoodPlanks": "planks", "Grass": "leaf", "LeafyGrass": "leaf",
+    "Metal": "metal", "DiamondPlate": "metal", "CorrodedMetal": "metal",
+}
+
+
+def hash3(ix, iy, iz):
+    h = (ix * 73856093) ^ (iy * 19349663) ^ (iz * 83492791)
+    h = (h ^ (h >> 13)) * 1274126177
+    return ((h ^ (h >> 16)) & 0xFFFF) / 65535.0
+
+
+def material_shade(kind, pos, normal):
+    """Brightness multipliers (n,) for world positions (n,3) of one material kind."""
+    x, y, z = pos[:, 0], pos[:, 1], pos[:, 2]
+    horizontal = np.abs(normal[:, 1]) > 0.7
+    along = np.where(np.abs(normal[:, 0]) > np.abs(normal[:, 2]), z, x)
+    ones = np.ones(len(pos))
+
+    def noise(scale):
+        ix = np.floor(x * scale).astype(np.int64)
+        iy = np.floor(y * scale).astype(np.int64)
+        iz = np.floor(z * scale).astype(np.int64)
+        h = (ix * 73856093) ^ (iy * 19349663) ^ (iz * 83492791)
+        h = (h ^ (h >> 13)) * 1274126177
+        return ((h ^ (h >> 16)) & 0xFFFF) / 65535.0
+
+    if kind == "brick":
+        row = np.floor(y / 1.1)
+        offset = (row % 2) * 1.1
+        mortar_y = (y % 1.1) < 0.12
+        mortar_x = ((along + offset) % 2.2) < 0.12
+        m = np.where(horizontal, ones * (0.95 + 0.08 * noise(0.5)), np.where(mortar_y | mortar_x, 0.8, 0.94 + 0.1 * noise(0.45)))
+        return m
+    if kind == "block":
+        row = np.floor(y / 2.0)
+        offset = (row % 2) * 2.0
+        joint = ((y % 2.0) < 0.1) | (((along + offset) % 4.0) < 0.1)
+        return np.where(horizontal, 0.95 + 0.08 * noise(0.25), np.where(joint, 0.85, 0.95 + 0.07 * noise(0.5)))
+    if kind == "planks":
+        coord = np.where(horizontal, x, y)
+        return np.where((coord % 1.0) < 0.08, 0.78, 0.92 + 0.12 * noise(0.7))
+    if kind == "wood":
+        return 0.9 + 0.12 * noise(1.5)
+    if kind == "grain":
+        return 0.93 + 0.09 * noise(1.3) + 0.04 * noise(0.11)
+    if kind == "stone":
+        return 0.82 + 0.16 * noise(0.35) + 0.06 * noise(1.6)
+    if kind == "marble":
+        return 0.96 + 0.05 * noise(0.2) + 0.03 * noise(1.0)
+    if kind == "cloth":
+        return 0.93 + 0.07 * noise(2.5)
+    if kind == "leaf":
+        return 0.82 + 0.25 * noise(1.1)
+    if kind == "metal":
+        return 0.95 + 0.06 * noise(0.8)
+    return ones
+
+
+def raster(poly2, depth_vals, width, height, callback):
+    """Rasterizes a convex polygon given in pixel space; calls callback(y0, x0, mask, depth, w)."""
+    for k in range(1, len(poly2) - 1):
+        tri = [0, k, k + 1]
+        x, y = poly2[tri, 0], poly2[tri, 1]
+        x0, x1 = max(int(math.floor(x.min())), 0), min(int(math.ceil(x.max())), width - 1)
+        y0, y1 = max(int(math.floor(y.min())), 0), min(int(math.ceil(y.max())), height - 1)
+        if x0 > x1 or y0 > y1:
+            continue
+        area = (x[1] - x[0]) * (y[2] - y[0]) - (x[2] - x[0]) * (y[1] - y[0])
+        if abs(area) < 1e-9:
+            continue
+        gx, gy = np.meshgrid(np.arange(x0, x1 + 1) + 0.5, np.arange(y0, y1 + 1) + 0.5)
+        w0 = ((x[1] - gx) * (y[2] - gy) - (x[2] - gx) * (y[1] - gy)) / area
+        w1 = ((x[2] - gx) * (y[0] - gy) - (x[0] - gx) * (y[2] - gy)) / area
+        w2 = 1 - w0 - w1
+        inside = (w0 >= -1e-6) & (w1 >= -1e-6) & (w2 >= -1e-6)
+        if not inside.any():
+            continue
+        d = depth_vals[tri]
+        callback(y0, x0, inside, w0 * d[0] + w1 * d[1] + w2 * d[2])
+
+
 def render(parts, eye, at, width, height, fov, night, out):
     eye, at = np.array(eye, float), np.array(at, float)
     forward = at - eye
@@ -94,14 +181,19 @@ def render(parts, eye, at, width, height, fov, night, out):
     focal = (height / 2) / math.tan(math.radians(fov) / 2)
     near = 0.5
 
-    sky_top = np.array([0.05, 0.07, 0.16] if night else [0.45, 0.62, 0.86])
-    sky_low = np.array([0.16, 0.18, 0.3] if night else [0.86, 0.84, 0.78])
+    sky_top = np.array([0.05, 0.07, 0.16] if night else [0.38, 0.58, 0.86])
+    sky_low = np.array([0.16, 0.18, 0.3] if night else [0.86, 0.85, 0.8])
     rows = np.linspace(0, 1, height)[:, None, None]
     image = sky_top * (1 - rows) + sky_low * rows
     image = np.repeat(image, width, axis=1)
     zbuf = np.full((height, width), np.inf)
     ids = np.full((height, width), -1)
-    sun = np.array([0.35, 0.8, 0.45])
+    base_buf = np.zeros((height, width, 3))
+    normal_buf = np.zeros((height, width, 3))
+    flags = np.zeros((height, width), dtype=np.int16)  # material kind index; -1 glow
+    kinds = ["plain"] + sorted(set(MATERIAL_KIND.values()))
+    kind_index = {k: i for i, k in enumerate(kinds)}
+    sun = np.array([0.42, 0.78, 0.46])
     sun /= np.linalg.norm(sun)
     fog_color = sky_low
     fog_far = 2600.0 if night else 4200.0
@@ -122,76 +214,130 @@ def render(parts, eye, at, width, height, fov, night, out):
                 out_poly.append(a + (b - a) * t)
         return out_poly
 
-    transparent = []
-
-    def draw(poly_view, color, alpha, pid=-1):
+    def project(poly_view):
         pts = clip(list(poly_view))
         if len(pts) < 3:
-            return
+            return None, None
         pts = np.array(pts)
         sx = width / 2 + focal * pts[:, 0] / pts[:, 2]
         sy = height / 2 - focal * pts[:, 1] / pts[:, 2]
-        invz = 1.0 / pts[:, 2]
-        for k in range(1, len(pts) - 1):
-            tri = [0, k, k + 1]
-            x, y, iz = sx[tri], sy[tri], invz[tri]
-            x0, x1 = max(int(math.floor(x.min())), 0), min(int(math.ceil(x.max())), width - 1)
-            y0, y1 = max(int(math.floor(y.min())), 0), min(int(math.ceil(y.max())), height - 1)
-            if x0 > x1 or y0 > y1:
-                continue
-            area = (x[1] - x[0]) * (y[2] - y[0]) - (x[2] - x[0]) * (y[1] - y[0])
-            if abs(area) < 1e-9:
-                continue
-            gx, gy = np.meshgrid(np.arange(x0, x1 + 1) + 0.5, np.arange(y0, y1 + 1) + 0.5)
-            w0 = ((x[1] - gx) * (y[2] - gy) - (x[2] - gx) * (y[1] - gy)) / area
-            w1 = ((x[2] - gx) * (y[0] - gy) - (x[0] - gx) * (y[2] - gy)) / area
-            w2 = 1 - w0 - w1
-            inside = (w0 >= -1e-6) & (w1 >= -1e-6) & (w2 >= -1e-6)
-            if not inside.any():
-                continue
-            depth = 1.0 / (w0 * iz[0] + w1 * iz[1] + w2 * iz[2])
-            region = zbuf[y0:y1 + 1, x0:x1 + 1]
-            mask = inside & (depth < region)
-            if not mask.any():
-                continue
-            fog = np.clip(depth / fog_far, 0, 1)[..., None] ** 1.3
-            shaded = color[None, None, :] * (1 - fog) + fog_color[None, None, :] * fog
-            target = image[y0:y1 + 1, x0:x1 + 1]
-            if alpha >= 0.999:
-                target[mask] = shaded[mask]
-                region[mask] = depth[mask]
-                ids[y0:y1 + 1, x0:x1 + 1][mask] = pid
-            else:
-                target[mask] = target[mask] * (1 - alpha) + shaded[mask] * alpha
+        return np.stack([sx, sy], axis=1), 1.0 / pts[:, 2]
+
+    opaque_faces = []
+    transparent = []
 
     for pid, part in enumerate(parts):
         if part["alpha"] < 0.02:
             continue
+        kind = -1 if part["glow"] else kind_index[MATERIAL_KIND.get(part["material"], "plain")]
         for face in faces_for(part):
             normal = np.cross(face[1] - face[0], face[2] - face[0])
             norm = np.linalg.norm(normal)
             if norm < 1e-9:
                 continue
             normal /= norm
+            if part["alpha"] >= 0.999:
+                opaque_faces.append(face)
             if np.dot(normal, face[0] - eye) >= 0:
                 continue  # back face
-            base = part["color"]
-            if part["glow"]:
-                lit = np.clip(base * 1.25 + 0.15, 0, 1)
-            elif night:
-                lit = base * (0.32 + 0.18 * max(np.dot(normal, sun), 0)) + np.array([0.02, 0.025, 0.05])
-            else:
-                lit = base * (0.5 + 0.55 * max(np.dot(normal, sun), 0))
-            lit = np.clip(lit, 0, 1)
-            view = to_view(face)
             if part["alpha"] < 0.999:
-                transparent.append((view, lit, part["alpha"]))
-            else:
-                draw(view, lit, 1.0, pid)
+                transparent.append((face, normal, part["color"], part["alpha"]))
+                continue
+            poly2, invz = project(to_view(face))
+            if poly2 is None:
+                continue
 
-    transparent.sort(key=lambda item: -item[0][:, 2].mean())
-    for view, lit, alpha in transparent:
-        draw(view, lit, alpha)
+            def write(y0, x0, inside, iz, pid=pid, normal=normal, color=part["color"], kind=kind):
+                depth = 1.0 / iz
+                h, w = inside.shape
+                region = zbuf[y0:y0 + h, x0:x0 + w]
+                mask = inside & (depth < region)
+                if not mask.any():
+                    return
+                region[mask] = depth[mask]
+                ids[y0:y0 + h, x0:x0 + w][mask] = pid
+                base_buf[y0:y0 + h, x0:x0 + w][mask] = color
+                normal_buf[y0:y0 + h, x0:x0 + w][mask] = normal
+                flags[y0:y0 + h, x0:x0 + w][mask] = kind
+
+            raster(poly2, invz, width, height, write)
+
+    hit = np.isfinite(zbuf)
+    py, px = np.nonzero(hit)
+    z = zbuf[py, px]
+    vx = (px + 0.5 - width / 2) * z / focal
+    vy = -(py + 0.5 - height / 2) * z / focal
+    world = eye + np.outer(vx, right) + np.outer(vy, up) + np.outer(z, forward)
+    normals = normal_buf[py, px]
+    base = base_buf[py, px]
+    kind_of = flags[py, px]
+
+    # Shadow map: orthographic depth along the sun direction, covering the visible pixels.
+    lr = np.cross(sun, [0, 0, 1.0])
+    lr /= np.linalg.norm(lr)
+    lu = np.cross(lr, sun)
+    shadow = np.ones(len(world))
+    if len(world) and not night:
+        su, sv = world @ lr, world @ lu
+        margin = 40.0
+        u0, u1, v0, v1 = su.min() - margin, su.max() + margin, sv.min() - margin, sv.max() + margin
+        res = 2048
+        scale = res / max(u1 - u0, v1 - v0, 1.0)
+        smap = np.full((res, res), -np.inf)
+        for face in opaque_faces:
+            fu, fv = (face @ lr - u0) * scale, (face @ lu - v0) * scale
+            if fu.max() < 0 or fv.max() < 0 or fu.min() >= res or fv.min() >= res:
+                continue
+            fd = face @ sun
+
+            def write_shadow(y0, x0, inside, d):
+                h, w = inside.shape
+                region = smap[y0:y0 + h, x0:x0 + w]
+                mask = inside & (d > region)
+                region[mask] = d[mask]
+
+            raster(np.stack([fu, fv], axis=1), fd, res, res, write_shadow)
+        iu = np.clip(((su - u0) * scale).astype(int), 0, res - 1)
+        iv = np.clip(((sv - v0) * scale).astype(int), 0, res - 1)
+        bias = 0.35 + 1.2 / scale
+        lit_depth = world @ sun
+        shadow = np.where(lit_depth < smap[iv, iu] - bias, 0.0, 1.0)
+
+    ndl = np.clip(normals @ sun, 0, 1)
+    sky = 0.5 + 0.5 * np.clip(normals[:, 1], -1, 1)
+    if night:
+        light = 0.3 + 0.15 * ndl
+        tint = np.array([0.02, 0.025, 0.05])
+    else:
+        light = 0.34 + 0.2 * sky + 0.62 * ndl * shadow
+        tint = np.zeros(3)
+    pattern = np.ones(len(world))
+    for name, index in kind_index.items():
+        sel = kind_of == index
+        if sel.any() and name != "plain":
+            pattern[sel] = material_shade(name, world[sel], normals[sel])
+    color = base * (light * pattern)[:, None] + tint
+    glow = kind_of == -1
+    color[glow] = np.clip(base[glow] * 1.25 + 0.15, 0, 1)
+    fog = (np.clip(z / fog_far, 0, 1) ** 1.3)[:, None]
+    color = np.clip(color, 0, 1) * (1 - fog) + fog_color * fog
+    image[py, px] = color
+
+    transparent.sort(key=lambda item: -np.linalg.norm(item[0].mean(axis=0) - eye))
+    for face, normal, base_color, alpha in transparent:
+        poly2, invz = project(to_view(face))
+        if poly2 is None:
+            continue
+        lit = np.clip(base_color * (0.55 + 0.5 * max(np.dot(normal, sun), 0)), 0, 1)
+
+        def blend(y0, x0, inside, iz, lit=lit, alpha=alpha):
+            depth = 1.0 / iz
+            h, w = inside.shape
+            mask = inside & (depth < zbuf[y0:y0 + h, x0:x0 + w])
+            target = image[y0:y0 + h, x0:x0 + w]
+            target[mask] = target[mask] * (1 - alpha) + lit * alpha
+
+        raster(poly2, invz, width, height, blend)
 
     Image.fromarray((np.clip(image, 0, 1) * 255).astype(np.uint8)).save(out)
     return ids

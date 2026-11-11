@@ -33,7 +33,7 @@ local function stats(root)
 end
 
 local zones = {
-    { Name = HistoricalSites.FolderName, Budget = 6000 },
+    { Name = HistoricalSites.FolderName, Budget = 15000 },
     { Name = "MysteryWing", Budget = 2500 },
     { Name = "CoopTrials", Budget = 400 },
     { Name = "TrainingGrounds", Budget = 600 },
@@ -97,6 +97,58 @@ if historical then
         end
     end
     zcheck(#badItems == 0, "every collect chapter has its items with prompts" .. (#badItems > 0 and (": " .. table.concat(badItems, ", ")) or ""))
+
+    -- Dense towns must not wall off any place a player has to stand: every arrival point,
+    -- travel point and campaign item must be free of colliding parts at body height.
+    local solids = {}
+    for _, part in ipairs(historical:GetDescendants()) do
+        if part:IsA("BasePart") and part.CanCollide and part.Transparency < 1 and part.Name ~= "Ground" then
+            table.insert(solids, part)
+        end
+    end
+
+    local function blockedBy(point)
+        for _, part in ipairs(solids) do
+            local localPoint = part.CFrame:PointToObjectSpace(point)
+            local h = part.Size / 2
+            if math.abs(localPoint.X) < h.X + 1 and math.abs(localPoint.Y) < h.Y and math.abs(localPoint.Z) < h.Z + 1 then
+                return part
+            end
+        end
+        return nil
+    end
+
+    local blocked = {}
+    local function probe(label, point)
+        for _, lift in ipairs({ 1.5, 3.5 }) do
+            local hit = blockedBy(point + Vector3.new(0, lift, 0))
+            if hit then
+                table.insert(blocked, string.format("%s (%s)", label, hit:GetFullName()))
+                return
+            end
+        end
+    end
+
+    for _, site in ipairs(HistoricalSites.Sites) do
+        local arrival = HistoricalSites.ArrivalPoint(site)
+        probe(site.Id .. " arrival", arrival)
+        if site.Kind ~= "Mountain" then
+            probe(site.Id .. " travel point", arrival + Vector3.new(0, 0, -42))
+        end
+    end
+
+    if items then
+        for _, folder in ipairs(items:GetChildren()) do
+            for _, item in ipairs(folder:GetChildren()) do
+                if item:IsA("BasePart") then
+                    probe(folder.Name .. "/" .. item.Name, item.Position - Vector3.new(0, 1.2, 0))
+                end
+            end
+        end
+    end
+
+    zcheck(#blocked == 0, "every arrival point, travel point and campaign item is free of walls" .. (#blocked > 0 and (": " .. table.concat(blocked, "; ")) or ""))
+    zcheck((historical:GetAttribute("MakkahHouses") or 0) >= 40 and (historical:GetAttribute("MadinahHouses") or 0) >= 25, string.format("historical towns are dense (Makkah %s houses, Madinah %s)", tostring(historical:GetAttribute("MakkahHouses")), tostring(historical:GetAttribute("MadinahHouses"))))
 end
 
 local wing = Workspace:FindFirstChild("MysteryWing")
@@ -118,6 +170,15 @@ if wing then
     end
     zcheck(#missing == 0, "every mystery room has its clues and a locked door" .. (#missing > 0 and (": " .. table.concat(missing, ", ")) or ""))
 end
+
+-- A part built with a nil colour errors on a real server, so every part must have one.
+local uncoloured = {}
+for _, part in ipairs(Workspace:GetDescendants()) do
+    if part:IsA("BasePart") and part.Color == nil and #uncoloured < 5 then
+        table.insert(uncoloured, part:GetFullName())
+    end
+end
+zcheck(#uncoloured == 0, "every part has a colour" .. (#uncoloured > 0 and (": " .. table.concat(uncoloured, ", ")) or ""))
 
 if zoneFailures > 0 then
     error(string.format("%d zone check(s) failed", zoneFailures))

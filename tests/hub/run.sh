@@ -3,7 +3,7 @@
 # zone builders (historical towns, mystery wing, co-op trials, training grounds) inside a mock
 # Roblox engine and checks the result: it builds without errors, stays inside a part budget,
 # keeps the arrival spawn clear, and places the landmarks the learning trail talks about.
-# Usage: tests/hub/run.sh [path-to-luau-binary] [--dump]
+# Usage: tests/hub/run.sh [path-to-luau-binary] [--dump | --dump-all]
 #   --dump prints every part as a PART| line instead (feed it to tests/hub/render.py).
 set -euo pipefail
 
@@ -47,7 +47,8 @@ register() {
         echo "end"
     done
 
-    if [ "$mode" = "--dump" ]; then
+    if [ "$mode" = "--dump" ] || [ "$mode" = "--dump-all" ]; then
+        [ "$mode" = "--dump-all" ] && echo "DUMP_ALL = true"
         cat "$root/tests/hub/dump.luau"
     else
         cat "$root/tests/hub/checks.luau"
