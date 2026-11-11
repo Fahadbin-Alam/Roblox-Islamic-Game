@@ -10,7 +10,7 @@ the automated checks below. Everything that needs a live server is listed under 
 | Check | Command | Result |
 |---|---|---|
 | Unit tests (rules and data) | `tests/luau/run.sh <luau>` | 46 passed, 0 failed |
-| Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 87 checks passed (about 2 minutes) |
+| Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 90 checks passed (about 2 minutes) |
 | Battle arenas in a mock engine | `tests/world/run.sh <luau>` | 181 passed, 0 failed |
 | Multiplayer simulation (real server scripts, simulated players) | `tests/sim/run.sh <luau>` | 44 passed, 0 failed |
 | Client scripts against the real server | `tests/client/run.sh <luau>` | 6 passed: all 22 client scripts load, 160+ button presses and real campaign/PvP/mystery state raise no errors |
@@ -70,6 +70,7 @@ Bugs the visual pass (docs/visual-benchmark.md) found with new checks and fixed:
 7. The Badr and Uhud gates and the Journey road sat inside decorative rock ridges, so a player arriving there saw only rock.
 8. Walking routes: a ring post stood on the path in from the Training Grounds gate, a palm trunk in front of the mystery landing, and every mystery room sign directly in front of its doorway.
 9. Every Seerah site sign stood across the walk from the travel point to the chapter ring, and a stall blocked the way into both markets.
+10. The battle arenas share the Workspace with the hub, and the hub had built into them: the Uhud gate, a hotel tower and the edge of the Haram deck stood inside the Badr battlefield, and a backdrop mountain and a ridge inside Uhud. The Uhud gate now stands south of the Badr gate, and a check keeps hub scenery out of both arenas.
 
 What the simulation does **not** prove: real network replication between two Roblox clients,
 physics (walking, jumping, collisions), animation, and how the controls feel. Those still need

@@ -35,7 +35,7 @@ register() {
     # Run the day/night service at 22:00 so the checks can see night mode.
     echo 'game:GetService("Lighting").ClockTime = 22'
 
-    for name in GameBootstrap HubWorldBuilder HaramTimeService HistoricalWorldBuilder MysteryService CoopTrialsService PvpArenaService; do
+    for name in GameBootstrap HubWorldBuilder HaramTimeService HistoricalWorldBuilder MysteryService CoopTrialsService PvpArenaService BattleArenaBuilder; do
         file="$root/src/ServerScriptService/$name.server.lua"
         [ -f "$file" ] || continue
         echo "do"

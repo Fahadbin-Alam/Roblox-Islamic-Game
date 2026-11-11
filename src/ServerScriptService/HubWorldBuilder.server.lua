@@ -393,7 +393,7 @@ local function createWorldBackdrop(parent: Instance, center: Vector3)
         { Name = "FarNorthWest", Position = center + Vector3.new(-1560, 0, -1180), Length = 560, Height = 196, Depth = 194, Yaw = 16, Color = DESERT_ROCK },
         { Name = "FarNorth", Position = center + Vector3.new(0, 0, -1990), Length = 760, Height = 228, Depth = 186, Yaw = -2, Color = Color3.fromRGB(142, 114, 83) },
         { Name = "FarNorthEast", Position = center + Vector3.new(1120, 0, -1160), Length = 560, Height = 192, Depth = 190, Yaw = -16, Color = DESERT_ROCK },
-        { Name = "FarWest", Position = center + Vector3.new(-1320, 0, 260), Length = 470, Height = 182, Depth = 214, Yaw = 26, Color = Color3.fromRGB(136, 108, 79) },
+        { Name = "FarWest", Position = center + Vector3.new(-1900, 0, 260), Length = 470, Height = 182, Depth = 214, Yaw = 26, Color = Color3.fromRGB(136, 108, 79) },
         { Name = "FarEast", Position = center + Vector3.new(1320, 0, 260), Length = 470, Height = 182, Depth = 214, Yaw = -24, Color = Color3.fromRGB(140, 112, 81) },
         { Name = "FarSouthWest", Position = center + Vector3.new(-1080, 0, 1290), Length = 540, Height = 184, Depth = 166, Yaw = 18, Color = DESERT_ROCK },
         { Name = "FarSouth", Position = center + Vector3.new(0, 0, 1360), Length = 760, Height = 208, Depth = 154, Yaw = 0, Color = Color3.fromRGB(146, 118, 86) },
@@ -1107,7 +1107,8 @@ local function buildKaabaHub(parent: Instance, center: Vector3)
     local district = BuildUtils.CreateFolder(parent, "KaabaHub")
 
     BuildUtils.CreatePart(district, "SafetyPlate", Vector3.new(1760, 12, 1760), CFrame.new(center + Vector3.new(0, -10, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
-    BuildUtils.CreatePart(district, "ExpansionDeck", Vector3.new(1600, 4, 1600), CFrame.new(center + Vector3.new(0, 1.5, 0)), Color3.fromRGB(207, 196, 176), Enum.Material.Marble, nil, nil)
+    -- Its west edge stops short of the Badr battlefield (which starts at x = -770).
+    BuildUtils.CreatePart(district, "ExpansionDeck", Vector3.new(1560, 4, 1600), CFrame.new(center + Vector3.new(20, 1.5, 0)), Color3.fromRGB(207, 196, 176), Enum.Material.Marble, nil, nil)
     BuildUtils.CreatePart(district, "StonePlaza", Vector3.new(1420, 4, 1420), CFrame.new(center + Vector3.new(0, 2.3, 0)), Color3.fromRGB(228, 223, 212), Enum.Material.Marble, nil, nil)
     BuildUtils.CreatePart(district, "OuterWalk", Vector3.new(1010, 1, 1010), CFrame.new(center + Vector3.new(0, 4.85, 0)), MECCA_MARBLE, Enum.Material.Marble, nil, nil)
     BuildUtils.CreatePart(district, "SouthPlaza", Vector3.new(560, 1, 300), CFrame.new(center + Vector3.new(0, 4.86, -600)), Color3.fromRGB(236, 233, 226), Enum.Material.Marble, nil, nil)
@@ -1118,7 +1119,8 @@ local function buildKaabaHub(parent: Instance, center: Vector3)
     -- Hotels around the sanctuary; the Abraj Al-Bait complex itself is built by MasjidAlHaram.
     BuildUtils.CreateModernTower(district, "MakkahTowerWest", center + Vector3.new(-560, 0, -844), Vector2.new(72, 54), 224, Color3.fromRGB(210, 201, 186), GLASS_TINT)
     BuildUtils.CreateModernTower(district, "MakkahTowerEast", center + Vector3.new(560, 0, -844), Vector2.new(72, 54), 224, Color3.fromRGB(210, 201, 186), GLASS_TINT)
-    BuildUtils.CreateModernTower(district, "MakkahHotelSouthWest", center + Vector3.new(-812, 0, 676), Vector2.new(78, 60), 198, Color3.fromRGB(215, 208, 194), GLASS_TINT)
+    -- Kept east of the Badr battlefield.
+    BuildUtils.CreateModernTower(district, "MakkahHotelSouthWest", center + Vector3.new(-700, 0, 690), Vector2.new(78, 60), 198, Color3.fromRGB(215, 208, 194), GLASS_TINT)
     BuildUtils.CreateModernTower(district, "MakkahHotelSouthEast", center + Vector3.new(812, 0, 676), Vector2.new(78, 60), 198, Color3.fromRGB(215, 208, 194), GLASS_TINT)
     BuildUtils.CreateModernTower(district, "MakkahHotelNorthWest", center + Vector3.new(-836, 0, -542), Vector2.new(74, 56), 208, Color3.fromRGB(214, 207, 193), GLASS_TINT)
     BuildUtils.CreateModernTower(district, "MakkahHotelNorthEast", center + Vector3.new(836, 0, -542), Vector2.new(74, 56), 208, Color3.fromRGB(214, 207, 193), GLASS_TINT)
@@ -1467,13 +1469,14 @@ createPromenadePath(geometryFolder, "MannersPromenade", meccaCenter + Vector3.ne
 createPromenadePath(geometryFolder, "ParkourPromenade", meccaCenter + Vector3.new(-714, 0, 220), parkourCenter + Vector3.new(122, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
 createPromenadePath(geometryFolder, "SupportPromenade", meccaCenter + Vector3.new(714, 0, -560), supportCenter + Vector3.new(-84, 0, 0), 54, Color3.fromRGB(199, 184, 156), Color3.fromRGB(128, 109, 82))
 createPromenadePath(geometryFolder, "BadrGatePromenade", meccaCenter + Vector3.new(-714, 0, -560), badrGateCenter + Vector3.new(98, 0, 0), 62, Color3.fromRGB(191, 171, 136), Color3.fromRGB(118, 96, 70))
-createPromenadePath(geometryFolder, "UhudGatePromenade", meccaCenter + Vector3.new(-714, 0, 520), uhudGateCenter + Vector3.new(98, 0, 0), 62, Color3.fromRGB(191, 171, 136), Color3.fromRGB(118, 96, 70))
+createPromenadePath(geometryFolder, "UhudGatePromenade", meccaCenter + Vector3.new(-714, 0, -860), uhudGateCenter + Vector3.new(98, 0, 0), 62, Color3.fromRGB(191, 171, 136), Color3.fromRGB(118, 96, 70))
 createPromenadePath(geometryFolder, "JourneyPromenade", meccaCenter + Vector3.new(0, 0, 714), desertCenter + Vector3.new(0, 0, -152), 70, Color3.fromRGB(202, 187, 159), Color3.fromRGB(128, 109, 82))
 -- The north ridge and apron of the Makkah band would sit on the Abraj Al-Bait site, the two
 -- west ridges on the Badr and Uhud gates, and the south ridge and apron across the Journey road.
 createDistrictTerrainBand(geometryFolder, "MeccaWorld", meccaCenter, 980, 940, DESERT_ROCK, { NorthFrame = true, Apron_3 = true, WestNorthFrame = true, WestSouthFrame = true, SouthFrame = true, Apron_4 = true })
--- Its north ridge would sit across the Journey road beside the reflection site.
-createDistrictTerrainBand(geometryFolder, "MedinaWorld", medinaCenter, 640, 540, Color3.fromRGB(133, 110, 84), { NorthFrame = true })
+-- Its north ridge would sit across the Journey road beside the reflection site, and its
+-- north-west ridge inside the Uhud battlefield.
+createDistrictTerrainBand(geometryFolder, "MedinaWorld", medinaCenter, 640, 540, Color3.fromRGB(133, 110, 84), { NorthFrame = true, WestNorthFrame = true })
 -- Its northern ridges would land inside Masjid al-Haram and its south ridge in the Medina courtyard.
 createDistrictTerrainBand(geometryFolder, "JourneyWorld", desertCenter, 520, 720, Color3.fromRGB(141, 114, 84), { NorthFrame = true, SouthFrame = true, WestNorthFrame = true, EastNorthFrame = true, Apron_3 = true, Apron_4 = true })
 createWorldBackdrop(geometryFolder, Vector3.new(0, 0, 720))

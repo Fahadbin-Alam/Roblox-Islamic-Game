@@ -404,6 +404,49 @@ if historical then
     end
 end
 
+-- The Badr and Uhud battle arenas share the Workspace with the hub, so no visible hub part may
+-- stand inside an arena's play space (its floor footprint, from the floor up to 80 studs).
+do
+    local arenas = Workspace:FindFirstChild("GeneratedBattles")
+    local hub = Workspace:FindFirstChild("GeneratedHub")
+    local function aabb(part)
+        local cf, size = part.CFrame, part.Size
+        local r = cf.RightVector * size.X / 2
+        local u = cf.UpVector * size.Y / 2
+        local b = cf.LookVector * size.Z / 2
+        local ext = Vector3.new(math.abs(r.X) + math.abs(u.X) + math.abs(b.X), math.abs(r.Y) + math.abs(u.Y) + math.abs(b.Y), math.abs(r.Z) + math.abs(u.Z) + math.abs(b.Z))
+        return cf.Position - ext, cf.Position + ext
+    end
+    zcheck(arenas ~= nil and #arenas:GetChildren() >= 2, "both battle arenas are built")
+    if arenas and hub then
+        for _, arena in ipairs(arenas:GetChildren()) do
+            local floor = arena:FindFirstChild("BaseFloor", true)
+            if floor then
+                local lo, hi = aabb(floor)
+                hi = Vector3.new(hi.X, hi.Y + 80, hi.Z)
+                lo = Vector3.new(lo.X, hi.Y - 80 + 0.2, lo.Z)
+                local intruders, seen = {}, {}
+                for _, part in ipairs(hub:GetDescendants()) do
+                    if part:IsA("BasePart") and part.Transparency < 0.5 then
+                        local plo, phi = aabb(part)
+                        if plo.X < hi.X and phi.X > lo.X and plo.Y < hi.Y and phi.Y > lo.Y and plo.Z < hi.Z and phi.Z > lo.Z then
+                            local top = part
+                            while top.Parent and top.Parent ~= hub and top.Parent.Parent ~= hub do
+                                top = top.Parent
+                            end
+                            if not seen[top.Name] and #intruders < 8 then
+                                seen[top.Name] = true
+                                table.insert(intruders, top.Name)
+                            end
+                        end
+                    end
+                end
+                zcheck(#intruders == 0, string.format("no hub scenery inside the %s arena", arena.Name) .. (#intruders > 0 and (": " .. table.concat(intruders, ", ")) or ""))
+            end
+        end
+    end
+end
+
 if zoneFailures > 0 then
     error(string.format("%d zone check(s) failed", zoneFailures))
 end

@@ -78,8 +78,9 @@ local destinations = {
         DisplayName = "Uhud Gate",
         Description = "The battle gate and staging point for the Battle of Uhud scenario.",
         Theme = "BattleGate",
-        Position = Vector3.new(-1090, 4, 520),
-        TeleportPosition = Vector3.new(-1090, 4, 580),
+        -- South of the Badr gate: the old spot (z = 520) was inside the Badr battlefield.
+        Position = Vector3.new(-1090, 4, -860),
+        TeleportPosition = Vector3.new(-1090, 4, -800),
         AccentColor = Color3.fromRGB(114, 92, 71),
     },
     {

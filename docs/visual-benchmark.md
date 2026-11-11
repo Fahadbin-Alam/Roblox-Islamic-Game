@@ -51,6 +51,7 @@ New tests found and fixed real bugs during this pass:
 - **Tent build would fail.** A tent cushion was built with no colour. On a real server that raises an error and stops the site from building. A new check now confirms every part has a colour.
 - **Players arriving in the dark.** A new check found that 11 of the 15 travel destinations had no light within 70 studs, and most Seerah sites had none within 30. All are now lit, and both checks run in CI.
 - **Battle gates buried in rock.** A new check found that the Badr and Uhud gates and the Journey road sat inside the hub's decorative rock ridges, which do not collide, so players walked through them and saw only rock. Those ridges are removed or moved, and the gates are dressed with battlements, banners, fire bowls and palms.
+- **Hub scenery inside the battlefields.** The Uhud gate, a hotel tower and the Haram deck edge stood inside the Badr arena, and a backdrop mountain inside Uhud. The Uhud gate moved south of the Badr gate and a check now keeps the arenas clear.
 - **Present-day Madinah arrival and route.** Arriving players landed inside the solid portico, and the visitation route was blocked. New checks: every travel destination lands in open space, players can walk from the Madinah arrival into the hall, and the route from Bab as-Salam is open.
 
 ## Cost
