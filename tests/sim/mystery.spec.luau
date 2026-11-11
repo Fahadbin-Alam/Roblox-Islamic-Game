@@ -112,3 +112,68 @@ test("a finished room resets for the next group", function()
     expectEqual(state(hana).LockOpen, false, "the lock is shut again")
     expectEqual(#state(hana).Found, 0, "clues are back in place")
 end)
+
+-- The other four rooms, each solved start to finish by a new pair through the same service.
+for number = 2, #SahabiMysteries.Mysteries do
+    local other = SahabiMysteries.Mysteries[number]
+    test(string.format("room %d (%s) can be solved start to finish", number, other.Id), function()
+        local otherRoom = Workspace.MysteryWing:FindFirstChild(other.Id)
+        expectTrue(otherRoom ~= nil, "the room is built")
+        local a = sim.addPlayer(9700 + number * 2, "Solver" .. number .. "A")
+        local b = sim.addPlayer(9701 + number * 2, "Solver" .. number .. "B")
+        sim.advance(0.5)
+
+        local function roomPrompts(action)
+            local list = {}
+            for _, item in ipairs(otherRoom:GetDescendants()) do
+                if item.ClassName == "ProximityPrompt" and item:GetAttribute("PromptAction") == action then
+                    table.insert(list, item)
+                end
+            end
+            table.sort(list, function(x, y)
+                return tostring(x:GetAttribute("StationIndex") or x:GetAttribute("ClueId")) < tostring(y:GetAttribute("StationIndex") or y:GetAttribute("ClueId"))
+            end)
+            return list
+        end
+
+        sim.fireServer(a, "Mystery/Request", "Teleport", other.Id)
+        sim.fireServer(b, "Mystery/Request", "Teleport", other.Id)
+        local door = otherRoom:FindFirstChild("LockDoor", true)
+        sim.place(a, door.Position + Vector3.new(0, -3, -10), door.Position)
+        sim.place(b, door.Position + Vector3.new(4, -3, -10), door.Position)
+        sim.advance(1)
+        expectEqual(sim.last(a, "Mystery/State").MysteryId, other.Id, "the pair is in the room")
+
+        local clues = roomPrompts("MysteryClue")
+        expectEqual(#clues, #other.Clues, "every clue has a prompt")
+        for index, prompt in ipairs(clues) do
+            local who = if index % 2 == 0 then b else a
+            sim.place(who, prompt.Parent.Position + Vector3.new(3, 1, 0), prompt.Parent.Position)
+            prompt.Triggered._fire(who)
+        end
+        expectEqual(#sim.last(b, "Mystery/State").Found, #other.Clues, "every clue is found")
+
+        local right = {}
+        for index, question in ipairs(other.Lock) do
+            right[index] = question.CorrectIndex
+        end
+        sim.fireServer(a, "Mystery/Request", "Lock", right)
+        expectEqual(sim.last(b, "Mystery/State").LockOpen, true, "the lock opens")
+
+        local stations = roomPrompts("MysteryStation")
+        expectEqual(#stations, #other.Episode.Stations, "every station has a prompt")
+        for index, prompt in ipairs(stations) do
+            local who = if index % 2 == 0 then b else a
+            sim.place(who, prompt.Parent.Position + Vector3.new(3, 1, 0), prompt.Parent.Position)
+            prompt.Triggered._fire(who)
+            sim.advance(0.5)
+        end
+        for _, player in ipairs({ a, b }) do
+            expectTrue(PlayerProgress.HasCompleted(player, "mystery", other.Id), player.Name .. " solved " .. other.Id)
+            expectEqual(PlayerProgress.GetStat(player, "MysteryStars_" .. other.Id), 3, player.Name .. " gets 3 stars with no hints")
+        end
+        sim.removePlayer(a)
+        sim.removePlayer(b)
+        sim.advance(1)
+    end)
+end

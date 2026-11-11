@@ -12,7 +12,7 @@ the automated checks below. Everything that needs a live server is listed under 
 | Unit tests (rules and data) | `tests/luau/run.sh <luau>` | 46 passed, 0 failed |
 | Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 77 checks passed (about 80 s) |
 | Battle arenas in a mock engine | `tests/world/run.sh <luau>` | 181 passed, 0 failed |
-| Multiplayer simulation (real server scripts, simulated players) | `tests/sim/run.sh <luau>` | 40 passed, 0 failed |
+| Multiplayer simulation (real server scripts, simulated players) | `tests/sim/run.sh <luau>` | 44 passed, 0 failed |
 | Client scripts against the real server | `tests/client/run.sh <luau>` | 6 passed: all 22 client scripts load, 160+ button presses and real campaign/PvP/mystery state raise no errors |
 | Static analysis against the Roblox API | `tests/analyze.sh ...` | no syntax errors, unknown globals or broken requires |
 | Place file builds | `rojo build default.project.json -o build.rbxlx` | builds |
@@ -48,7 +48,7 @@ trigger the same prompts. It checks:
 - **Seerah campaign:** a locked chapter cannot start; **all 30 chapters were played in order**
   (travel, walk to the site, story, items from close range only, battle result, wrong then right
   answer, explanation, saved); the checklist shows 30/30; replaying does not pay out twice.
-- **Mystery (2 players):** shared room, clues found by either player count for both, shared
+- **Mystery (2 players):** all five rooms solved start to finish by simulated pairs; in Bilal's room also a shared room, clues found by either player count for both, shared
   hint, wrong lock answer, episode locked until the door opens, steps in order, both credited
   with stars, room resets for the next group.
 
@@ -80,7 +80,7 @@ a Studio or live test.
 | 1 | Badr and Uhud battles | Arena ground, lanes and spawns (world tests); stars, steadfast goal, reflection grading and replay rules (missions.spec); story summary now says how each battle ended | Control feel, combat pacing and fun |
 | 2 | Multiplayer PvP | Match rules with 2 and 3 players (activities.spec); two simulated players play a full match and rematch through the real server scripts and sword tool (sim/pvp.spec) | **Two real Roblox clients over the network** |
 | 3 | Seerah campaign | 30 chapters in order, all sourced, unlock order; all 30 played end to end through the real service (sim/campaign.spec) | Reading and walking it as a person |
-| 4 | Sahabi mysteries | Rules (mysteries.spec); two simulated players solve Bilal's room through the real service (sim/mystery.spec) | The other four rooms played by people |
+| 4 | Sahabi mysteries | Rules (mysteries.spec); simulated pairs solve all five rooms through the real service (sim/mystery.spec) | All five rooms played by people |
 | 5 | Parkour and co-op | Every jump possible with default movement; simulated climb and two-player co-op run through the real services (sim/parkour, sim/coop) | Control feel and physics |
 | 6 | Respectful storytelling | Every mention of the Prophet carries ﷺ and no model or voice exists for him; faces stripped from guides and townspeople; each chapter separates gameplay from history | Scholar review of the content (see `docs/sources.md`) |
 | 7 | Present-day vs historical | Every activity zone is more than 2,600 studs from the hub and no two zones overlap | Visual review in Studio |
