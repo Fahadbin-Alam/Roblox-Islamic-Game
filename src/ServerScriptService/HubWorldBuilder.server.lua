@@ -683,7 +683,36 @@ local function dressCourt(district: Instance, center: Vector3, width: number, de
 
         Decor.Deco(dress, "ColonnadeBeam", Vector3.new(4, 2, zTo - zFrom + 4), CFrame.new(center + Vector3.new(x, 22, (zFrom + zTo) / 2)), Color3.fromRGB(206, 195, 171), Enum.Material.Marble)
         Decor.Deco(dress, "ColonnadeShade", Vector3.new(16, 0.3, zTo - zFrom), CFrame.new(center + Vector3.new(x - side * 8, 21, (zFrom + zTo) / 2)) * CFrame.Angles(0, 0, math.rad(side * 10)), Color3.fromRGB(244, 240, 228), Enum.Material.Fabric)
+
+        -- Seating under the colonnade: rugs with cushions, and a lantern at each end.
+        for index, z in ipairs({ backZ + 30, (backZ + depth / 2) / 2 + 10 }) do
+            local rugAt = center + Vector3.new(x - side * 9, 5.1, z)
+            Decor.Rug(dress, "CourtRug", CFrame.new(rugAt), 8, 14, index + (if side < 0 then 0 else 4))
+            for cushion = -1, 1, 2 do
+                Decor.Deco(dress, "Cushion", Vector3.new(2.2, 1, 3), CFrame.new(rugAt + Vector3.new(side * 3, 0.6, cushion * 4)), accent, Enum.Material.Fabric)
+            end
+        end
+        Decor.LanternPost(dress, "CourtLantern", center + Vector3.new(x - side * 4, 5, depth / 2 - 14), 10)
     end
+
+    -- Floor inlay: a border band and an eight-pointed star in the middle of the court.
+    local inlayY = 5.12
+    local inner = Vector3.new(width - 44, 0, depth - 46)
+    local band = Color3.fromRGB(196, 184, 160)
+    for _, edge in ipairs({
+        { Size = Vector3.new(inner.X, 0.12, 1.6), Offset = Vector3.new(0, 0, inner.Z / 2) },
+        { Size = Vector3.new(inner.X, 0.12, 1.6), Offset = Vector3.new(0, 0, -inner.Z / 2) },
+        { Size = Vector3.new(1.6, 0.12, inner.Z), Offset = Vector3.new(inner.X / 2, 0, 0) },
+        { Size = Vector3.new(1.6, 0.12, inner.Z), Offset = Vector3.new(-inner.X / 2, 0, 0) },
+    }) do
+        Decor.Deco(dress, "InlayBorder", edge.Size, CFrame.new(center + edge.Offset + Vector3.new(0, inlayY, (backZ + depth / 2) / 2 - 0)), band, Enum.Material.Marble)
+    end
+    local starAt = center + Vector3.new(0, inlayY, (backZ + depth / 2) / 2)
+    for turn = 0, 1 do
+        Decor.Deco(dress, "InlayStar", Vector3.new(22, 0.14, 22), CFrame.new(starAt) * CFrame.Angles(0, math.rad(45 * turn), 0), band, Enum.Material.Marble)
+        Decor.Deco(dress, "InlayStarCore", Vector3.new(15, 0.16, 15), CFrame.new(starAt) * CFrame.Angles(0, math.rad(45 * turn), 0), accent, Enum.Material.Marble)
+    end
+    Decor.Deco(dress, "InlayStarEye", Vector3.new(0.18, 8, 8), CFrame.new(starAt + Vector3.new(0, 0.02, 0)) * CFrame.Angles(0, 0, math.rad(90)), Color3.fromRGB(240, 232, 214), Enum.Material.Marble, Enum.PartType.Cylinder)
 end
 
 local function buildStoryCourt(parent: Instance, center: Vector3)

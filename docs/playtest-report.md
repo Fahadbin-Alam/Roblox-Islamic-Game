@@ -10,7 +10,7 @@ the automated checks below. Everything that needs a live server is listed under 
 | Check | Command | Result |
 |---|---|---|
 | Unit tests (rules and data) | `tests/luau/run.sh <luau>` | 46 passed, 0 failed |
-| Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 77 checks passed (about 80 s) |
+| Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 78 checks passed (about 80 s) |
 | Battle arenas in a mock engine | `tests/world/run.sh <luau>` | 181 passed, 0 failed |
 | Multiplayer simulation (real server scripts, simulated players) | `tests/sim/run.sh <luau>` | 44 passed, 0 failed |
 | Client scripts against the real server | `tests/client/run.sh <luau>` | 6 passed: all 22 client scripts load, 160+ button presses and real campaign/PvP/mystery state raise no errors |
@@ -92,7 +92,7 @@ a Studio or live test.
 
 | Area | Parts |
 |---|---|
-| Whole hub (present-day Makkah, Madinah, districts) | 8,570 (132 lights) |
+| Whole hub (present-day Makkah, Madinah, districts) | 8,681 (138 lights) |
 | Masjid al-Haram alone | 5,325 (2,332 SurfaceGui frames) |
 | Historical Makkah and Madinah | 14,633 |
 | Mystery wing (5 rooms) | 2,113 |

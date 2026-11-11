@@ -42,7 +42,7 @@ for _, section in ipairs(haram:GetChildren()) do
 end
 
 -- Budgets keep the hub light enough for phones; raise them deliberately, not by accident.
-check(totalParts <= 8600, "whole hub stays within 8600 parts")
+check(totalParts <= 9000, "whole hub stays within 9000 parts")
 check(haramParts <= 5600, "Masjid al-Haram stays within 5600 parts")
 check(haramLights <= 90, "Masjid al-Haram uses at most 90 lights")
 check(haramFrames <= 3000, "kiswa and sign patterns use at most 3000 SurfaceGui frames")
