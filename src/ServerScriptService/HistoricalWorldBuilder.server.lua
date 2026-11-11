@@ -93,6 +93,43 @@ local function mountain(parent: Instance, name: string, position: Vector3)
         )
     end
 
+    -- Sloped rock skirts on the north, east and west faces of each terrace (they do not
+    -- collide), so the terraces read as a mountainside. The south face keeps its ramps clear.
+    local function skirt(label: string, size: Vector3, at: Vector3, outward: Vector3, shade: number)
+        local wedge = BuildUtils.CreateWedge(parent, label, size, CFrame.lookAt(at, at + outward), Decor.Shade(ROCK, shade), Enum.Material.Slate, nil)
+        wedge.CanCollide = false
+        wedge.CanQuery = false
+        wedge.CanTouch = false
+    end
+
+    for level = 1, levels do
+        local width = 140 - (level - 1) * 40
+        local slope = 14 + level * 2
+        local y = GROUND_TOP + step * (level - 0.5)
+        skirt(string.format("%s_SkirtN%d", name, level), Vector3.new(width + slope, step, slope), position + Vector3.new(0, y, width / 2 + slope / 2), Vector3.new(0, 0, 1), 0.92)
+        skirt(string.format("%s_SkirtE%d", name, level), Vector3.new(width, step, slope), position + Vector3.new(width / 2 + slope / 2, y, 0), Vector3.new(1, 0, 0), 0.86)
+        skirt(string.format("%s_SkirtW%d", name, level), Vector3.new(width, step, slope), position + Vector3.new(-width / 2 - slope / 2, y, 0), Vector3.new(-1, 0, 0), 0.98)
+        -- South: two pieces either side of this level's ramp.
+        local rampX = (level % 2 == 0) and 18 or -18
+        for _, piece in ipairs({ { -width / 2, rampX - 7 }, { rampX + 7, width / 2 } }) do
+            local length = piece[2] - piece[1]
+            if length > 4 then
+                skirt(string.format("%s_SkirtS%d", name, level), Vector3.new(length, step, slope * 0.6), position + Vector3.new((piece[1] + piece[2]) / 2, y, -width / 2 - slope * 0.3), Vector3.new(0, 0, -1), 1.04)
+            end
+        end
+    end
+
+    -- A craggy summit rising behind the cave.
+    local summit = position + Vector3.new(0, GROUND_TOP + ledge, 0)
+    for index, crag in ipairs({
+        { Offset = Vector3.new(0, 20, 46), Size = Vector3.new(44, 40, 22), Out = Vector3.new(0, 0, -1) },
+        { Offset = Vector3.new(-24, 14, 46), Size = Vector3.new(22, 28, 24), Out = Vector3.new(-1, 0, 0) },
+        { Offset = Vector3.new(25, 12, 45), Size = Vector3.new(22, 24, 24), Out = Vector3.new(1, 0, 0) },
+        { Offset = Vector3.new(4, 48, 54), Size = Vector3.new(20, 16, 14), Out = Vector3.new(0, 0, -1) },
+    }) do
+        skirt(string.format("%s_Crag%d", name, index), crag.Size, summit + crag.Offset, crag.Out, 0.8 + index * 0.05)
+    end
+
     local top = position + Vector3.new(0, GROUND_TOP + ledge, 0)
     BuildUtils.CreatePart(parent, name .. "_CaveRock", Vector3.new(30, 16, 14), CFrame.new(top + Vector3.new(0, 8, 27)), Color3.fromRGB(104, 84, 66), Enum.Material.Slate, nil, nil)
     Decor.Deco(parent, name .. "_CaveMouth", Vector3.new(7, 7, 1), CFrame.new(top + Vector3.new(0, 3.5, 19.6)), Color3.fromRGB(22, 18, 14), Enum.Material.Slate)

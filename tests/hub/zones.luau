@@ -305,6 +305,105 @@ do
     walk({ coop, Vector3.new(-4000, 4, 1490 + 6) }, "Co-op landing to the start rugs")
 end
 
+-- Every Seerah site (except the mountain caves) can be reached on foot from its town's
+-- arrival point: a path search on a 3-stud grid through the streets, where a cell is blocked
+-- if a colliding part fills the body's height (1.7 to 5 studs above the ground) there.
+if historical then
+    local TravelRoute = require(game:GetService("ReplicatedStorage").Shared.Data.TravelRoute)
+    local GT = HistoricalSites.GroundTop
+    local CELL = 3
+    for _, entry in ipairs({ { Zone = "makkah_610", From = "seerah_campaign" }, { Zone = "madinah_622", From = "seerah_madinah" } }) do
+        local zone = HistoricalSites.GetZone(entry.Zone)
+        local folder = historical:FindFirstChild(entry.Zone)
+        local half = zone.Size.X / 2
+        local n = math.floor(zone.Size.X / CELL)
+        local origin = zone.Center - Vector3.new(half, 0, half)
+        local blocked = {}
+        local function key(i, j)
+            return i * (n + 1) + j
+        end
+        for _, part in ipairs(folder and folder:GetDescendants() or {}) do
+            if part:IsA("BasePart") and part.CanCollide and part.Transparency < 1 and part.Name ~= "Ground" then
+                local cf, size = part.CFrame, part.Size
+                local r = cf.RightVector * size.X / 2
+                local u = cf.UpVector * size.Y / 2
+                local b = cf.LookVector * size.Z / 2
+                local ext = Vector3.new(
+                    math.abs(r.X) + math.abs(u.X) + math.abs(b.X),
+                    math.abs(r.Y) + math.abs(u.Y) + math.abs(b.Y),
+                    math.abs(r.Z) + math.abs(u.Z) + math.abs(b.Z)
+                )
+                local low, high = cf.Position.Y - ext.Y, cf.Position.Y + ext.Y
+                if high > GT + 1.7 and low < GT + 5 then
+                    local i0 = math.max(0, math.floor((cf.Position.X - ext.X - 1 - origin.X) / CELL))
+                    local i1 = math.min(n, math.ceil((cf.Position.X + ext.X + 1 - origin.X) / CELL))
+                    local j0 = math.max(0, math.floor((cf.Position.Z - ext.Z - 1 - origin.Z) / CELL))
+                    local j1 = math.min(n, math.ceil((cf.Position.Z + ext.Z + 1 - origin.Z) / CELL))
+                    for i = i0, i1 do
+                        for j = j0, j1 do
+                            local k = key(i, j)
+                            if not blocked[k] then
+                                local hits = false
+                                for _, dy in ipairs({ 2, 3.5, 4.8 }) do
+                                    local l = cf:PointToObjectSpace(Vector3.new(origin.X + i * CELL, GT + dy, origin.Z + j * CELL))
+                                    if math.abs(l.X) < size.X / 2 + 1 and math.abs(l.Y) < size.Y / 2 and math.abs(l.Z) < size.Z / 2 + 1 then
+                                        hits = true
+                                        break
+                                    end
+                                end
+                                if hits then
+                                    blocked[k] = true
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+        end
+
+        local function cellOf(position)
+            return math.floor((position.X - origin.X) / CELL + 0.5), math.floor((position.Z - origin.Z) / CELL + 0.5)
+        end
+        local landing = TravelRoute.GetDestinationById(entry.From)
+        local si, sj = cellOf(landing.TeleportPosition or landing.Position)
+        local seen = { [key(si, sj)] = true }
+        local queue, head = { { si, sj } }, 1
+        while head <= #queue do
+            local i, j = queue[head][1], queue[head][2]
+            head += 1
+            for _, d in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do
+                local a, c = i + d[1], j + d[2]
+                if a >= 0 and a <= n and c >= 0 and c <= n then
+                    local k = key(a, c)
+                    if not seen[k] and not blocked[k] then
+                        seen[k] = true
+                        table.insert(queue, { a, c })
+                    end
+                end
+            end
+        end
+
+        local stranded = {}
+        for _, site in ipairs(HistoricalSites.Sites) do
+            if site.Zone == entry.Zone and site.Kind ~= "Mountain" then
+                local i, j = cellOf(HistoricalSites.ArrivalPoint(site))
+                local reached = false
+                for di = -1, 1 do
+                    for dj = -1, 1 do
+                        if seen[key(i + di, j + dj)] then
+                            reached = true
+                        end
+                    end
+                end
+                if not reached then
+                    table.insert(stranded, site.Id)
+                end
+            end
+        end
+        zcheck(#stranded == 0, string.format("every %s site can be reached on foot from the town arrival (%d cells open)", entry.Zone, #queue) .. (#stranded > 0 and (": " .. table.concat(stranded, ", ")) or ""))
+    end
+end
+
 if zoneFailures > 0 then
     error(string.format("%d zone check(s) failed", zoneFailures))
 end
