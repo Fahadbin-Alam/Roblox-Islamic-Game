@@ -56,13 +56,13 @@ New tests found and fixed real bugs during this pass:
 
 | Zone | Parts |
 |---|---|
-| Hub, including Masjid al-Haram and present-day Madinah | 7,775 (budget 8,600) |
-| Historical Makkah and Madinah | 13,935 (budget 15,000) |
-| Mystery wing | 2,105 (budget 2,500) |
+| Hub, including Masjid al-Haram and present-day Madinah | 8,459 (budget 8,600) |
+| Historical Makkah and Madinah | 14,633 (budget 15,000) |
+| Mystery wing | 2,113 (budget 2,500) |
 | Training grounds | 526 (budget 1,000) |
 | Co-op trials | 256 (budget 400) |
 
-The whole place is now about 24,600 parts, most of them anchored, and the decoration does not collide. The zones are about 4,000 studs apart, so turning on `Workspace.StreamingEnabled` would mean a phone only loads the zone the player is in. It is not turned on yet: client scripts that wait for world parts first need to be checked in Studio. Measure frame rate and memory on a phone before release.
+The whole place is now about 26,000 parts, most of them anchored, and the decoration does not collide. The zones are about 4,000 studs apart, so turning on `Workspace.StreamingEnabled` would mean a phone only loads the zone the player is in. It is not turned on yet: client scripts that wait for world parts first need to be checked in Studio. Measure frame rate and memory on a phone before release.
 
 ## Still not done
 

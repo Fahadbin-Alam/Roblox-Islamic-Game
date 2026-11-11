@@ -91,14 +91,14 @@ a Studio or live test.
 
 | Area | Parts |
 |---|---|
-| Whole hub (present-day Makkah, Madinah, districts) | 7,775 (70 lights) |
+| Whole hub (present-day Makkah, Madinah, districts) | 8,459 (128 lights) |
 | Masjid al-Haram alone | 5,325 (2,332 SurfaceGui frames) |
-| Historical Makkah and Madinah | 13,935 |
-| Mystery wing (5 rooms) | 2,105 |
+| Historical Makkah and Madinah | 14,633 |
+| Mystery wing (5 rooms) | 2,113 |
 | Training grounds | 526 |
 | Co-op trials | 256 |
 
-About 24,600 parts in total after the visual pass, mostly anchored, and the decoration does
+About 26,000 parts and 270 point lights in total after the visual passes, mostly anchored, and the decoration does
 not collide. Server loops poll every 0.1 to 0.5 seconds and only read character positions.
 Frame rate, memory and network use could not be measured without a Roblox client. Check them
 in Studio with the MicroProfiler and the Developer Console before release, especially on
