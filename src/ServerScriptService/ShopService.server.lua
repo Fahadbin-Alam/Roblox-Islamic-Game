@@ -18,6 +18,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ShopCatalog = require(Shared.Data.ShopCatalog)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
+local Receipts = require(script.Parent.Modules.Receipts)
 local SessionStore = require(script.Parent.Modules.SessionStore)
 
 local shopFolder = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Shop")
@@ -71,7 +72,6 @@ local sessions: { [Player]: any } = {}
 local loading: { [Player]: boolean } = {}
 local closingCount = 0
 local COMBATANT_TAG = "BattleCombatant"
-local MAX_REMEMBERED_PURCHASES = 100
 local LOCK_REFRESH_SECONDS = 10 * 60
 
 local gamePassByKey = {}
@@ -325,57 +325,42 @@ local function loadProfile(player: Player)
     sendShopState(player, "Shop ready.")
 end
 
-local function applyGrants(profile: ShopProfile, product, sign: number)
-    local grants = product.Grants
+-- Developer products: the grant and the receipt's PurchaseId are saved in one write before
+-- Roblox is told "PurchaseGranted". The rules live in Modules/Receipts.lua so they can be
+-- unit tested; this only connects them to the player's profile and session.
+local receiptProcessor = Receipts.new({
+    FindProduct = function(productId: number)
+        return developerProductByProductId[productId] :: any
+    end,
+    FindProfile = function(playerId: number)
+        local player = Players:GetPlayerByUserId(playerId)
+        local session = player and sessions[player]
 
-    if not grants then
-        return
-    end
-
-    profile.UltimateCharges += sign * (grants.UltimateCharges or 0)
-    profile.KnowledgeTokens += sign * (grants.KnowledgeTokens or 0)
-    profile.SupportPoints += sign * (grants.SupportPoints or 0)
-end
-
--- Grants a developer product and returns true only once the grant (and its PurchaseId) is
--- saved. On a failed save the grant is undone, so Roblox's retry of the receipt grants it
--- for real instead of the player losing it when they leave.
-local function grantDeveloperProduct(player: Player, product, purchaseId: string): boolean
-    local profile = playerProfiles[player]
-    local session = sessions[player]
-
-    if not profile or not session or session.Lost then
-        return false
-    end
-
-    if table.find(profile.PurchaseIds, purchaseId) then
-        return true
-    end
-
-    applyGrants(profile, product, 1)
-    table.insert(profile.PurchaseIds, purchaseId)
-
-    while #profile.PurchaseIds > MAX_REMEMBERED_PURCHASES do
-        table.remove(profile.PurchaseIds, 1)
-    end
-
-    if not saveProfileNow(player) then
-        applyGrants(profile, product, -1)
-        local index = table.find(profile.PurchaseIds, purchaseId)
-
-        if index then
-            table.remove(profile.PurchaseIds, index)
+        -- Not in this server, or their data is not loaded and saveable: Roblox retries the
+        -- receipt later (including when they next join), so nothing is lost by waiting.
+        if not player or not session or session.Lost then
+            return nil
         end
 
-        return false
-    end
+        return playerProfiles[player]
+    end,
+    Save = function(playerId: number): boolean
+        local player = Players:GetPlayerByUserId(playerId)
+        return player ~= nil and saveProfileNow(player)
+    end,
+    OnGranted = function(playerId: number, product)
+        local player = Players:GetPlayerByUserId(playerId)
 
-    applyPlayerAttributes(player)
-    sendShopState(player, string.format("%s granted.", product.DisplayName))
-    sendFeedback(player, string.format("Purchase complete: %s", product.DisplayName), "success")
-
-    return true
-end
+        if player then
+            applyPlayerAttributes(player)
+            sendShopState(player, string.format("%s granted.", product.DisplayName))
+            sendFeedback(player, string.format("Purchase complete: %s", product.DisplayName), "success")
+        end
+    end,
+    Log = function(message: string)
+        warn("[ShopService] " .. message)
+    end,
+})
 
 local function grantKnowledgeTokens(player: Player, amount: number, reason: string)
     local profile = playerProfiles[player]
@@ -585,22 +570,7 @@ MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, gameP
 end)
 
 MarketplaceService.ProcessReceipt = function(receiptInfo)
-    local item = developerProductByProductId[receiptInfo.ProductId]
-
-    if not item then
-        warn(string.format("[ShopService] No receipt handler for product id %s", tostring(receiptInfo.ProductId)))
-        return Enum.ProductPurchaseDecision.NotProcessedYet
-    end
-
-    local player = Players:GetPlayerByUserId(receiptInfo.PlayerId)
-
-    -- Not in this server, or their data is not loaded and saveable: Roblox retries the
-    -- receipt later (including when they next join), so nothing is lost by waiting.
-    if not player or not playerProfiles[player] or not sessions[player] then
-        return Enum.ProductPurchaseDecision.NotProcessedYet
-    end
-
-    if grantDeveloperProduct(player, item, tostring(receiptInfo.PurchaseId)) then
+    if receiptProcessor.Process(receiptInfo :: any) == Receipts.Granted then
         return Enum.ProductPurchaseDecision.PurchaseGranted
     end
 

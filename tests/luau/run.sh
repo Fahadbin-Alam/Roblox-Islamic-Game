@@ -11,7 +11,7 @@ root="$(cd "$(dirname "$0")/../.." && pwd)"
 luau="${1:-${LUAU:-luau}}"
 shared="$root/src/ReplicatedStorage/Shared"
 server_modules="$root/src/ServerScriptService/Modules"
-pure_server_modules=(SessionStore)
+pure_server_modules=(SessionStore Receipts)
 bundle="$(mktemp -d)/bundle.luau"
 
 {
