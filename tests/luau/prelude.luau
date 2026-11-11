@@ -17,7 +17,7 @@ local function folder(name)
     })
 end
 
-for _, name in ipairs({ "Config", "Data", "Modules" }) do
+for _, name in ipairs({ "Config", "Data", "Modules", "Server" }) do
     root[name] = folder(name)
 end
 

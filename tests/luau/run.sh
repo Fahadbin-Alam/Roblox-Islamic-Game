@@ -3,11 +3,15 @@
 # Usage: tests/luau/run.sh [path-to-luau-binary]
 # Each ModuleScript under src/ReplicatedStorage/Shared is bundled into one file with a small
 # mock of `script`, `require`, and the few Roblox datatypes the data files construct.
+# Server modules that never touch Roblox services (listed in `pure_server_modules`) are
+# bundled too, under the `Server/` prefix.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/../.." && pwd)"
 luau="${1:-${LUAU:-luau}}"
 shared="$root/src/ReplicatedStorage/Shared"
+server_modules="$root/src/ServerScriptService/Modules"
+pure_server_modules=(SessionStore)
 bundle="$(mktemp -d)/bundle.luau"
 
 {
@@ -19,6 +23,12 @@ bundle="$(mktemp -d)/bundle.luau"
         echo "loaders[\"$name\"] = function(script)"
         # `export type` is only legal at the top level, so drop the keyword inside the wrapper.
         sed -E 's/^export type /type /' "$file"
+        echo "end"
+    done
+
+    for name in "${pure_server_modules[@]}"; do
+        echo "loaders[\"Server/$name\"] = function(script)"
+        sed -E 's/^export type /type /' "$server_modules/$name.lua"
         echo "end"
     done
 
