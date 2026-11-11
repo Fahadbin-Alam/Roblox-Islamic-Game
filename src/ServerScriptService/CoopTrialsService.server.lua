@@ -20,6 +20,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local TravelRoute = require(Shared.Data.TravelRoute)
 local BuildUtils = require(script.Parent.Modules.BuildUtils)
+local Decor = require(script.Parent.Modules.Decor)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 local Analytics = require(script.Parent.Modules.Analytics)
 
@@ -80,6 +81,50 @@ boardAt("Stage2Sign", Vector3.new(-14, G, -34), "2. The Lift", "Stand on the cou
 local padLeft = block("FinishLeft", Vector3.new(8, 0.6, 8), Vector3.new(-14, G + LEDGE + 0.3, 104), Color3.fromRGB(120, 170, 120), Enum.Material.Neon)
 local padRight = block("FinishRight", Vector3.new(8, 0.6, 8), Vector3.new(14, G + LEDGE + 0.3, 104), Color3.fromRGB(120, 170, 120), Enum.Material.Neon)
 boardAt("Stage3Sign", Vector3.new(0, G + LEDGE, 84), "3. Together", "Stand on both green pads at the same time to finish the trial together.")
+
+-- Dressing: desert around the course, buttresses and battlements on the walls, lamps along
+-- the inside, banners at each stage, and palms outside. None of it touches a plate or pad.
+local dressing = BuildUtils.CreateFolder(folder, "Dressing")
+BuildUtils.CreatePart(dressing, "OuterGround", Vector3.new(300, G - 0.2, 400), CFrame.new(CENTER + Vector3.new(0, (G - 0.2) / 2, 0)), Color3.fromRGB(204, 180, 136), Enum.Material.Sand, nil, nil)
+local trim = Decor.Shade(STONE, 0.84)
+
+for _, side in ipairs({ -1, 1 }) do
+    for index = 0, 8 do
+        local z = -120 + index * 30
+        Decor.Deco(dressing, "Buttress", Vector3.new(5, 30, 6), CFrame.new(CENTER + Vector3.new(side * 45, G + 15, z)), trim, Enum.Material.Slate)
+        Decor.Deco(dressing, "Merlon", Vector3.new(2.6, 3, 6), CFrame.new(CENTER + Vector3.new(side * 42, G + 35.5, z + 15)), STONE, Enum.Material.Slate)
+
+        if index < 8 then
+            local y = if z > 10 then G + LEDGE + 10 else G + 14
+            Decor.WallLamp(dressing, "WallLamp", CENTER + Vector3.new(side * 40.8, y, z + 15), Vector3.new(-side, 0, 0))
+        end
+    end
+
+    Decor.Deco(dressing, "WallBand", Vector3.new(0.4, 1.2, 258), CFrame.new(CENTER + Vector3.new(side * 40.8, G + 9, 0)), TEAL, Enum.Material.Glass)
+    Decor.Deco(dressing, "WallCap", Vector3.new(3.4, 1, 262), CFrame.new(CENTER + Vector3.new(side * 42, G + 34.5, 0)), trim, Enum.Material.Slate)
+
+    for index = 1, 6 do
+        Decor.Palm(dressing, "OuterPalm", CENTER + Vector3.new(side * (62 + (index % 2) * 12), G - 0.2, -120 + index * 40), 18 + index % 3 * 2, index * 7 + side, true)
+    end
+end
+
+-- The gate wall gets a pointed arch frame; the ledge face a trim band and climbing marks.
+for _, side in ipairs({ -1, 1 }) do
+    Decor.Deco(dressing, "GateArch", Vector3.new(9, 2.4, 2.6), CFrame.new(CENTER + Vector3.new(side * 3.8, G + 30, -40)) * CFrame.Angles(0, 0, math.rad(side * -22)), trim, Enum.Material.Slate)
+    Decor.Banner(dressing, "GateBanner", CENTER + Vector3.new(side * 12, G, -44), TEAL, 18)
+end
+
+Decor.Deco(dressing, "LedgeTrim", Vector3.new(84, 1.4, 1), CFrame.new(CENTER + Vector3.new(0, G + LEDGE - 0.7, 9.6)), trim, Enum.Material.Slate)
+Decor.Deco(dressing, "LedgeBand", Vector3.new(84, 1, 0.6), CFrame.new(CENTER + Vector3.new(0, G + 6, 9.8)), TEAL, Enum.Material.Glass)
+
+for _, x in ipairs({ -30, 30 }) do
+    Decor.Banner(dressing, "FinishBanner", CENTER + Vector3.new(x, G + LEDGE, 114), Color3.fromRGB(120, 170, 120), 16)
+    Decor.Brazier(dressing, "FinishBrazier", CENTER + Vector3.new(x * 0.7, G + LEDGE, 92))
+end
+
+for index = 1, 4 do
+    Decor.Rug(dressing, "StartRug", CFrame.new(CENTER + Vector3.new(-24 + index * 10, G, -114)), 6, 9, index)
+end
 
 local function playersOn(plate: BasePart): { Player }
     local list = {}

@@ -17,6 +17,7 @@ local SahabiMysteries = require(Shared.Data.SahabiMysteries)
 local MysteryRules = require(Shared.Modules.MysteryRules)
 local TravelRoute = require(Shared.Data.TravelRoute)
 local BuildUtils = require(script.Parent.Modules.BuildUtils)
+local Decor = require(script.Parent.Modules.Decor)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 local Analytics = require(script.Parent.Modules.Analytics)
 
@@ -132,6 +133,98 @@ local function buildRoom(folder: Folder, center: Vector3, mystery: SahabiMysteri
     return door
 end
 
+-- Dressing for a room: an old stone house front with a carved doorway, parapet and lamps
+-- outside; shelves, beams, niches and cushions along the walls inside. Nothing collides and
+-- nothing stands within the clue area (clues sit within 44 studs of the centre).
+local function dressRoom(folder: Folder, center: Vector3, seed: number)
+    local half = ROOM / 2
+    local dress = BuildUtils.CreateFolder(folder, "Dressing")
+    local top = FLOOR_TOP + WALL_HEIGHT
+    local trim = Decor.Shade(STONE, 0.82)
+
+    -- Plinth, roof parapet with merlons, and corner pilasters.
+    for _, side in ipairs({ -1, 1 }) do
+        Decor.Deco(dress, "PlinthNS", Vector3.new(ROOM + 3, 2.4, 1.2), CFrame.new(center + Vector3.new(0, FLOOR_TOP + 1.2, side * (half + 1.4))), trim, Enum.Material.Sandstone)
+        Decor.Deco(dress, "PlinthEW", Vector3.new(1.2, 2.4, ROOM + 3), CFrame.new(center + Vector3.new(side * (half + 1.4), FLOOR_TOP + 1.2, 0)), trim, Enum.Material.Sandstone)
+        Decor.Deco(dress, "ParapetNS", Vector3.new(ROOM + 2, 2.4, 1.6), CFrame.new(center + Vector3.new(0, top + 2.2, side * half)), STONE, Enum.Material.Sandstone)
+        Decor.Deco(dress, "ParapetEW", Vector3.new(1.6, 2.4, ROOM + 2), CFrame.new(center + Vector3.new(side * half, top + 2.2, 0)), STONE, Enum.Material.Sandstone)
+        Decor.Deco(dress, "CorniceNS", Vector3.new(ROOM + 4, 0.8, 3), CFrame.new(center + Vector3.new(0, top - 0.6, side * (half + 0.6))), trim, Enum.Material.Sandstone)
+        Decor.Deco(dress, "CorniceEW", Vector3.new(3, 0.8, ROOM + 4), CFrame.new(center + Vector3.new(side * (half + 0.6), top - 0.6, 0)), trim, Enum.Material.Sandstone)
+
+        for _, other in ipairs({ -1, 1 }) do
+            Decor.Deco(dress, "Pilaster", Vector3.new(4, WALL_HEIGHT + 3, 4), CFrame.new(center + Vector3.new(side * (half + 0.5), FLOOR_TOP + (WALL_HEIGHT + 3) / 2, other * (half + 0.5))), trim, Enum.Material.Sandstone)
+        end
+    end
+
+    for index = 1, 10 do
+        local x = -half + (index - 0.5) * (ROOM / 10)
+        Decor.Deco(dress, "Merlon", Vector3.new(3, 2, 1.6), CFrame.new(center + Vector3.new(x, top + 4.4, -half)), STONE, Enum.Material.Sandstone)
+    end
+
+    -- The doorway: a pointed-arch frame, a carved band and a lamp each side.
+    local door = center + Vector3.new(0, FLOOR_TOP, -half - 1.2)
+    for _, side in ipairs({ -1, 1 }) do
+        Decor.Deco(dress, "DoorJamb", Vector3.new(2.4, 16, 1.4), CFrame.new(door + Vector3.new(side * 7.2, 8, 0)), trim, Enum.Material.Sandstone)
+        Decor.Deco(dress, "ArchHalf", Vector3.new(9, 2.4, 1.4), CFrame.new(door + Vector3.new(side * 3.6, 16.6, 0)) * CFrame.Angles(0, 0, math.rad(side * -24)), trim, Enum.Material.Sandstone)
+        Decor.WallLamp(dress, "DoorLamp", door + Vector3.new(side * 12, 13, 0), Vector3.new(0, 0, -1))
+        Decor.Palm(dress, "DoorPalm", center + Vector3.new(side * 40, FLOOR_TOP, -half - 8), 20 + side, seed + side * 3, nil)
+        Decor.Jar(dress, "DoorJar", door + Vector3.new(side * 10, 0, -2), 1.1, nil)
+    end
+
+    Decor.Deco(dress, "CarvedBand", Vector3.new(30, 2, 0.6), CFrame.new(door + Vector3.new(0, 20.5, -0.2)), Color3.fromRGB(70, 104, 120), Enum.Material.Glass)
+    Decor.Deco(dress, "Awning", Vector3.new(20, 0.3, 6), CFrame.new(door + Vector3.new(0, 15, -3)) * CFrame.Angles(math.rad(-16), 0, 0), Decor.Colors.Cloths[(seed % 5) + 1], Enum.Material.Fabric)
+
+    -- Small high windows along the sides.
+    for index = 1, 4 do
+        local z = -half + index * (ROOM / 5)
+        for _, side in ipairs({ -1, 1 }) do
+            Decor.Deco(dress, "SideWindow", Vector3.new(0.4, 4, 3), CFrame.new(center + Vector3.new(side * (half + 1.05), FLOOR_TOP + 17, z)), Color3.fromRGB(40, 30, 24), Enum.Material.Wood)
+        end
+    end
+
+    -- Inside: ceiling beams, shelves with pots and scrolls, wall niches and floor cushions.
+    for index = 1, 7 do
+        local z = -half + index * (ROOM / 8)
+        Decor.Rod(dress, "CeilingBeam", center + Vector3.new(-half + 1, top - 1, z), center + Vector3.new(half - 1, top - 1, z), 0.6, Decor.Colors.WoodDark, Enum.Material.Wood, false)
+    end
+
+    for _, side in ipairs({ -1, 1 }) do
+        local x = side * (half - 2.2)
+
+        for shelf = 1, 3 do
+            local z = -30 + (shelf - 1) * 30
+            for level = 1, 3 do
+                Decor.Deco(dress, "Shelf", Vector3.new(2.4, 0.4, 14), CFrame.new(center + Vector3.new(x, FLOOR_TOP + level * 3.4, z)), Decor.Colors.Wood, Enum.Material.WoodPlanks)
+                Decor.Deco(dress, "ShelfItem", Vector3.new(1.2, 1.4, 1.2), CFrame.new(center + Vector3.new(x, FLOOR_TOP + level * 3.4 + 0.9, z - 4 + level * 2)), Decor.Colors.Spices[(level + shelf) % 4 + 1], Enum.Material.Slate, Enum.PartType.Ball)
+                Decor.Rod(dress, "Scroll", center + Vector3.new(x - 0.6, FLOOR_TOP + level * 3.4 + 0.5, z + 2), center + Vector3.new(x + 0.6, FLOOR_TOP + level * 3.4 + 0.5, z + 2), 0.35, Color3.fromRGB(226, 210, 170), Enum.Material.Fabric, false)
+            end
+            Decor.Deco(dress, "ShelfSide", Vector3.new(2.4, 11, 0.5), CFrame.new(center + Vector3.new(x, FLOOR_TOP + 5.5, z - 7)), Decor.Colors.WoodDark, Enum.Material.Wood)
+            Decor.Deco(dress, "ShelfSide", Vector3.new(2.4, 11, 0.5), CFrame.new(center + Vector3.new(x, FLOOR_TOP + 5.5, z + 7)), Decor.Colors.WoodDark, Enum.Material.Wood)
+        end
+
+        Decor.Deco(dress, "Niche", Vector3.new(0.4, 6, 4), CFrame.new(center + Vector3.new(side * (half - 1.1), FLOOR_TOP + 15, 0)), Color3.fromRGB(70, 56, 44), Enum.Material.Wood)
+        Decor.Deco(dress, "WallBand", Vector3.new(0.3, 1, ROOM - 4), CFrame.new(center + Vector3.new(side * (half - 1.1), FLOOR_TOP + 12, 0)), Color3.fromRGB(70, 104, 120), Enum.Material.Glass)
+
+        for cushion = 1, 3 do
+            Decor.Deco(dress, "Cushion", Vector3.new(3, 1, 6), CFrame.new(center + Vector3.new(side * (half - 6), FLOOR_TOP + 0.5, 42 + cushion * 3.4)), Decor.Colors.Cloths[(cushion + seed) % 6 + 1], Enum.Material.Fabric)
+        end
+    end
+end
+
+-- Dressing around a yard: low walls already exist; add palms, a well and lamps at the corners.
+local function dressYard(folder: Folder, yardCenter: Vector3, seed: number)
+    local half = ROOM / 2
+    local dress = BuildUtils.CreateFolder(folder, "YardDressing")
+
+    for index, corner in ipairs({ Vector3.new(-1, 0, -1), Vector3.new(1, 0, -1), Vector3.new(-1, 0, 1), Vector3.new(1, 0, 1) }) do
+        Decor.Palm(dress, "YardPalm" .. index, yardCenter + Vector3.new(corner.X * (half - 6), FLOOR_TOP, corner.Z * (half - 6)), 18 + index, seed + index * 5, nil)
+    end
+
+    for _, side in ipairs({ -1, 1 }) do
+        Decor.Shrub(dress, "Shrub", yardCenter + Vector3.new(side * (half - 5), FLOOR_TOP, 0), seed + side)
+    end
+end
+
 local function buildYard(folder: Folder, yardCenter: Vector3, mystery: SahabiMysteries.Mystery): { BasePart }
     local half = ROOM / 2
     part(folder, "YardGround", Vector3.new(ROOM, 1, ROOM), yardCenter + Vector3.new(0, FLOOR_TOP - 0.5, 0), Color3.fromRGB(206, 182, 140), Enum.Material.Sand)
@@ -184,12 +277,38 @@ local function buildWing()
     local entrance = BuildUtils.CreateBoardSign(wing, "WingSign", CENTER + Vector3.new(0, FLOOR_TOP, -ROOM / 2 - 100), "Sahabi Mystery Rooms", "Each room hides a companion's story. Find the clues, open the lock, then play their episode. Clues are game props; the stories are documented.", Color3.fromRGB(96, 76, 112), nil)
     entrance.Orientation = Vector3.new(0, 0, 0)
 
+    -- The lobby: a colonnade of palms and lamp posts with benches between the rooms.
+    local lobby = BuildUtils.CreateFolder(wing, "LobbyDressing")
+    local lobbyZ = -ROOM / 2 - 45
+
+    for index = -15, 15 do
+        local x = index * 40
+        Decor.Palm(lobby, "LobbyPalm", CENTER + Vector3.new(x, FLOOR_TOP, lobbyZ - 30), 17 + (index % 3) * 2, index + 50, true)
+
+        if index % 2 == 0 then
+            local post = CENTER + Vector3.new(x + 20, FLOOR_TOP, lobbyZ + 30)
+            Decor.Rod(lobby, "LampPost", post, post + Vector3.new(0, 12, 0), 0.3, Color3.fromRGB(60, 54, 50), Enum.Material.Metal, true)
+            local glass = Decor.Deco(lobby, "LampGlass", Vector3.new(1.4, 2, 1.4), CFrame.new(post + Vector3.new(0, 13, 0)), Color3.fromRGB(255, 214, 150), Enum.Material.Neon)
+            BuildUtils.AddPointLight(glass, Color3.fromRGB(255, 200, 130), 1.2, 22)
+        end
+    end
+
+    for index = 1, #SahabiMysteries.Mysteries - 1 do
+        local x = (index - #SahabiMysteries.Mysteries / 2) * SPACING
+        Decor.Well(lobby, "LobbyWell", CENTER + Vector3.new(x, FLOOR_TOP, 0))
+        Decor.Palm(lobby, "GapPalmA", CENTER + Vector3.new(x - 24, FLOOR_TOP, 30), 22, index * 3, nil)
+        Decor.Palm(lobby, "GapPalmB", CENTER + Vector3.new(x + 26, FLOOR_TOP, -20), 19, index * 7, nil)
+        Decor.Camel(lobby, "GapCamel", CFrame.new(CENTER + Vector3.new(x + 10, FLOOR_TOP, 40)) * CFrame.Angles(0, math.rad(60 + index * 20), 0), index)
+    end
+
     for index, mystery in ipairs(SahabiMysteries.Mysteries) do
         local center = CENTER + Vector3.new((index - (#SahabiMysteries.Mysteries + 1) / 2) * SPACING, 0, 0)
         local yardCenter = center + Vector3.new(0, 0, YARD_Z)
         local folder = BuildUtils.CreateFolder(wing, mystery.Id)
         local door = buildRoom(folder, center, mystery)
         local stations = buildYard(folder, yardCenter, mystery)
+        dressRoom(folder, center, index * 17)
+        dressYard(folder, yardCenter, index * 23)
 
         local board = BuildUtils.CreateBoardSign(folder, "RoomSign", center + Vector3.new(0, FLOOR_TOP, -ROOM / 2 - 14), mystery.Title, mystery.Tagline, Color3.fromRGB(96, 76, 112), nil)
         board.Orientation = Vector3.new(0, 0, 0)

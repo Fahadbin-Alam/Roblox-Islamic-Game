@@ -10,6 +10,7 @@ local HaramLearningTrail = require(Shared.Data.HaramLearningTrail)
 local MannersLessons = require(Shared.Data.MannersLessons)
 local TravelRoute = require(Shared.Data.TravelRoute)
 local BuildUtils = require(script.Parent.Modules.BuildUtils)
+local Decor = require(script.Parent.Modules.Decor)
 local ParkourCourses = require(Shared.Data.ParkourCourses)
 local MasjidAlHaram = require(script.Parent.Modules.MasjidAlHaram)
 
@@ -859,6 +860,41 @@ local function buildParkourCourse(parent: Instance, center: Vector3)
     )
     createLightPost(district, "ParkourLightWest", center + Vector3.new(-62, 0, 32))
     createLightPost(district, "ParkourLightEast", center + Vector3.new(62, 0, 32))
+
+    -- Dress the core like a minaret shaft: stone bands, tall arched windows on every face and
+    -- gold finials round the summit. All decorative and non-colliding, so the jumps are
+    -- exactly as the unit tests measured them.
+    local core = course.CoreSize
+    local coreBase = center + Vector3.new(0, 4, 0)
+
+    for level = 1, math.floor(core.Y / 14) do
+        Decor.Deco(district, "CoreBand", Vector3.new(core.X + 0.8, 1.2, core.Z + 0.8), CFrame.new(coreBase + Vector3.new(0, level * 14, 0)), Color3.fromRGB(196, 176, 140), Enum.Material.Marble)
+
+        for face = 0, 3 do
+            local yaw = math.rad(face * 90)
+            local window = CFrame.new(coreBase + Vector3.new(0, level * 14 - 6, 0)) * CFrame.Angles(0, yaw, 0) * CFrame.new(0, 0, core.Z / 2 + 0.15)
+            Decor.Deco(district, "CoreWindow", Vector3.new(3.4, 7, 0.3), window, Color3.fromRGB(36, 30, 26), Enum.Material.Wood)
+            Decor.Deco(district, "CoreWindowArch", Vector3.new(0.3, 3.4, 3.4), window * CFrame.new(0, 3.5, 0) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(36, 30, 26), Enum.Material.Wood, Enum.PartType.Cylinder)
+        end
+    end
+
+    for index = 1, 8 do
+        local angle = math.rad(index * 45)
+        local at = center + Vector3.new(math.cos(angle) * (course.SummitRadius - 1), course.SummitHeight, math.sin(angle) * (course.SummitRadius - 1))
+        Decor.Deco(district, "SummitFinial", Vector3.new(1, 3, 1), CFrame.new(at + Vector3.new(0, 1.5, 0)), GOLD_ACCENT, Enum.Material.Metal)
+        Decor.Deco(district, "SummitFinialTip", Vector3.new(1.4, 1.4, 1.4), CFrame.new(at + Vector3.new(0, 3.4, 0)), GOLD_ACCENT, Enum.Material.Metal, Enum.PartType.Ball)
+    end
+
+    BuildUtils.CreateVerticalCylinder(district, "SummitRim", 1.6, course.SummitRadius + 1, center + Vector3.new(0, course.SummitHeight - course.SummitThickness - 0.8, 0), Color3.fromRGB(196, 176, 140), Enum.Material.Marble, nil).CanCollide = false
+
+    -- Palms in planters at the corners of the deck and a ring of mosaic round the core.
+    for _, corner in ipairs({ Vector3.new(-70, 0, -40), Vector3.new(70, 0, -40), Vector3.new(-70, 0, 40), Vector3.new(70, 0, 40) }) do
+        BuildUtils.CreatePart(district, "Planter", Vector3.new(10, 2.4, 10), CFrame.new(center + corner + Vector3.new(0, 5.2, 0)), Color3.fromRGB(196, 176, 140), Enum.Material.Marble, nil, nil)
+        Decor.Palm(district, "DeckPalm", center + corner + Vector3.new(0, 6.4, 0), 20, corner.X + corner.Z, nil)
+    end
+
+    BuildUtils.CreateVerticalCylinder(district, "CoreMosaic", 0.1, 30, center + Vector3.new(0, 4.06, 0), Color3.fromRGB(70, 104, 120), Enum.Material.Glass, nil).CanCollide = false
+    BuildUtils.CreateVerticalCylinder(district, "CoreMosaicInner", 0.12, 27, center + Vector3.new(0, 4.08, 0), Color3.fromRGB(226, 216, 196), Enum.Material.Marble, nil).CanCollide = false
 end
 
 local function createTrailPulse(parent: Instance, name: string, position: Vector3, phase: number)
