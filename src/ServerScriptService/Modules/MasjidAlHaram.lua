@@ -566,7 +566,7 @@ local function buildMatafExpansion(parent: Instance, center: Vector3)
 
             -- Fascia with a gold line along the slab edge facing the Kaaba.
             local fasciaWidth = chordWidth(RING_INNER, step) + 0.4
-            decor(folder, string.format("%s_L%d_Fascia", name, level), Vector3.new(fasciaWidth, 5, 1.4), radialFrame(center, angle, RING_INNER - 0.3, top - 2.5), Color3.fromRGB(238, 232, 218), Enum.Material.Marble)
+            decor(folder, string.format("%s_L%d_Fascia", name, level), Vector3.new(fasciaWidth, 5.04, 1.4), radialFrame(center, angle, RING_INNER - 0.3, top - 2.48), Color3.fromRGB(238, 232, 218), Enum.Material.Marble)
             decor(folder, string.format("%s_L%d_GoldLine", name, level), Vector3.new(fasciaWidth, 0.35, 1.6), radialFrame(center, angle, RING_INNER - 0.4, top - 4.4), EMBROIDERY_GOLD, Enum.Material.Metal)
 
             -- Solid balustrade with a gold handrail, like the stone parapets of the real galleries.
@@ -733,7 +733,7 @@ local function buildWing(parent: Instance, center: Vector3, config: WingConfig)
 
     -- Storey bands on the outside face.
     for level = 2, #levels do
-        decor(folder, string.format("FacadeBand_L%d", level), Vector3.new(length + 1, 3, 1), base * CFrame.new(mid, levels[level] - 1.5, depth * 0.5 + 0.2), Color3.fromRGB(222, 212, 192), Enum.Material.Marble)
+        decor(folder, string.format("FacadeBand_L%d", level), Vector3.new(length + 1, 3.08, 1), base * CFrame.new(mid, levels[level] - 1.46, depth * 0.5 + 0.2), Color3.fromRGB(222, 212, 192), Enum.Material.Marble)
         decor(folder, string.format("FacadeGold_L%d", level), Vector3.new(length + 1, 0.4, 1.2), base * CFrame.new(mid, levels[level] - 3.2, depth * 0.5 + 0.25), EMBROIDERY_GOLD, Enum.Material.Metal)
     end
 

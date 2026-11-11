@@ -5,9 +5,12 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local BattleScenarios = require(Shared.Data.BattleScenarios)
+local BattleMissions = require(Shared.Data.BattleMissions)
 local BuildUtils = require(script.Parent.Modules.BuildUtils)
 
 local ARENA_FOLDER_NAME = "GeneratedBattles"
+-- Top of each arena's BaseFloor (a 2-stud slab centred at y = 1).
+local ARENA_FLOOR_TOP = 2
 
 local function scaleColor(color: Color3, scale: number): Color3
     return Color3.fromRGB(
@@ -295,7 +298,10 @@ local function createArenaBase(parent: Instance, scenarioId: string, center: Vec
     local spawns = BuildUtils.CreateFolder(arenaFolder, "Spawns")
     local dummies = BuildUtils.CreateFolder(arenaFolder, "DummySpawns")
 
-    BuildUtils.CreatePart(geometry, "BaseFloor", size, CFrame.new(center + Vector3.new(0, 1, 0)), color, Enum.Material.Sand, nil, nil)
+    -- The Badr and Uhud floors share a strip at their edges; lifting Uhud's a hair keeps the
+    -- two coplanar tops from flickering (z-fighting) where they meet.
+    local lift = if scenarioId == "uhud" then 0.03 else 0
+    BuildUtils.CreatePart(geometry, "BaseFloor", size, CFrame.new(center + Vector3.new(0, 1 + lift, 0)), color, Enum.Material.Sand, nil, nil)
     createSafetyBounds(geometry, center, size)
 
     return arenaFolder, geometry, spawns, dummies
@@ -436,7 +442,7 @@ local function createBriefingSection(arenaFolder: Folder, center: Vector3, scena
     local actors = BuildUtils.CreateFolder(briefing, "Actors")
 
     if scenarioId == "uhud" then
-        BuildUtils.CreatePart(geometry, "BriefingGround", Vector3.new(176, 2, 128), CFrame.new(center + Vector3.new(0, 1, 0)), Color3.fromRGB(188, 160, 120), Enum.Material.Sand, nil, nil)
+        BuildUtils.CreatePart(geometry, "BriefingGround", Vector3.new(176, 2, 128), CFrame.new(center + Vector3.new(0, 1.06, 0)), Color3.fromRGB(188, 160, 120), Enum.Material.Sand, nil, nil)
         createStoneShelf(geometry, "BriefingFrontRise", CFrame.new(center + Vector3.new(0, 6, 48)) * CFrame.Angles(0, math.rad(-4), 0), Vector3.new(170, 12, 58), Color3.fromRGB(198, 170, 126))
         createStoneShelf(geometry, "BriefingRearSlope", CFrame.new(center + Vector3.new(0, 5, -38)) * CFrame.Angles(0, math.rad(6), 0), Vector3.new(152, 10, 46), Color3.fromRGB(186, 156, 118))
         createMesaMass(geometry, "BriefingUhudMass", center + Vector3.new(8, 0, -40), -4, 254, 126, 104, Color3.fromRGB(145, 116, 83))
@@ -634,8 +640,8 @@ local function buildUhudArena(parent: Instance, scenario)
     createMesaMass(geometry, "UhudRidgeWest", Vector3.new(-1458, 0, 992), 6, 402, 220, 210, Color3.fromRGB(147, 118, 84))
     createMesaMass(geometry, "UhudMainMass", Vector3.new(-1150, 0, 948), 0, 640, 286, 282, Color3.fromRGB(144, 116, 82))
     createMesaMass(geometry, "UhudRidgeEast", Vector3.new(-854, 0, 1004), -6, 392, 212, 204, Color3.fromRGB(149, 121, 86))
-    createMesaMass(geometry, "UhudRearSlope", Vector3.new(-1152, 0, 846), 180, 474, 142, 136, Color3.fromRGB(145, 118, 86))
-    createMesaMass(geometry, "UhudNorthWall", Vector3.new(-1152, 0, 732), 180, 716, 196, 124, Color3.fromRGB(132, 106, 77))
+    -- No masses north of UhudMainMass: the Badr valley starts at z = 490 and its battlefield runs
+    -- through z = 720, so anything placed there lands in the middle of the Badr arena.
     createMesaMass(geometry, "UhudPassShelfWest", Vector3.new(-1360, 0, 1168), -18, 278, 92, 134, Color3.fromRGB(136, 110, 81))
     createMesaMass(geometry, "UhudPassShelfEast", Vector3.new(-964, 0, 1108), 16, 270, 84, 126, Color3.fromRGB(141, 115, 84))
     createStoneShelf(geometry, "SouthSlope", CFrame.new(-1180, 9, 1416) * CFrame.Angles(0, math.rad(2), 0), Vector3.new(412, 18, 148), Color3.fromRGB(194, 164, 122))
@@ -690,6 +696,98 @@ local function buildUhudArena(parent: Instance, scenario)
     arenaFolder:SetAttribute("ScenarioId", scenario.Id)
 end
 
+-- A wedge whose high edge faces `towards` (a unit direction on the ground plane).
+local function createSlope(parent: Instance, name: string, center: Vector3, across: number, height: number, run: number, towards: Vector3, color: Color3): WedgePart
+    local yaw = math.atan2(towards.X, towards.Z)
+    local cframe = CFrame.new(center.X, ARENA_FLOOR_TOP + height * 0.5, center.Z) * CFrame.Angles(0, yaw, 0)
+
+    return BuildUtils.CreateWedge(parent, name, Vector3.new(across, height, run), cframe, color, Enum.Material.Slate, nil)
+end
+
+local function createDecorRock(parent: Instance, name: string, position: Vector3, size: Vector3, color: Color3, yawDegrees: number)
+    local rock = BuildUtils.CreatePart(parent, name, size, CFrame.new(position) * CFrame.Angles(math.rad(6), math.rad(yawDegrees), math.rad(-4)), color, Enum.Material.Rock, nil, nil)
+    rock.CanCollide = false
+end
+
+-- The Archers' Hill: a flat-topped mound with a walkable slope on every side.
+local function createArchersHill(parent: Instance, config)
+    local folder = BuildUtils.CreateFolder(parent, "ArchersHill")
+    local center: Vector3 = config.Center
+    local size: Vector3 = config.Size
+    local run: number = config.Slope
+    local rock = Color3.fromRGB(150, 122, 88)
+    local top = ARENA_FLOOR_TOP + size.Y
+
+    BuildUtils.CreatePart(folder, "Plateau", size, CFrame.new(center.X, ARENA_FLOOR_TOP + size.Y * 0.5, center.Z), rock, Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(folder, "PlateauSand", Vector3.new(size.X - 4, 0.3, size.Z - 4), CFrame.new(center.X, top + 0.15, center.Z), Color3.fromRGB(196, 168, 124), Enum.Material.Sand, nil, nil).CanCollide = false
+
+    createSlope(folder, "NorthSlope", Vector3.new(center.X, 0, center.Z - size.Z * 0.5 - run * 0.5), size.X, size.Y, run, Vector3.new(0, 0, 1), scaleColor(rock, 1.04))
+    createSlope(folder, "SouthSlope", Vector3.new(center.X, 0, center.Z + size.Z * 0.5 + run * 0.5), size.X, size.Y, run, Vector3.new(0, 0, -1), scaleColor(rock, 0.94))
+    createSlope(folder, "EastSlope", Vector3.new(center.X + size.X * 0.5 + run * 0.5, 0, center.Z), size.Z, size.Y, run, Vector3.new(-1, 0, 0), scaleColor(rock, 0.98))
+    createSlope(folder, "WestSlope", Vector3.new(center.X - size.X * 0.5 - run * 0.5, 0, center.Z), size.Z, size.Y, run, Vector3.new(1, 0, 0), scaleColor(rock, 0.9))
+
+    for index, offset in ipairs({
+        Vector3.new(-1, 0, -1),
+        Vector3.new(1, 0, -1),
+        Vector3.new(1, 0, 1),
+        Vector3.new(-1, 0, 1),
+    }) do
+        local cornerPosition = center + Vector3.new(offset.X * (size.X * 0.5 + run * 0.35), 0, offset.Z * (size.Z * 0.5 + run * 0.35))
+        createDecorRock(folder, string.format("CornerRock_%d", index), cornerPosition + Vector3.new(0, ARENA_FLOOR_TOP + size.Y * 0.32, 0), Vector3.new(run * 0.9, size.Y * 0.62, run * 0.9), scaleColor(rock, 0.86 + index * 0.03), index * 37)
+    end
+
+    BuildUtils.CreateBanner(folder, "HillBanner", Vector3.new(center.X - size.X * 0.5 + 4, top, center.Z + size.Z * 0.5 - 4), Color3.fromRGB(62, 125, 82))
+    createArenaTorch(folder, "HillTorchWest", Vector3.new(center.X - size.X * 0.5 + 3, top, center.Z - size.Z * 0.5 + 3))
+    createArenaTorch(folder, "HillTorchEast", Vector3.new(center.X + size.X * 0.5 - 3, top, center.Z - size.Z * 0.5 + 3))
+    local sign = BuildUtils.CreateWallSign(folder, "HillStory", Vector3.new(center.X + size.X * 0.5 - 6, top, center.Z + size.Z * 0.5 - 3), Vector3.new(28, 8, 1.6), "The Archers' Hill", "Sahih al-Bukhari 3039: do not leave your place until you are sent for.", Color3.fromRGB(68, 91, 66), nil)
+    sign.Orientation = Vector3.new(0, 180, 0)
+end
+
+-- A rock shelf against the mountain's west face, with a path up from the field on its south side.
+local function createMountainShelf(parent: Instance, config)
+    local folder = BuildUtils.CreateFolder(parent, "MountainShelf")
+    local center: Vector3 = config.Center
+    local size: Vector3 = config.Size
+    local rock = Color3.fromRGB(141, 114, 84)
+    local top = ARENA_FLOOR_TOP + size.Y
+    local southEdge = center.Z + size.Z * 0.5
+
+    BuildUtils.CreatePart(folder, "Shelf", size, CFrame.new(center.X, ARENA_FLOOR_TOP + size.Y * 0.5, center.Z), rock, Enum.Material.Slate, nil, nil)
+    BuildUtils.CreatePart(folder, "ShelfCap", Vector3.new(size.X + 4, 3, size.Z + 2), CFrame.new(center.X, top - 1.2, center.Z), scaleColor(rock, 0.9), Enum.Material.Rock, nil, nil)
+    createSlope(folder, "Path", Vector3.new(center.X, 0, southEdge + config.PathRun * 0.5), config.PathWidth, size.Y, config.PathRun, Vector3.new(0, 0, -1), Color3.fromRGB(160, 132, 98))
+
+    for index = 1, 3 do
+        local alpha = index / 4
+        local z = southEdge + config.PathRun * (1 - alpha)
+        createArenaTorch(folder, string.format("PathTorch_%d", index), Vector3.new(center.X + config.PathWidth * 0.5 - 1.5, ARENA_FLOOR_TOP + size.Y * alpha, z))
+    end
+
+    for index, offset in ipairs({ Vector3.new(-0.42, 0, -0.3), Vector3.new(0.4, 0, -0.38), Vector3.new(-0.3, 0, 0.36) }) do
+        createDecorRock(folder, string.format("ShelfRock_%d", index), Vector3.new(center.X + offset.X * size.X, top + 2.5, center.Z + offset.Z * size.Z), Vector3.new(9, 6, 8), scaleColor(rock, 0.8 + index * 0.05), index * 50)
+    end
+
+    BuildUtils.CreateBanner(folder, "RallyBanner", Vector3.new(center.X - size.X * 0.5 + 6, top, southEdge - 6), Color3.fromRGB(62, 125, 82))
+end
+
+local function buildMissionStructures(arenaFolder: Instance, scenarioId: string)
+    local mission = BattleMissions.Get(scenarioId)
+    local structures = mission and mission.Structures
+
+    if not structures then
+        return
+    end
+
+    local folder = BuildUtils.CreateFolder(arenaFolder, "MissionStructures")
+
+    if structures.ArchersHill then
+        createArchersHill(folder, structures.ArchersHill)
+    end
+
+    if structures.MountainShelf then
+        createMountainShelf(folder, structures.MountainShelf)
+    end
+end
+
 local existingFolder = Workspace:FindFirstChild(ARENA_FOLDER_NAME)
 
 if existingFolder and existingFolder:GetAttribute("GeneratedBy") == "BattleArenaBuilder" then
@@ -706,5 +804,11 @@ for _, scenario in ipairs(BattleScenarios) do
         buildBadrArena(arenasFolder, scenario)
     elseif scenario.Id == "uhud" then
         buildUhudArena(arenasFolder, scenario)
+    end
+
+    local arenaFolder = arenasFolder:FindFirstChild(scenario.Id)
+
+    if arenaFolder then
+        buildMissionStructures(arenaFolder, scenario.Id)
     end
 end

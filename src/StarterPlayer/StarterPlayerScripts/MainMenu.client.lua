@@ -1,6 +1,7 @@
 --!nonstrict
 
 local Players = game:GetService("Players")
+local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
@@ -10,16 +11,16 @@ local playerGui = player:WaitForChild("PlayerGui")
 local MENU_ITEMS = {
     {
         Label = "Battle of Badr",
-        Detail = "Join the Badr battle route and watch the lesson briefing.",
+        Detail = "Play the Badr story mission alone or with friends, or join a team skirmish.",
         Accent = Color3.fromRGB(118, 91, 54),
-        Action = "battle",
+        Action = "battle_menu",
         Id = "badr",
     },
     {
         Label = "Battle of Uhud",
-        Detail = "Join the Uhud route with the mountain pass and archer ridge lesson.",
+        Detail = "Hold the Archers' Hill in the Uhud story mission, or join a team skirmish.",
         Accent = Color3.fromRGB(92, 77, 59),
-        Action = "battle",
+        Action = "battle_menu",
         Id = "uhud",
     },
     {
@@ -101,13 +102,16 @@ screenGui.Parent = playerGui
 
 local panel = Instance.new("Frame")
 panel.Name = "Panel"
-panel.Position = UDim2.fromOffset(56, 76)
+-- Centred so it can use the whole screen height on a phone (see UiKit.FitToScreen).
+panel.AnchorPoint = Vector2.new(0.5, 0.5)
+panel.Position = UDim2.fromScale(0.5, 0.5)
 panel.Size = UDim2.fromOffset(800, 540)
 panel.BackgroundColor3 = Color3.fromRGB(244, 235, 214)
 panel.BorderSizePixel = 0
 panel.Visible = false
 panel.ZIndex = 10
 panel.Parent = screenGui
+UiKit.FitToScreen(panel)
 
 local panelCorner = Instance.new("UICorner")
 panelCorner.CornerRadius = UDim.new(0, 18)
@@ -148,7 +152,7 @@ local closeButton = Instance.new("TextButton")
 closeButton.Name = "CloseButton"
 closeButton.AnchorPoint = Vector2.new(1, 0)
 closeButton.Position = UDim2.new(1, -18, 0, 16)
-closeButton.Size = UDim2.fromOffset(48, 40)
+closeButton.Size = UDim2.fromOffset(54, 48)
 closeButton.Active = true
 closeButton.AutoButtonColor = true
 closeButton.BackgroundColor3 = Color3.fromRGB(91, 76, 51)
@@ -307,8 +311,8 @@ local function canUseMenu()
     return true
 end
 
-local function joinBattle(scenarioId, label)
-    if canUseMenu() and fireRemote("Battle", "RequestJoinBattle", scenarioId) then
+local function joinBattle(scenarioId, label, mode)
+    if canUseMenu() and fireRemote("Battle", "RequestJoinBattle", scenarioId, mode or "mission") then
         statusLabel.Text = "Joining: " .. label
         closeMenu()
     end
@@ -413,6 +417,7 @@ end
 
 local showSahabiMenu: () -> ()
 local showMannersMenu: () -> ()
+local showBattleMenu: (item: any) -> ()
 
 local function showHome()
     clearButtons()
@@ -423,6 +428,8 @@ local function showHome()
         addMenuButton(index, item, function()
             if item.Action == "battle" then
                 joinBattle(item.Id, item.Label)
+            elseif item.Action == "battle_menu" then
+                showBattleMenu(item)
             elseif item.Action == "sahabi_menu" then
                 showSahabiMenu()
             elseif item.Action == "manners_menu" then
@@ -434,6 +441,34 @@ local function showHome()
             end
         end)
     end
+end
+
+showBattleMenu = function(item)
+    clearButtons()
+    sectionTitle.Text = item.Label
+    sectionSubtitle.Text = "Story missions follow the history step by step. Skirmishes are player against player."
+
+    addMenuButton(1, {
+        Label = "Back To Main Menu",
+        Detail = "Return to battles, sahabis, manners, trivia, and Medina travel.",
+        Accent = Color3.fromRGB(104, 91, 67),
+    }, showHome)
+
+    addMenuButton(2, {
+        Label = "Story Mission",
+        Detail = "Solo or co-op. Everyone fights on the Medina side through the real turning points of the battle. Friends can join a mission already in progress.",
+        Accent = Color3.fromRGB(70, 118, 82),
+    }, function()
+        joinBattle(item.Id, item.Label .. " story mission", "mission")
+    end)
+
+    addMenuButton(3, {
+        Label = "Team Skirmish",
+        Detail = "Player against player on the same battlefield. Needs at least two players.",
+        Accent = Color3.fromRGB(120, 92, 62),
+    }, function()
+        joinBattle(item.Id, item.Label .. " team skirmish", "skirmish")
+    end)
 end
 
 showSahabiMenu = function()

@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-# Runs the hub world builder (HubWorldBuilder and the Masjid al-Haram module) inside a mock
+# Runs the hub world builder (HubWorldBuilder and the Masjid al-Haram module) and the activity
+# zone builders (historical towns, mystery wing, co-op trials, training grounds) inside a mock
 # Roblox engine and checks the result: it builds without errors, stays inside a part budget,
 # keeps the arrival spawn clear, and places the landmarks the learning trail talks about.
-# Usage: tests/hub/run.sh [path-to-luau-binary] [--dump]
+# Usage: tests/hub/run.sh [path-to-luau-binary] [--dump | --dump-all]
 #   --dump prints every part as a PART| line instead (feed it to tests/hub/render.py).
 set -euo pipefail
 
@@ -34,7 +35,7 @@ register() {
     # Run the day/night service at 22:00 so the checks can see night mode.
     echo 'game:GetService("Lighting").ClockTime = 22'
 
-    for name in HubWorldBuilder HaramTimeService; do
+    for name in GameBootstrap HubWorldBuilder HaramTimeService HistoricalWorldBuilder MysteryService CoopTrialsService PvpArenaService BattleArenaBuilder; do
         file="$root/src/ServerScriptService/$name.server.lua"
         [ -f "$file" ] || continue
         echo "do"
@@ -46,10 +47,12 @@ register() {
         echo "end"
     done
 
-    if [ "$mode" = "--dump" ]; then
+    if [ "$mode" = "--dump" ] || [ "$mode" = "--dump-all" ]; then
+        [ "$mode" = "--dump-all" ] && echo "DUMP_ALL = true"
         cat "$root/tests/hub/dump.luau"
     else
         cat "$root/tests/hub/checks.luau"
+        cat "$root/tests/hub/zones.luau"
     fi
 } > "$bundle"
 

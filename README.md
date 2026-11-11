@@ -89,6 +89,17 @@ The best first playable version is:
 - `ResponsiveUi.client.lua` shrinks fixed-size menus so they fit on phone screens.
 - To also award real Roblox badges, create them in Creator Hub and set `RobloxBadgeId` on the matching badge in `Progression.lua`.
 
+## Battle Story Missions
+
+The battle gates offer two modes: **Story Mission** (co-op, 1 to 8 players) and **Team Skirmish** (the original PvP mode).
+
+- `Shared/Data/BattleMissions.lua` defines each mission as a list of objectives (reach, hold, defend, defeat, discipline, narration), the enemy waves and lanes, the allied soldiers, and cited narration cards between steps.
+- **Badr**: march to the wells, hold them, the rain falls (Qur'an 8:11), defend the banner through three waves, face the Makkan captain, then show mercy to the captives.
+- **Uhud**: take position on the Archers' Hill, cover the army, then hold your post while the spoils tempt you. Allied archers leave their post as the historical archers did, and if players leave too, the cavalry flank arrives in force. The mission ends with the climb to the mountain and the regrouping.
+- `ServerScriptService/Modules/BattleNpc.lua` runs the soldiers: R6 rigs with walk and attack animations, telegraphed sword swings, arrows with gravity, formations, and pathfinding when they get stuck. `MissionDirector.lua` runs the objectives, waves, respawns, and the HUD state.
+- Missions earn up to 3 stars (complete, keep the steadfast goal, few falls) and end with a reflection quiz graded on the server. New badges: three stars at Badr and at Uhud, "Kept the Post", "Lessons of the Battles", and "Battle Veteran".
+- Soldiers are generic and unnamed. The Prophet ﷺ and the Companions are never shown, and named historical figures appear only in narration.
+
 Content added to `IslamicStudies.lua` should cite its Qur'an or hadith source, stay general where schools of thought differ, and never depict a Prophet.
 
 ## Automated Checks
@@ -97,6 +108,9 @@ Content added to `IslamicStudies.lua` should cite its Qur'an or hadith source, s
 
 - `tests/luau/run.sh <luau>` runs unit tests for the shared data and progression rules outside Studio.
 - `tests/analyze.sh <luau-lsp> <rojo> <globalTypes.d.luau>` type-checks every script against the Roblox API and fails on syntax errors, unknown globals, and broken requires.
+- `tests/world/run.sh <luau>` builds the battle arenas against a mock Roblox engine and checks that every mission point has ground, every enemy lane and player route can be walked, and no spawn is inside rock.
+- `tests/sim/run.sh <luau>` runs the real server scripts with simulated players in virtual time: a two-player PvP match and rematch, saving and loading progress (and a DataStore outage), chat and voice mute, friends-only joining, the co-op course, a parkour climb, all 30 Seerah chapters, and a two-player mystery room.
+- `tests/hub/run.sh <luau>` also builds the activity zones (historical towns, mystery wing, co-op trials, training grounds) and checks they are kept apart from the hub and from each other, every Seerah site has its marker, and every collect chapter and mystery room has its items.
 - `tests/hub/run.sh <luau>` builds the whole hub in a mock Roblox engine and checks it: part and light budgets, the 2048-stud part limit, clear spawn and tawaf areas, walkable gates and ramps, the 13 minarets, the clock and night lighting, tawaf pilgrims that never walk through a landmark, and that no other district leaks into Masjid al-Haram.
 
 To preview the hub without Studio, dump the parts and render a rough picture (shapes and colours only, no SurfaceGui detail):
@@ -110,9 +124,29 @@ python3 tests/hub/render.py parts.txt view.png --eye=0,40,170 --at=0,30,0
 
 `src/ServerScriptService/Modules/MasjidAlHaram.lua` builds the sanctuary after today's mosque: the Kaaba (kiswa, gold hizam, sitara, Black Stone, Rukn al-Yamani, Mizab, Shadharwan), Hijr Ismail, Maqam Ibrahim, the white marble mataf, the multi-level mataf expansion with ramps, the Ottoman riwaq, the Saudi galleries, the Safa-Marwa mas'a, the King Fahd and King Abdullah expansions with named gates, 13 minarets and the Abraj Al-Bait clock tower. In this world +Z is north, so the clock tower stands to the south and the road to Madinah leaves to the north. `HaramTimeService.server.lua` sets the clock to Makkah time and turns the night lighting on after dark. Pilgrims in ihram are placed on the mataf by the server, and `TawafAmbience.client.lua` walks them anticlockwise around the Kaaba on each client while the player is nearby.
 
+## Journeys: campaign, mysteries, parkour, co-op, PvP, social
+
+Players open everything below from the **Journeys** button (`JourneyBook.client.lua`); the
+on-screen objective cards are in `JourneyHud.client.lua`.
+
+- **Seerah campaign**: 30 chapters in order, in historical Makkah (610 CE) and Madinah (622 CE),
+  built far from the present-day hub. Each chapter: travel, story, activity (find items or play
+  Badr/Uhud), and a decision that explains what really happened. Checklist: `docs/seerah-checklist.md`.
+- **Sahabi mysteries**: 5 escape rooms (Bilal, Salman, Uthman, Asma, Mus'ab) with clues, 3 hints,
+  a two-question lock, a playable episode and a conclusion. Rooms are shared, so friends solve together.
+- **Parkour tower**: a 24-step spiral with checkpoints and a best time. A unit test checks every
+  jump against default Roblox movement.
+- **Trials of Brotherhood**: a two-player co-op course (twin plates, lift and counterweight, twin finish).
+- **Training Grounds**: a PvP sparring ring, first to 3 rounds, with rematch voting.
+- **Friends**: invite, join a friend, mute (chat and voice), block, report through the Roblox menu.
+- **Support**: rewarded video ads and a creator-only business ledger (`docs/monetization-setup.md`).
+
+Storytelling rules and sources: `docs/sources.md`. What was tested and what is still blocked:
+`docs/playtest-report.md`.
+
 ## Next Build Steps
 
 1. Open `build.rbxlx` in Roblox Studio and playtest the generated hub, story prompts, battle gates, manners court, shop, and teleport menu.
-2. Replace placeholder product and ad placement IDs in `ShopCatalog.lua` with real Creator Hub IDs.
+2. Replace placeholder product IDs in `ShopCatalog.lua` and the ad reward product in `Config/MonetizationConfig.lua` with real Creator Hub IDs.
 3. Publish the experience from Studio and enable the Roblox monetization settings described in `docs/monetization-setup.md`.
 4. Add a longer Studio QA pass for mobile UI, battle pacing, and sacred-location review before public release.

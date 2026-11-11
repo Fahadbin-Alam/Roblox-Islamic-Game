@@ -1,6 +1,13 @@
 -- Minimal stand-ins for the Roblox globals used by the shared data modules.
 Color3 = { fromRGB = function(r, g, b) return { R = r, G = g, B = b } end }
-Vector3 = { new = function(x, y, z) return { X = x or 0, Y = y or 0, Z = z or 0 } end }
+local vectorMeta = {}
+Vector3 = { new = function(x, y, z) return setmetatable({ X = x or 0, Y = y or 0, Z = z or 0 }, vectorMeta) end }
+vectorMeta.__add = function(a, b) return Vector3.new(a.X + b.X, a.Y + b.Y, a.Z + b.Z) end
+vectorMeta.__sub = function(a, b) return Vector3.new(a.X - b.X, a.Y - b.Y, a.Z - b.Z) end
+vectorMeta.__index = function(v, key)
+    if key == "Magnitude" then return math.sqrt(v.X * v.X + v.Y * v.Y + v.Z * v.Z) end
+    return nil
+end
 Enum = setmetatable({}, { __index = function(_, enumName)
     return setmetatable({}, { __index = function(_, item) return enumName .. "." .. item end })
 end })

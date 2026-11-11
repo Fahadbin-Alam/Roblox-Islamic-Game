@@ -13,6 +13,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local ShopCatalog = require(Shared.Data.ShopCatalog)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
+local BusinessMetrics = require(script.Parent.Modules.BusinessMetrics)
 
 local shopFolder = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Shop")
 local requestShopState = shopFolder:WaitForChild("RequestShopState") :: RemoteEvent
@@ -321,7 +322,7 @@ end
 local function promptProduct(player: Player, key: string)
     local item = developerProductByKey[key]
 
-    if not item then
+    if not item or (item :: any).Hidden then
         sendFeedback(player, "That product is not configured.", "warning")
         return
     end
@@ -539,6 +540,13 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
     local granted = grantDeveloperProduct(player, item)
 
     if granted then
+        -- Real revenue and ad numbers for the business ledger (docs/monetization-setup.md).
+        BusinessMetrics.RecordPurchase(tonumber(receiptInfo.CurrencySpent) or 0, item.Key)
+
+        if item.Type == "AdReward" then
+            BusinessMetrics.RecordAdReward()
+        end
+
         return Enum.ProductPurchaseDecision.PurchaseGranted
     end
 

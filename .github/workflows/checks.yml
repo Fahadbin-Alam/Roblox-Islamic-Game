@@ -30,5 +30,14 @@ jobs:
       - name: Hub world checks
         run: tests/hub/run.sh "$RUNNER_TEMP/tools/luau"
 
+      - name: Battle arena layout checks
+        run: tests/world/run.sh "$RUNNER_TEMP/tools/luau"
+
+      - name: Multiplayer simulation (real server scripts, simulated players)
+        run: tests/sim/run.sh "$RUNNER_TEMP/tools/luau"
+
+      - name: Client scripts against the real server (every button pressed)
+        run: tests/client/run.sh "$RUNNER_TEMP/tools/luau"
+
       - name: Static analysis
         run: tests/analyze.sh "$RUNNER_TEMP/tools/luau-lsp" "$RUNNER_TEMP/tools/rojo" "$RUNNER_TEMP/tools/globalTypes.d.luau"

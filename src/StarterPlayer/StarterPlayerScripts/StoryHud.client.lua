@@ -1,6 +1,7 @@
 --!strict
 
 local Players = game:GetService("Players")
+local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local storyFolder = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Story")
@@ -87,6 +88,7 @@ dialogueFrame.BackgroundColor3 = Color3.fromRGB(30, 27, 24)
 dialogueFrame.BackgroundTransparency = 0.08
 dialogueFrame.Visible = false
 dialogueFrame.Parent = screenGui
+UiKit.FitToScreen(dialogueFrame)
 
 local dialogueCorner = Instance.new("UICorner")
 dialogueCorner.CornerRadius = UDim.new(0, 18)

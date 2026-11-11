@@ -21,6 +21,7 @@ local TARGETS: { [string]: { Recenter: boolean } } = {
     StoryHud = { Recenter = false },
     LearningTrailHud = { Recenter = false },
     BattleHud = { Recenter = false },
+    MissionHud = { Recenter = false },
 }
 
 type Original = { AnchorPoint: Vector2, Position: UDim2 }

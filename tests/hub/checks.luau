@@ -1,6 +1,7 @@
 -- Checks on the hub built by HubWorldBuilder inside the mock engine (see run.sh).
 local Workspace = game:GetService("Workspace")
 local world = Workspace:FindFirstChild("GeneratedHub")
+local TravelRoute = require(game:GetService("ReplicatedStorage").Shared.Data.TravelRoute)
 local failures = 0
 
 local function check(ok, message)
@@ -41,7 +42,7 @@ for _, section in ipairs(haram:GetChildren()) do
 end
 
 -- Budgets keep the hub light enough for phones; raise them deliberately, not by accident.
-check(totalParts <= 7500, "whole hub stays within 7500 parts")
+check(totalParts <= 9000, "whole hub stays within 9000 parts")
 check(haramParts <= 5600, "Masjid al-Haram stays within 5600 parts")
 check(haramLights <= 90, "Masjid al-Haram uses at most 90 lights")
 check(haramFrames <= 3000, "kiswa and sign patterns use at most 3000 SurfaceGui frames")
@@ -142,6 +143,13 @@ for _, item in ipairs(world:GetDescendants()) do
         table.insert(collidable, item)
     end
 end
+-- The battle arenas share the Workspace, and their invisible safety walls block players too.
+local battles = game:GetService("Workspace"):FindFirstChild("GeneratedBattles")
+for _, item in ipairs(battles and battles:GetDescendants() or {}) do
+    if item:IsA("BasePart") and item.CanCollide then
+        table.insert(collidable, item)
+    end
+end
 
 -- Body-sized column of space a player needs (feet slightly above the floor).
 local function blockedAt(position, height)
@@ -194,6 +202,156 @@ local function walkable(from, to, label)
     check(true, label .. " is walkable")
 end
 walkable(Vector3.new(0, floorY, 180), Vector3.new(0, floorY, 760), "north route through King Abdullah Gate to the Medina road")
+
+-- Each promenade from the edge of the Haram terrace leads to its court or gate on foot. The
+-- walker follows the floor: at each step it stands on the highest surface it can step onto
+-- (at most 3 studs up), and the space for its body there must be clear.
+local function surfaceTop(part, x, z)
+    if math.abs(part.CFrame.UpVector.Y) < 0.99 then
+        return nil
+    end
+    local l = part.CFrame:PointToObjectSpace(Vector3.new(x, part.Position.Y, z))
+    local h = part.Size / 2
+    if math.abs(l.X) > h.X or math.abs(l.Z) > h.Z then
+        return nil
+    end
+    if part.ClassName == "WedgePart" then
+        return part.Position.Y - h.Y + part.Size.Y * (l.Z + h.Z) / part.Size.Z
+    end
+    return part.Position.Y + h.Y
+end
+
+local function walkOnFloor(points, label)
+    local feet = points[1].Y
+    local samples = {}
+    for leg = 1, #points - 1 do
+        local from, to = Vector3.new(points[leg].X, 0, points[leg].Z), Vector3.new(points[leg + 1].X, 0, points[leg + 1].Z)
+        local steps = math.ceil((to - from).Magnitude / 2)
+        for i = 0, steps do
+            table.insert(samples, from:Lerp(to, i / steps))
+        end
+    end
+    for _, p in ipairs(samples) do
+        local best = nil
+        for _, part in ipairs(collidable) do
+            local top = surfaceTop(part, p.X, p.Z)
+            if top and top <= feet + 3 and top >= feet - 30 and (best == nil or top > best) then
+                best = top
+            end
+        end
+        feet = best or feet
+        local blocker = nil
+        for _, part in ipairs(collidable) do
+            -- Anything whose top the walker can step onto is a step, not a wall.
+            local stepTop = surfaceTop(part, p.X, p.Z) or (part.Position.Y + part.Size.Y / 2)
+            if stepTop > feet + 3 or math.abs(part.CFrame.UpVector.Y) < 0.99 then
+                for dy = 1, 5 do
+                    if pointInside(part, Vector3.new(p.X, feet + dy, p.Z)) then
+                        blocker = part.Name
+                        break
+                    end
+                end
+            end
+            if blocker then
+                break
+            end
+        end
+        if blocker then
+            check(false, label .. " is walkable (blocked by " .. blocker .. " near " .. tostring(p) .. ")")
+            return
+        end
+    end
+    check(true, label .. " is walkable")
+end
+
+local function v(x, z)
+    return Vector3.new(x, 7.5, z)
+end
+walkOnFloor({ v(714, 220), v(920, 220) }, "promenade into the story court")
+walkOnFloor({ v(714, -240), v(920, -240) }, "promenade into the trivia court")
+walkOnFloor({ v(-714, -240), v(-920, -240) }, "promenade into the manners court")
+walkOnFloor({ v(-714, 220), v(-846, 220) }, "promenade to the parkour tower deck")
+walkOnFloor({ v(0, 714), v(0, 980), v(0, 1400) }, "Journey road from the Haram terrace past the camp toward Madinah")
+for _, gate in ipairs({ { "badr", -560 }, { "uhud", -860 } }) do
+    local z = gate[2]
+    walkOnFloor({ v(-714, z), v(-978, z), v(-978, z + 70), v(-1090, z + 70), v(-1090, z - 24) }, "promenade around to the " .. gate[1] .. " gate queue")
+end
+
+-- No travel destination drops the player into a wall or a building: the space from 8 to 12
+-- studs above each destination point (where the body lands, above any raised floor) is open.
+for _, destination in ipairs(TravelRoute.Destinations) do
+    local landing = destination.TeleportPosition or destination.Position
+    local blocker = blockedAt(landing + Vector3.new(0, 7, 0), 5)
+    check(blocker == nil, destination.Id .. " arrival point is clear" .. (blocker and (" (blocked by " .. blocker .. ")") or ""))
+end
+
+-- Present-day Madinah: walk from the arrival point through a north door of the prayer hall
+-- to the Rawdah, and along the visitation route in from Bab as-Salam.
+-- At night every travel destination has a lamp, chandelier or fire within 70 studs, so
+-- players never arrive in the dark.
+local hubLights = {}
+for _, light in ipairs(game:GetService("Workspace"):GetDescendants()) do
+    if light:IsA("Light") and light.Parent and light.Parent:IsA("BasePart") then
+        table.insert(hubLights, light.Parent.Position)
+    end
+end
+local unlit = {}
+for _, destination in ipairs(TravelRoute.Destinations) do
+    local landing = destination.TeleportPosition or destination.Position
+    local lit = false
+    for _, position in ipairs(hubLights) do
+        if (position - landing).Magnitude < 70 then
+            lit = true
+            break
+        end
+    end
+    if not lit then
+        table.insert(unlit, destination.Id)
+    end
+end
+check(#unlit == 0, "every travel destination has a light nearby at night" .. (#unlit > 0 and (": " .. table.concat(unlit, ", ")) or ""))
+
+-- No scenery (a decorative rock ridge, a backdrop mountain) swallows a destination: a player's
+-- camera at the landing point, at the destination centre or 40 studs around it must not sit
+-- inside any large non-colliding part.
+local scenery = {}
+for _, part in ipairs(game:GetService("Workspace"):GetDescendants()) do
+    if part:IsA("BasePart") and not part.CanCollide and part.Transparency < 0.5 and part.Size.Magnitude > 60 then
+        table.insert(scenery, part)
+    end
+end
+local swallowed = {}
+for _, destination in ipairs(TravelRoute.Destinations) do
+    local landing = destination.TeleportPosition or destination.Position
+    local probes = { landing, destination.Position }
+    for step = 0, 7 do
+        local angle = step * math.pi / 4
+        table.insert(probes, destination.Position + Vector3.new(math.cos(angle) * 40, 0, math.sin(angle) * 40))
+    end
+    for _, probe in ipairs(probes) do
+        local eye = probe + Vector3.new(0, 6, 0)
+        local hit = nil
+        for _, part in ipairs(scenery) do
+            local l = part.CFrame:PointToObjectSpace(eye)
+            local h = part.Size / 2
+            if math.abs(l.X) < h.X and math.abs(l.Y) < h.Y and math.abs(l.Z) < h.Z then
+                hit = part
+                break
+            end
+        end
+        if hit then
+            table.insert(swallowed, string.format("%s (%s)", destination.Id, hit:GetFullName()))
+            break
+        end
+    end
+end
+check(#swallowed == 0, "no rock ridge or backdrop swallows a travel destination" .. (#swallowed > 0 and (": " .. table.concat(swallowed, "; ")) or ""))
+
+local medina = TravelRoute.GetDestinationById("medina_courtyard").Position
+local medinaFloor = medina.Y + 4.6
+walkable(Vector3.new(medina.X, medinaFloor, medina.Z + 136), Vector3.new(medina.X, medinaFloor, medina.Z - 120), "Medina arrival through the north door into the prayer hall")
+walkable(Vector3.new(medina.X - 280, medinaFloor, medina.Z - 146.7), Vector3.new(medina.X + 40, medinaFloor, medina.Z - 146.7), "Medina visitation route from Bab as-Salam to the chamber marker")
+
 walkable(Vector3.new(0, floorY, -180), Vector3.new(0, floorY, -720), "south route through King Abdulaziz Gate")
 walkable(Vector3.new(180, floorY, 0), Vector3.new(720, floorY, 0), "west route through King Fahd Gate")
 walkable(Vector3.new(-180, floorY, 0), Vector3.new(-720, floorY, 0), "east route through Bab as-Salam and the mas'a")

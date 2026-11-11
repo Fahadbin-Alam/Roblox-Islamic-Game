@@ -10,6 +10,8 @@ local HaramLearningTrail = require(Shared.Data.HaramLearningTrail)
 local MannersLessons = require(Shared.Data.MannersLessons)
 local TravelRoute = require(Shared.Data.TravelRoute)
 local BuildUtils = require(script.Parent.Modules.BuildUtils)
+local Decor = require(script.Parent.Modules.Decor)
+local ParkourCourses = require(Shared.Data.ParkourCourses)
 local MasjidAlHaram = require(script.Parent.Modules.MasjidAlHaram)
 
 local MECCA_STONE = Color3.fromRGB(196, 186, 168)
@@ -157,6 +159,16 @@ local function createPromenadePath(parent: Instance, name: string, startPosition
         nil,
         nil
     ).CanCollide = false
+
+    -- A palm and a lantern on each side, a third of the way along, so the walk is not bare.
+    local top = baseY + 0.45
+    local frame = CFrame.new(midpoint.X, top, midpoint.Z) * CFrame.Angles(0, yaw, 0)
+    for _, side in ipairs({ -1, 1 }) do
+        local palmAt = (frame * CFrame.new(side * (width * 0.5 - 4), 0, -length / 6)).Position
+        Decor.Palm(parent, string.format("%s_Palm", name), palmAt, 18, #name + side, true)
+        local lampAt = (frame * CFrame.new(side * (width * 0.5 - 3), 0, length / 6)).Position
+        Decor.LanternPost(parent, string.format("%s_Lantern", name), lampAt, 10)
+    end
 end
 
 local function createSafetyBounds(parent: Instance, namePrefix: string, center: Vector3, footprint: Vector3)
@@ -378,10 +390,10 @@ local function createWorldBackdrop(parent: Instance, center: Vector3)
     local backdrop = BuildUtils.CreateFolder(parent, "WorldBackdrop")
 
     for index, ridge in ipairs({
-        { Name = "FarNorthWest", Position = center + Vector3.new(-1120, 0, -1180), Length = 560, Height = 196, Depth = 194, Yaw = 16, Color = DESERT_ROCK },
+        { Name = "FarNorthWest", Position = center + Vector3.new(-1560, 0, -1180), Length = 560, Height = 196, Depth = 194, Yaw = 16, Color = DESERT_ROCK },
         { Name = "FarNorth", Position = center + Vector3.new(0, 0, -1990), Length = 760, Height = 228, Depth = 186, Yaw = -2, Color = Color3.fromRGB(142, 114, 83) },
         { Name = "FarNorthEast", Position = center + Vector3.new(1120, 0, -1160), Length = 560, Height = 192, Depth = 190, Yaw = -16, Color = DESERT_ROCK },
-        { Name = "FarWest", Position = center + Vector3.new(-1320, 0, 260), Length = 470, Height = 182, Depth = 214, Yaw = 26, Color = Color3.fromRGB(136, 108, 79) },
+        { Name = "FarWest", Position = center + Vector3.new(-1900, 0, 260), Length = 470, Height = 182, Depth = 214, Yaw = 26, Color = Color3.fromRGB(136, 108, 79) },
         { Name = "FarEast", Position = center + Vector3.new(1320, 0, 260), Length = 470, Height = 182, Depth = 214, Yaw = -24, Color = Color3.fromRGB(140, 112, 81) },
         { Name = "FarSouthWest", Position = center + Vector3.new(-1080, 0, 1290), Length = 540, Height = 184, Depth = 166, Yaw = 18, Color = DESERT_ROCK },
         { Name = "FarSouth", Position = center + Vector3.new(0, 0, 1360), Length = 760, Height = 208, Depth = 154, Yaw = 0, Color = Color3.fromRGB(146, 118, 86) },
@@ -438,7 +450,8 @@ local function createMedinaGate(parent: Instance, name: string, center: Vector3,
     BuildUtils.CreatePart(gateFolder, "Beam", Vector3.new(36, 8, 9), CFrame.new(center) * rotation * CFrame.new(0, 24, 0), MEDINA_STONE, Enum.Material.Marble, nil, nil)
     BuildUtils.CreatePart(gateFolder, "Threshold", Vector3.new(38, 1, 14), CFrame.new(center) * rotation * CFrame.new(0, 0.5, 0), Color3.fromRGB(218, 214, 202), Enum.Material.Marble, nil, nil)
 
-    local signOffset = Vector3.new(0, 0, 14)
+    -- The sign stands beside the passage so it never blocks the way through the gate.
+    local signOffset = Vector3.new(-30, 0, 10)
     local signPosition = (CFrame.new(center) * rotation * CFrame.new(signOffset)).Position
     createWallPanel(gateFolder, "GateSign", signPosition, Vector3.new(40, 10, 2), title, subtitle, Color3.fromRGB(58, 90, 63), orientationY + 180, nil)
 end
@@ -528,7 +541,7 @@ local function buildDesertRoute(parent: Instance, startPosition: Vector3, stopPo
     local routeLength = math.abs(endPosition.Z - routeEntryPosition.Z) + 220
 
     BuildUtils.CreatePart(district, "SafetyPlate", Vector3.new(1020, 10, routeLength + 260), CFrame.new(routeCenter + Vector3.new(0, -9, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
-    BuildUtils.CreatePart(district, "DesertBase", Vector3.new(860, 4, routeLength), CFrame.new(routeCenter + Vector3.new(0, 2, 0)), DESERT_SAND, Enum.Material.Sand, nil, nil)
+    BuildUtils.CreatePart(district, "DesertBase", Vector3.new(860, 3.94, routeLength), CFrame.new(routeCenter + Vector3.new(0, 1.97, 0)), DESERT_SAND, Enum.Material.Sand, nil, nil)
     BuildUtils.CreateDune(district, "RouteLongWestDune", routeCenter + Vector3.new(-220, 0, -120), Vector3.new(420, 62, routeLength * 0.42), Color3.fromRGB(204, 179, 132))
     BuildUtils.CreateDune(district, "RouteLongEastDune", routeCenter + Vector3.new(226, 0, 160), Vector3.new(440, 66, routeLength * 0.45), Color3.fromRGB(199, 175, 129))
     BuildUtils.CreatePart(district, "TravelPath", Vector3.new(102, 1, routeLength - 140), CFrame.new(routeCenter + Vector3.new(0, 4.55, 0)), Color3.fromRGB(182, 154, 110), Enum.Material.Sandstone, nil, nil)
@@ -582,14 +595,53 @@ local function buildDesertRoute(parent: Instance, startPosition: Vector3, stopPo
     BuildUtils.CreatePart(district, "CampPath", Vector3.new(82, 1, 120), CFrame.new(stopPosition + Vector3.new(0, 3.55, -6)), Color3.fromRGB(222, 212, 190), Enum.Material.Sandstone, nil, nil)
     createTent(district, "CampTentWest", stopPosition + Vector3.new(-56, 0, 28), Color3.fromRGB(120, 88, 54))
     createTent(district, "CampTentEast", stopPosition + Vector3.new(56, 0, 28), Color3.fromRGB(135, 98, 59))
-    BuildUtils.CreatePlanter(district, "OasisPlanter", stopPosition + Vector3.new(0, 0, -42), Vector3.new(56, 3, 46))
+    BuildUtils.CreatePlanter(district, "OasisPlanter", stopPosition + Vector3.new(0, 0.05, -42), Vector3.new(56, 3, 46))
     BuildUtils.CreatePalmTree(district, "OasisPalmWest", stopPosition + Vector3.new(-18, 0, -44))
     BuildUtils.CreatePalmTree(district, "OasisPalmEast", stopPosition + Vector3.new(18, 0, -40))
     createLightPost(district, "CampLightWest", stopPosition + Vector3.new(-78, 0, -28))
     createLightPost(district, "CampLightEast", stopPosition + Vector3.new(78, 0, -28))
-    createWallPanel(district, "MakkahRouteStartSign", routeEntryPosition + Vector3.new(0, 0, 96), Vector3.new(76, 12, 2.5), "Makkah To Medina Route", "Ride a camel or follow the lamp markers. This long path teaches distance and migration without depicting the Prophet.", Color3.fromRGB(105, 83, 55), 0, nil)
-    createWallPanel(district, "CampSign", stopPosition + Vector3.new(0, 0, -76), Vector3.new(72, 12, 2.5), "Desert Route Camp", "A longer travel stretch now separates Makkah and Medina, with a mid-route camp for reflection and story stops.", Color3.fromRGB(111, 88, 58), 0, nil)
+    -- Both route signs stand beside the road, not across it.
+    createWallPanel(district, "MakkahRouteStartSign", routeEntryPosition + Vector3.new(-82, 0, 96), Vector3.new(76, 12, 2.5), "Makkah To Medina Route", "Ride a camel or follow the lamp markers. This long path teaches distance and migration without depicting the Prophet.", Color3.fromRGB(105, 83, 55), 0, nil)
+    createWallPanel(district, "CampSign", stopPosition + Vector3.new(82, 0, -76), Vector3.new(72, 12, 2.5), "Desert Route Camp", "A longer travel stretch now separates Makkah and Medina, with a mid-route camp for reflection and story stops.", Color3.fromRGB(111, 88, 58), 0, nil)
     createWallPanel(district, "MedinaRouteArrivalSign", endPosition + Vector3.new(0, 0, -132), Vector3.new(76, 12, 2.5), "Medina Approach", "The route ends at a green-and-white Medina district with gates, courtyard markers, and a respectful visitation path.", Color3.fromRGB(58, 91, 66), 180, nil)
+
+    -- A Bedouin camp and a small palm oasis at the mid-route stop, and scrub and boulders along
+    -- the way. All of it stands clear of the path (|x| < 51) and the camp court entrance.
+    local camp = BuildUtils.CreateFolder(district, "CampDressing")
+    -- The desert surface along the route is 4 studs above the route points.
+    local campFloor = stopPosition + Vector3.new(0, 4, 0)
+    Decor.Tent(camp, "GoatHairTentWest", CFrame.new(campFloor + Vector3.new(-80, 0, 58)) * CFrame.Angles(0, math.rad(180), 0), 20, 3)
+    Decor.Tent(camp, "GoatHairTentEast", CFrame.new(campFloor + Vector3.new(80, 0, 58)) * CFrame.Angles(0, math.rad(180), 0), 18, 7)
+    Decor.Well(camp, "CampWell", campFloor + Vector3.new(-60, 0, -40))
+    Decor.Camel(camp, "RestingCamelA", CFrame.new(campFloor + Vector3.new(-88, 0, 10)) * CFrame.Angles(0, math.rad(80), 0), 1)
+    Decor.Camel(camp, "RestingCamelB", CFrame.new(campFloor + Vector3.new(90, 0, 4)) * CFrame.Angles(0, math.rad(-100), 0), 2)
+
+    for index = 1, 3 do
+        Decor.Rug(camp, "CampRug", CFrame.new(campFloor + Vector3.new(-20 + index * 10, 0, 62)) * CFrame.Angles(0, index * 0.3, 0), 6, 9, index)
+    end
+
+    for index = 1, 9 do
+        local angle = index * 0.7
+        Decor.Palm(camp, "OasisPalm", campFloor + Vector3.new(130 + math.cos(angle) * 30, 0, -10 + math.sin(angle) * 40), 18 + index % 4 * 2, index * 13, true)
+        Decor.Palm(camp, "OasisPalm", campFloor + Vector3.new(-140 + math.cos(angle) * 26, 0, 30 + math.sin(angle) * 34), 17 + index % 3 * 2, index * 17, true)
+    end
+
+    local scrub = BuildUtils.CreateFolder(district, "RouteScrub")
+    local stepZ = 0
+
+    for z = routeEntryPosition.Z + 120, endPosition.Z - 200, 70 do
+        stepZ += 1
+        local side = if stepZ % 2 == 0 then 1 else -1
+        local x = side * (80 + (stepZ * 37) % 90)
+
+        if math.abs(z - stopPosition.Z) > 110 then
+            if stepZ % 3 == 0 then
+                Decor.Rocks(scrub, "RouteBoulders", Vector3.new(x, 8, z), 5 + stepZ % 4, stepZ)
+            else
+                Decor.Shrub(scrub, "RouteShrub", Vector3.new(x, 8, z), stepZ)
+            end
+        end
+    end
 end
 
 local function buildSupportLounge(parent: Instance, center: Vector3)
@@ -609,6 +661,69 @@ local function buildSupportLounge(parent: Instance, center: Vector3)
     createWallPanel(district, "SupportSign", center + Vector3.new(0, 0, 36), Vector3.new(74, 12, 2.5), "Creator Support Lounge", "Skins, support products, and ad screens live on the edge of the Makkah hub so the sacred center stays cleaner.", Color3.fromRGB(58, 91, 73), 0, nil)
     createLightPost(district, "SupportLightLeft", center + Vector3.new(-46, 0, 22))
     createLightPost(district, "SupportLightRight", center + Vector3.new(46, 0, 22))
+end
+
+-- Shared dressing for the learning courts: arched niches and battlements along the back wall,
+-- and shaded colonnades down both sides. Columns are spaced 24 apart so the sides stay open.
+local function dressCourt(district: Instance, center: Vector3, width: number, depth: number, backZ: number, wallHeight: number, accent: Color3)
+    local dress = BuildUtils.CreateFolder(district, "Dressing")
+    local face = backZ + 4.3
+    local bays = 9
+    local bay = (width - 20) / bays
+
+    for index = 1, bays do
+        local x = -(width - 20) / 2 + (index - 0.5) * bay
+        Decor.Deco(dress, "NicheRecess", Vector3.new(bay - 6, wallHeight - 9, 0.4), CFrame.new(center + Vector3.new(x, 4 + (wallHeight - 9) / 2 + 1, face)), Color3.fromRGB(184, 172, 150), Enum.Material.Marble)
+        Decor.Deco(dress, "NicheArch", Vector3.new(0.5, bay - 6, bay - 6), CFrame.new(center + Vector3.new(x, 4 + wallHeight - 8, face)) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(184, 172, 150), Enum.Material.Marble, Enum.PartType.Cylinder)
+        Decor.Deco(dress, "NicheTile", Vector3.new(bay - 9, 1.2, 0.5), CFrame.new(center + Vector3.new(x, 7, face + 0.1)), accent, Enum.Material.Glass)
+    end
+
+    for index = 1, math.floor(width / 10) do
+        local x = -width / 2 + (index - 0.5) * (width / math.floor(width / 10))
+        Decor.Deco(dress, "Merlon", Vector3.new(3.4, 3, 3), CFrame.new(center + Vector3.new(x, wallHeight + 4 + 1.5, backZ)), Color3.fromRGB(206, 195, 171), Enum.Material.Marble)
+    end
+
+    for _, side in ipairs({ -1, 1 }) do
+        local x = side * (width / 2 - 3)
+        local zFrom, zTo = backZ + 14, depth / 2 - 8
+
+        for z = zFrom, zTo, 24 do
+            BuildUtils.CreateVerticalCylinder(dress, "Colonnade", 16, 1.1, center + Vector3.new(x, 12, z), Color3.fromRGB(236, 230, 216), Enum.Material.Marble, nil)
+            Decor.Deco(dress, "ColonnadeCapital", Vector3.new(3.2, 1.4, 3.2), CFrame.new(center + Vector3.new(x, 20.4, z)), GOLD_ACCENT, Enum.Material.Metal)
+        end
+
+        Decor.Deco(dress, "ColonnadeBeam", Vector3.new(4, 2, zTo - zFrom + 4), CFrame.new(center + Vector3.new(x, 22, (zFrom + zTo) / 2)), Color3.fromRGB(206, 195, 171), Enum.Material.Marble)
+        Decor.Deco(dress, "ColonnadeShade", Vector3.new(16, 0.3, zTo - zFrom), CFrame.new(center + Vector3.new(x - side * 8, 21, (zFrom + zTo) / 2)) * CFrame.Angles(0, 0, math.rad(side * 10)), Color3.fromRGB(244, 240, 228), Enum.Material.Fabric)
+
+        -- Seating under the colonnade: rugs with cushions, and a lantern at each end.
+        for index, z in ipairs({ backZ + 30, (backZ + depth / 2) / 2 + 10 }) do
+            local rugAt = center + Vector3.new(x - side * 9, 5.1, z)
+            Decor.Rug(dress, "CourtRug", CFrame.new(rugAt), 8, 14, index + (if side < 0 then 0 else 4))
+            for cushion = -1, 1, 2 do
+                Decor.Deco(dress, "Cushion", Vector3.new(2.2, 1, 3), CFrame.new(rugAt + Vector3.new(side * 3, 0.6, cushion * 4)), accent, Enum.Material.Fabric)
+            end
+        end
+        Decor.LanternPost(dress, "CourtLantern", center + Vector3.new(x - side * 4, 5, depth / 2 - 14), 10)
+    end
+
+    -- Floor inlay: a border band and an eight-pointed star in the middle of the court.
+    local inlayY = 5.12
+    local inner = Vector3.new(width - 44, 0, depth - 46)
+    local band = Color3.fromRGB(196, 184, 160)
+    for _, edge in ipairs({
+        { Size = Vector3.new(inner.X, 0.12, 1.6), Offset = Vector3.new(0, 0, inner.Z / 2) },
+        { Size = Vector3.new(inner.X, 0.12, 1.6), Offset = Vector3.new(0, 0, -inner.Z / 2) },
+        { Size = Vector3.new(1.6, 0.12, inner.Z), Offset = Vector3.new(inner.X / 2, 0, 0) },
+        { Size = Vector3.new(1.6, 0.12, inner.Z), Offset = Vector3.new(-inner.X / 2, 0, 0) },
+    }) do
+        Decor.Deco(dress, "InlayBorder", edge.Size, CFrame.new(center + edge.Offset + Vector3.new(0, inlayY, (backZ + depth / 2) / 2 - 0)), band, Enum.Material.Marble)
+    end
+    local starAt = center + Vector3.new(0, inlayY, (backZ + depth / 2) / 2)
+    for turn = 0, 1 do
+        Decor.Deco(dress, "InlayStar", Vector3.new(22, 0.14, 22), CFrame.new(starAt) * CFrame.Angles(0, math.rad(45 * turn), 0), band, Enum.Material.Marble)
+        Decor.Deco(dress, "InlayStarCore", Vector3.new(15, 0.16, 15), CFrame.new(starAt) * CFrame.Angles(0, math.rad(45 * turn), 0), accent, Enum.Material.Marble)
+    end
+    Decor.Deco(dress, "InlayStarEye", Vector3.new(0.18, 8, 8), CFrame.new(starAt + Vector3.new(0, 0.02, 0)) * CFrame.Angles(0, 0, math.rad(90)), Color3.fromRGB(240, 232, 214), Enum.Material.Marble, Enum.PartType.Cylinder)
 end
 
 local function buildStoryCourt(parent: Instance, center: Vector3)
@@ -666,6 +781,8 @@ local function buildStoryCourt(parent: Instance, center: Vector3)
     BuildUtils.CreatePlanter(district, "StoryCourtPlanterEast", center + Vector3.new(94, 0, -24), Vector3.new(26, 3, 18))
     BuildUtils.CreatePalmTree(district, "StoryCourtPalmWest", center + Vector3.new(-94, 0, -24))
     BuildUtils.CreatePalmTree(district, "StoryCourtPalmEast", center + Vector3.new(94, 0, -24))
+
+    dressCourt(district, center, 220, 150, -72, 22, Color3.fromRGB(73, 96, 77))
 end
 
 local function buildMannersCourt(parent: Instance, center: Vector3)
@@ -728,6 +845,8 @@ local function buildMannersCourt(parent: Instance, center: Vector3)
 
     createLightPost(district, "MannersLightWest", center + Vector3.new(-108, 0, 18), Color3.fromRGB(128, 112, 89))
     createLightPost(district, "MannersLightEast", center + Vector3.new(108, 0, 18), Color3.fromRGB(128, 112, 89))
+
+    dressCourt(district, center, 230, 162, -78, 23, Color3.fromRGB(98, 119, 76))
 end
 
 local function buildTriviaCourt(parent: Instance, center: Vector3)
@@ -798,50 +917,50 @@ local function buildTriviaCourt(parent: Instance, center: Vector3)
     BuildUtils.CreatePlanter(district, "TriviaPlanterEast", center + Vector3.new(104, 0, 50), Vector3.new(28, 3, 20))
     BuildUtils.CreatePalmTree(district, "TriviaPalmWest", center + Vector3.new(-104, 0, 50))
     BuildUtils.CreatePalmTree(district, "TriviaPalmEast", center + Vector3.new(104, 0, 50))
+
+    dressCourt(district, center, 238, 168, -82, 24, Color3.fromRGB(63, 98, 88))
 end
 
 local function buildParkourCourse(parent: Instance, center: Vector3)
     local district = BuildUtils.CreateFolder(parent, "ParkourCourse")
+    local course = ParkourCourses.LobbyTower
 
     BuildUtils.CreatePart(district, "BaseDeck", Vector3.new(160, 4, 100), CFrame.new(center + Vector3.new(0, 2, 0)), Color3.fromRGB(220, 210, 193), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "TowerCore", Vector3.new(28, 132, 28), CFrame.new(center + Vector3.new(0, 66, 0)), MECCA_DARK, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "TowerTop", Vector3.new(54, 4, 54), CFrame.new(center + Vector3.new(0, 134, 0)), Color3.fromRGB(237, 232, 221), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "TowerCore", course.CoreSize, CFrame.new(center + Vector3.new(0, 4 + course.CoreSize.Y / 2, 0)), MECCA_DARK, Enum.Material.Marble, nil, nil)
+    BuildUtils.CreateVerticalCylinder(district, "TowerTop", course.SummitThickness, course.SummitRadius, center + Vector3.new(0, course.SummitHeight - course.SummitThickness / 2, 0), Color3.fromRGB(237, 232, 221), Enum.Material.Marble, nil)
 
-    local platformOffsets = {
-        Vector3.new(-34, 14, 0),
-        Vector3.new(28, 24, -16),
-        Vector3.new(-18, 34, -38),
-        Vector3.new(38, 44, 6),
-        Vector3.new(-36, 56, 24),
-        Vector3.new(20, 68, 38),
-        Vector3.new(-8, 80, -42),
-        Vector3.new(42, 92, -12),
-        Vector3.new(-40, 104, 8),
-        Vector3.new(0, 118, 44),
-    }
+    -- A spiral of steps around the core (see Shared/Data/ParkourCourses; the unit tests check
+    -- every jump is possible with default movement). Checkpoint steps are gold.
+    local checkpointPlatforms = {}
 
-    for index, offset in ipairs(platformOffsets) do
+    for _, checkpoint in ipairs(course.Checkpoints) do
+        checkpointPlatforms[checkpoint.Offset] = true
+    end
+
+    for index, platform in ipairs(course.Platforms) do
+        local isCheckpoint = checkpointPlatforms[platform.Offset] == true
+        local color = if isCheckpoint then Color3.fromRGB(214, 178, 99) elseif index % 4 == 0 then Color3.fromRGB(150, 120, 86) elseif index % 2 == 0 then Color3.fromRGB(198, 181, 149) else Color3.fromRGB(232, 224, 209)
         BuildUtils.CreatePart(
             district,
             string.format("Platform_%d", index),
-            Vector3.new(18, 2, 18),
-            CFrame.new(center + offset),
-            (index % 2 == 0) and Color3.fromRGB(198, 181, 149) or Color3.fromRGB(232, 224, 209),
+            platform.Size,
+            CFrame.new(center + platform.Offset - Vector3.new(0, platform.Size.Y / 2, 0)) * CFrame.Angles(0, math.rad(platform.Yaw), 0),
+            color,
             Enum.Material.Marble,
             nil,
             nil
         )
     end
 
-    BuildUtils.CreatePart(district, "StartPad", Vector3.new(24, 2, 24), CFrame.new(center + Vector3.new(-58, 6, 0)), Color3.fromRGB(94, 128, 88), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "FinishPad", Vector3.new(24, 2, 24), CFrame.new(center + Vector3.new(0, 138, 0)), Color3.fromRGB(182, 152, 84), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "StartPad", course.StartSize, CFrame.new(center + course.StartOffset - Vector3.new(0, course.StartSize.Y / 2, 0)), Color3.fromRGB(94, 128, 88), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "FinishPad", Vector3.new(12, 0.4, 12), CFrame.new(center + Vector3.new(0, course.SummitHeight + 0.2, 0)), Color3.fromRGB(182, 152, 84), Enum.Material.Marble, nil, nil).CanCollide = false
     createWallPanel(
         district,
         "ParkourSign",
-        center + Vector3.new(-44, 0, -34),
+        center + Vector3.new(-62, 0, -34),
         Vector3.new(52, 11, 2.5),
         "Lobby Parkour",
-        "Climb the tower while you wait for battles, stories, or friends.",
+        "Step on the green pad to start the timer. Gold steps are checkpoints: fall and you return to the last one.",
         Color3.fromRGB(63, 94, 66),
         90,
         nil
@@ -849,16 +968,51 @@ local function buildParkourCourse(parent: Instance, center: Vector3)
     createWallPanel(
         district,
         "SummitSign",
-        center + Vector3.new(0, 132, 18),
-        Vector3.new(44, 10, 2.5),
+        center + Vector3.new(0, course.SummitHeight, 12),
+        Vector3.new(30, 8, 2),
         "Summit",
         "The top gives you a wide view over Makkah, the desert route, and Medina.",
         GOLD_ACCENT,
         180,
         nil
     )
-createLightPost(district, "ParkourLightWest", center + Vector3.new(-62, 0, 32))
-createLightPost(district, "ParkourLightEast", center + Vector3.new(62, 0, 32))
+    createLightPost(district, "ParkourLightWest", center + Vector3.new(-62, 0, 32))
+    createLightPost(district, "ParkourLightEast", center + Vector3.new(62, 0, 32))
+
+    -- Dress the core like a minaret shaft: stone bands, tall arched windows on every face and
+    -- gold finials round the summit. All decorative and non-colliding, so the jumps are
+    -- exactly as the unit tests measured them.
+    local core = course.CoreSize
+    local coreBase = center + Vector3.new(0, 4, 0)
+
+    for level = 1, math.floor(core.Y / 14) do
+        Decor.Deco(district, "CoreBand", Vector3.new(core.X + 0.8, 1.2, core.Z + 0.8), CFrame.new(coreBase + Vector3.new(0, level * 14, 0)), Color3.fromRGB(196, 176, 140), Enum.Material.Marble)
+
+        for face = 0, 3 do
+            local yaw = math.rad(face * 90)
+            local window = CFrame.new(coreBase + Vector3.new(0, level * 14 - 6, 0)) * CFrame.Angles(0, yaw, 0) * CFrame.new(0, 0, core.Z / 2 + 0.15)
+            Decor.Deco(district, "CoreWindow", Vector3.new(3.4, 7, 0.3), window, Color3.fromRGB(36, 30, 26), Enum.Material.Wood)
+            Decor.Deco(district, "CoreWindowArch", Vector3.new(0.3, 3.4, 3.4), window * CFrame.new(0, 3.5, 0) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(36, 30, 26), Enum.Material.Wood, Enum.PartType.Cylinder)
+        end
+    end
+
+    for index = 1, 8 do
+        local angle = math.rad(index * 45)
+        local at = center + Vector3.new(math.cos(angle) * (course.SummitRadius - 1), course.SummitHeight, math.sin(angle) * (course.SummitRadius - 1))
+        Decor.Deco(district, "SummitFinial", Vector3.new(1, 3, 1), CFrame.new(at + Vector3.new(0, 1.5, 0)), GOLD_ACCENT, Enum.Material.Metal)
+        Decor.Deco(district, "SummitFinialTip", Vector3.new(1.4, 1.4, 1.4), CFrame.new(at + Vector3.new(0, 3.4, 0)), GOLD_ACCENT, Enum.Material.Metal, Enum.PartType.Ball)
+    end
+
+    BuildUtils.CreateVerticalCylinder(district, "SummitRim", 1.6, course.SummitRadius + 1, center + Vector3.new(0, course.SummitHeight - course.SummitThickness - 0.8, 0), Color3.fromRGB(196, 176, 140), Enum.Material.Marble, nil).CanCollide = false
+
+    -- Palms in planters at the corners of the deck and a ring of mosaic round the core.
+    for _, corner in ipairs({ Vector3.new(-70, 0, -40), Vector3.new(70, 0, -40), Vector3.new(-70, 0, 40), Vector3.new(70, 0, 40) }) do
+        BuildUtils.CreatePart(district, "Planter", Vector3.new(10, 2.4, 10), CFrame.new(center + corner + Vector3.new(0, 5.2, 0)), Color3.fromRGB(196, 176, 140), Enum.Material.Marble, nil, nil)
+        Decor.Palm(district, "DeckPalm", center + corner + Vector3.new(0, 6.4, 0), 20, corner.X + corner.Z, nil)
+    end
+
+    BuildUtils.CreateVerticalCylinder(district, "CoreMosaic", 0.1, 30, center + Vector3.new(0, 4.06, 0), Color3.fromRGB(70, 104, 120), Enum.Material.Glass, nil).CanCollide = false
+    BuildUtils.CreateVerticalCylinder(district, "CoreMosaicInner", 0.12, 27, center + Vector3.new(0, 4.08, 0), Color3.fromRGB(226, 216, 196), Enum.Material.Marble, nil).CanCollide = false
 end
 
 local function createTrailPulse(parent: Instance, name: string, position: Vector3, phase: number)
@@ -954,7 +1108,8 @@ local function buildKaabaHub(parent: Instance, center: Vector3)
     local district = BuildUtils.CreateFolder(parent, "KaabaHub")
 
     BuildUtils.CreatePart(district, "SafetyPlate", Vector3.new(1760, 12, 1760), CFrame.new(center + Vector3.new(0, -10, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
-    BuildUtils.CreatePart(district, "ExpansionDeck", Vector3.new(1600, 4, 1600), CFrame.new(center + Vector3.new(0, 1.5, 0)), Color3.fromRGB(207, 196, 176), Enum.Material.Marble, nil, nil)
+    -- Its west edge stops short of the Badr battlefield (which starts at x = -770).
+    BuildUtils.CreatePart(district, "ExpansionDeck", Vector3.new(1560, 4, 1600), CFrame.new(center + Vector3.new(20, 1.5, 0)), Color3.fromRGB(207, 196, 176), Enum.Material.Marble, nil, nil)
     BuildUtils.CreatePart(district, "StonePlaza", Vector3.new(1420, 4, 1420), CFrame.new(center + Vector3.new(0, 2.3, 0)), Color3.fromRGB(228, 223, 212), Enum.Material.Marble, nil, nil)
     BuildUtils.CreatePart(district, "OuterWalk", Vector3.new(1010, 1, 1010), CFrame.new(center + Vector3.new(0, 4.85, 0)), MECCA_MARBLE, Enum.Material.Marble, nil, nil)
     BuildUtils.CreatePart(district, "SouthPlaza", Vector3.new(560, 1, 300), CFrame.new(center + Vector3.new(0, 4.86, -600)), Color3.fromRGB(236, 233, 226), Enum.Material.Marble, nil, nil)
@@ -965,70 +1120,234 @@ local function buildKaabaHub(parent: Instance, center: Vector3)
     -- Hotels around the sanctuary; the Abraj Al-Bait complex itself is built by MasjidAlHaram.
     BuildUtils.CreateModernTower(district, "MakkahTowerWest", center + Vector3.new(-560, 0, -844), Vector2.new(72, 54), 224, Color3.fromRGB(210, 201, 186), GLASS_TINT)
     BuildUtils.CreateModernTower(district, "MakkahTowerEast", center + Vector3.new(560, 0, -844), Vector2.new(72, 54), 224, Color3.fromRGB(210, 201, 186), GLASS_TINT)
-    BuildUtils.CreateModernTower(district, "MakkahHotelSouthWest", center + Vector3.new(-812, 0, 676), Vector2.new(78, 60), 198, Color3.fromRGB(215, 208, 194), GLASS_TINT)
+    -- Kept east of the Badr battlefield.
+    BuildUtils.CreateModernTower(district, "MakkahHotelSouthWest", center + Vector3.new(-700, 0, 690), Vector2.new(78, 60), 198, Color3.fromRGB(215, 208, 194), GLASS_TINT)
     BuildUtils.CreateModernTower(district, "MakkahHotelSouthEast", center + Vector3.new(812, 0, 676), Vector2.new(78, 60), 198, Color3.fromRGB(215, 208, 194), GLASS_TINT)
-    BuildUtils.CreateModernTower(district, "MakkahHotelNorthWest", center + Vector3.new(-836, 0, -542), Vector2.new(74, 56), 208, Color3.fromRGB(214, 207, 193), GLASS_TINT)
+    -- Clear of the Badr gate promenade at z = -560.
+    BuildUtils.CreateModernTower(district, "MakkahHotelNorthWest", center + Vector3.new(-836, 0, -690), Vector2.new(74, 56), 208, Color3.fromRGB(214, 207, 193), GLASS_TINT)
     BuildUtils.CreateModernTower(district, "MakkahHotelNorthEast", center + Vector3.new(836, 0, -542), Vector2.new(74, 56), 208, Color3.fromRGB(214, 207, 193), GLASS_TINT)
 end
 
-local function buildMedinaDistrict(parent: Instance, center: Vector3)
-    local district = BuildUtils.CreateFolder(parent, "MedinaDistrict")
+-- One of the big white umbrellas of the Prophet's Mosque piazza: a clad steel column and a
+-- square fabric canopy that slopes down from the top of the column to its four edges.
+local function createMedinaUmbrella(parent: Instance, name: string, ground: Vector3, size: number)
+    local umbrella = Instance.new("Model")
+    umbrella.Name = name
+    umbrella.Parent = parent
 
-    BuildUtils.CreatePart(district, "SafetyPlate", Vector3.new(920, 12, 760), CFrame.new(center + Vector3.new(0, -10, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
-    BuildUtils.CreatePart(district, "OuterCourt", Vector3.new(620, 4, 500), CFrame.new(center + Vector3.new(0, 2, 0)), MEDINA_STONE, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "InnerCourt", Vector3.new(470, 1, 350), CFrame.new(center + Vector3.new(0, 4.55, 10)), MEDINA_WHITE, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "PrayerHall", Vector3.new(320, 28, 200), CFrame.new(center + Vector3.new(24, 14, -52)), MEDINA_WHITE, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "PrayerHallRoof", Vector3.new(336, 4, 214), CFrame.new(center + Vector3.new(24, 30, -52)), MEDINA_STONE, Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "SouthPortico", Vector3.new(420, 20, 64), CFrame.new(center + Vector3.new(0, 10, 108)), MEDINA_WHITE, Enum.Material.Marble, nil, nil)
-    createFloorInlayGrid(district, "MedinaMarbleInlay", center + Vector3.new(0, 0, 10), 172, 43, Color3.fromRGB(218, 216, 207), 5.2)
-    createArcadeBlock(district, "MedinaWestArcade", center + Vector3.new(-212, 0, 0), 82, 380, MEDINA_WHITE, MEDINA_STONE, MEDINA_STONE)
-    createArcadeBlock(district, "MedinaEastArcade", center + Vector3.new(212, 0, 0), 82, 380, MEDINA_WHITE, MEDINA_STONE, MEDINA_STONE)
-    createArcadeBlock(district, "MedinaNorthArcade", center + Vector3.new(0, 0, -176), 418, 44, MEDINA_WHITE, MEDINA_STONE, MEDINA_STONE)
+    local top = ground + Vector3.new(0, 30, 0)
+    BuildUtils.CreateVerticalCylinder(umbrella, "Column", 30, 0.9, ground + Vector3.new(0, 15, 0), Color3.fromRGB(206, 208, 210), Enum.Material.Metal, nil)
+    BuildUtils.CreateVerticalCylinder(umbrella, "Cladding", 9, 1.6, ground + Vector3.new(0, 4.5, 0), Color3.fromRGB(228, 226, 218), Enum.Material.Marble, nil)
+    BuildUtils.CreateVerticalCylinder(umbrella, "CladdingBand", 0.8, 1.75, ground + Vector3.new(0, 8.6, 0), GOLD_ACCENT, Enum.Material.Metal, nil).CanCollide = false
+    local cap = BuildUtils.CreateSphere(umbrella, "Cap", 2.4, top + Vector3.new(0, 0.6, 0), Color3.fromRGB(226, 228, 230), Enum.Material.Metal, nil)
+    cap.CanCollide = false
 
-    BuildUtils.CreateVerticalCylinder(district, "GreenDomeDrum", 16, 12, center + Vector3.new(78, 38, -34), MEDINA_WHITE, Enum.Material.Marble, nil)
-    BuildUtils.CreateSphere(district, "GreenDome", 26, center + Vector3.new(78, 52, -34), MEDINA_GREEN, Enum.Material.SmoothPlastic, nil)
-    BuildUtils.CreatePart(district, "DomeSpire", Vector3.new(1, 9, 1), CFrame.new(center + Vector3.new(78, 67, -34)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+    for index, direction in ipairs({ Vector3.new(1, 0, 0), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1), Vector3.new(0, 0, -1) }) do
+        local edge = top + direction * (size / 2) + Vector3.new(0, -5, 0)
+        local mid = (top + edge) / 2
+        local panel = BuildUtils.CreatePart(umbrella, "Canopy" .. index, Vector3.new(size, 0.3, (edge - top).Magnitude), CFrame.lookAt(mid, edge), Color3.fromRGB(246, 245, 240), Enum.Material.Fabric, nil, nil)
+        panel.CanCollide = false
+    end
 
-    BuildUtils.CreateMinaret(district, "NorthWestMinaret", center + Vector3.new(-248, 0, -184), 88, MEDINA_WHITE, MEDINA_GREEN)
-    BuildUtils.CreateMinaret(district, "NorthEastMinaret", center + Vector3.new(248, 0, -184), 88, MEDINA_WHITE, MEDINA_GREEN)
-    BuildUtils.CreateMinaret(district, "SouthWestMinaret", center + Vector3.new(-248, 0, 182), 82, MEDINA_WHITE, MEDINA_GREEN)
-    BuildUtils.CreateMinaret(district, "SouthEastMinaret", center + Vector3.new(248, 0, 182), 82, MEDINA_WHITE, MEDINA_GREEN)
+    return umbrella
+end
 
-    for rowIndex, z in ipairs({-18, 44, 106, 168}) do
-        for columnIndex, x in ipairs({-166, -100, -34, 34, 100, 166}) do
-            BuildUtils.CreateCourtyardCanopy(district, string.format("CourtyardCanopy_%d_%d", rowIndex, columnIndex), center + Vector3.new(x, 0, z), Color3.fromRGB(244, 243, 238), Color3.fromRGB(170, 171, 172))
+-- A facade of arched bays between piers. `doors` lists bay numbers left open at ground level.
+local function createArchedFacade(parent: Instance, name: string, origin: CFrame, length: number, bays: number, height: number, doors: { [number]: boolean })
+    local bay = length / bays
+    local pier = 2.6
+    local opening = bay - pier
+    local archTop = height - 7
+
+    for index = 1, bays + 1 do
+        local x = -length / 2 + (index - 1) * bay
+        BuildUtils.CreatePart(parent, string.format("%s_Pier%d", name, index), Vector3.new(pier, height, 3.4), origin * CFrame.new(x, height / 2, 0), MEDINA_STONE, Enum.Material.Marble, nil, nil)
+    end
+
+    for index = 1, bays do
+        local x = -length / 2 + (index - 0.5) * bay
+        local isDoor = doors[index] == true
+        -- Spandrel above the arch, with a gold band.
+        BuildUtils.CreatePart(parent, string.format("%s_Spandrel%d", name, index), Vector3.new(opening, height - archTop, 3), origin * CFrame.new(x, archTop + (height - archTop) / 2, 0), MEDINA_WHITE, Enum.Material.Marble, nil, nil)
+        -- Round arch head: a cylinder along the wall normal, half inside the spandrel.
+        BuildUtils.CreatePart(parent, string.format("%s_Arch%d", name, index), Vector3.new(3.1, opening, opening), origin * CFrame.new(x, archTop, 0) * CFrame.Angles(0, math.rad(90), 0), MEDINA_WHITE, Enum.Material.Marble, Enum.PartType.Cylinder, nil)
+
+        if isDoor then
+            -- An open doorway with a carved wooden-and-brass door folded back inside.
+            BuildUtils.CreatePart(parent, string.format("%s_DoorLeaf%d", name, index), Vector3.new(0.6, archTop - opening / 2 - 0.5, opening * 0.45), origin * CFrame.new(x - opening / 2 + 0.6, (archTop - opening / 2) / 2, 3.2), Color3.fromRGB(122, 84, 46), Enum.Material.Wood, nil, nil).CanCollide = false
+        else
+            BuildUtils.CreatePart(parent, string.format("%s_Panel%d", name, index), Vector3.new(opening, archTop - opening / 2, 1.6), origin * CFrame.new(x, (archTop - opening / 2) / 2, 0.4), MEDINA_WHITE, Enum.Material.Marble, nil, nil)
+            BuildUtils.CreatePart(parent, string.format("%s_Window%d", name, index), Vector3.new(opening - 3, archTop - opening / 2 - 9, 0.4), origin * CFrame.new(x, 6 + (archTop - opening / 2 - 9) / 2 + 1, -0.5), GLASS_TINT, Enum.Material.Glass, nil, 0.15)
         end
     end
 
-    for columnIndex, x in ipairs({-112, -72, -32, 8, 48, 88, 128}) do
-        BuildUtils.CreatePart(district, string.format("PrayerHallColumn_%d", columnIndex), Vector3.new(5, 26, 5), CFrame.new(center + Vector3.new(x, 13, -90)), MEDINA_STONE, Enum.Material.Marble, nil, nil)
-        BuildUtils.CreatePart(district, string.format("PrayerHallColumnBack_%d", columnIndex), Vector3.new(5, 26, 5), CFrame.new(center + Vector3.new(x, 13, -20)), MEDINA_STONE, Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(parent, name .. "_Cornice", Vector3.new(length + 4, 1.6, 4.4), origin * CFrame.new(0, height + 0.8, 0), MEDINA_STONE, Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(parent, name .. "_GoldBand", Vector3.new(length + 0.5, 0.8, 3.6), origin * CFrame.new(0, height - 2.4, -0.1), GOLD_ACCENT, Enum.Material.Metal, nil, nil).CanCollide = false
+end
+
+-- Present-day Al-Masjid an-Nabawi, simplified: a walk-in prayer hall with arched facades,
+-- red carpets, rows of columns and the green-carpeted Rawdah; a roof of small domes with the
+-- Green Dome over the sacred chamber marker; tall minarets; and a marble piazza shaded by
+-- big white umbrellas. Respectful markers only: no burial chamber interior is modelled.
+local function buildMedinaDistrict(parent: Instance, center: Vector3)
+    local district = BuildUtils.CreateFolder(parent, "MedinaDistrict")
+    local floorY = center.Y + 4
+    local hallCenter = Vector3.new(center.X, floorY, center.Z - 80)
+    local hallWidth, hallDepth, hallHeight = 280, 200, 30
+    local chamber = Vector3.new(center.X + 60, floorY, center.Z - 146.7)
+
+    BuildUtils.CreatePart(district, "SafetyPlate", Vector3.new(920, 12, 760), CFrame.new(center + Vector3.new(0, -10, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
+    BuildUtils.CreatePart(district, "OuterCourt", Vector3.new(620, 4, 500), CFrame.new(center + Vector3.new(0, 2, 0)), MEDINA_STONE, Enum.Material.Marble, nil, nil)
+    -- Piazza paving: white marble with a grey grid and a darker band round the mosque.
+    BuildUtils.CreatePart(district, "PiazzaWhite", Vector3.new(600, 0.2, 480), CFrame.new(center + Vector3.new(0, 4.1, 0)), MEDINA_WHITE, Enum.Material.Marble, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "HallSurround", Vector3.new(hallWidth + 24, 0.24, hallDepth + 24), CFrame.new(hallCenter + Vector3.new(0, 0.12, 0)), Color3.fromRGB(190, 186, 176), Enum.Material.Marble, nil, nil).CanCollide = false
+    createFloorInlayGrid(district, "MedinaMarbleInlay", center, 234, 36, Color3.fromRGB(200, 198, 190), 4.22)
+
+    -- Prayer hall: four arched facades, open doorways on every side but the qibla bays.
+    local facades = BuildUtils.CreateFolder(district, "PrayerHall")
+    createArchedFacade(facades, "NorthFacade", CFrame.new(hallCenter + Vector3.new(0, 0, hallDepth / 2)) * CFrame.Angles(0, math.rad(180), 0), hallWidth, 21, hallHeight, { [3] = true, [7] = true, [11] = true, [15] = true, [19] = true })
+    createArchedFacade(facades, "SouthFacade", CFrame.new(hallCenter + Vector3.new(0, 0, -hallDepth / 2)), hallWidth, 21, hallHeight, { [3] = true, [19] = true })
+    -- Side doors: bay 3 on the west and bay 13 on the east line up with the visitation route.
+    createArchedFacade(facades, "WestFacade", CFrame.new(hallCenter + Vector3.new(-hallWidth / 2, 0, 0)) * CFrame.Angles(0, math.rad(-90), 0), hallDepth, 15, hallHeight, { [3] = true, [8] = true, [13] = true })
+    createArchedFacade(facades, "EastFacade", CFrame.new(hallCenter + Vector3.new(hallWidth / 2, 0, 0)) * CFrame.Angles(0, math.rad(90), 0), hallDepth, 15, hallHeight, { [3] = true, [8] = true, [13] = true })
+
+    BuildUtils.CreatePart(facades, "Carpet", Vector3.new(hallWidth - 4, 0.2, hallDepth - 4), CFrame.new(hallCenter + Vector3.new(0, 0.4, 0)), Color3.fromRGB(150, 40, 44), Enum.Material.Fabric, nil, nil).CanCollide = false
+
+    -- Rows of columns, leaving the visitation route (between the first two rows) open.
+    local columnIndex = 0
+
+    for _, dz in ipairs({ -85, -55, -25, 5, 35, 65 }) do
+        for dx = -126, 126, 28 do
+            columnIndex += 1
+            local base = hallCenter + Vector3.new(dx, 0, dz)
+            BuildUtils.CreateVerticalCylinder(facades, "Column" .. columnIndex, hallHeight, 1.4, base + Vector3.new(0, hallHeight / 2, 0), MEDINA_WHITE, Enum.Material.Marble, nil)
+            BuildUtils.CreatePart(facades, "ColumnCapital" .. columnIndex, Vector3.new(4.4, 2, 4.4), CFrame.new(base + Vector3.new(0, hallHeight - 3, 0)), GOLD_ACCENT, Enum.Material.Metal, nil, nil).CanCollide = false
+            BuildUtils.CreatePart(facades, "ColumnBase" .. columnIndex, Vector3.new(4, 2.4, 4), CFrame.new(base + Vector3.new(0, 1.2, 0)), MEDINA_STONE, Enum.Material.Marble, nil, nil)
+        end
     end
 
-    BuildUtils.CreatePart(district, "RawdahPath", Vector3.new(220, 0.3, 18), CFrame.new(center + Vector3.new(-72, 5.05, -20)), Color3.fromRGB(89, 132, 82), Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(district, "RawdahArea", Vector3.new(126, 0.3, 28), CFrame.new(center + Vector3.new(8, 5.06, -20)), Color3.fromRGB(82, 125, 76), Enum.Material.Fabric, nil, nil)
-    BuildUtils.CreatePart(district, "RawdahGoldEdgeA", Vector3.new(220, 0.35, 2), CFrame.new(center + Vector3.new(-72, 5.28, -30)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(district, "RawdahGoldEdgeB", Vector3.new(220, 0.35, 2), CFrame.new(center + Vector3.new(-72, 5.28, -10)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(district, "SacredChamberMarker", Vector3.new(32, 12, 22), CFrame.new(center + Vector3.new(56, 11, -20)), Color3.fromRGB(198, 184, 153), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "SacredChamberGrille", Vector3.new(34, 10, 2), CFrame.new(center + Vector3.new(39, 10, -20)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
-    BuildUtils.CreatePart(district, "CompanionMarkerA", Vector3.new(6, 1, 6), CFrame.new(center + Vector3.new(56, 5.7, -26)), Color3.fromRGB(214, 204, 181), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "CompanionMarkerB", Vector3.new(6, 1, 6), CFrame.new(center + Vector3.new(56, 5.7, -20)), Color3.fromRGB(214, 204, 181), Enum.Material.Marble, nil, nil)
-    BuildUtils.CreatePart(district, "CompanionMarkerC", Vector3.new(6, 1, 6), CFrame.new(center + Vector3.new(56, 5.7, -14)), Color3.fromRGB(214, 204, 181), Enum.Material.Marble, nil, nil)
+    -- Roof with a parapet and a grid of small domes; the Green Dome over the chamber marker.
+    local roofY = floorY + hallHeight + 1.6
+    BuildUtils.CreatePart(facades, "Roof", Vector3.new(hallWidth + 4, 3, hallDepth + 4), CFrame.new(hallCenter + Vector3.new(0, hallHeight + 1.5, 0)), MEDINA_STONE, Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(facades, "Ceiling", Vector3.new(hallWidth - 4, 0.3, hallDepth - 4), CFrame.new(hallCenter + Vector3.new(0, hallHeight - 0.2, 0)), Color3.fromRGB(226, 214, 186), Enum.Material.WoodPlanks, nil, nil).CanCollide = false
 
-    createWallPanel(district, "VisitationSign", center + Vector3.new(-144, 0, -60), Vector3.new(74, 12, 2.5), "Bab as-Salam Visitation Route", "Enter from Bab as-Salam, follow the marked walkway, and approach the sacred chamber area respectfully and quietly.", Color3.fromRGB(52, 88, 58), 90, nil)
-    createWallPanel(district, "ChamberSign", center + Vector3.new(120, 0, -64), Vector3.new(74, 12, 2.5), "Sacred Chamber Marker", "This is a respectful marker for the visitation area and route, not a 1:1 interior reconstruction.", Color3.fromRGB(86, 92, 67), 270, nil)
+    -- Brass chandeliers hanging between the column rows, lit at night.
+    local chandelierIndex = 0
+    for _, dx in ipairs({ -84, 0, 84 }) do
+        for _, dz in ipairs({ -50, 50 }) do
+            chandelierIndex += 1
+            local at = hallCenter + Vector3.new(dx, hallHeight - 9, dz)
+            local chain = BuildUtils.CreatePart(facades, "ChandelierChain" .. chandelierIndex, Vector3.new(0.2, 8.6, 0.2), CFrame.new(at + Vector3.new(0, 4.6, 0)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+            chain.CanCollide = false
+            local ring = BuildUtils.CreateVerticalCylinder(facades, "ChandelierRing" .. chandelierIndex, 0.6, 9, at, GOLD_ACCENT, Enum.Material.Metal, nil)
+            ring.CanCollide = false
+            local glow = BuildUtils.CreateSphere(facades, "ChandelierGlow" .. chandelierIndex, 2.6, at + Vector3.new(0, -0.9, 0), Color3.fromRGB(255, 226, 168), Enum.Material.Neon, nil)
+            glow.CanCollide = false
+            BuildUtils.AddPointLight(glow, Color3.fromRGB(255, 214, 150), 1.4, 40)
+        end
+    end
 
-    createMedinaGate(district, "BabAsSalamGate", center + Vector3.new(-290, 0, -22), 90, "Bab as-Salam", "Traditional entry gate for the visitation route.")
-    createMedinaGate(district, "BabAbuBakrGate", center + Vector3.new(-290, 0, 70), 90, "Bab Abu Bakr", "A west-side gate near the older visitation approach.")
-    createMedinaGate(district, "BabRahmahGate", center + Vector3.new(-290, 0, -120), 90, "Bab ar-Rahmah", "A named western gate on the Medina side.")
-    createMedinaGate(district, "BabJibrilGate", center + Vector3.new(290, 0, -24), 270, "Bab Jibril", "An eastern gate associated with the Jibril side of the mosque.")
-    createMedinaGate(district, "BabBaqiGate", center + Vector3.new(290, 0, 72), 270, "Bab al-Baqi'", "An eastern gate toward the al-Baqi' side.")
-    createMedinaGate(district, "BabNisaGate", center + Vector3.new(290, 0, 166), 270, "Bab an-Nisa", "A named gate on the eastern side of the Medina complex.")
+    local domeIndex = 0
 
-    BuildUtils.CreatePlanter(district, "MedinaGardenWest", center + Vector3.new(-182, 0, 208), Vector3.new(64, 3, 34))
-    BuildUtils.CreatePlanter(district, "MedinaGardenEast", center + Vector3.new(182, 0, 208), Vector3.new(64, 3, 34))
-    BuildUtils.CreatePalmTree(district, "MedinaPalmWest", center + Vector3.new(-182, 0, 208))
-    BuildUtils.CreatePalmTree(district, "MedinaPalmEast", center + Vector3.new(182, 0, 208))
+    for dz = -70, 70, 46 do
+        for dx = -112, 112, 44.8 do
+            local at = hallCenter + Vector3.new(dx, 0, dz)
+
+            if (Vector3.new(at.X, 0, at.Z) - Vector3.new(chamber.X, 0, chamber.Z)).Magnitude > 34 then
+                domeIndex += 1
+                BuildUtils.CreateVerticalCylinder(facades, "RoofDomeDrum" .. domeIndex, 6, 9, Vector3.new(at.X, roofY + 4.2, at.Z), MEDINA_STONE, Enum.Material.Marble, nil)
+                BuildUtils.CreateSphere(facades, "RoofDome" .. domeIndex, 17, Vector3.new(at.X, roofY + 7.2, at.Z), Color3.fromRGB(208, 202, 186), Enum.Material.Marble, nil)
+                BuildUtils.CreatePart(facades, "RoofDomeFinial" .. domeIndex, Vector3.new(0.6, 3, 0.6), CFrame.new(at.X, roofY + 17, at.Z), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+            end
+        end
+    end
+
+    BuildUtils.CreateVerticalCylinder(district, "GreenDomeDrum", 12, 14, Vector3.new(chamber.X, roofY + 6, chamber.Z), MEDINA_WHITE, Enum.Material.Marble, nil)
+    BuildUtils.CreateVerticalCylinder(district, "GreenDomeDrumBand", 1.4, 14.4, Vector3.new(chamber.X, roofY + 11, chamber.Z), GOLD_ACCENT, Enum.Material.Metal, nil)
+    BuildUtils.CreateSphere(district, "GreenDome", 28, Vector3.new(chamber.X, roofY + 16, chamber.Z), MEDINA_GREEN, Enum.Material.SmoothPlastic, nil)
+    BuildUtils.CreateSphere(district, "GreenDomeLantern", 4, Vector3.new(chamber.X, roofY + 31, chamber.Z), MEDINA_GREEN, Enum.Material.SmoothPlastic, nil)
+    BuildUtils.CreatePart(district, "DomeSpire", Vector3.new(1, 9, 1), CFrame.new(chamber.X, roofY + 37, chamber.Z), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+
+    -- Minarets at the corners of the hall and of the piazza.
+    for index, offset in ipairs({
+        Vector3.new(-148, 0, -188), Vector3.new(148, 0, -188), Vector3.new(-148, 0, 28), Vector3.new(148, 0, 28),
+        Vector3.new(-300, 0, 236), Vector3.new(300, 0, 236),
+    }) do
+        local names = { "SouthWestMinaret", "SouthEastMinaret", "NorthWestMinaret", "NorthEastMinaret", "PiazzaWestMinaret", "PiazzaEastMinaret" }
+        BuildUtils.CreateMinaret(district, names[index], center + offset, if index <= 4 then 118 else 104, MEDINA_WHITE, MEDINA_GREEN)
+    end
+
+    -- Inside: mihrab and minbar on the qibla wall, the Rawdah carpet and the visitation route.
+    BuildUtils.CreatePart(district, "Mihrab", Vector3.new(10, 16, 1.4), CFrame.new(hallCenter + Vector3.new(0, 8, -hallDepth / 2 + 2.4)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(district, "MihrabNiche", Vector3.new(7, 12, 0.6), CFrame.new(hallCenter + Vector3.new(0, 6.5, -hallDepth / 2 + 3.2)), MEDINA_GREEN, Enum.Material.Marble, nil, nil).CanCollide = false
+
+    for step = 1, 5 do
+        BuildUtils.CreatePart(district, "MinbarStep" .. step, Vector3.new(4, step * 1.4, 2), CFrame.new(hallCenter + Vector3.new(-14, step * 0.7, -hallDepth / 2 + 4 + (5 - step) * 2)), MEDINA_WHITE, Enum.Material.Marble, nil, nil)
+    end
+
+    BuildUtils.CreatePart(district, "RawdahPath", Vector3.new(200, 0.3, 16), CFrame.new(Vector3.new(center.X - 50, floorY + 0.58, chamber.Z)), Color3.fromRGB(89, 132, 82), Enum.Material.Fabric, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "RawdahArea", Vector3.new(70, 0.3, 30), CFrame.new(Vector3.new(center.X + 8, floorY + 0.6, chamber.Z)), Color3.fromRGB(82, 125, 76), Enum.Material.Fabric, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "RawdahGoldEdgeA", Vector3.new(200, 0.35, 1.4), CFrame.new(Vector3.new(center.X - 50, floorY + 0.65, chamber.Z - 8.5)), GOLD_ACCENT, Enum.Material.Metal, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "RawdahGoldEdgeB", Vector3.new(200, 0.35, 1.4), CFrame.new(Vector3.new(center.X - 50, floorY + 0.65, chamber.Z + 8.5)), GOLD_ACCENT, Enum.Material.Metal, nil, nil).CanCollide = false
+    BuildUtils.CreatePart(district, "SacredChamberMarker", Vector3.new(28, 16, 22), CFrame.new(chamber + Vector3.new(4, 8, 0)), Color3.fromRGB(198, 184, 153), Enum.Material.Marble, nil, nil)
+    BuildUtils.CreatePart(district, "SacredChamberGrille", Vector3.new(1.2, 14, 26), CFrame.new(chamber + Vector3.new(-11, 7, 0)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+    BuildUtils.CreatePart(district, "SacredChamberGrilleCloth", Vector3.new(1.4, 3, 26.4), CFrame.new(chamber + Vector3.new(-11, 15.5, 0)), MEDINA_GREEN, Enum.Material.Fabric, nil, nil)
+
+    for index, dz in ipairs({ -6, 0, 6 }) do
+        BuildUtils.CreatePart(district, "CompanionMarker" .. string.char(64 + index), Vector3.new(5, 0.6, 5), CFrame.new(chamber + Vector3.new(-16, 0.3, dz)), Color3.fromRGB(214, 204, 181), Enum.Material.Marble, nil, nil).CanCollide = false
+    end
+
+    createWallPanel(district, "VisitationSign", Vector3.new(center.X - 170, center.Y, chamber.Z + 16), Vector3.new(60, 12, 2.5), "Bab as-Salam Visitation Route", "Enter from Bab as-Salam, follow the marked walkway, and approach the sacred chamber area respectfully and quietly.", Color3.fromRGB(52, 88, 58), 0, nil)
+    createWallPanel(district, "ChamberSign", Vector3.new(chamber.X - 30, center.Y, chamber.Z + 30), Vector3.new(40, 10, 2.5), "Sacred Chamber Marker", "This is a respectful marker for the visitation area and route, not a 1:1 interior reconstruction.", Color3.fromRGB(86, 92, 67), 180, nil)
+
+    -- Gates at the edge of the piazza.
+    createMedinaGate(district, "BabAsSalamGate", center + Vector3.new(-290, 0, -146.7), 90, "Bab as-Salam", "Traditional entry gate for the visitation route.")
+    createMedinaGate(district, "BabAbuBakrGate", center + Vector3.new(-290, 0, -60), 90, "Bab Abu Bakr", "A west-side gate near the older visitation approach.")
+    createMedinaGate(district, "BabRahmahGate", center + Vector3.new(-290, 0, 30), 90, "Bab ar-Rahmah", "A named western gate on the Medina side.")
+    createMedinaGate(district, "BabJibrilGate", center + Vector3.new(290, 0, -146.7), 270, "Bab Jibril", "An eastern gate associated with the Jibril side of the mosque.")
+    createMedinaGate(district, "BabBaqiGate", center + Vector3.new(290, 0, -60), 270, "Bab al-Baqi'", "An eastern gate toward the al-Baqi' side.")
+    createMedinaGate(district, "BabNisaGate", center + Vector3.new(290, 0, 30), 270, "Bab an-Nisa", "A named gate on the eastern side of the Medina complex.")
+
+    -- Umbrellas over the north piazza and the side courts, keeping the arrival point and
+    -- the walkway into the north doors clear of columns.
+    local umbrellas = BuildUtils.CreateFolder(district, "Umbrellas")
+    local umbrellaIndex = 0
+
+    for _, dz in ipairs({ 58, 96, 172, 210 }) do
+        for dx = -266, 266, 38 do
+            if math.abs(dx) > 12 then
+                umbrellaIndex += 1
+                createMedinaUmbrella(umbrellas, "Umbrella" .. umbrellaIndex, Vector3.new(center.X + dx, floorY, center.Z + dz), 36)
+            end
+        end
+    end
+
+    for _, dx in ipairs({ -226, -188, 188, 226 }) do
+        for dz = -168, 0, 42 do
+            umbrellaIndex += 1
+            createMedinaUmbrella(umbrellas, "Umbrella" .. umbrellaIndex, Vector3.new(center.X + dx, floorY, center.Z + dz), 36)
+        end
+    end
+
+    -- Every third umbrella carries a lamp under its cap, so the piazza is lit at night.
+    for index, umbrella in ipairs(umbrellas:GetChildren()) do
+        local column = umbrella:FindFirstChild("Column")
+        if index % 3 == 1 and column and column:IsA("BasePart") then
+            local lamp = BuildUtils.CreatePart(umbrella, "UnderLamp", Vector3.new(1.4, 1, 1.4), CFrame.new(column.Position + Vector3.new(0, 12.5, 0)), Color3.fromRGB(255, 232, 186), Enum.Material.Neon, nil, nil)
+            lamp.CanCollide = false
+            BuildUtils.AddPointLight(lamp, Color3.fromRGB(255, 226, 176), 1.2, 34)
+        end
+    end
+
+    -- Lamp posts along the arrival walkway.
+    for _, dz in ipairs({ 40, 80, 120, 160, 200 }) do
+        for _, dx in ipairs({ -20, 20 }) do
+            local post = BuildUtils.CreateVerticalCylinder(district, "WalkLampPost", 14, 0.4, Vector3.new(center.X + dx, floorY + 7, center.Z + dz), Color3.fromRGB(70, 74, 72), Enum.Material.Metal, nil)
+            local lamp = BuildUtils.CreatePart(district, "WalkLamp", Vector3.new(1.6, 2.2, 1.6), CFrame.new(post.Position + Vector3.new(0, 8, 0)), Color3.fromRGB(255, 226, 168), Enum.Material.Neon, nil, nil)
+            lamp.CanCollide = false
+            BuildUtils.AddPointLight(lamp, Color3.fromRGB(255, 220, 160), 1.3, 26)
+        end
+    end
 end
 
 local function buildBattleGate(parent: Instance, name: string, center: Vector3, accentColor: Color3, scenarioId: string, title: string)
@@ -1045,6 +1364,30 @@ local function buildBattleGate(parent: Instance, name: string, center: Vector3, 
     BuildUtils.CreatePart(district, "LeftTower", Vector3.new(20, 30, 20), CFrame.new(center + Vector3.new(-58, 15, 0)), Color3.fromRGB(189, 167, 131), Enum.Material.Sandstone, nil, nil)
     BuildUtils.CreatePart(district, "RightTower", Vector3.new(20, 30, 20), CFrame.new(center + Vector3.new(58, 15, 0)), Color3.fromRGB(189, 167, 131), Enum.Material.Sandstone, nil, nil)
     BuildUtils.CreatePart(district, "GateBeam", Vector3.new(94, 9, 16), CFrame.new(center + Vector3.new(0, 25, 0)), accentColor, Enum.Material.Sandstone, nil, nil)
+    -- Dressing (none of it collides): battlements on the walls and towers, banners in the
+    -- gate colour, fire bowls, palms and supplies beside the forecourt.
+    local dressing = BuildUtils.CreateFolder(district, "Dressing")
+    for _, side in ipairs({ -1, 1 }) do
+        for index = 1, 6 do
+            local z = 16 - 43 + (index - 0.5) * (86 / 6)
+            Decor.Deco(dressing, "WallMerlon", Vector3.new(4, 3, 5), CFrame.new(center + Vector3.new(side * 92, 27.5, z)), Color3.fromRGB(176, 154, 120), Enum.Material.Sandstone)
+        end
+        for _, dx in ipairs({ -7, 0, 7 }) do
+            for _, dz in ipairs({ -7, 7 }) do
+                Decor.Deco(dressing, "TowerMerlon", Vector3.new(3.5, 3.5, 3.5), CFrame.new(center + Vector3.new(side * 58 + dx, 31.75, dz)), Color3.fromRGB(178, 156, 120), Enum.Material.Sandstone)
+            end
+        end
+        Decor.Deco(dressing, "TowerBand", Vector3.new(21, 1.6, 21), CFrame.new(center + Vector3.new(side * 58, 24, 0)), accentColor, Enum.Material.Sandstone)
+        Decor.Banner(dressing, "GateBanner", center + Vector3.new(side * 40, 5, 14), accentColor, 22)
+        Decor.Banner(dressing, "WallBanner", center + Vector3.new(side * 76, 5, 34), Decor.Colors.Cloths[if side < 0 then 1 else 2], 18)
+        Decor.Brazier(dressing, "GateBrazier", center + Vector3.new(side * 30, 5, 8))
+        Decor.Palm(dressing, "ForecourtPalm", center + Vector3.new(side * 108, 4, 74), 20, 17 + side, true)
+        for index = 1, 2 do
+            Decor.Crate(dressing, "SupplyCrate", CFrame.new(center + Vector3.new(side * (66 + index * 3), 5.2, 52)) * CFrame.Angles(0, index * 0.4, 0), 2.2)
+            Decor.Jar(dressing, "WaterJar", center + Vector3.new(side * (66 + index * 2.4), 4, 60), 0.9, nil)
+        end
+    end
+
     createLightPost(district, string.format("%sLightLeft", name), center + Vector3.new(-38, 0, -52), Color3.fromRGB(120, 103, 80))
     createLightPost(district, string.format("%sLightRight", name), center + Vector3.new(38, 0, -52), Color3.fromRGB(120, 103, 80))
 
@@ -1122,20 +1465,34 @@ buildParkourCourse(geometryFolder, parkourCenter)
 buildMedinaDistrict(geometryFolder, medinaCenter)
 buildBattleGate(geometryFolder, "BadrGate", badrGateCenter, Color3.fromRGB(141, 107, 58), "badr", "Badr Gate")
 buildBattleGate(geometryFolder, "UhudGate", uhudGateCenter, Color3.fromRGB(114, 92, 71), "uhud", "Uhud Gate")
-createPromenadePath(geometryFolder, "StoryPromenade", meccaCenter + Vector3.new(714, 0, 220), storyCenter + Vector3.new(-122, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
-createPromenadePath(geometryFolder, "TriviaPromenade", meccaCenter + Vector3.new(714, 0, -240), triviaCenter + Vector3.new(-122, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
-createPromenadePath(geometryFolder, "MannersPromenade", meccaCenter + Vector3.new(-714, 0, -240), mannersCenter + Vector3.new(122, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
-createPromenadePath(geometryFolder, "ParkourPromenade", meccaCenter + Vector3.new(-714, 0, 220), parkourCenter + Vector3.new(122, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
+-- Promenades run onto the court and deck floors, leaving no drop and ledge at the end.
+createPromenadePath(geometryFolder, "StoryPromenade", meccaCenter + Vector3.new(714, 0, 220), storyCenter + Vector3.new(-106, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
+createPromenadePath(geometryFolder, "TriviaPromenade", meccaCenter + Vector3.new(714, 0, -240), triviaCenter + Vector3.new(-106, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
+createPromenadePath(geometryFolder, "MannersPromenade", meccaCenter + Vector3.new(-714, 0, -240), mannersCenter + Vector3.new(106, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
+createPromenadePath(geometryFolder, "ParkourPromenade", meccaCenter + Vector3.new(-714, 0, 220), parkourCenter + Vector3.new(78, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
 createPromenadePath(geometryFolder, "SupportPromenade", meccaCenter + Vector3.new(714, 0, -560), supportCenter + Vector3.new(-84, 0, 0), 54, Color3.fromRGB(199, 184, 156), Color3.fromRGB(128, 109, 82))
 createPromenadePath(geometryFolder, "BadrGatePromenade", meccaCenter + Vector3.new(-714, 0, -560), badrGateCenter + Vector3.new(98, 0, 0), 62, Color3.fromRGB(191, 171, 136), Color3.fromRGB(118, 96, 70))
-createPromenadePath(geometryFolder, "UhudGatePromenade", meccaCenter + Vector3.new(-714, 0, 520), uhudGateCenter + Vector3.new(98, 0, 0), 62, Color3.fromRGB(191, 171, 136), Color3.fromRGB(118, 96, 70))
+createPromenadePath(geometryFolder, "UhudGatePromenade", meccaCenter + Vector3.new(-714, 0, -860), uhudGateCenter + Vector3.new(98, 0, 0), 62, Color3.fromRGB(191, 171, 136), Color3.fromRGB(118, 96, 70))
 createPromenadePath(geometryFolder, "JourneyPromenade", meccaCenter + Vector3.new(0, 0, 714), desertCenter + Vector3.new(0, 0, -152), 70, Color3.fromRGB(202, 187, 159), Color3.fromRGB(128, 109, 82))
--- The north ridge and apron of the Makkah band would sit on the Abraj Al-Bait site.
-createDistrictTerrainBand(geometryFolder, "MeccaWorld", meccaCenter, 980, 940, DESERT_ROCK, { NorthFrame = true, Apron_3 = true })
-createDistrictTerrainBand(geometryFolder, "MedinaWorld", medinaCenter, 640, 540, Color3.fromRGB(133, 110, 84))
+-- The north ridge and apron of the Makkah band would sit on the Abraj Al-Bait site, the two
+-- west ridges on the Badr and Uhud gates, and the south ridge and apron across the Journey road.
+createDistrictTerrainBand(geometryFolder, "MeccaWorld", meccaCenter, 980, 940, DESERT_ROCK, { NorthFrame = true, Apron_3 = true, WestNorthFrame = true, WestSouthFrame = true, SouthFrame = true, Apron_4 = true })
+-- Its north ridge would sit across the Journey road beside the reflection site, and its
+-- north-west ridge inside the Uhud battlefield.
+createDistrictTerrainBand(geometryFolder, "MedinaWorld", medinaCenter, 640, 540, Color3.fromRGB(133, 110, 84), { NorthFrame = true, WestNorthFrame = true })
 -- Its northern ridges would land inside Masjid al-Haram and its south ridge in the Medina courtyard.
 createDistrictTerrainBand(geometryFolder, "JourneyWorld", desertCenter, 520, 720, Color3.fromRGB(141, 114, 84), { NorthFrame = true, SouthFrame = true, WestNorthFrame = true, EastNorthFrame = true, Apron_3 = true, Apron_4 = true })
 createWorldBackdrop(geometryFolder, Vector3.new(0, 0, 720))
+
+-- Lantern posts at every hub arrival point so nobody lands in the dark at night.
+local arrivalLights = BuildUtils.CreateFolder(geometryFolder, "ArrivalLanterns")
+for _, destination in ipairs(TravelRoute.Destinations) do
+    local landing = destination.TeleportPosition or destination.Position
+    if math.abs(landing.X) < 2000 and math.abs(landing.Z) < 2400 and destination.Id ~= "kaaba_courtyard" then
+        local ground = if destination.Id == "medina_courtyard" then landing.Y + 4 else landing.Y
+        Decor.ArrivalLanterns(arrivalLights, destination.Id, landing, ground)
+    end
+end
 
 local spawnLocation = Instance.new("SpawnLocation")
 spawnLocation.Name = "JourneySpawn"
