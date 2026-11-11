@@ -55,6 +55,7 @@ New tests found and fixed real bugs during this pass:
 - **Flickering floors.** A new check found 31 places where two different-looking surfaces sit at exactly the same height and overlap, which shimmer as the camera moves: the arena floors, the desert road under the Madinah courtyard, the Haram gallery floors, the mystery wing ground and two Madinah houses. All are fixed and the check runs in CI.
 - **Training Grounds in the void.** The PvP arena's ground ended at its walls, so it floated in empty sky with palms standing on nothing, and a solid disc filled each gateway. It now stands in open desert with rock outcrops and arched gates, and walk checks go in through both gates (`game-previews/v2/training-grounds-before-after.png`).
 - **Signs on the arrival spot.** The mystery wing and co-op entrance signs stood where players arrive, and the arena rules sign stood in a gateway. They now stand aside.
+- **Arriving in the Seerah towns.** In historical Makkah the camera started inside one of the houses around the Kaaba, and in historical Madinah the town sign filled the view. A new check keeps the space behind every arrival open and signs facing the player (`game-previews/v2/seerah-makkah-arrival-before-after.png`).
 - **Present-day Madinah arrival and route.** Arriving players landed inside the solid portico, and the visitation route was blocked. New checks: every travel destination lands in open space, players can walk from the Madinah arrival into the hall, and the route from Bab as-Salam is open.
 
 ## Cost

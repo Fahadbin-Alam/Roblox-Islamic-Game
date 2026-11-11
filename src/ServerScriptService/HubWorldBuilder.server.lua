@@ -1297,7 +1297,7 @@ local function buildMedinaDistrict(parent: Instance, center: Vector3)
         BuildUtils.CreatePart(district, "CompanionMarker" .. string.char(64 + index), Vector3.new(5, 0.6, 5), CFrame.new(chamber + Vector3.new(-16, 0.3, dz)), Color3.fromRGB(214, 204, 181), Enum.Material.Marble, nil, nil).CanCollide = false
     end
 
-    createWallPanel(district, "VisitationSign", Vector3.new(center.X - 170, center.Y, chamber.Z + 22), Vector3.new(60, 12, 2.5), "Bab as-Salam Visitation Route", "Enter from Bab as-Salam, follow the marked walkway, and approach the sacred chamber area respectfully and quietly.", Color3.fromRGB(52, 88, 58), 90, nil)
+    createWallPanel(district, "VisitationSign", Vector3.new(center.X - 170, center.Y, chamber.Z + 16), Vector3.new(60, 12, 2.5), "Bab as-Salam Visitation Route", "Enter from Bab as-Salam, follow the marked walkway, and approach the sacred chamber area respectfully and quietly.", Color3.fromRGB(52, 88, 58), 0, nil)
     createWallPanel(district, "ChamberSign", Vector3.new(chamber.X - 30, center.Y, chamber.Z + 30), Vector3.new(40, 10, 2.5), "Sacred Chamber Marker", "This is a respectful marker for the visitation area and route, not a 1:1 interior reconstruction.", Color3.fromRGB(86, 92, 67), 180, nil)
 
     -- Gates at the edge of the piazza.

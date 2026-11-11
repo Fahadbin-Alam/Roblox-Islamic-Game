@@ -517,6 +517,76 @@ do
     zcheck(#found == 0, string.format("no coplanar overlapping surfaces flicker (%d found)", #found) .. (#found > 0 and (": " .. table.concat(shown, "; ")) or ""))
 end
 
+-- Arrival view: players arrive facing their destination with the camera about 12 studs behind
+-- them. The space behind each travel landing (where the camera sits) must be free of anything
+-- opaque, and a board sign near a landing must face it so its text can be read.
+do
+    local TravelRoute = require(game:GetService("ReplicatedStorage").Shared.Data.TravelRoute)
+    local opaque, boards = {}, {}
+    for _, part in ipairs(Workspace:GetDescendants()) do
+        if part:IsA("BasePart") and (part.Transparency or 0) < 0.5 then
+            local size = part.Size
+            if size.X * size.Y * size.Z > 4 and size.X < 600 and size.Z < 600 then
+                table.insert(opaque, part)
+            end
+            if string.sub(part.Name, -6) == "_Board" then
+                table.insert(boards, part)
+            end
+        end
+    end
+    local hidden, unreadable = {}, {}
+    for _, destination in ipairs(TravelRoute.Destinations) do
+        local at = destination.TeleportPosition or destination.Position
+        local ahead = Vector3.new(destination.Position.X - at.X, 0, destination.Position.Z - at.Z)
+        if ahead.Magnitude > 1 then
+            local dir = ahead.Unit
+            -- The floor the player stands on: the highest solid top under the landing.
+            local ground = at.Y - 4
+            for _, part in ipairs(opaque) do
+                if part.CanCollide then
+                    local l = part.CFrame:PointToObjectSpace(Vector3.new(at.X, part.Position.Y, at.Z))
+                    local h = part.Size / 2
+                    local top = part.Position.Y + h.Y
+                    if math.abs(l.X) < h.X and math.abs(l.Z) < h.Z and top < at.Y + 6 and top > ground then
+                        ground = top
+                    end
+                end
+            end
+            local blocked = nil
+            for back = 4, 14, 2 do
+                for _, dy in ipairs({ 7, 10 }) do
+                    local point = Vector3.new(at.X, ground + dy, at.Z) - dir * back
+                    for _, part in ipairs(opaque) do
+                        local l = part.CFrame:PointToObjectSpace(point)
+                        local h = part.Size / 2
+                        if math.abs(l.X) < h.X and math.abs(l.Y) < h.Y and math.abs(l.Z) < h.Z then
+                            blocked = part
+                            break
+                        end
+                    end
+                    if blocked then
+                        break
+                    end
+                end
+                if blocked then
+                    break
+                end
+            end
+            if blocked then
+                table.insert(hidden, destination.Id .. " (" .. blocked:GetFullName() .. ")")
+            end
+            for _, board in ipairs(boards) do
+                local offset = Vector3.new(at.X - board.Position.X, 0, at.Z - board.Position.Z)
+                if offset.Magnitude < 40 and board.CFrame.LookVector:Dot(offset.Unit) < 0.2 then
+                    table.insert(unreadable, destination.Id .. " (" .. board:GetFullName() .. ")")
+                end
+            end
+        end
+    end
+    zcheck(#hidden == 0, "the camera has room behind every travel landing" .. (#hidden > 0 and (": " .. table.concat(hidden, "; ")) or ""))
+    zcheck(#unreadable == 0, "signs near travel landings face the arriving player" .. (#unreadable > 0 and (": " .. table.concat(unreadable, "; ")) or ""))
+end
+
 if zoneFailures > 0 then
     error(string.format("%d zone check(s) failed", zoneFailures))
 end

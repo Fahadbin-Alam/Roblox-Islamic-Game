@@ -456,6 +456,13 @@ local function newInstance(className)
                     end
                 end
                 return
+            elseif key == "Orientation" and props.CFrame then
+                -- Rotate in place, as Roblox does (degrees, Y then X then Z).
+                local c = props.CFrame
+                local r = CFrame.fromOrientation(math.rad(value.X), math.rad(value.Y), math.rad(value.Z))
+                props.CFrame = cf(c.px, c.py, c.pz, r.r00, r.r01, r.r02, r.r10, r.r11, r.r12, r.r20, r.r21, r.r22)
+                props.Orientation = value
+                return
             elseif key == "Position" then
                 local c = props.CFrame or identityAt(0, 0, 0)
                 props.CFrame = cf(value.X, value.Y, value.Z, c.r00, c.r01, c.r02, c.r10, c.r11, c.r12, c.r20, c.r21, c.r22)

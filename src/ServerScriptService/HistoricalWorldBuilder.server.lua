@@ -328,8 +328,9 @@ local function siteBuild(parent: Instance, site: HistoricalSites.Site)
         for index = 1, 14 do
             local angle = math.rad(index * (360 / 14) + 10)
             local houseAt = p + Vector3.new(math.cos(angle) * 80, GROUND_TOP, 40 + math.sin(angle) * 80)
-            -- Leave the south side open: the path in from the travel point.
-            if math.sin(angle) > -0.8 then
+            -- Leave both ends open: the chapter's travel point and path in (-Z), and the town
+            -- arrival with room for the camera behind arriving players (+Z).
+            if math.abs(math.sin(angle)) < 0.8 then
                 mudHouse(folder, string.format("House%d", index), houseAt, Vector3.new(17 + (index % 3) * 2, 11 + (index % 3) * 2, 15), -math.deg(angle) + 90, nil)
             end
         end
@@ -800,7 +801,8 @@ for zoneIndex, zone in ipairs(HistoricalSites.Zones) do
 
     -- Bare mountains around the edge give the valley feel of both towns.
     local entrance = if isMakkah then c + Vector3.new(0, 0, 110) else c + Vector3.new(0, 0, -90)
-    sign(zoneFolder, "EntranceSign", entrance + Vector3.new(0, 0, if isMakkah then 14 else -14), zone.DisplayName, zone.Disclaimer, if isMakkah then 0 else 180)
+    -- Beside the arrival spot, not in front of or behind it (where it would fill the view).
+    sign(zoneFolder, "EntranceSign", entrance + Vector3.new(-26, 0, if isMakkah then -10 else 10), zone.DisplayName, zone.Disclaimer, if isMakkah then 180 else 0)
 
     local clearings = clearingsFor(zone.Id)
     table.insert(clearings, { At = Vector3.new(entrance.X, 0, entrance.Z), Radius = 40 })
