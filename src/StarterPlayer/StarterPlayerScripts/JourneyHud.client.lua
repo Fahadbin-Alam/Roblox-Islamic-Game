@@ -96,6 +96,7 @@ end
 -- Modal (story pages, questions, conclusions) -----------------------------------------------
 
 local modal = UiKit.Frame(gui, "Modal", UDim2.fromOffset(640, 440), UDim2.fromScale(0.5, 0.5), Vector2.new(0.5, 0.5))
+UiKit.FitToScreen(modal)
 modal.Visible = false
 local modalTitle = UiKit.Label(modal, "", UDim2.new(1, -36, 0, 34), UDim2.fromOffset(18, 14), 22, true, C.Gold)
 local modalBody = UiKit.Scroller(modal, UDim2.new(1, -36, 1, -170), UDim2.fromOffset(18, 54))

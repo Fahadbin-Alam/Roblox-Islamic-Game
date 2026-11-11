@@ -1,6 +1,7 @@
 --!nonstrict
 
 local Players = game:GetService("Players")
+local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local UserInputService = game:GetService("UserInputService")
 
@@ -101,13 +102,16 @@ screenGui.Parent = playerGui
 
 local panel = Instance.new("Frame")
 panel.Name = "Panel"
-panel.Position = UDim2.fromOffset(56, 76)
+-- Centred so it can use the whole screen height on a phone (see UiKit.FitToScreen).
+panel.AnchorPoint = Vector2.new(0.5, 0.5)
+panel.Position = UDim2.fromScale(0.5, 0.5)
 panel.Size = UDim2.fromOffset(800, 540)
 panel.BackgroundColor3 = Color3.fromRGB(244, 235, 214)
 panel.BorderSizePixel = 0
 panel.Visible = false
 panel.ZIndex = 10
 panel.Parent = screenGui
+UiKit.FitToScreen(panel)
 
 local panelCorner = Instance.new("UICorner")
 panelCorner.CornerRadius = UDim.new(0, 18)
@@ -148,7 +152,7 @@ local closeButton = Instance.new("TextButton")
 closeButton.Name = "CloseButton"
 closeButton.AnchorPoint = Vector2.new(1, 0)
 closeButton.Position = UDim2.new(1, -18, 0, 16)
-closeButton.Size = UDim2.fromOffset(48, 40)
+closeButton.Size = UDim2.fromOffset(54, 48)
 closeButton.Active = true
 closeButton.AutoButtonColor = true
 closeButton.BackgroundColor3 = Color3.fromRGB(91, 76, 51)

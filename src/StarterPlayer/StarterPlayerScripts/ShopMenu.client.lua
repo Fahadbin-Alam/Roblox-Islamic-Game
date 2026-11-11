@@ -1,6 +1,7 @@
 --!strict
 
 local Players = game:GetService("Players")
+local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -72,6 +73,7 @@ panel.Size = UDim2.fromOffset(370, 560)
 panel.BackgroundColor3 = Color3.fromRGB(246, 238, 219)
 panel.Visible = false
 panel.Parent = screenGui
+UiKit.FitToScreen(panel)
 
 local panelCorner = Instance.new("UICorner")
 panelCorner.CornerRadius = UDim.new(0, 18)
@@ -97,7 +99,7 @@ local closeButton = Instance.new("TextButton")
 closeButton.Name = "CloseButton"
 closeButton.AnchorPoint = Vector2.new(1, 0)
 closeButton.Position = UDim2.new(1, -16, 0, 16)
-closeButton.Size = UDim2.fromOffset(40, 34)
+closeButton.Size = UDim2.fromOffset(54, 48)
 closeButton.BackgroundColor3 = Color3.fromRGB(91, 77, 53)
 closeButton.Font = Enum.Font.GothamBold
 closeButton.Text = "X"

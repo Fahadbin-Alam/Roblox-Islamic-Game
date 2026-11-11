@@ -1,6 +1,7 @@
 --!strict
 
 local Players = game:GetService("Players")
+local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
@@ -32,6 +33,7 @@ panel.Size = UDim2.fromOffset(660, 408)
 panel.BackgroundColor3 = Color3.fromRGB(245, 239, 224)
 panel.Visible = false
 panel.Parent = screenGui
+UiKit.FitToScreen(panel)
 
 local panelCorner = Instance.new("UICorner")
 panelCorner.CornerRadius = UDim.new(0, 8)

@@ -1,6 +1,7 @@
 --!strict
 
 local Players = game:GetService("Players")
+local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local StarterGui = game:GetService("StarterGui")
@@ -82,6 +83,7 @@ summaryFrame.Size = UDim2.fromOffset(700, 420)
 summaryFrame.BackgroundColor3 = Color3.fromRGB(245, 236, 216)
 summaryFrame.Visible = false
 summaryFrame.Parent = screenGui
+UiKit.FitToScreen(summaryFrame)
 
 local summaryCorner = Instance.new("UICorner")
 summaryCorner.CornerRadius = UDim.new(0, 20)

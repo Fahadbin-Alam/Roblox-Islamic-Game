@@ -42,9 +42,10 @@ gui.Parent = playerGui
 
 local panel = UiKit.Frame(gui, "Panel", UDim2.fromOffset(780, 520), UDim2.fromScale(0.5, 0.5), Vector2.new(0.5, 0.5))
 panel.Visible = false
+UiKit.FitToScreen(panel)
 
 UiKit.Label(panel, "Journeys", UDim2.new(1, -80, 0, 34), UDim2.fromOffset(18, 12), 26, true, C.Gold)
-UiKit.Button(panel, "X", UDim2.fromOffset(40, 36), UDim2.new(1, -52, 0, 10), C.Red, function()
+UiKit.Button(panel, "X", UDim2.fromOffset(48, 44), UDim2.new(1, -58, 0, 6), C.Red, function()
     panel.Visible = false
 end)
 

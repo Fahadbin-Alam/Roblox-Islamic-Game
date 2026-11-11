@@ -158,4 +158,54 @@ function UiKit.Row(parent: Instance, order: number, title: string, body: string,
     return row
 end
 
+-- The largest scale (at most 1) at which a frame designed in pixels stays inside a
+-- viewSize screen with `margin` pixels to spare, keeping its position and anchor point.
+-- tests/client/checks.luau uses the same rule to check panels on a phone screen.
+function UiKit.FitScale(frame: GuiObject, viewSize: Vector2, margin: number): number
+    local size, position, anchor = frame.Size, frame.Position, frame.AnchorPoint
+    local scale = 1
+
+    for _, axis in ipairs({ "X", "Y" }) do
+        local view = if axis == "X" then viewSize.X else viewSize.Y
+        local dim = if axis == "X" then size.X else size.Y
+        local pos = if axis == "X" then position.X else position.Y
+        local a = if axis == "X" then anchor.X else anchor.Y
+        local length = dim.Scale * view + dim.Offset
+        local at = pos.Scale * view + pos.Offset
+
+        if length > 0 then
+            if a < 1 then
+                scale = math.min(scale, (view - margin - at) / (length * (1 - a)))
+            end
+            if a > 0 then
+                scale = math.min(scale, (at - margin) / (length * a))
+            end
+        end
+    end
+
+    return math.max(0.3, scale)
+end
+
+-- Shrinks a fixed-size panel on small screens (phones) so it never runs off the edge.
+function UiKit.FitToScreen(frame: GuiObject, margin: number?)
+    local pad = margin or 10
+    local fit = Instance.new("UIScale")
+    fit.Name = "FitScale"
+    fit:SetAttribute("Margin", pad)
+    fit.Parent = frame
+
+    local function update()
+        local camera = workspace.CurrentCamera
+        if camera then
+            fit.Scale = UiKit.FitScale(frame, camera.ViewportSize, pad)
+        end
+    end
+
+    update()
+    local camera = workspace.CurrentCamera
+    if camera then
+        camera:GetPropertyChangedSignal("ViewportSize"):Connect(update)
+    end
+end
+
 return UiKit

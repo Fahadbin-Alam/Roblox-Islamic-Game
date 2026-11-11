@@ -28,6 +28,155 @@ for _, child in ipairs(playerGui:GetChildren()) do
 end
 check(screens >= 5, string.format("HUDs create their screens (%d ScreenGuis)", screens))
 
+-- Screen layout at first sight, on a small phone held sideways (667 x 375) and on a laptop
+-- (1280 x 720): every visible button lies on the screen, is big enough to tap, and does not
+-- sit on top of another visible button. Buttons placed by a list or grid layout, inside a
+-- scrolling frame, or under a size constraint are left out (their real size depends on Roblox).
+local LAYOUTS = { UIListLayout = true, UIGridLayout = true, UIPageLayout = true, UITableLayout = true }
+local CONSTRAINTS = { UIScale = true, UISizeConstraint = true, UIAspectRatioConstraint = true }
+
+local function shown(gui)
+    local node = gui
+    while node and node.ClassName ~= "ScreenGui" do
+        if node.Visible == false then
+            return false
+        end
+        node = node.Parent
+    end
+    return node ~= nil and node.Enabled ~= false
+end
+
+local function measurable(gui)
+    local node = gui
+    while node and node.ClassName ~= "ScreenGui" do
+        if node.ClassName == "ScrollingFrame" and node ~= gui then
+            return false
+        end
+        for _, child in ipairs(node:GetChildren()) do
+            if CONSTRAINTS[child.ClassName] and child.Name ~= "FitScale" then
+                return false
+            end
+        end
+        local parent = node.Parent
+        if parent then
+            for _, sibling in ipairs(parent:GetChildren()) do
+                if LAYOUTS[sibling.ClassName] then
+                    return false
+                end
+            end
+        end
+        node = parent
+    end
+    return node ~= nil
+end
+
+-- Same rule as UiKit.FitScale: the largest scale (at most 1) that keeps a fixed-size panel on
+-- the screen with a margin, around its anchor point.
+local function fitScale(gui, length, at, anchor, view, margin)
+    local scale = 1
+    if length > 0 then
+        if anchor < 1 then
+            scale = math.min(scale, (view - margin - at) / (length * (1 - anchor)))
+        end
+        if anchor > 0 then
+            scale = math.min(scale, (at - margin) / (length * anchor))
+        end
+    end
+    return scale
+end
+
+-- Absolute rectangle of a GuiObject on a w x h screen, and the accumulated UIScale factor that
+-- applies to its children's pixel offsets.
+local function rect(gui, w, h)
+    if gui.ClassName == "ScreenGui" then
+        return 0, 0, w, h, 1
+    end
+    local px, py, pw, ph, k = rect(gui.Parent, w, h)
+    local size = gui.Size or UDim2.new(0, 0, 0, 0)
+    local position = gui.Position or UDim2.new(0, 0, 0, 0)
+    local anchor = gui.AnchorPoint or Vector2.new(0, 0)
+    local sw = size.X.Scale * pw + size.X.Offset * k
+    local sh = size.Y.Scale * ph + size.Y.Offset * k
+    local ax = px + position.X.Scale * pw + position.X.Offset * k
+    local ay = py + position.Y.Scale * ph + position.Y.Offset * k
+    local fit = gui:FindFirstChild("FitScale")
+    if fit then
+        local margin = fit:GetAttribute("Margin") or 10
+        local s = math.max(0.3, math.min(fitScale(gui, sw, ax, anchor.X, w, margin), fitScale(gui, sh, ay, anchor.Y, h, margin)))
+        sw, sh, k = sw * s, sh * s, k * s
+    end
+    return ax - anchor.X * sw, ay - anchor.Y * sh, sw, sh, k
+end
+
+local layoutIssues = { offscreen = {}, tiny = {}, overlapping = {} }
+local measuredTotal = 0
+
+local function measureScreens(stateLabel)
+    for _, screen in ipairs({ { 667, 375, "phone" }, { 1280, 720, "laptop" } }) do
+        local w, h = screen[1], screen[2]
+        local measured = {}
+        for _, item in ipairs(playerGui:GetDescendants()) do
+            if (item.ClassName == "TextButton" or item.ClassName == "ImageButton") and shown(item) and measurable(item) then
+                local x, y, bw, bh = rect(item, w, h)
+                table.insert(measured, { item, x, y, bw, bh })
+                if x < -1 or y < -1 or x + bw > w + 1 or y + bh > h + 1 then
+                    layoutIssues.offscreen[string.format("%s on a %s %s (%d,%d %dx%d)", item:GetFullName(), screen[3], stateLabel, x, y, bw, bh)] = true
+                end
+                if bw < 28 or bh < 28 then
+                    layoutIssues.tiny[string.format("%s on a %s (%dx%d)", item:GetFullName(), screen[3], bw, bh)] = true
+                end
+            end
+        end
+        measuredTotal += #measured
+        for i = 1, #measured do
+            for j = i + 1, #measured do
+                local a, b = measured[i], measured[j]
+                local ix = math.min(a[2] + a[4], b[2] + b[4]) - math.max(a[2], b[2])
+                local iy = math.min(a[3] + a[5], b[3] + b[5]) - math.max(a[3], b[3])
+                local smaller = math.min(a[4] * a[5], b[4] * b[5])
+                if ix > 0 and iy > 0 and smaller > 0 and ix * iy > 0.25 * smaller and not a[1]:IsDescendantOf(b[1]) and not b[1]:IsDescendantOf(a[1]) then
+                    layoutIssues.overlapping[string.format("%s and %s on a %s %s", a[1]:GetFullName(), b[1]:GetFullName(), screen[3], stateLabel)] = true
+                end
+            end
+        end
+    end
+end
+
+local function keys(set)
+    local list = {}
+    for key in pairs(set) do
+        table.insert(list, key)
+    end
+    table.sort(list)
+    return list
+end
+
+-- First sight, then with each first-sight button's panel opened in turn.
+measureScreens("at first sight")
+local firstSight = {}
+for _, item in ipairs(playerGui:GetDescendants()) do
+    if (item.ClassName == "TextButton" or item.ClassName == "ImageButton") and shown(item) then
+        table.insert(firstSight, item)
+    end
+end
+for _, button in ipairs(firstSight) do
+    pcall(function()
+        button.Activated._fire()
+    end)
+    sim.advance(0.5)
+    measureScreens("after pressing " .. button.Name)
+    pcall(function()
+        button.Activated._fire()
+    end)
+    sim.advance(0.5)
+end
+
+print(string.format("info measured %d button placements", measuredTotal))
+local offscreen, tiny, overlapping = keys(layoutIssues.offscreen), keys(layoutIssues.tiny), keys(layoutIssues.overlapping)
+check(#offscreen == 0, "every visible button fits on phone and laptop screens" .. (#offscreen > 0 and (": " .. table.concat(offscreen, "; ")) or ""))
+check(#tiny == 0, "every visible button is big enough to tap" .. (#tiny > 0 and (": " .. table.concat(tiny, "; ")) or ""))
+check(#overlapping == 0, "no visible buttons overlap" .. (#overlapping > 0 and (": " .. table.concat(overlapping, "; ")) or ""))
+
 -- Press every button, twice (open, then close), letting the game run between presses.
 local function buttons()
     local list = {}

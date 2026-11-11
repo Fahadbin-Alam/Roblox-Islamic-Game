@@ -5,6 +5,7 @@
 -- the after-battle reflection questions.
 
 local Players = game:GetService("Players")
+local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
@@ -138,6 +139,7 @@ narration.BackgroundColor3 = Color3.fromRGB(34, 30, 24)
 narration.BackgroundTransparency = 0.08
 narration.Visible = false
 narration.Parent = screenGui
+UiKit.FitToScreen(narration)
 corner(narration, 14)
 stroke(narration, GOLD, 1.5, 0.15)
 
@@ -381,6 +383,7 @@ results.Size = UDim2.fromOffset(620, 520)
 results.BackgroundColor3 = Color3.fromRGB(30, 34, 30)
 results.Visible = false
 results.Parent = screenGui
+UiKit.FitToScreen(results)
 corner(results, 18)
 stroke(results, GOLD, 2, 0.1)
 
