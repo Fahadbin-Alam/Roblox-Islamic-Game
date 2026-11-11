@@ -10,7 +10,7 @@ the automated checks below. Everything that needs a live server is listed under 
 | Check | Command | Result |
 |---|---|---|
 | Unit tests (rules and data) | `tests/luau/run.sh <luau>` | 46 passed, 0 failed |
-| Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 55 checks passed (about 80 s) |
+| Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 74 checks passed (about 80 s) |
 | Battle arenas in a mock engine | `tests/world/run.sh <luau>` | 181 passed, 0 failed |
 | Multiplayer simulation (real server scripts, simulated players) | `tests/sim/run.sh <luau>` | 40 passed, 0 failed |
 | Static analysis against the Roblox API | `tests/analyze.sh ...` | no syntax errors, unknown globals or broken requires |
@@ -59,6 +59,13 @@ Bugs the simulation found and fixed:
    seconds), and a finish in the first 8 seconds after a server started was ignored. A finish now
    counts once per arrival.
 
+Bugs the visual pass (docs/visual-benchmark.md) found with new checks and fixed:
+
+3. Nine Seerah chapter items and arrival rings were inside walls, hills or vine rows.
+4. Present-day Madinah: the travel point dropped players inside a solid block, and the
+   Rawdah and visitation route were sealed inside the solid prayer hall.
+5. A tent cushion was built without a colour, which errors on a real server.
+
 What the simulation does **not** prove: real network replication between two Roblox clients,
 physics (walking, jumping, collisions), animation, and how the controls feel. Those still need
 a Studio or live test.
@@ -82,17 +89,18 @@ a Studio or live test.
 
 | Area | Parts |
 |---|---|
-| Whole hub (present-day Makkah, Madinah, districts) | 6,629 (70 lights) |
+| Whole hub (present-day Makkah, Madinah, districts) | 7,775 (70 lights) |
 | Masjid al-Haram alone | 5,325 (2,332 SurfaceGui frames) |
-| Historical Makkah and Madinah | 977 |
-| Mystery wing (5 rooms) | 228 |
-| Co-op trials | 25 |
-| Training grounds | 24 |
+| Historical Makkah and Madinah | 13,935 |
+| Mystery wing (5 rooms) | 2,105 |
+| Training grounds | 526 |
+| Co-op trials | 256 |
 
-The new zones add about 1,250 parts, most of them anchored. Server loops poll every 0.1 to
-0.5 seconds and only read character positions. Frame rate, memory and network use could not be
-measured without a Roblox client; check them in Studio with the MicroProfiler and the
-Developer Console before release, especially on phones.
+About 24,600 parts in total after the visual pass, mostly anchored, and the decoration does
+not collide. Server loops poll every 0.1 to 0.5 seconds and only read character positions.
+Frame rate, memory and network use could not be measured without a Roblox client. Check them
+in Studio with the MicroProfiler and the Developer Console before release, especially on
+phones. Consider StreamingEnabled (see docs/visual-benchmark.md).
 
 ## Blockers
 
