@@ -2,6 +2,7 @@ local BattleMissions = load("Data/BattleMissions")
 local BattleScenarios = load("Data/BattleScenarios")
 local MissionRules = load("Modules/MissionRules")
 local Progression = load("Modules/Progression")
+local ReflectionAnswers = load("Server/ReflectionAnswers")
 
 test("every battle scenario has a story mission", function()
     for _, scenario in ipairs(BattleScenarios) do
@@ -56,7 +57,12 @@ test("missions are well formed", function()
         assert(#mission.Reflection >= 3, id .. " needs reflection questions")
 
         for _, question in ipairs(mission.Reflection) do
-            assert(question.Answer >= 1 and question.Answer <= #question.Choices, question.Id .. " answer out of range")
+            local key = ReflectionAnswers[question.Id]
+            assert(key, question.Id .. " has no server-side answer")
+            assert(key.Answer >= 1 and key.Answer <= #question.Choices and key.Answer % 1 == 0, question.Id .. " answer out of range")
+            assert(key.Explanation ~= "", question.Id .. " needs an explanation")
+            expectEqual(question.Answer, nil, question.Id .. " answer must stay out of the replicated mission data")
+            expectEqual(question.Explanation, nil, question.Id .. " explanation must stay out of the replicated mission data")
         end
 
         for _, ally in ipairs(mission.Allies) do
@@ -107,12 +113,36 @@ test("stars reward completion, steadfastness, and few falls", function()
     expectEqual(MissionRules.StarBonus(3, 2), 0, "no bonus below best")
 end)
 
+test("every reflection answer key belongs to a question", function()
+    local ids = {}
+
+    for _, id in ipairs(BattleMissions.Order) do
+        for _, question in ipairs(BattleMissions.Get(id).Reflection) do
+            ids[question.Id] = true
+        end
+    end
+
+    for id in pairs(ReflectionAnswers) do
+        assert(ids[id], "answer key " .. id .. " has no question")
+    end
+end)
+
 test("reflection grading hides answers from the client", function()
     local mission = BattleMissions.Get("badr")
-    local graded = MissionRules.GradeReflection(mission, { 1, 2, 1 })
+    local right = {}
+
+    for index, question in ipairs(mission.Reflection) do
+        right[index] = ReflectionAnswers[question.Id].Answer
+    end
+
+    local mixed = table.clone(right)
+    mixed[2] = if right[2] == 1 then 2 else 1
+    local graded = MissionRules.GradeReflection(mission, mixed, ReflectionAnswers)
     expectEqual(graded.Total, 3, "total")
     expectEqual(graded.Correct, 2, "two right")
-    expectEqual(MissionRules.GradeReflection(mission, "junk").Correct, 0, "junk answers")
+    expectEqual(graded.Results[2].Answer, right[2], "result reveals the answer after grading")
+    expectEqual(MissionRules.GradeReflection(mission, "junk", ReflectionAnswers).Correct, 0, "junk answers")
+    expectEqual(MissionRules.GradeReflection(mission, { 1, 1, 1 }, ReflectionAnswers).Correct == 3, false, "always picking the first choice does not pass")
 
     for _, question in ipairs(MissionRules.ReflectionForClient(mission)) do
         expectEqual(question.Answer, nil, "answer must not be sent")

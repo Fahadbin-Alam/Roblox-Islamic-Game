@@ -16,6 +16,7 @@ local Progression = require(Shared.Modules.Progression)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 local MissionDirector = require(script.Parent.Modules.MissionDirector)
+local ReflectionAnswers = require(script.Parent.Modules.ReflectionAnswers)
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local battleFolder = remotesFolder:WaitForChild("Battle")
 local shopFolder = remotesFolder:WaitForChild("Shop")
@@ -2039,7 +2040,7 @@ submitReflection.OnServerEvent:Connect(function(player: Player, scenarioId: stri
         cleanAnswers[index] = if typeof(value) == "number" then math.floor(value) else nil
     end
 
-    local graded = MissionRules.GradeReflection(mission, cleanAnswers)
+    local graded = MissionRules.GradeReflection(mission, cleanAnswers, ReflectionAnswers)
     local xpBefore = (PlayerProgress.Get(player) or { XP = 0 }).XP
 
     for index, result in ipairs(graded.Results) do

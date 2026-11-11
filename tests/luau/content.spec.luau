@@ -1,5 +1,5 @@
 local IslamicStudies = load("Data/IslamicStudies")
-local TriviaQuestions = load("Data/TriviaQuestions")
+local TriviaQuestions = load("Server/TriviaQuestions")
 
 test("every Islamic Studies lesson is well formed", function()
     local seen = {}
@@ -19,8 +19,6 @@ test("every Islamic Studies lesson is well formed", function()
             for index, question in ipairs(lesson.Quiz) do
                 local where = string.format("%s question %d", lesson.Id, index)
                 assert(#question.Options >= 2, where .. " needs options")
-                assert(question.CorrectIndex >= 1 and question.CorrectIndex <= #question.Options, where .. " CorrectIndex out of range")
-                assert(question.Explanation ~= "", where .. " needs an explanation")
 
                 local optionSeen = {}
 
@@ -55,7 +53,7 @@ test("order puzzles have distinct steps", function()
             if puzzle then
                 puzzles += 1
                 assert(#puzzle.Steps >= 3, "puzzle too short in " .. lesson.Id)
-                assert(puzzle.Prompt ~= "" and puzzle.Explanation ~= "", "puzzle text missing in " .. lesson.Id)
+                assert(puzzle.Prompt ~= "", "puzzle text missing in " .. lesson.Id)
                 local seen = {}
 
                 for _, step in ipairs(puzzle.Steps) do

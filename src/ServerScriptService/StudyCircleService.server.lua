@@ -12,6 +12,8 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local IslamicStudies = require(Shared.Data.IslamicStudies)
 local Progression = require(Shared.Modules.Progression)
 local TravelRoute = require(Shared.Data.TravelRoute)
+local LessonGrading = require(script.Parent.Modules.LessonGrading)
+local LessonIndex = require(script.Parent.Modules.LessonIndex)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 
 local learningFolder = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Learning")
@@ -26,6 +28,8 @@ local MIN_PLAYERS_FOR_BADGE = 2
 
 type Circle = {
     Lesson: IslamicStudies.Lesson,
+    -- The lesson paired with its server-only answer key.
+    Entry: LessonGrading.Entry,
     Participants: { Player },
     QuestionIndex: number,
     AcceptingAnswers: boolean,
@@ -37,7 +41,7 @@ local activeCircle: Circle? = nil
 local gathering = false
 local promptConnections: { [ProximityPrompt]: RBXScriptConnection } = {}
 
-local allLessons = {}
+local allLessons: { IslamicStudies.Lesson } = {}
 
 for _, unit in ipairs(IslamicStudies.Units) do
     for _, lesson in ipairs(unit.Lessons) do
@@ -129,11 +133,12 @@ local function runCircle(circle: Circle)
 
         local correctCount = 0
         local answeredCount = 0
+        local _, key = LessonGrading.Question(circle.Entry, index, nil)
 
         for _, answer in pairs(circle.Answers) do
             answeredCount += 1
 
-            if answer == question.CorrectIndex then
+            if LessonGrading.Question(circle.Entry, index, answer) then
                 correctCount += 1
             end
         end
@@ -147,8 +152,8 @@ local function runCircle(circle: Circle)
             Total = #lesson.Quiz,
             Prompt = question.Prompt,
             Options = question.Options,
-            CorrectIndex = question.CorrectIndex,
-            Explanation = question.Explanation,
+            CorrectIndex = key.CorrectIndex,
+            Explanation = key.Explanation,
             CorrectCount = correctCount,
             AnsweredCount = answeredCount,
         })
@@ -214,8 +219,10 @@ local function startCircle(starter: Player, anchor: BasePart)
         return
     end
 
+    local lesson = allLessons[math.random(1, #allLessons)]
     local circle: Circle = {
-        Lesson = allLessons[math.random(1, #allLessons)],
+        Lesson = lesson,
+        Entry = LessonIndex[lesson.Id],
         Participants = participants,
         QuestionIndex = 0,
         AcceptingAnswers = false,
@@ -242,17 +249,18 @@ circleAnswer.OnServerEvent:Connect(function(player: Player, questionIndex: any, 
         return
     end
 
-    if typeof(answerIndex) ~= "number" or circle.Answers[player] ~= nil or not table.find(circle.Participants, player) then
+    if circle.Answers[player] ~= nil or not table.find(circle.Participants, player) then
         return
     end
 
     local question = circle.Lesson.Quiz[circle.QuestionIndex]
+    local choice = LessonGrading.Choice(answerIndex, #question.Options)
 
-    if answerIndex < 1 or answerIndex > #question.Options then
+    if choice == nil then
         return
     end
 
-    circle.Answers[player] = answerIndex
+    circle.Answers[player] = choice
 end)
 
 local function connectPrompt(prompt: ProximityPrompt)

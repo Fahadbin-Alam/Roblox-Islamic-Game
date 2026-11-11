@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
   luau:
     runs-on: ubuntu-latest
@@ -15,14 +18,18 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/tools"
           cd "$RUNNER_TEMP/tools"
-          curl -sSL -o luau.zip https://github.com/luau-lang/luau/releases/latest/download/luau-ubuntu.zip
+          # Pinned versions so a new upstream release cannot break CI overnight; -f makes a
+          # failed download stop here instead of handing an HTML error page to unzip.
+          curl -fsSL -o luau.zip https://github.com/luau-lang/luau/releases/download/0.746/luau-ubuntu.zip
           unzip -q luau.zip
-          curl -sSL -o lsp.zip https://github.com/JohnnyMorganz/luau-lsp/releases/download/1.70.1/luau-lsp-linux-x86_64.zip
+          curl -fsSL -o lsp.zip https://github.com/JohnnyMorganz/luau-lsp/releases/download/1.70.1/luau-lsp-linux-x86_64.zip
           unzip -q lsp.zip
-          curl -sSL -o globalTypes.d.luau https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/1.70.1/scripts/globalTypes.d.luau
-          curl -sSL -o rojo.zip https://github.com/rojo-rbx/rojo/releases/download/v7.4.4/rojo-7.4.4-linux-x86_64.zip
+          curl -fsSL -o globalTypes.d.luau https://raw.githubusercontent.com/JohnnyMorganz/luau-lsp/1.70.1/scripts/globalTypes.d.luau
+          curl -fsSL -o rojo.zip https://github.com/rojo-rbx/rojo/releases/download/v7.4.4/rojo-7.4.4-linux-x86_64.zip
           unzip -q rojo.zip
-          chmod +x luau luau-lsp rojo
+          curl -fsSL -o selene.zip https://github.com/Kampfkarren/selene/releases/download/0.32.0/selene-0.32.0-linux.zip
+          unzip -q selene.zip
+          chmod +x luau luau-lsp rojo selene
 
       - name: Unit tests
         run: tests/luau/run.sh "$RUNNER_TEMP/tools/luau"
@@ -32,3 +39,9 @@ jobs:
 
       - name: Static analysis
         run: tests/analyze.sh "$RUNNER_TEMP/tools/luau-lsp" "$RUNNER_TEMP/tools/rojo" "$RUNNER_TEMP/tools/globalTypes.d.luau"
+
+      - name: Lint (selene)
+        run: |
+          # selene builds its Roblox standard library from the Roblox API dump on first run.
+          "$RUNNER_TEMP/tools/selene" generate-roblox-std
+          "$RUNNER_TEMP/tools/selene" --allow-warnings src
