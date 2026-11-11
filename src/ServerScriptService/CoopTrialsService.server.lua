@@ -56,7 +56,7 @@ block("Ground", Vector3.new(84, G, 260), Vector3.new(0, G / 2, 0), Color3.fromRG
 block("WallWest", Vector3.new(2, 34, 260), Vector3.new(-42, G + 17, 0), STONE)
 block("WallEast", Vector3.new(2, 34, 260), Vector3.new(42, G + 17, 0), STONE)
 block("WallBack", Vector3.new(84, 34, 2), Vector3.new(0, G + 17, -130), STONE)
-boardAt("StartSign", Vector3.new(0, G, -100), "Trials of Brotherhood", "A co-op course for two or more. In Madinah, each emigrant was paired with a helper of the Ansar. Help each other through. The puzzles are a game; the brotherhood is history.")
+boardAt("StartSign", Vector3.new(-22, G, -96), "Trials of Brotherhood", "A co-op course for two or more. In Madinah, each emigrant was paired with a helper of the Ansar. Help each other through. The puzzles are a game; the brotherhood is history.")
 
 -- Stage 1: gate wall with a doorway, plate A before it and plate B after it.
 block("GateWallWest", Vector3.new(37, 34, 2), Vector3.new(-23.5, G + 17, -40), STONE)

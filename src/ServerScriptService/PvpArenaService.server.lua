@@ -49,6 +49,9 @@ end
 local arena = BuildUtils.CreateFolder(Workspace, "TrainingGrounds")
 
 BuildUtils.CreatePart(arena, "SafetyPlate", Vector3.new(400, 10, 400), CFrame.new(CENTER + Vector3.new(0, -8, 0)), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, nil, 1)
+-- Open desert around the arena, a hair below the arena floor, so the walls and palms do not
+-- stand at the edge of the void.
+BuildUtils.CreatePart(arena, "Desert", Vector3.new(1200, G - 0.1, 1200), CFrame.new(CENTER + Vector3.new(0, (G - 0.1) / 2, 0)), Color3.fromRGB(214, 188, 140), Enum.Material.Sand, nil, nil)
 BuildUtils.CreatePart(arena, "Ground", Vector3.new(300, G, 300), CFrame.new(CENTER + Vector3.new(0, G / 2, 0)), Color3.fromRGB(190, 176, 150), Enum.Material.Sandstone, nil, nil)
 
 local STONE = Color3.fromRGB(206, 190, 160)
@@ -156,7 +159,12 @@ for _, z in ipairs({ 140, -140 }) do
     for _, x in ipairs({ -18, 18 }) do
         BuildUtils.CreatePart(arena, "GatePier", Vector3.new(6, 22, 6), CFrame.new(gate + Vector3.new(x, 11, 0)), Decor.Shade(wallColor, 0.92), Enum.Material.Sandstone, nil, nil)
     end
-    BuildUtils.CreatePart(arena, "GateArch", Vector3.new(3, 36, 36), CFrame.new(gate + Vector3.new(0, 18, 0)) * CFrame.Angles(0, math.rad(90), 0), Decor.Shade(wallColor, 0.92), Enum.Material.Sandstone, Enum.PartType.Cylinder, nil).CanCollide = false
+    -- Chamfered top corners give the opening an arch shape; a stepped crest sits on the lintel.
+    for _, side in ipairs({ -1, 1 }) do
+        Decor.Deco(arena, "GateSpandrel", Vector3.new(9, 9, 5), CFrame.new(gate + Vector3.new(side * 15, 22, 0)) * CFrame.Angles(0, 0, math.rad(45)), Decor.Shade(wallColor, 0.92), Enum.Material.Sandstone)
+    end
+    Decor.Deco(arena, "GateCrest", Vector3.new(30, 5, 5), CFrame.new(gate + Vector3.new(0, 30.5, 0)), Decor.Shade(wallColor, 0.92), Enum.Material.Sandstone)
+    Decor.Deco(arena, "GateCrestTop", Vector3.new(16, 4, 5), CFrame.new(gate + Vector3.new(0, 35, 0)), Decor.Shade(wallColor, 0.85), Enum.Material.Sandstone)
     BuildUtils.CreatePart(arena, "GateLintel", Vector3.new(42, 6, 6), CFrame.new(gate + Vector3.new(0, 25, 0)), Decor.Shade(wallColor, 0.85), Enum.Material.Sandstone, nil, nil)
     Decor.Deco(arena, "GateTile", Vector3.new(24, 3, 0.4), CFrame.new(gate + Vector3.new(0, 25, if z > 0 then 3.2 else -3.2)), Color3.fromRGB(44, 96, 120), Enum.Material.Glass)
 end
@@ -165,7 +173,18 @@ end
 for index = 1, 12 do
     local angle = index * 0.52
     local reach = 165 + (index % 3) * 8
-    Decor.Palm(arena, "Palm" .. index, CENTER + Vector3.new(math.cos(angle) * reach, G, math.sin(angle) * reach), 18 + (index % 4) * 2, index * 9, true)
+    -- Keep the walk out of the two gates (on the z axis) clear.
+    if math.abs(math.cos(angle) * reach) < 30 then
+        angle += if math.cos(angle) >= 0 then 0.2 else -0.2
+    end
+    Decor.Palm(arena, "Palm" .. index, CENTER + Vector3.new(math.cos(angle) * reach, G, math.sin(angle) * reach) - Vector3.new(0, 0.1, 0), 18 + (index % 4) * 2, index * 9, true)
+end
+
+-- Rock outcrops out in the desert, so the horizon is not empty.
+for index = 1, 10 do
+    local angle = index * 0.63 + 0.3
+    local reach = 330 + (index % 4) * 55
+    Decor.Rocks(arena, "Outcrop" .. index, CENTER + Vector3.new(math.cos(angle) * reach, G - 0.1, math.sin(angle) * reach), 14 + (index % 3) * 8, index * 7)
 end
 
 for _, x in ipairs({ -40, 40 }) do
@@ -184,7 +203,7 @@ BuildUtils.CreatePart(arena, "Bench", Vector3.new(60, 2, 10), CFrame.new(bench +
 local joinPad = BuildUtils.CreatePart(arena, "JoinPad", Vector3.new(14, 1, 14), CFrame.new(CENTER + Vector3.new(0, G + 0.5, -RING_RADIUS - 60)), Color3.fromRGB(128, 70, 62), Enum.Material.Neon, nil, 0.2)
 BuildUtils.AttachPrompt(joinPad, "Join sparring", "Training Grounds", { PromptAction = "PvpJoin" })
 
-local boardSign = BuildUtils.CreateBoardSign(arena, "RulesSign", CENTER + Vector3.new(0, G, -RING_RADIUS - 76), "Training Grounds", "Practice sparring, 2 to 8 players. Last one standing wins the round; first to 3 rounds wins. Play fair, shake hands after. Not a historical battle.", Color3.fromRGB(128, 70, 62), nil)
+local boardSign = BuildUtils.CreateBoardSign(arena, "RulesSign", CENTER + Vector3.new(-26, G, -RING_RADIUS - 76), "Training Grounds", "Practice sparring, 2 to 8 players. Last one standing wins the round; first to 3 rounds wins. Play fair, shake hands after. Not a historical battle.", Color3.fromRGB(128, 70, 62), nil)
 boardSign.Orientation = Vector3.new(0, 0, 0)
 
 -- Helpers -----------------------------------------------------------------------------------

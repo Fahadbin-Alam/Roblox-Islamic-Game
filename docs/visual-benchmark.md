@@ -53,6 +53,8 @@ New tests found and fixed real bugs during this pass:
 - **Battle gates buried in rock.** A new check found that the Badr and Uhud gates and the Journey road sat inside the hub's decorative rock ridges, which do not collide, so players walked through them and saw only rock. Those ridges are removed or moved, and the gates are dressed with battlements, banners, fire bowls and palms.
 - **Hub scenery inside the battlefields.** The Uhud gate, a hotel tower and the Haram deck edge stood inside the Badr arena, and a backdrop mountain inside Uhud. The Uhud gate moved south of the Badr gate and a check now keeps the arenas clear.
 - **Flickering floors.** A new check found 31 places where two different-looking surfaces sit at exactly the same height and overlap, which shimmer as the camera moves: the arena floors, the desert road under the Madinah courtyard, the Haram gallery floors, the mystery wing ground and two Madinah houses. All are fixed and the check runs in CI.
+- **Training Grounds in the void.** The PvP arena's ground ended at its walls, so it floated in empty sky with palms standing on nothing, and a solid disc filled each gateway. It now stands in open desert with rock outcrops and arched gates, and walk checks go in through both gates (`game-previews/v2/training-grounds-before-after.png`).
+- **Signs on the arrival spot.** The mystery wing and co-op entrance signs stood where players arrive, and the arena rules sign stood in a gateway. They now stand aside.
 - **Present-day Madinah arrival and route.** Arriving players landed inside the solid portico, and the visitation route was blocked. New checks: every travel destination lands in open space, players can walk from the Madinah arrival into the hall, and the route from Bab as-Salam is open.
 
 ## Cost
@@ -62,7 +64,7 @@ New tests found and fixed real bugs during this pass:
 | Hub, including Masjid al-Haram and present-day Madinah | 8,893 (budget 9,000) |
 | Historical Makkah and Madinah | 14,649 (budget 15,000) |
 | Mystery wing | 2,083 (budget 2,500) |
-| Training grounds | 526 (budget 1,000) |
+| Training grounds | 573 (budget 1,000) |
 | Co-op trials | 256 (budget 400) |
 
 The whole place is now about 26,000 parts, most of them anchored, and the decoration does not collide. The zones are about 4,000 studs apart, so turning on `Workspace.StreamingEnabled` would mean a phone only loads the zone the player is in. It is not turned on yet: client scripts that wait for world parts first need to be checked in Studio. Measure frame rate and memory on a phone before release.

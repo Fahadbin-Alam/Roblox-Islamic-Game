@@ -74,6 +74,7 @@ Bugs the visual pass (docs/visual-benchmark.md) found with new checks and fixed:
 11. Walking the hub promenades on the floor found a hotel podium across the Badr gate promenade, and a drop to the sand followed by a 4 to 8 stud ledge at the end of the story, manners and parkour promenades (too high to step, and the parkour one higher than a jump). The promenades now run onto the floors and the hotel stands clear. The same walk along the Journey road found two 70-stud-wide signs standing across it at the desert camp; they now stand beside the road.
 12. On a small phone screen (667 x 375) the Journeys book ran off the top and right of the screen, so its close button could not be reached. Large panels (Journeys, main menu, shop, trivia, manners, mission results, story dialogue, battle summary) now shrink to fit the screen, and their close buttons are bigger so they stay tappable when shrunk.
 13. A new check looks for flickering surfaces (z-fighting): two visible blocks whose tops sit at the same height, overlap, and differ in colour or material, which shimmer in Roblox as the camera moves. It found 31: the Badr and Uhud floors where they meet, the Uhud briefing ground, the desert road under the present-day Madinah courtyard, the oasis planter at the desert camp, the gallery floors and facade bands of Masjid al-Haram, the mystery wing ground under every room, and two overlapping houses in historical Madinah. All are fixed and the check runs in CI.
+14. Looking at each activity zone from where players arrive found the Training Grounds arena floating in empty sky (its desert ended at the walls), a solid disc filling its gateway, a palm in front of one gate and the rules sign in the other, and entrance signs right on the arrival spot of the mystery wing and the co-op course. The arena now stands in open desert with rock outcrops, the gates are arches, and the signs and palm stand aside. New walk checks go in through both arena gates and from each arrival point.
 
 What the simulation does **not** prove: real network replication between two Roblox clients,
 physics (walking, jumping, collisions), animation, and how the controls feel. Those still need
@@ -102,7 +103,7 @@ a Studio or live test.
 | Masjid al-Haram alone | 5,325 (2,332 SurfaceGui frames) |
 | Historical Makkah and Madinah | 14,649 |
 | Mystery wing (5 rooms) | 2,083 |
-| Training grounds | 526 |
+| Training grounds | 573 |
 | Co-op trials | 256 |
 
 About 26,000 parts and 270 point lights in total after the visual passes, mostly anchored, and the decoration does

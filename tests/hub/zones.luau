@@ -294,15 +294,18 @@ do
 
     local arena = landing("training_grounds")
     walk({ arena, Vector3.new(4000, 4, -1900) }, "Training Grounds landing to the centre of the ring")
+    for _, z in ipairs({ 1, -1 }) do
+        walk({ Vector3.new(4000, 4, -1900 + z * 175), Vector3.new(4000, 4, -1900 + z * 100) }, string.format("Training Grounds gate at z %+d from the desert", z * 140))
+    end
 
     local wing = landing("mystery_wing")
     for index, mystery in ipairs(SahabiMysteries.Mysteries) do
         local x = -4000 + (index - (#SahabiMysteries.Mysteries + 1) / 2) * 260
-        walk({ wing, Vector3.new(wing.X, 4, -110), Vector3.new(x, 4, -110), Vector3.new(x, 4, -52) }, "mystery lobby through the door of " .. mystery.Id .. "'s room")
+        walk({ wing, Vector3.new(wing.X, 4, -170), Vector3.new(wing.X, 4, -110), Vector3.new(x, 4, -110), Vector3.new(x, 4, -52) }, "mystery lobby through the door of " .. mystery.Id .. "'s room")
     end
 
     local coop = landing("coop_trials")
-    walk({ coop, Vector3.new(-4000, 4, 1490 + 6) }, "Co-op landing to the start rugs")
+    walk({ coop, Vector3.new(-4000, 4, 1515) }, "Co-op landing to the first stage")
 end
 
 -- Every Seerah site (except the mountain caves) can be reached on foot from its town's
