@@ -147,6 +147,29 @@ if historical then
         end
     end
 
+    -- Every historical site has a fire within 30 studs of its arrival ring, for night play.
+    local fires = {}
+    for _, light in ipairs(historical:GetDescendants()) do
+        if light:IsA("Light") and light.Parent and light.Parent:IsA("BasePart") then
+            table.insert(fires, light.Parent.Position)
+        end
+    end
+    local dark = {}
+    for _, site in ipairs(HistoricalSites.Sites) do
+        local arrival = HistoricalSites.ArrivalPoint(site)
+        local lit = false
+        for _, position in ipairs(fires) do
+            if (position - arrival).Magnitude < 30 then
+                lit = true
+                break
+            end
+        end
+        if not lit then
+            table.insert(dark, site.Id)
+        end
+    end
+    zcheck(#dark == 0, "every historical site is lit at night" .. (#dark > 0 and (": " .. table.concat(dark, ", ")) or ""))
+
     zcheck(#blocked == 0, "every arrival point, travel point and campaign item is free of walls" .. (#blocked > 0 and (": " .. table.concat(blocked, "; ")) or ""))
     zcheck((historical:GetAttribute("MakkahHouses") or 0) >= 40 and (historical:GetAttribute("MadinahHouses") or 0) >= 25, string.format("historical towns are dense (Makkah %s houses, Madinah %s)", tostring(historical:GetAttribute("MakkahHouses")), tostring(historical:GetAttribute("MadinahHouses"))))
 end

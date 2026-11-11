@@ -16,6 +16,17 @@ import numpy as np
 from PIL import Image
 
 
+def parse_lights(path):
+    """PointLights from the LIGHT| lines: position, colour, brightness and range."""
+    lights = []
+    with open(path, encoding="utf-8") as handle:
+        for line in handle:
+            if line.startswith("LIGHT|"):
+                nums = list(map(float, line.rstrip("\n").split("|")[1:9]))
+                lights.append((np.array(nums[0:3]), np.array(nums[3:6]), nums[6], nums[7]))
+    return lights
+
+
 def parse(path):
     parts = []
     with open(path, encoding="utf-8") as handle:
@@ -171,7 +182,7 @@ def raster(poly2, depth_vals, width, height, callback):
         callback(y0, x0, inside, w0 * d[0] + w1 * d[1] + w2 * d[2])
 
 
-def render(parts, eye, at, width, height, fov, night, out):
+def render(parts, eye, at, width, height, fov, night, out, lights=()):
     eye, at = np.array(eye, float), np.array(at, float)
     forward = at - eye
     forward /= np.linalg.norm(forward)
@@ -317,6 +328,22 @@ def render(parts, eye, at, width, height, fov, night, out):
         if sel.any() and name != "plain":
             pattern[sel] = material_shade(name, world[sel], normals[sel])
     color = base * (light * pattern)[:, None] + tint
+    if night and len(world):
+        # Point lights (lamps, braziers): warm falloff, no shadows.
+        lo, hi = world.min(axis=0), world.max(axis=0)
+        glow_sum = np.zeros_like(world)
+        for position, light_color, brightness, reach in lights:
+            if np.any(position < lo - reach) or np.any(position > hi + reach):
+                continue
+            offset = position - world
+            dist = np.linalg.norm(offset, axis=1)
+            inside = dist < reach
+            if not inside.any():
+                continue
+            facing = np.clip(np.einsum("ij,ij->i", normals[inside], offset[inside]) / np.maximum(dist[inside], 1e-3), 0, 1)
+            falloff = (1 - dist[inside] / reach) ** 2
+            glow_sum[inside] += np.outer(falloff * (0.35 + 0.65 * facing) * brightness * 0.9, light_color)
+        color = color + base * pattern[:, None] * glow_sum
     glow = kind_of == -1
     color[glow] = np.clip(base[glow] * 1.25 + 0.15, 0, 1)
     fog = (np.clip(z / fog_far, 0, 1) ** 1.3)[:, None]
@@ -360,7 +387,8 @@ def main():
     if args.radius > 0:
         parts = [p for p in parts if np.linalg.norm(p["pos"] - at) - p["size"].max() / 2 < args.radius]
     width, height = map(int, args.size.split("x"))
-    ids = render(parts, list(map(float, args.eye.split(","))), at, width, height, args.fov, args.night, args.out)
+    lights = parse_lights(args.parts)
+    ids = render(parts, list(map(float, args.eye.split(","))), at, width, height, args.fov, args.night, args.out, lights)
     for pick in filter(None, args.pick.split(";")):
         x, y = map(int, pick.split(","))
         pid = ids[y, x]

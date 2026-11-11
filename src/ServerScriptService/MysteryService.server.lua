@@ -293,6 +293,9 @@ local function buildWing()
         end
     end
 
+    local arrival = (TravelRoute.GetDestinationById("mystery_wing") :: any)
+    Decor.ArrivalLanterns(lobby, "ArrivalLanterns", arrival.TeleportPosition or arrival.Position, CENTER.Y + FLOOR_TOP)
+
     for index = 1, #SahabiMysteries.Mysteries - 1 do
         local x = (index - #SahabiMysteries.Mysteries / 2) * SPACING
         Decor.Well(lobby, "LobbyWell", CENTER + Vector3.new(x, FLOOR_TOP, 0))

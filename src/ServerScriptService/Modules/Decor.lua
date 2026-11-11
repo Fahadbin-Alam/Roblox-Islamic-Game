@@ -533,6 +533,26 @@ function Decor.Banner(parent: Instance, name: string, ground: Vector3, color: Co
     return m
 end
 
+-- A lantern post: a dark wooden pole with an arm and a hanging glass lantern, lit at night.
+function Decor.LanternPost(parent: Instance, name: string, ground: Vector3, height: number?): Model
+    local m = model(parent, name)
+    local h = height or 11
+    rod(m, "Pole", ground, ground + Vector3.new(0, h, 0), 0.28, C.WoodDark, Enum.Material.Wood)
+    rod(m, "Arm", ground + Vector3.new(0, h - 0.6, 0), ground + Vector3.new(1.8, h - 0.6, 0), 0.12, C.WoodDark, Enum.Material.Metal)
+    deco(m, "Cap", Vector3.new(1.3, 0.4, 1.3), CFrame.new(ground + Vector3.new(1.8, h - 1.2, 0)), Color3.fromRGB(60, 54, 50), Enum.Material.Metal)
+    local glass = deco(m, "Lantern", Vector3.new(0.9, 1.4, 0.9), CFrame.new(ground + Vector3.new(1.8, h - 2.1, 0)), Color3.fromRGB(255, 210, 140), Enum.Material.Neon)
+    BuildUtils.AddPointLight(glass, Color3.fromRGB(255, 204, 136), 1.3, 24)
+
+    return m
+end
+
+-- A pair of lantern posts either side of a landing point, so arrivals are lit at night.
+function Decor.ArrivalLanterns(parent: Instance, name: string, landing: Vector3, ground: number?)
+    local base = Vector3.new(landing.X, ground or landing.Y, landing.Z)
+    Decor.LanternPost(parent, name .. "_West", base + Vector3.new(-11, 0, 0), nil)
+    Decor.LanternPost(parent, name .. "_East", base + Vector3.new(11, 0, 0), nil)
+end
+
 -- A brazier: an iron bowl on legs with a glowing fire.
 function Decor.Brazier(parent: Instance, name: string, ground: Vector3): Model
     local m = model(parent, name)

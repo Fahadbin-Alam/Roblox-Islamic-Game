@@ -35,10 +35,21 @@ The before and after previews are in `game-previews/v2/before-after.png` in the 
 | Co-op course | Bare walls floating in the air | Desert ground around it, buttresses, battlements, wall lamps, banners and braziers |
 | Parkour tower | A plain pillar | Stone bands, arched windows, summit finials, palm planters and a mosaic ring. None of it collides, so the jumps the unit tests measured are unchanged. |
 
+## Second pass
+
+| Area | Before | After |
+|---|---|---|
+| Historical early mosque (Madinah) | Mud walls, one flat green roof strip | Stone footing under the walls, doors on three sides with palm-trunk frames, three rows of ringed palm-trunk pillars, an uneven frond roof with mats beneath, pebbles in the courtyard, the household chambers along the east wall, and bricks and spare trunks from the building work |
+| Night | Only Masjid al-Haram had lights. Present-day Madinah, the courts, the battle gates, the Seerah towns and the mystery wing were dark. | Brass chandeliers in the Madinah hall, lamps under the piazza umbrellas and on the walkway, lantern posts at every arrival point, a pair of fire bowls at every Seerah site, and lanterns at street crossings in the historical towns |
+| Hub palms | Straight sticks with a few leaves | Curved trunks with seven fronds |
+
+The preview renderer now draws point lights at night, so the night previews show what is lit and what is not (`game-previews/v2/night-before-after.png`).
+
 New tests found and fixed real bugs during this pass:
 
 - **Seerah items you could not reach.** Nine chapter items and arrival rings sat inside walls, hills or vine rows: Shi'b Abi Talib, Ta'if, Safa, al-Aqabah, Jabal Thawr and the House of Fatimah. A new zone check now confirms every arrival point, travel point and item is clear.
 - **Tent build would fail.** A tent cushion was built with no colour. On a real server that raises an error and stops the site from building. A new check now confirms every part has a colour.
+- **Players arriving in the dark.** A new check found that 11 of the 15 travel destinations had no light within 70 studs, and most Seerah sites had none within 30. All are now lit, and both checks run in CI.
 - **Present-day Madinah arrival and route.** Arriving players landed inside the solid portico, and the visitation route was blocked. New checks: every travel destination lands in open space, players can walk from the Madinah arrival into the hall, and the route from Bab as-Salam is open.
 
 ## Cost
@@ -56,4 +67,4 @@ The whole place is now about 24,600 parts, most of them anchored, and the decora
 ## Still not done
 
 - Smooth shapes (meshes) and textures need Studio or Blender and uploaded assets. Only the account owner can upload them.
-- Lighting and the look at night have only been checked in our software renderer, not in Roblox.
+- Lighting and the look at night have only been checked in our software renderer, not in Roblox. The place now has about 270 point lights; check frame rate on a phone at night.

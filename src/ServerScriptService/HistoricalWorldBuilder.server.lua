@@ -423,6 +423,11 @@ local function siteBuild(parent: Instance, site: HistoricalSites.Site)
     local arrival = HistoricalSites.ArrivalPoint(site)
     sign(folder, "Sign", arrival + Vector3.new(0, 0, -12), site.DisplayName, "Historical reconstruction. " .. site.Description, 180)
 
+    -- Two fire bowls beside the sign, so every site is lit and easy to find at night.
+    for _, side in ipairs({ -1, 1 }) do
+        Decor.Brazier(folder, if side < 0 then "BrazierWest" else "BrazierEast", arrival + Vector3.new(side * 9, 0, -16))
+    end
+
     -- A soft ring marks where chapters begin; the campaign HUD points players to it.
     local ring = BuildUtils.CreateVerticalCylinder(folder, "ChapterRing", 0.3, 9, arrival + Vector3.new(0, 0.2, 0), Color3.fromRGB(247, 208, 117), Enum.Material.Neon, 0.55)
     ring.CanCollide = false
@@ -640,6 +645,12 @@ local function buildBlocks(parent: Instance, zone: HistoricalSites.Zone, clearin
             local blockCentre = Vector3.new((bx + 0.5) * spacing, 0, (bz + 0.5) * spacing)
 
             if blockCentre.Magnitude < radius then
+                -- A lantern at every other street crossing, so the streets are lit at night.
+                local crossing = c + Vector3.new(bx * spacing + 4, GROUND_TOP, bz * spacing + 4)
+                if (bx + bz) % 2 == 0 and isClear(clearings, crossing, 4) then
+                    Decor.LanternPost(parent, string.format("StreetLantern_%d_%d", bx, bz), crossing, 10)
+                end
+
                 -- Each side of the block: start corner, direction along the side, outward normal.
                 for side = 1, 4 do
                     local along, outward, length
@@ -806,6 +817,17 @@ for _, chapter in ipairs(SeerahCampaign.Chapters) do
             })
             prompt.Enabled = false
         end
+    end
+end
+
+-- Lantern posts at the two town arrival points used by the travel menu.
+local TravelRoute = require(Shared.Data.TravelRoute)
+local arrivalLights = BuildUtils.CreateFolder(root, "ArrivalLanterns")
+for _, id in ipairs({ "seerah_campaign", "seerah_madinah" }) do
+    local destination = TravelRoute.GetDestinationById(id)
+    if destination then
+        local landing = destination.TeleportPosition or destination.Position
+        Decor.ArrivalLanterns(arrivalLights, id, landing, GROUND_TOP)
     end
 end
 

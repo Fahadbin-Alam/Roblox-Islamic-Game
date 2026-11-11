@@ -10,7 +10,7 @@ the automated checks below. Everything that needs a live server is listed under 
 | Check | Command | Result |
 |---|---|---|
 | Unit tests (rules and data) | `tests/luau/run.sh <luau>` | 46 passed, 0 failed |
-| Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 74 checks passed (about 80 s) |
+| Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 76 checks passed (about 80 s) |
 | Battle arenas in a mock engine | `tests/world/run.sh <luau>` | 181 passed, 0 failed |
 | Multiplayer simulation (real server scripts, simulated players) | `tests/sim/run.sh <luau>` | 40 passed, 0 failed |
 | Client scripts against the real server | `tests/client/run.sh <luau>` | 6 passed: all 22 client scripts load, 160+ button presses and real campaign/PvP/mystery state raise no errors |
@@ -66,6 +66,7 @@ Bugs the visual pass (docs/visual-benchmark.md) found with new checks and fixed:
 4. Present-day Madinah: the travel point dropped players inside a solid block, and the
    Rawdah and visitation route were sealed inside the solid prayer hall.
 5. A tent cushion was built without a colour, which errors on a real server.
+6. Most arrival points and Seerah sites had no light at all, so night arrivals were dark.
 
 What the simulation does **not** prove: real network replication between two Roblox clients,
 physics (walking, jumping, collisions), animation, and how the controls feel. Those still need

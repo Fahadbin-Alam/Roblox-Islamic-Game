@@ -24,4 +24,8 @@ for _, part in ipairs(world:GetDescendants()) do
             part.Color.R, part.Color.G, part.Color.B, part.Transparency, shape, glow, part.Material and part.Material.Name or "Plastic"
         ))
     end
+    if part.ClassName == "PointLight" and part.Parent and part.Parent:IsA("BasePart") and part.Enabled ~= false then
+        local at = part.Parent.Position
+        print(string.format("LIGHT|%.3f|%.3f|%.3f|%.3f|%.3f|%.3f|%.3f|%.3f", at.X, at.Y, at.Z, part.Color.R, part.Color.G, part.Color.B, part.Brightness, part.Range))
+    end
 end

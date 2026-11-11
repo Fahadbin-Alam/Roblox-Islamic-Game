@@ -206,6 +206,30 @@ end
 
 -- Present-day Madinah: walk from the arrival point through a north door of the prayer hall
 -- to the Rawdah, and along the visitation route in from Bab as-Salam.
+-- At night every travel destination has a lamp, chandelier or fire within 70 studs, so
+-- players never arrive in the dark.
+local hubLights = {}
+for _, light in ipairs(game:GetService("Workspace"):GetDescendants()) do
+    if light:IsA("Light") and light.Parent and light.Parent:IsA("BasePart") then
+        table.insert(hubLights, light.Parent.Position)
+    end
+end
+local unlit = {}
+for _, destination in ipairs(TravelRoute.Destinations) do
+    local landing = destination.TeleportPosition or destination.Position
+    local lit = false
+    for _, position in ipairs(hubLights) do
+        if (position - landing).Magnitude < 70 then
+            lit = true
+            break
+        end
+    end
+    if not lit then
+        table.insert(unlit, destination.Id)
+    end
+end
+check(#unlit == 0, "every travel destination has a light nearby at night" .. (#unlit > 0 and (": " .. table.concat(unlit, ", ")) or ""))
+
 local medina = TravelRoute.GetDestinationById("medina_courtyard").Position
 local medinaFloor = medina.Y + 4.6
 walkable(Vector3.new(medina.X, medinaFloor, medina.Z + 136), Vector3.new(medina.X, medinaFloor, medina.Z - 120), "Medina arrival through the north door into the prayer hall")

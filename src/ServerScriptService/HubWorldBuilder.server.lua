@@ -1188,6 +1188,22 @@ local function buildMedinaDistrict(parent: Instance, center: Vector3)
     BuildUtils.CreatePart(facades, "Roof", Vector3.new(hallWidth + 4, 3, hallDepth + 4), CFrame.new(hallCenter + Vector3.new(0, hallHeight + 1.5, 0)), MEDINA_STONE, Enum.Material.Marble, nil, nil)
     BuildUtils.CreatePart(facades, "Ceiling", Vector3.new(hallWidth - 4, 0.3, hallDepth - 4), CFrame.new(hallCenter + Vector3.new(0, hallHeight - 0.2, 0)), Color3.fromRGB(226, 214, 186), Enum.Material.WoodPlanks, nil, nil).CanCollide = false
 
+    -- Brass chandeliers hanging between the column rows, lit at night.
+    local chandelierIndex = 0
+    for _, dx in ipairs({ -84, 0, 84 }) do
+        for _, dz in ipairs({ -50, 50 }) do
+            chandelierIndex += 1
+            local at = hallCenter + Vector3.new(dx, hallHeight - 9, dz)
+            local chain = BuildUtils.CreatePart(facades, "ChandelierChain" .. chandelierIndex, Vector3.new(0.2, 8.6, 0.2), CFrame.new(at + Vector3.new(0, 4.6, 0)), GOLD_ACCENT, Enum.Material.Metal, nil, nil)
+            chain.CanCollide = false
+            local ring = BuildUtils.CreateVerticalCylinder(facades, "ChandelierRing" .. chandelierIndex, 0.6, 9, at, GOLD_ACCENT, Enum.Material.Metal, nil)
+            ring.CanCollide = false
+            local glow = BuildUtils.CreateSphere(facades, "ChandelierGlow" .. chandelierIndex, 2.6, at + Vector3.new(0, -0.9, 0), Color3.fromRGB(255, 226, 168), Enum.Material.Neon, nil)
+            glow.CanCollide = false
+            BuildUtils.AddPointLight(glow, Color3.fromRGB(255, 214, 150), 1.4, 40)
+        end
+    end
+
     local domeIndex = 0
 
     for dz = -70, 70, 46 do
@@ -1270,12 +1286,23 @@ local function buildMedinaDistrict(parent: Instance, center: Vector3)
         end
     end
 
+    -- Every third umbrella carries a lamp under its cap, so the piazza is lit at night.
+    for index, umbrella in ipairs(umbrellas:GetChildren()) do
+        local column = umbrella:FindFirstChild("Column")
+        if index % 3 == 1 and column and column:IsA("BasePart") then
+            local lamp = BuildUtils.CreatePart(umbrella, "UnderLamp", Vector3.new(1.4, 1, 1.4), CFrame.new(column.Position + Vector3.new(0, 12.5, 0)), Color3.fromRGB(255, 232, 186), Enum.Material.Neon, nil, nil)
+            lamp.CanCollide = false
+            BuildUtils.AddPointLight(lamp, Color3.fromRGB(255, 226, 176), 1.2, 34)
+        end
+    end
+
     -- Lamp posts along the arrival walkway.
     for _, dz in ipairs({ 40, 80, 120, 160, 200 }) do
         for _, dx in ipairs({ -20, 20 }) do
             local post = BuildUtils.CreateVerticalCylinder(district, "WalkLampPost", 14, 0.4, Vector3.new(center.X + dx, floorY + 7, center.Z + dz), Color3.fromRGB(70, 74, 72), Enum.Material.Metal, nil)
             local lamp = BuildUtils.CreatePart(district, "WalkLamp", Vector3.new(1.6, 2.2, 1.6), CFrame.new(post.Position + Vector3.new(0, 8, 0)), Color3.fromRGB(255, 226, 168), Enum.Material.Neon, nil, nil)
             lamp.CanCollide = false
+            BuildUtils.AddPointLight(lamp, Color3.fromRGB(255, 220, 160), 1.3, 26)
         end
     end
 end
@@ -1385,6 +1412,16 @@ createDistrictTerrainBand(geometryFolder, "MedinaWorld", medinaCenter, 640, 540,
 -- Its northern ridges would land inside Masjid al-Haram and its south ridge in the Medina courtyard.
 createDistrictTerrainBand(geometryFolder, "JourneyWorld", desertCenter, 520, 720, Color3.fromRGB(141, 114, 84), { NorthFrame = true, SouthFrame = true, WestNorthFrame = true, EastNorthFrame = true, Apron_3 = true, Apron_4 = true })
 createWorldBackdrop(geometryFolder, Vector3.new(0, 0, 720))
+
+-- Lantern posts at every hub arrival point so nobody lands in the dark at night.
+local arrivalLights = BuildUtils.CreateFolder(geometryFolder, "ArrivalLanterns")
+for _, destination in ipairs(TravelRoute.Destinations) do
+    local landing = destination.TeleportPosition or destination.Position
+    if math.abs(landing.X) < 2000 and math.abs(landing.Z) < 2400 and destination.Id ~= "kaaba_courtyard" then
+        local ground = if destination.Id == "medina_courtyard" then landing.Y + 4 else landing.Y
+        Decor.ArrivalLanterns(arrivalLights, destination.Id, landing, ground)
+    end
+end
 
 local spawnLocation = Instance.new("SpawnLocation")
 spawnLocation.Name = "JourneySpawn"
