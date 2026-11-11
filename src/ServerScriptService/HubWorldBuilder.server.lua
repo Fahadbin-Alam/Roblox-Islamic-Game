@@ -1122,7 +1122,8 @@ local function buildKaabaHub(parent: Instance, center: Vector3)
     -- Kept east of the Badr battlefield.
     BuildUtils.CreateModernTower(district, "MakkahHotelSouthWest", center + Vector3.new(-700, 0, 690), Vector2.new(78, 60), 198, Color3.fromRGB(215, 208, 194), GLASS_TINT)
     BuildUtils.CreateModernTower(district, "MakkahHotelSouthEast", center + Vector3.new(812, 0, 676), Vector2.new(78, 60), 198, Color3.fromRGB(215, 208, 194), GLASS_TINT)
-    BuildUtils.CreateModernTower(district, "MakkahHotelNorthWest", center + Vector3.new(-836, 0, -542), Vector2.new(74, 56), 208, Color3.fromRGB(214, 207, 193), GLASS_TINT)
+    -- Clear of the Badr gate promenade at z = -560.
+    BuildUtils.CreateModernTower(district, "MakkahHotelNorthWest", center + Vector3.new(-836, 0, -690), Vector2.new(74, 56), 208, Color3.fromRGB(214, 207, 193), GLASS_TINT)
     BuildUtils.CreateModernTower(district, "MakkahHotelNorthEast", center + Vector3.new(836, 0, -542), Vector2.new(74, 56), 208, Color3.fromRGB(214, 207, 193), GLASS_TINT)
 end
 
@@ -1463,10 +1464,11 @@ buildParkourCourse(geometryFolder, parkourCenter)
 buildMedinaDistrict(geometryFolder, medinaCenter)
 buildBattleGate(geometryFolder, "BadrGate", badrGateCenter, Color3.fromRGB(141, 107, 58), "badr", "Badr Gate")
 buildBattleGate(geometryFolder, "UhudGate", uhudGateCenter, Color3.fromRGB(114, 92, 71), "uhud", "Uhud Gate")
-createPromenadePath(geometryFolder, "StoryPromenade", meccaCenter + Vector3.new(714, 0, 220), storyCenter + Vector3.new(-122, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
-createPromenadePath(geometryFolder, "TriviaPromenade", meccaCenter + Vector3.new(714, 0, -240), triviaCenter + Vector3.new(-122, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
-createPromenadePath(geometryFolder, "MannersPromenade", meccaCenter + Vector3.new(-714, 0, -240), mannersCenter + Vector3.new(122, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
-createPromenadePath(geometryFolder, "ParkourPromenade", meccaCenter + Vector3.new(-714, 0, 220), parkourCenter + Vector3.new(122, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
+-- Promenades run onto the court and deck floors, leaving no drop and ledge at the end.
+createPromenadePath(geometryFolder, "StoryPromenade", meccaCenter + Vector3.new(714, 0, 220), storyCenter + Vector3.new(-106, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
+createPromenadePath(geometryFolder, "TriviaPromenade", meccaCenter + Vector3.new(714, 0, -240), triviaCenter + Vector3.new(-106, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
+createPromenadePath(geometryFolder, "MannersPromenade", meccaCenter + Vector3.new(-714, 0, -240), mannersCenter + Vector3.new(106, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
+createPromenadePath(geometryFolder, "ParkourPromenade", meccaCenter + Vector3.new(-714, 0, 220), parkourCenter + Vector3.new(78, 0, 0), 54, Color3.fromRGB(205, 190, 162), Color3.fromRGB(128, 109, 82))
 createPromenadePath(geometryFolder, "SupportPromenade", meccaCenter + Vector3.new(714, 0, -560), supportCenter + Vector3.new(-84, 0, 0), 54, Color3.fromRGB(199, 184, 156), Color3.fromRGB(128, 109, 82))
 createPromenadePath(geometryFolder, "BadrGatePromenade", meccaCenter + Vector3.new(-714, 0, -560), badrGateCenter + Vector3.new(98, 0, 0), 62, Color3.fromRGB(191, 171, 136), Color3.fromRGB(118, 96, 70))
 createPromenadePath(geometryFolder, "UhudGatePromenade", meccaCenter + Vector3.new(-714, 0, -860), uhudGateCenter + Vector3.new(98, 0, 0), 62, Color3.fromRGB(191, 171, 136), Color3.fromRGB(118, 96, 70))

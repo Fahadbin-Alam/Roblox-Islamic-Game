@@ -143,6 +143,13 @@ for _, item in ipairs(world:GetDescendants()) do
         table.insert(collidable, item)
     end
 end
+-- The battle arenas share the Workspace, and their invisible safety walls block players too.
+local battles = game:GetService("Workspace"):FindFirstChild("GeneratedBattles")
+for _, item in ipairs(battles and battles:GetDescendants() or {}) do
+    if item:IsA("BasePart") and item.CanCollide then
+        table.insert(collidable, item)
+    end
+end
 
 -- Body-sized column of space a player needs (feet slightly above the floor).
 local function blockedAt(position, height)
@@ -195,6 +202,79 @@ local function walkable(from, to, label)
     check(true, label .. " is walkable")
 end
 walkable(Vector3.new(0, floorY, 180), Vector3.new(0, floorY, 760), "north route through King Abdullah Gate to the Medina road")
+
+-- Each promenade from the edge of the Haram terrace leads to its court or gate on foot. The
+-- walker follows the floor: at each step it stands on the highest surface it can step onto
+-- (at most 3 studs up), and the space for its body there must be clear.
+local function surfaceTop(part, x, z)
+    if math.abs(part.CFrame.UpVector.Y) < 0.99 then
+        return nil
+    end
+    local l = part.CFrame:PointToObjectSpace(Vector3.new(x, part.Position.Y, z))
+    local h = part.Size / 2
+    if math.abs(l.X) > h.X or math.abs(l.Z) > h.Z then
+        return nil
+    end
+    if part.ClassName == "WedgePart" then
+        return part.Position.Y - h.Y + part.Size.Y * (l.Z + h.Z) / part.Size.Z
+    end
+    return part.Position.Y + h.Y
+end
+
+local function walkOnFloor(points, label)
+    local feet = points[1].Y
+    local samples = {}
+    for leg = 1, #points - 1 do
+        local from, to = Vector3.new(points[leg].X, 0, points[leg].Z), Vector3.new(points[leg + 1].X, 0, points[leg + 1].Z)
+        local steps = math.ceil((to - from).Magnitude / 2)
+        for i = 0, steps do
+            table.insert(samples, from:Lerp(to, i / steps))
+        end
+    end
+    for _, p in ipairs(samples) do
+        local best = nil
+        for _, part in ipairs(collidable) do
+            local top = surfaceTop(part, p.X, p.Z)
+            if top and top <= feet + 3 and top >= feet - 30 and (best == nil or top > best) then
+                best = top
+            end
+        end
+        feet = best or feet
+        local blocker = nil
+        for _, part in ipairs(collidable) do
+            -- Anything whose top the walker can step onto is a step, not a wall.
+            local stepTop = surfaceTop(part, p.X, p.Z) or (part.Position.Y + part.Size.Y / 2)
+            if stepTop > feet + 3 or math.abs(part.CFrame.UpVector.Y) < 0.99 then
+                for dy = 1, 5 do
+                    if pointInside(part, Vector3.new(p.X, feet + dy, p.Z)) then
+                        blocker = part.Name
+                        break
+                    end
+                end
+            end
+            if blocker then
+                break
+            end
+        end
+        if blocker then
+            check(false, label .. " is walkable (blocked by " .. blocker .. " near " .. tostring(p) .. ")")
+            return
+        end
+    end
+    check(true, label .. " is walkable")
+end
+
+local function v(x, z)
+    return Vector3.new(x, 7.5, z)
+end
+walkOnFloor({ v(714, 220), v(920, 220) }, "promenade into the story court")
+walkOnFloor({ v(714, -240), v(920, -240) }, "promenade into the trivia court")
+walkOnFloor({ v(-714, -240), v(-920, -240) }, "promenade into the manners court")
+walkOnFloor({ v(-714, 220), v(-846, 220) }, "promenade to the parkour tower deck")
+for _, gate in ipairs({ { "badr", -560 }, { "uhud", -860 } }) do
+    local z = gate[2]
+    walkOnFloor({ v(-714, z), v(-978, z), v(-978, z + 70), v(-1090, z + 70), v(-1090, z - 24) }, "promenade around to the " .. gate[1] .. " gate queue")
+end
 
 -- No travel destination drops the player into a wall or a building: the space from 8 to 12
 -- studs above each destination point (where the body lands, above any raised floor) is open.
