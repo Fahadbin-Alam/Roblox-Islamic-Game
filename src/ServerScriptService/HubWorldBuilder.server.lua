@@ -593,6 +593,44 @@ local function buildDesertRoute(parent: Instance, startPosition: Vector3, stopPo
     createWallPanel(district, "MakkahRouteStartSign", routeEntryPosition + Vector3.new(0, 0, 96), Vector3.new(76, 12, 2.5), "Makkah To Medina Route", "Ride a camel or follow the lamp markers. This long path teaches distance and migration without depicting the Prophet.", Color3.fromRGB(105, 83, 55), 0, nil)
     createWallPanel(district, "CampSign", stopPosition + Vector3.new(0, 0, -76), Vector3.new(72, 12, 2.5), "Desert Route Camp", "A longer travel stretch now separates Makkah and Medina, with a mid-route camp for reflection and story stops.", Color3.fromRGB(111, 88, 58), 0, nil)
     createWallPanel(district, "MedinaRouteArrivalSign", endPosition + Vector3.new(0, 0, -132), Vector3.new(76, 12, 2.5), "Medina Approach", "The route ends at a green-and-white Medina district with gates, courtyard markers, and a respectful visitation path.", Color3.fromRGB(58, 91, 66), 180, nil)
+
+    -- A Bedouin camp and a small palm oasis at the mid-route stop, and scrub and boulders along
+    -- the way. All of it stands clear of the path (|x| < 51) and the camp court entrance.
+    local camp = BuildUtils.CreateFolder(district, "CampDressing")
+    -- The desert surface along the route is 4 studs above the route points.
+    local campFloor = stopPosition + Vector3.new(0, 4, 0)
+    Decor.Tent(camp, "GoatHairTentWest", CFrame.new(campFloor + Vector3.new(-80, 0, 58)) * CFrame.Angles(0, math.rad(180), 0), 20, 3)
+    Decor.Tent(camp, "GoatHairTentEast", CFrame.new(campFloor + Vector3.new(80, 0, 58)) * CFrame.Angles(0, math.rad(180), 0), 18, 7)
+    Decor.Well(camp, "CampWell", campFloor + Vector3.new(-60, 0, -40))
+    Decor.Camel(camp, "RestingCamelA", CFrame.new(campFloor + Vector3.new(-88, 0, 10)) * CFrame.Angles(0, math.rad(80), 0), 1)
+    Decor.Camel(camp, "RestingCamelB", CFrame.new(campFloor + Vector3.new(90, 0, 4)) * CFrame.Angles(0, math.rad(-100), 0), 2)
+
+    for index = 1, 3 do
+        Decor.Rug(camp, "CampRug", CFrame.new(campFloor + Vector3.new(-20 + index * 10, 0, 62)) * CFrame.Angles(0, index * 0.3, 0), 6, 9, index)
+    end
+
+    for index = 1, 9 do
+        local angle = index * 0.7
+        Decor.Palm(camp, "OasisPalm", campFloor + Vector3.new(130 + math.cos(angle) * 30, 0, -10 + math.sin(angle) * 40), 18 + index % 4 * 2, index * 13, true)
+        Decor.Palm(camp, "OasisPalm", campFloor + Vector3.new(-140 + math.cos(angle) * 26, 0, 30 + math.sin(angle) * 34), 17 + index % 3 * 2, index * 17, true)
+    end
+
+    local scrub = BuildUtils.CreateFolder(district, "RouteScrub")
+    local stepZ = 0
+
+    for z = routeEntryPosition.Z + 120, endPosition.Z - 200, 70 do
+        stepZ += 1
+        local side = if stepZ % 2 == 0 then 1 else -1
+        local x = side * (80 + (stepZ * 37) % 90)
+
+        if math.abs(z - stopPosition.Z) > 110 then
+            if stepZ % 3 == 0 then
+                Decor.Rocks(scrub, "RouteBoulders", Vector3.new(x, 8, z), 5 + stepZ % 4, stepZ)
+            else
+                Decor.Shrub(scrub, "RouteShrub", Vector3.new(x, 8, z), stepZ)
+            end
+        end
+    end
 end
 
 local function buildSupportLounge(parent: Instance, center: Vector3)
@@ -612,6 +650,40 @@ local function buildSupportLounge(parent: Instance, center: Vector3)
     createWallPanel(district, "SupportSign", center + Vector3.new(0, 0, 36), Vector3.new(74, 12, 2.5), "Creator Support Lounge", "Skins, support products, and ad screens live on the edge of the Makkah hub so the sacred center stays cleaner.", Color3.fromRGB(58, 91, 73), 0, nil)
     createLightPost(district, "SupportLightLeft", center + Vector3.new(-46, 0, 22))
     createLightPost(district, "SupportLightRight", center + Vector3.new(46, 0, 22))
+end
+
+-- Shared dressing for the learning courts: arched niches and battlements along the back wall,
+-- and shaded colonnades down both sides. Columns are spaced 24 apart so the sides stay open.
+local function dressCourt(district: Instance, center: Vector3, width: number, depth: number, backZ: number, wallHeight: number, accent: Color3)
+    local dress = BuildUtils.CreateFolder(district, "Dressing")
+    local face = backZ + 4.3
+    local bays = 9
+    local bay = (width - 20) / bays
+
+    for index = 1, bays do
+        local x = -(width - 20) / 2 + (index - 0.5) * bay
+        Decor.Deco(dress, "NicheRecess", Vector3.new(bay - 6, wallHeight - 9, 0.4), CFrame.new(center + Vector3.new(x, 4 + (wallHeight - 9) / 2 + 1, face)), Color3.fromRGB(184, 172, 150), Enum.Material.Marble)
+        Decor.Deco(dress, "NicheArch", Vector3.new(0.5, bay - 6, bay - 6), CFrame.new(center + Vector3.new(x, 4 + wallHeight - 8, face)) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(184, 172, 150), Enum.Material.Marble, Enum.PartType.Cylinder)
+        Decor.Deco(dress, "NicheTile", Vector3.new(bay - 9, 1.2, 0.5), CFrame.new(center + Vector3.new(x, 7, face + 0.1)), accent, Enum.Material.Glass)
+    end
+
+    for index = 1, math.floor(width / 10) do
+        local x = -width / 2 + (index - 0.5) * (width / math.floor(width / 10))
+        Decor.Deco(dress, "Merlon", Vector3.new(3.4, 3, 3), CFrame.new(center + Vector3.new(x, wallHeight + 4 + 1.5, backZ)), Color3.fromRGB(206, 195, 171), Enum.Material.Marble)
+    end
+
+    for _, side in ipairs({ -1, 1 }) do
+        local x = side * (width / 2 - 3)
+        local zFrom, zTo = backZ + 14, depth / 2 - 8
+
+        for z = zFrom, zTo, 24 do
+            BuildUtils.CreateVerticalCylinder(dress, "Colonnade", 16, 1.1, center + Vector3.new(x, 12, z), Color3.fromRGB(236, 230, 216), Enum.Material.Marble, nil)
+            Decor.Deco(dress, "ColonnadeCapital", Vector3.new(3.2, 1.4, 3.2), CFrame.new(center + Vector3.new(x, 20.4, z)), GOLD_ACCENT, Enum.Material.Metal)
+        end
+
+        Decor.Deco(dress, "ColonnadeBeam", Vector3.new(4, 2, zTo - zFrom + 4), CFrame.new(center + Vector3.new(x, 22, (zFrom + zTo) / 2)), Color3.fromRGB(206, 195, 171), Enum.Material.Marble)
+        Decor.Deco(dress, "ColonnadeShade", Vector3.new(16, 0.3, zTo - zFrom), CFrame.new(center + Vector3.new(x - side * 8, 21, (zFrom + zTo) / 2)) * CFrame.Angles(0, 0, math.rad(side * 10)), Color3.fromRGB(244, 240, 228), Enum.Material.Fabric)
+    end
 end
 
 local function buildStoryCourt(parent: Instance, center: Vector3)
@@ -669,6 +741,8 @@ local function buildStoryCourt(parent: Instance, center: Vector3)
     BuildUtils.CreatePlanter(district, "StoryCourtPlanterEast", center + Vector3.new(94, 0, -24), Vector3.new(26, 3, 18))
     BuildUtils.CreatePalmTree(district, "StoryCourtPalmWest", center + Vector3.new(-94, 0, -24))
     BuildUtils.CreatePalmTree(district, "StoryCourtPalmEast", center + Vector3.new(94, 0, -24))
+
+    dressCourt(district, center, 220, 150, -72, 22, Color3.fromRGB(73, 96, 77))
 end
 
 local function buildMannersCourt(parent: Instance, center: Vector3)
@@ -731,6 +805,8 @@ local function buildMannersCourt(parent: Instance, center: Vector3)
 
     createLightPost(district, "MannersLightWest", center + Vector3.new(-108, 0, 18), Color3.fromRGB(128, 112, 89))
     createLightPost(district, "MannersLightEast", center + Vector3.new(108, 0, 18), Color3.fromRGB(128, 112, 89))
+
+    dressCourt(district, center, 230, 162, -78, 23, Color3.fromRGB(98, 119, 76))
 end
 
 local function buildTriviaCourt(parent: Instance, center: Vector3)
@@ -801,6 +877,8 @@ local function buildTriviaCourt(parent: Instance, center: Vector3)
     BuildUtils.CreatePlanter(district, "TriviaPlanterEast", center + Vector3.new(104, 0, 50), Vector3.new(28, 3, 20))
     BuildUtils.CreatePalmTree(district, "TriviaPalmWest", center + Vector3.new(-104, 0, 50))
     BuildUtils.CreatePalmTree(district, "TriviaPalmEast", center + Vector3.new(104, 0, 50))
+
+    dressCourt(district, center, 238, 168, -82, 24, Color3.fromRGB(63, 98, 88))
 end
 
 local function buildParkourCourse(parent: Instance, center: Vector3)
