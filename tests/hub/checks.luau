@@ -1,6 +1,7 @@
 -- Checks on the hub built by HubWorldBuilder inside the mock engine (see run.sh).
 local Workspace = game:GetService("Workspace")
 local world = Workspace:FindFirstChild("GeneratedHub")
+local TravelRoute = require(game:GetService("ReplicatedStorage").Shared.Data.TravelRoute)
 local failures = 0
 
 local function check(ok, message)
@@ -41,7 +42,7 @@ for _, section in ipairs(haram:GetChildren()) do
 end
 
 -- Budgets keep the hub light enough for phones; raise them deliberately, not by accident.
-check(totalParts <= 7500, "whole hub stays within 7500 parts")
+check(totalParts <= 8600, "whole hub stays within 8600 parts")
 check(haramParts <= 5600, "Masjid al-Haram stays within 5600 parts")
 check(haramLights <= 90, "Masjid al-Haram uses at most 90 lights")
 check(haramFrames <= 3000, "kiswa and sign patterns use at most 3000 SurfaceGui frames")
@@ -194,6 +195,22 @@ local function walkable(from, to, label)
     check(true, label .. " is walkable")
 end
 walkable(Vector3.new(0, floorY, 180), Vector3.new(0, floorY, 760), "north route through King Abdullah Gate to the Medina road")
+
+-- No travel destination drops the player into a wall or a building: the space from 8 to 12
+-- studs above each destination point (where the body lands, above any raised floor) is open.
+for _, destination in ipairs(TravelRoute.Destinations) do
+    local landing = destination.TeleportPosition or destination.Position
+    local blocker = blockedAt(landing + Vector3.new(0, 7, 0), 5)
+    check(blocker == nil, destination.Id .. " arrival point is clear" .. (blocker and (" (blocked by " .. blocker .. ")") or ""))
+end
+
+-- Present-day Madinah: walk from the arrival point through a north door of the prayer hall
+-- to the Rawdah, and along the visitation route in from Bab as-Salam.
+local medina = TravelRoute.GetDestinationById("medina_courtyard").Position
+local medinaFloor = medina.Y + 4.6
+walkable(Vector3.new(medina.X, medinaFloor, medina.Z + 136), Vector3.new(medina.X, medinaFloor, medina.Z - 120), "Medina arrival through the north door into the prayer hall")
+walkable(Vector3.new(medina.X - 280, medinaFloor, medina.Z - 146.7), Vector3.new(medina.X + 40, medinaFloor, medina.Z - 146.7), "Medina visitation route from Bab as-Salam to the chamber marker")
+
 walkable(Vector3.new(0, floorY, -180), Vector3.new(0, floorY, -720), "south route through King Abdulaziz Gate")
 walkable(Vector3.new(180, floorY, 0), Vector3.new(720, floorY, 0), "west route through King Fahd Gate")
 walkable(Vector3.new(-180, floorY, 0), Vector3.new(-720, floorY, 0), "east route through Bab as-Salam and the mas'a")
