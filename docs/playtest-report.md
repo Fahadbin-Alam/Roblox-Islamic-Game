@@ -13,10 +13,11 @@ the automated checks below. Everything that needs a live server is listed under 
 | Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 74 checks passed (about 80 s) |
 | Battle arenas in a mock engine | `tests/world/run.sh <luau>` | 181 passed, 0 failed |
 | Multiplayer simulation (real server scripts, simulated players) | `tests/sim/run.sh <luau>` | 40 passed, 0 failed |
+| Client scripts against the real server | `tests/client/run.sh <luau>` | 6 passed: all 22 client scripts load, 160+ button presses and real campaign/PvP/mystery state raise no errors |
 | Static analysis against the Roblox API | `tests/analyze.sh ...` | no syntax errors, unknown globals or broken requires |
 | Place file builds | `rojo build default.project.json -o build.rbxlx` | builds |
 
-All five test commands run in CI on every pull request (`.github/workflows/checks.yml`).
+All six test commands run in CI on every pull request (`.github/workflows/checks.yml`).
 luau-lsp still reports non-fatal strict-mode type warnings (mostly `x and y` narrowing); they do
 not change behaviour.
 

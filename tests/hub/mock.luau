@@ -370,6 +370,12 @@ local isAMap = {
     LayerCollector = { SurfaceGui = true, BillboardGui = true, ScreenGui = true },
 }
 
+-- More event names (GUI and input events) that index as signals.
+mock.extraSignals = {}
+for _, name in ipairs({ "MouseButton1Click", "MouseButton1Down", "MouseButton1Up", "MouseButton2Click", "MouseEnter", "MouseLeave", "InputBegan", "InputEnded", "InputChanged", "FocusLost", "Focused", "TouchTap", "TriggerEnded", "PromptShown", "PromptHidden", "CharacterAppearanceLoaded", "MoveToFinished", "Running", "Jumping", "StateChanged", "OnClientInvoke", "JumpRequest", "LastInputTypeChanged", "Idled", "AncestryChanged", "MessageReceived", "IncomingMessage" }) do
+    mock.extraSignals[name] = true
+end
+
 local Instance_ = {}
 local allInstances = {}
 
@@ -417,7 +423,7 @@ local function newInstance(className)
             if method then
                 return method
             end
-            if key:match("^[A-Z]") and (key:match("Changed$") or key:match("Added$") or key:match("Removed$") or key:match("Removing$") or key == "Destroying" or key == "Touched" or key == "TouchEnded" or key == "Triggered" or key == "Event" or key == "OnServerEvent" or key == "OnClientEvent" or key == "Heartbeat" or key == "Stepped" or key == "RenderStepped" or key == "PromptTriggered" or key == "Died" or key == "Activated" or key == "Deactivated" or key == "Equipped" or key == "Unequipped" or key == "HealthChanged" or key == "Chatted") then
+            if key:match("^[A-Z]") and (key:match("Changed$") or key:match("Added$") or key:match("Removed$") or key:match("Removing$") or key == "Destroying" or key == "Touched" or key == "TouchEnded" or key == "Triggered" or key == "Event" or key == "OnServerEvent" or key == "OnClientEvent" or key == "Heartbeat" or key == "Stepped" or key == "RenderStepped" or key == "PromptTriggered" or key == "Died" or key == "Activated" or key == "Deactivated" or key == "Equipped" or key == "Unequipped" or key == "HealthChanged" or key == "Chatted" or mock.extraSignals[key]) then
                 signals[key] = signals[key] or signal()
                 return signals[key]
             end
