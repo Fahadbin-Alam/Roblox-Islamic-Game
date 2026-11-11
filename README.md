@@ -1,75 +1,128 @@
 # Path of the Sahabah
 
-A Roblox historical learning game built in Luau that helps players ages 9-17 explore Islamic history through story-driven quests, respectful battle scenarios, and interactive companion biographies.
+[![Checks](https://github.com/Fahadbin-Alam/roblox-islamic-game/actions/workflows/checks.yml/badge.svg)](https://github.com/Fahadbin-Alam/roblox-islamic-game/actions/workflows/checks.yml)
 
-## Project Vision
+An educational Roblox game, written in Luau, where players aged 9 to 17 learn Islamic history and the basics of the faith by playing: they walk a hub modelled on Makkah and Madinah, follow the stories of the Companions (the Sahabah), take short lessons with quizzes, and play guided, age-appropriate versions of the battles of Badr and Uhud.
 
-The goal is not just to copy a Kaaba-style Roblox map. The goal is to build a stronger full experience:
+**Stack:** Luau (`--!strict`), Roblox Studio, [Rojo](https://rojo.space) for syncing files into Studio, DataStoreService and OrderedDataStore for saved data, MarketplaceService for purchases, GitHub Actions for tests, type checking and linting.
 
-- a beautiful hub world inspired by early Islamic settings
-- clickable stories about the sahabah and major historical events
-- battle experiences like Badr and Uhud with narration, objectives, and reflection moments
-- progression, cosmetics, and Robux monetization that fit Roblox without turning the game into pay-to-win
+## What the game teaches
 
-## Core Pillars
+| Area | Content | Where it lives |
+| --- | --- | --- |
+| Islamic Studies hall | 30 lessons in 7 units: the Five Pillars, how to pray (wudu and the steps of salah), daily duas, the six articles of iman, stories of the Prophets, the Seerah, the Eids and special days. Each lesson ends with a quiz the server grades; some add an order puzzle. | `Shared/Data/IslamicStudies.lua` |
+| Companion stories | Abu Bakr as-Siddiq, Bilal ibn Rabah, Mus'ab ibn Umayr, Nusaybah bint Ka'b and Umar ibn al-Khattab, told as short quests with a narrator and guides. | `Shared/Data/CompanionStories.lua` |
+| Battle missions | Badr and Uhud as co-op story missions (objectives, waves, cited narration cards, a reflection quiz) plus a team skirmish mode. | `Shared/Data/BattleMissions.lua`, `BattleScenarios.lua` |
+| Manners court | Truthfulness, respect for parents and elders, mercy, keeping promises, good speech. | `Shared/Data/MannersLessons.lua` |
+| Daily loop | One cited ayah or hadith reflection and one review question per UTC day, with a visit streak. | `Shared/Data/DailyReflections.lua`, `Shared/Modules/Daily.lua` |
+| Trivia court and study circle | A timed multiplayer trivia round, and a group quiz where everyone at the podium passes or fails together. | `TriviaService`, `StudyCircleService` |
 
-- Learn through play: story quests, dialogue, collectibles, and simple mission objectives should teach history naturally.
-- Respect the subject: sacred themes, worship, and major figures should be handled carefully and never treated as a joke.
-- Make battles meaningful: battle content should feel like guided historical scenarios, not just random PvP.
-- Build for replayability: players should always have something to unlock, revisit, or improve.
+Content rules the code follows: no Prophet is ever shown, voiced or playable (they appear only in narration); soldiers are generic and unnamed; rulings that differ between schools of thought stay general; daily reflections and battle narration cards carry a Qur'an or hadith reference, and lessons name their sources in the text; sacred places are treated with respect and monetization screens are kept away from the Kaaba.
 
-## Better Than The Reference
+## Features
 
-To make this experience better than the Roblox reference the project should aim for:
+- **Hub world** built in code (`HubWorldBuilder`), with a teleport menu, guide teachers who point to the next quest, a rideable camel and fall protection.
+- **Progression**: XP, levels, rank titles, 23 badges, a 9-step suggested path with quest bonuses, free outfits at levels 3, 6 and 10, and level tags above players' heads.
+- **Top Learners board**: a cross-server top-10 by XP in an OrderedDataStore.
+- **Battles**: server-driven NPC soldiers (pathfinding, telegraphed swings, arrows with gravity), up to 3 stars per mission.
+- **Shop**: cosmetic battle skins (game passes or level unlocks), developer products, and a Robux receipt handler that never loses or double-grants a purchase.
+- **Mobile support**: `ResponsiveUi.client.lua` scales fixed-size panels to fit phone screens.
 
-- stronger art direction and higher-quality building detail
-- clearer onboarding and cleaner UI
-- a central hub that connects stories, battles, and rewards
-- companion stories with real progression instead of just wandering a map
-- narrated battle phases so players understand what is happening historically
-- cosmetic-first monetization using `Robux`, not `V-Bucks`
+## Architecture
 
-## Content Principles
+Rojo maps three folders in `src/` onto the Roblox data model (`default.project.json`):
 
-- Keep the tone educational, respectful, and age-appropriate.
-- Do not depict Prophets as playable characters.
-- Treat sacred locations and acts of worship carefully.
-- Avoid gore and overly harsh combat presentation.
-- Reward learning and teamwork, not only fighting skill.
+```
+src/
+  ReplicatedStorage/Shared/      -> ReplicatedStorage.Shared (server and client)
+    Config/                      game settings, animation ids
+    Data/                        content: lessons, stories, missions, trivia, shop catalog
+    Modules/                     pure rules: Progression, Daily, MissionRules, ContentIndex
+  ServerScriptService/           -> ServerScriptService (server only)
+    *.server.lua                 one service per feature (Progression, Shop, Battle, Story, ...)
+    Modules/                     PlayerProgress, SessionStore, MissionDirector, BattleNpc, ...
+  StarterPlayer/StarterPlayerScripts/ -> client UI and HUD scripts (*.client.lua)
+```
 
-## Tech Foundation
+```mermaid
+flowchart LR
+    subgraph Client["Client (StarterPlayerScripts)"]
+        UI["Menus and HUDs<br/>LearningHall, ShopMenu, MissionHud, ..."]
+    end
+    subgraph Shared["ReplicatedStorage.Shared"]
+        Data["Data/*<br/>content tables"]
+        Rules["Modules/*<br/>pure rules"]
+    end
+    subgraph Server["ServerScriptService"]
+        Boot["GameBootstrap<br/>creates every RemoteEvent"]
+        Services["Feature services<br/>Progression, Shop, Battle, Story, Trivia, ..."]
+        PP["PlayerProgress"]
+        SS["SessionStore"]
+    end
+    DS[("DataStores<br/>PlayerProgress_v1<br/>PlayerMonetization_v1<br/>TopLearnersXP_v1")]
 
-This repo now uses a simple Rojo-friendly layout so we can organize Roblox Luau code cleanly in version control:
+    UI -- "requests (RemoteEvents)" --> Services
+    Services -- "results, snapshots, toasts" --> UI
+    UI --> Data
+    UI --> Rules
+    Services --> Data
+    Services --> Rules
+    Services --> PP
+    PP --> SS
+    Services -- "ShopService" --> SS
+    SS --> DS
+```
 
-- shared config and content data live in `ReplicatedStorage`
-- server boot logic lives in `ServerScriptService`
-- client boot logic lives in `StarterPlayerScripts`
+- **Shared** modules have no Roblox service calls, so the same rules run on the client (to display) and on the server (to decide), and they are unit tested outside Studio.
+- **Server** is the only authority. `GameBootstrap.server.lua` creates every RemoteEvent under `ReplicatedStorage.Remotes`; each feature service listens on its own folder.
+- **Client** scripts only draw UI and send requests. They never decide rewards.
 
-See [docs/game-foundation.md](docs/game-foundation.md) for the full design foundation.
+### Server-authoritative design
 
-## First MVP
+The client is treated as untrusted. Every remote handler checks argument types and looks ids up in server-side tables before acting. Quizzes, order puzzles, battle reflections and the daily question are graded on the server; story and trail steps advance only through ProximityPrompts (which Roblox range-checks); combat damage is computed on the server from Tool activation, not from client-reported hits. Quiz and puzzle submissions are rate-limited, replay XP for the same activity is paid at most once every 2 minutes, and profile requests are capped per player.
 
-The best first playable version is:
+### How player data is saved
 
-- one walkable hub route from the Kaaba area toward Medina
-- one sahabi story path
-- one battle scenario
-- one simple shop with cosmetic support items
-- one progression loop with rewards for learning and completing objectives
-- one teleport menu so players can jump to major landmarks if they do not want to walk the full route
+| DataStore | Contents | Owner |
+| --- | --- | --- |
+| `PlayerProgress_v1` | XP, completions, badges, stats | `Modules/PlayerProgress.lua` |
+| `PlayerMonetization_v1` | equipped skin, ultimate charges, tokens, support points, recent PurchaseIds | `ShopService.server.lua` |
+| `TopLearnersXP_v1` (ordered) | best XP per player, only ever goes up | `LeaderboardService.server.lua` |
 
-## Repo Layout
+Both player stores go through `Modules/SessionStore.lua`:
 
-- [default.project.json](default.project.json)
-- [docs/game-foundation.md](docs/game-foundation.md)
-- [docs/monetization-setup.md](docs/monetization-setup.md)
-- [src/ReplicatedStorage/Shared/Config/GameConfig.lua](src/ReplicatedStorage/Shared/Config/GameConfig.lua)
-- [src/ReplicatedStorage/Shared/Data/CompanionStories.lua](src/ReplicatedStorage/Shared/Data/CompanionStories.lua)
-- [src/ReplicatedStorage/Shared/Data/BattleScenarios.lua](src/ReplicatedStorage/Shared/Data/BattleScenarios.lua)
-- [src/ReplicatedStorage/Shared/Data/ShopCatalog.lua](src/ReplicatedStorage/Shared/Data/ShopCatalog.lua)
-- [src/ReplicatedStorage/Shared/Modules/ContentIndex.lua](src/ReplicatedStorage/Shared/Modules/ContentIndex.lua)
-- [src/ServerScriptService/GameBootstrap.server.lua](src/ServerScriptService/GameBootstrap.server.lua)
-- [src/StarterPlayer/StarterPlayerScripts/ClientBootstrap.client.lua](src/StarterPlayer/StarterPlayerScripts/ClientBootstrap.client.lua)
+1. **Load** uses `UpdateAsync` to read the record and stamp it with a session lock (`JobId`, a unique session id, a timestamp). If another server still holds a fresh lock (the player just hopped servers), the load waits for that server's final save, then takes over. A lock older than 30 minutes is treated as a crashed server and taken at once.
+2. **Save** uses `UpdateAsync` and only writes while the record still carries this session's id, so a server that lost the lock can never overwrite newer data. Saves for one player are queued, so an older snapshot cannot land after a newer one.
+3. Every DataStore call is wrapped in `pcall` and retried with exponential backoff (1 s, 2 s, 4 s).
+4. **Autosave** runs every 2 minutes (only when something changed) and refreshes the lock at least every 10 minutes. **PlayerRemoving** does a final save and releases the lock. **BindToClose** releases everyone left and waits for every final save in flight.
+5. If a load fails, the player keeps playing with a fresh profile that is **never saved**, so an outage cannot wipe real progress, and they see a warning.
+
+Robux purchases: `ProcessReceipt` adds the grant and its `PurchaseId` to the player's monetization record in a single save, and returns `PurchaseGranted` only after that save succeeds. If the save fails, the grant is undone and Roblox retries the receipt later; if the PurchaseId is already in the record, the receipt is acknowledged without granting again.
+
+## Getting started
+
+Requirements: Roblox Studio, [Rojo 7.4](https://github.com/rojo-rbx/rojo/releases/tag/v7.4.4) (CLI and Studio plugin).
+
+```bash
+# Build a place file from the source
+rojo build default.project.json -o build.rbxlx
+
+# Or live-sync into an open Studio place (Windows helper: start-rojo-serve.ps1)
+rojo serve default.project.json
+```
+
+Open the place in Studio (or connect the Rojo plugin) and press Play. To test saving in Studio, enable **Game Settings > Security > Enable Studio Access to API Services**; without it the game runs normally and simply does not save.
+
+Run the same checks as CI locally (Linux or macOS; download the tools listed in `.github/workflows/checks.yml`):
+
+```bash
+tests/luau/run.sh path/to/luau          # unit tests
+tests/world/run.sh path/to/luau         # battle arena layout checks
+tests/analyze.sh path/to/luau-lsp path/to/rojo path/to/globalTypes.d.luau
+selene --allow-warnings src             # lint
+```
+
+Interview notes on the design decisions and known weak spots: [docs/INTERVIEW-NOTES.md](docs/INTERVIEW-NOTES.md). Design document: [docs/game-foundation.md](docs/game-foundation.md). Monetization setup: [docs/monetization-setup.md](docs/monetization-setup.md).
 
 ## Progression And Islamic Studies
 
@@ -106,9 +159,10 @@ Content added to `IslamicStudies.lua` should cite its Qur'an or hadith source, s
 
 `.github/workflows/checks.yml` runs on every pull request:
 
-- `tests/luau/run.sh <luau>` runs unit tests for the shared data and progression rules outside Studio.
+- `tests/luau/run.sh <luau>` runs unit tests for the shared data and progression rules outside Studio, plus `SessionStore` against an in-memory DataStore (server hops, lock takeover, retries, outages).
 - `tests/analyze.sh <luau-lsp> <rojo> <globalTypes.d.luau>` type-checks every script against the Roblox API and fails on syntax errors, unknown globals, and broken requires.
 - `tests/world/run.sh <luau>` builds the battle arenas against a mock Roblox engine and checks that every mission point has ground, every enemy lane and player route can be walked, and no spawn is inside rock.
+- `selene --allow-warnings src` lints with the Roblox standard library (`selene.toml`); errors fail the build.
 
 ## Next Build Steps
 
