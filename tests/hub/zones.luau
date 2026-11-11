@@ -147,6 +147,37 @@ if historical then
         end
     end
 
+    -- No large non-colliding scenery (ridges, groves, canopies) surrounds a player's eye at
+    -- any arrival ring or within 20 studs of it.
+    local sceneryParts = {}
+    for _, part in ipairs(historical:GetDescendants()) do
+        if part:IsA("BasePart") and not part.CanCollide and part.Transparency < 0.5 and part.Size.Magnitude > 30 then
+            table.insert(sceneryParts, part)
+        end
+    end
+    local buried = {}
+    for _, site in ipairs(HistoricalSites.Sites) do
+        local arrival = HistoricalSites.ArrivalPoint(site)
+        for step = -1, 7 do
+            local probe = if step < 0 then arrival else arrival + Vector3.new(math.cos(step * math.pi / 4) * 20, 0, math.sin(step * math.pi / 4) * 20)
+            local eye = probe + Vector3.new(0, 5, 0)
+            local hit = nil
+            for _, part in ipairs(sceneryParts) do
+                local l = part.CFrame:PointToObjectSpace(eye)
+                local h = part.Size / 2
+                if math.abs(l.X) < h.X and math.abs(l.Y) < h.Y and math.abs(l.Z) < h.Z then
+                    hit = part
+                    break
+                end
+            end
+            if hit then
+                table.insert(buried, string.format("%s (%s)", site.Id, hit:GetFullName()))
+                break
+            end
+        end
+    end
+    zcheck(#buried == 0, "no Seerah site is buried in scenery" .. (#buried > 0 and (": " .. table.concat(buried, "; ")) or ""))
+
     -- Every historical site has a fire within 30 studs of its arrival ring, for night play.
     local fires = {}
     for _, light in ipairs(historical:GetDescendants()) do
