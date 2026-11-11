@@ -27,6 +27,9 @@ local STORE_NAME = "PlayerProgress_v1"
 -- Autosave refreshes the session lock at least this often, even with nothing new to save,
 -- so a long quiet visit never looks like a crashed server to the next one.
 local LOCK_REFRESH_SECONDS = 10 * 60
+-- A repeat of the same lesson, puzzle, story or battle pays its replay XP at most once per
+-- this many seconds, so resubmitting a known answer in a loop cannot farm XP.
+local REPEAT_REWARD_COOLDOWN_SECONDS = 120
 -- BindToClose gets 30 seconds in total; leave a margin.
 local SHUTDOWN_SAVE_SECONDS = 25
 
@@ -67,6 +70,7 @@ local profiles: { [Player]: Profile } = {}
 -- overwrite their real progress with a blank profile.
 local sessions: { [Player]: any } = {}
 local dirty: { [Player]: boolean } = {}
+local repeatRewardAt: { [Player]: { [string]: number } } = {}
 -- Final saves still in flight, so BindToClose can wait for them.
 local closingCount = 0
 
@@ -225,12 +229,14 @@ function PlayerProgress.AddXP(player: Player, amount: number, reason: string?): 
 end
 
 -- Records that the player finished something and awards XP for it. The first completion
--- earns the full reward and repeats earn a smaller share. Returns true the first time.
-function PlayerProgress.RecordCompletion(player: Player, category: string, id: string, displayName: string?): boolean
+-- earns the full reward and repeats earn a smaller share (at most once per
+-- REPEAT_REWARD_COOLDOWN_SECONDS for the same activity). Returns true the first time, and
+-- the XP actually awarded.
+function PlayerProgress.RecordCompletion(player: Player, category: string, id: string, displayName: string?): (boolean, number)
     local profile = profiles[player]
 
     if not profile then
-        return false
+        return false, 0
     end
 
     local entries = profile.Completed[category]
@@ -246,13 +252,29 @@ function PlayerProgress.RecordCompletion(player: Player, category: string, id: s
     local reward = Progression.GetCompletionReward(category, firstTime)
     local label = displayName or id
 
+    if not firstTime and reward > 0 then
+        local rewardTimes = repeatRewardAt[player] or {}
+        repeatRewardAt[player] = rewardTimes
+        local rewardKey = category .. "/" .. id
+        local now = os.clock()
+        local last = rewardTimes[rewardKey]
+
+        if last and now - last < REPEAT_REWARD_COOLDOWN_SECONDS then
+            reward = 0
+        else
+            rewardTimes[rewardKey] = now
+        end
+    end
+
+    local awarded = 0
+
     if reward > 0 then
-        PlayerProgress.AddXP(player, reward, if firstTime then string.format("Completed %s", label) else string.format("Replayed %s", label))
+        awarded = PlayerProgress.AddXP(player, reward, if firstTime then string.format("Completed %s", label) else string.format("Replayed %s", label))
     else
         changed(player, profile)
     end
 
-    return firstTime
+    return firstTime, awarded
 end
 
 function PlayerProgress.IncrementStat(player: Player, stat: string, amount: number?)
@@ -420,6 +442,7 @@ function PlayerProgress.Release(player: Player)
     profiles[player] = nil
     sessions[player] = nil
     dirty[player] = nil
+    repeatRewardAt[player] = nil
 
     if profile and session and not session.Lost then
         closeSession(player, session, table.clone(profile))

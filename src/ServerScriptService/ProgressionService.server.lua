@@ -27,6 +27,9 @@ local dailyResult = learningFolder:WaitForChild("DailyResult") :: RemoteEvent
 
 local AUTOSAVE_SECONDS = 120
 local SUBMIT_COOLDOWN_SECONDS = 1
+-- Several HUD scripts ask for the profile when they start, so allow a small burst.
+local PROFILE_REQUESTS_PER_WINDOW = 6
+local PROFILE_REQUEST_WINDOW_SECONDS = 10
 
 local lessonById = {}
 
@@ -38,6 +41,7 @@ for _, unit in ipairs(IslamicStudies.Units) do
 end
 
 local lastSubmitAt: { [Player]: number } = {}
+local profileRequests: { [Player]: { WindowStart: number, Count: number } } = {}
 local promptConnections: { [ProximityPrompt]: RBXScriptConnection } = {}
 
 local function gradeQuiz(lesson: IslamicStudies.Lesson, answers: { any })
@@ -95,9 +99,9 @@ submitQuiz.OnServerEvent:Connect(function(player: Player, lessonId: any, answers
     local result = gradeQuiz(lesson, answers)
 
     if result.Passed then
-        local firstTime = PlayerProgress.RecordCompletion(player, Progression.Categories.Lesson, lesson.Id, lesson.DisplayName)
+        local firstTime, awarded = PlayerProgress.RecordCompletion(player, Progression.Categories.Lesson, lesson.Id, lesson.DisplayName)
         result.FirstTime = firstTime
-        result.XPAwarded = Progression.GetCompletionReward(Progression.Categories.Lesson, firstTime)
+        result.XPAwarded = awarded
     end
 
     quizResult:FireClient(player, result)
@@ -141,8 +145,8 @@ submitOrder.OnServerEvent:Connect(function(player: Player, lessonId: any, placed
     local xpAwarded = 0
 
     if solved then
-        local firstTime = PlayerProgress.RecordCompletion(player, Progression.Categories.Order, lesson.Id, string.format("%s puzzle", lesson.DisplayName))
-        xpAwarded = Progression.GetCompletionReward(Progression.Categories.Order, firstTime)
+        local _firstTime, awarded = PlayerProgress.RecordCompletion(player, Progression.Categories.Order, lesson.Id, string.format("%s puzzle", lesson.DisplayName))
+        xpAwarded = awarded
     end
 
     orderResult:FireClient(player, {
@@ -168,6 +172,23 @@ submitDailyAnswer.OnServerEvent:Connect(function(player: Player, answerIndex: an
 end)
 
 requestProfile.OnServerEvent:Connect(function(player: Player)
+    -- Snapshots are pushed on every change anyway; this only serves a HUD that just opened,
+    -- so a client spamming the remote cannot make the server rebuild snapshots in a loop.
+    local now = os.clock()
+    local window = profileRequests[player]
+
+    if not window or now - window.WindowStart >= PROFILE_REQUEST_WINDOW_SECONDS then
+        window = { WindowStart = now, Count = 0 }
+        profileRequests[player] = window
+    end
+
+    local current = window :: { WindowStart: number, Count: number }
+
+    if current.Count >= PROFILE_REQUESTS_PER_WINDOW then
+        return
+    end
+
+    current.Count += 1
     PlayerProgress.SendSnapshot(player)
 end)
 
@@ -209,6 +230,7 @@ end
 
 Players.PlayerRemoving:Connect(function(player)
     lastSubmitAt[player] = nil
+    profileRequests[player] = nil
     PlayerProgress.Release(player)
 end)
 
