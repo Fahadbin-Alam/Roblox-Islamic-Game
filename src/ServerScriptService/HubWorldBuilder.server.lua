@@ -380,7 +380,7 @@ local function createWorldBackdrop(parent: Instance, center: Vector3)
     local backdrop = BuildUtils.CreateFolder(parent, "WorldBackdrop")
 
     for index, ridge in ipairs({
-        { Name = "FarNorthWest", Position = center + Vector3.new(-1120, 0, -1180), Length = 560, Height = 196, Depth = 194, Yaw = 16, Color = DESERT_ROCK },
+        { Name = "FarNorthWest", Position = center + Vector3.new(-1560, 0, -1180), Length = 560, Height = 196, Depth = 194, Yaw = 16, Color = DESERT_ROCK },
         { Name = "FarNorth", Position = center + Vector3.new(0, 0, -1990), Length = 760, Height = 228, Depth = 186, Yaw = -2, Color = Color3.fromRGB(142, 114, 83) },
         { Name = "FarNorthEast", Position = center + Vector3.new(1120, 0, -1160), Length = 560, Height = 192, Depth = 190, Yaw = -16, Color = DESERT_ROCK },
         { Name = "FarWest", Position = center + Vector3.new(-1320, 0, 260), Length = 470, Height = 182, Depth = 214, Yaw = 26, Color = Color3.fromRGB(136, 108, 79) },
@@ -1321,6 +1321,30 @@ local function buildBattleGate(parent: Instance, name: string, center: Vector3, 
     BuildUtils.CreatePart(district, "LeftTower", Vector3.new(20, 30, 20), CFrame.new(center + Vector3.new(-58, 15, 0)), Color3.fromRGB(189, 167, 131), Enum.Material.Sandstone, nil, nil)
     BuildUtils.CreatePart(district, "RightTower", Vector3.new(20, 30, 20), CFrame.new(center + Vector3.new(58, 15, 0)), Color3.fromRGB(189, 167, 131), Enum.Material.Sandstone, nil, nil)
     BuildUtils.CreatePart(district, "GateBeam", Vector3.new(94, 9, 16), CFrame.new(center + Vector3.new(0, 25, 0)), accentColor, Enum.Material.Sandstone, nil, nil)
+    -- Dressing (none of it collides): battlements on the walls and towers, banners in the
+    -- gate colour, fire bowls, palms and supplies beside the forecourt.
+    local dressing = BuildUtils.CreateFolder(district, "Dressing")
+    for _, side in ipairs({ -1, 1 }) do
+        for index = 1, 6 do
+            local z = 16 - 43 + (index - 0.5) * (86 / 6)
+            Decor.Deco(dressing, "WallMerlon", Vector3.new(4, 3, 5), CFrame.new(center + Vector3.new(side * 92, 27.5, z)), Color3.fromRGB(176, 154, 120), Enum.Material.Sandstone)
+        end
+        for _, dx in ipairs({ -7, 0, 7 }) do
+            for _, dz in ipairs({ -7, 7 }) do
+                Decor.Deco(dressing, "TowerMerlon", Vector3.new(3.5, 3.5, 3.5), CFrame.new(center + Vector3.new(side * 58 + dx, 31.75, dz)), Color3.fromRGB(178, 156, 120), Enum.Material.Sandstone)
+            end
+        end
+        Decor.Deco(dressing, "TowerBand", Vector3.new(21, 1.6, 21), CFrame.new(center + Vector3.new(side * 58, 24, 0)), accentColor, Enum.Material.Sandstone)
+        Decor.Banner(dressing, "GateBanner", center + Vector3.new(side * 40, 5, 14), accentColor, 22)
+        Decor.Banner(dressing, "WallBanner", center + Vector3.new(side * 76, 5, 34), Decor.Colors.Cloths[if side < 0 then 1 else 2], 18)
+        Decor.Brazier(dressing, "GateBrazier", center + Vector3.new(side * 30, 5, 8))
+        Decor.Palm(dressing, "ForecourtPalm", center + Vector3.new(side * 108, 4, 74), 20, 17 + side, true)
+        for index = 1, 2 do
+            Decor.Crate(dressing, "SupplyCrate", CFrame.new(center + Vector3.new(side * (66 + index * 3), 5.2, 52)) * CFrame.Angles(0, index * 0.4, 0), 2.2)
+            Decor.Jar(dressing, "WaterJar", center + Vector3.new(side * (66 + index * 2.4), 4, 60), 0.9, nil)
+        end
+    end
+
     createLightPost(district, string.format("%sLightLeft", name), center + Vector3.new(-38, 0, -52), Color3.fromRGB(120, 103, 80))
     createLightPost(district, string.format("%sLightRight", name), center + Vector3.new(38, 0, -52), Color3.fromRGB(120, 103, 80))
 
@@ -1406,9 +1430,11 @@ createPromenadePath(geometryFolder, "SupportPromenade", meccaCenter + Vector3.ne
 createPromenadePath(geometryFolder, "BadrGatePromenade", meccaCenter + Vector3.new(-714, 0, -560), badrGateCenter + Vector3.new(98, 0, 0), 62, Color3.fromRGB(191, 171, 136), Color3.fromRGB(118, 96, 70))
 createPromenadePath(geometryFolder, "UhudGatePromenade", meccaCenter + Vector3.new(-714, 0, 520), uhudGateCenter + Vector3.new(98, 0, 0), 62, Color3.fromRGB(191, 171, 136), Color3.fromRGB(118, 96, 70))
 createPromenadePath(geometryFolder, "JourneyPromenade", meccaCenter + Vector3.new(0, 0, 714), desertCenter + Vector3.new(0, 0, -152), 70, Color3.fromRGB(202, 187, 159), Color3.fromRGB(128, 109, 82))
--- The north ridge and apron of the Makkah band would sit on the Abraj Al-Bait site.
-createDistrictTerrainBand(geometryFolder, "MeccaWorld", meccaCenter, 980, 940, DESERT_ROCK, { NorthFrame = true, Apron_3 = true })
-createDistrictTerrainBand(geometryFolder, "MedinaWorld", medinaCenter, 640, 540, Color3.fromRGB(133, 110, 84))
+-- The north ridge and apron of the Makkah band would sit on the Abraj Al-Bait site, the two
+-- west ridges on the Badr and Uhud gates, and the south ridge and apron across the Journey road.
+createDistrictTerrainBand(geometryFolder, "MeccaWorld", meccaCenter, 980, 940, DESERT_ROCK, { NorthFrame = true, Apron_3 = true, WestNorthFrame = true, WestSouthFrame = true, SouthFrame = true, Apron_4 = true })
+-- Its north ridge would sit across the Journey road beside the reflection site.
+createDistrictTerrainBand(geometryFolder, "MedinaWorld", medinaCenter, 640, 540, Color3.fromRGB(133, 110, 84), { NorthFrame = true })
 -- Its northern ridges would land inside Masjid al-Haram and its south ridge in the Medina courtyard.
 createDistrictTerrainBand(geometryFolder, "JourneyWorld", desertCenter, 520, 720, Color3.fromRGB(141, 114, 84), { NorthFrame = true, SouthFrame = true, WestNorthFrame = true, EastNorthFrame = true, Apron_3 = true, Apron_4 = true })
 createWorldBackdrop(geometryFolder, Vector3.new(0, 0, 720))

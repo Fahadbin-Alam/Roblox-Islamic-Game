@@ -230,6 +230,42 @@ for _, destination in ipairs(TravelRoute.Destinations) do
 end
 check(#unlit == 0, "every travel destination has a light nearby at night" .. (#unlit > 0 and (": " .. table.concat(unlit, ", ")) or ""))
 
+-- No scenery (a decorative rock ridge, a backdrop mountain) swallows a destination: a player's
+-- camera at the landing point, at the destination centre or 40 studs around it must not sit
+-- inside any large non-colliding part.
+local scenery = {}
+for _, part in ipairs(game:GetService("Workspace"):GetDescendants()) do
+    if part:IsA("BasePart") and not part.CanCollide and part.Transparency < 0.5 and part.Size.Magnitude > 60 then
+        table.insert(scenery, part)
+    end
+end
+local swallowed = {}
+for _, destination in ipairs(TravelRoute.Destinations) do
+    local landing = destination.TeleportPosition or destination.Position
+    local probes = { landing, destination.Position }
+    for step = 0, 7 do
+        local angle = step * math.pi / 4
+        table.insert(probes, destination.Position + Vector3.new(math.cos(angle) * 40, 0, math.sin(angle) * 40))
+    end
+    for _, probe in ipairs(probes) do
+        local eye = probe + Vector3.new(0, 6, 0)
+        local hit = nil
+        for _, part in ipairs(scenery) do
+            local l = part.CFrame:PointToObjectSpace(eye)
+            local h = part.Size / 2
+            if math.abs(l.X) < h.X and math.abs(l.Y) < h.Y and math.abs(l.Z) < h.Z then
+                hit = part
+                break
+            end
+        end
+        if hit then
+            table.insert(swallowed, string.format("%s (%s)", destination.Id, hit:GetFullName()))
+            break
+        end
+    end
+end
+check(#swallowed == 0, "no rock ridge or backdrop swallows a travel destination" .. (#swallowed > 0 and (": " .. table.concat(swallowed, "; ")) or ""))
+
 local medina = TravelRoute.GetDestinationById("medina_courtyard").Position
 local medinaFloor = medina.Y + 4.6
 walkable(Vector3.new(medina.X, medinaFloor, medina.Z + 136), Vector3.new(medina.X, medinaFloor, medina.Z - 120), "Medina arrival through the north door into the prayer hall")

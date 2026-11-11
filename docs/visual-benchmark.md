@@ -50,13 +50,14 @@ New tests found and fixed real bugs during this pass:
 - **Seerah items you could not reach.** Nine chapter items and arrival rings sat inside walls, hills or vine rows: Shi'b Abi Talib, Ta'if, Safa, al-Aqabah, Jabal Thawr and the House of Fatimah. A new zone check now confirms every arrival point, travel point and item is clear.
 - **Tent build would fail.** A tent cushion was built with no colour. On a real server that raises an error and stops the site from building. A new check now confirms every part has a colour.
 - **Players arriving in the dark.** A new check found that 11 of the 15 travel destinations had no light within 70 studs, and most Seerah sites had none within 30. All are now lit, and both checks run in CI.
+- **Battle gates buried in rock.** A new check found that the Badr and Uhud gates and the Journey road sat inside the hub's decorative rock ridges, which do not collide, so players walked through them and saw only rock. Those ridges are removed or moved, and the gates are dressed with battlements, banners, fire bowls and palms.
 - **Present-day Madinah arrival and route.** Arriving players landed inside the solid portico, and the visitation route was blocked. New checks: every travel destination lands in open space, players can walk from the Madinah arrival into the hall, and the route from Bab as-Salam is open.
 
 ## Cost
 
 | Zone | Parts |
 |---|---|
-| Hub, including Masjid al-Haram and present-day Madinah | 8,459 (budget 8,600) |
+| Hub, including Masjid al-Haram and present-day Madinah | 8,570 (budget 8,600) |
 | Historical Makkah and Madinah | 14,633 (budget 15,000) |
 | Mystery wing | 2,113 (budget 2,500) |
 | Training grounds | 526 (budget 1,000) |
