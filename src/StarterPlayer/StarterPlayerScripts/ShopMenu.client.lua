@@ -139,7 +139,7 @@ scrollingFrame.Position = UDim2.fromOffset(14, 136)
 scrollingFrame.Size = UDim2.new(1, -28, 1, -196)
 scrollingFrame.BackgroundTransparency = 1
 scrollingFrame.BorderSizePixel = 0
-scrollingFrame.CanvasSize = UDim2.zero
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
 scrollingFrame.ScrollBarThickness = 6
 scrollingFrame.Parent = panel
 
