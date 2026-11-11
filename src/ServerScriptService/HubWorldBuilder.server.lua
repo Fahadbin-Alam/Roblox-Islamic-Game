@@ -159,6 +159,16 @@ local function createPromenadePath(parent: Instance, name: string, startPosition
         nil,
         nil
     ).CanCollide = false
+
+    -- A palm and a lantern on each side, a third of the way along, so the walk is not bare.
+    local top = baseY + 0.45
+    local frame = CFrame.new(midpoint.X, top, midpoint.Z) * CFrame.Angles(0, yaw, 0)
+    for _, side in ipairs({ -1, 1 }) do
+        local palmAt = (frame * CFrame.new(side * (width * 0.5 - 4), 0, -length / 6)).Position
+        Decor.Palm(parent, string.format("%s_Palm", name), palmAt, 18, #name + side, true)
+        local lampAt = (frame * CFrame.new(side * (width * 0.5 - 3), 0, length / 6)).Position
+        Decor.LanternPost(parent, string.format("%s_Lantern", name), lampAt, 10)
+    end
 end
 
 local function createSafetyBounds(parent: Instance, namePrefix: string, center: Vector3, footprint: Vector3)
