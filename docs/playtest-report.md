@@ -69,6 +69,7 @@ Bugs the visual pass (docs/visual-benchmark.md) found with new checks and fixed:
 6. Most arrival points and Seerah sites had no light at all, so night arrivals were dark.
 7. The Badr and Uhud gates and the Journey road sat inside decorative rock ridges, so a player arriving there saw only rock.
 8. Walking routes: a ring post stood on the path in from the Training Grounds gate, a palm trunk in front of the mystery landing, and every mystery room sign directly in front of its doorway.
+9. Every Seerah site sign stood across the walk from the travel point to the chapter ring, and a stall blocked the way into both markets.
 
 What the simulation does **not** prove: real network replication between two Roblox clients,
 physics (walking, jumping, collisions), animation, and how the controls feel. Those still need

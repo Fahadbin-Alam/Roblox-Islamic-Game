@@ -116,12 +116,15 @@ end
 local function market(parent: Instance, name: string, position: Vector3)
     local base = position + Vector3.new(0, GROUND_TOP, 0)
 
+    -- Two rows of stalls facing an aisle. The middle of the south row is left open as the way in.
     for index = 1, 10 do
         local column = (index - 1) % 5
         local north = index > 5
         local x = (column - 2) * 13
-        local frame = CFrame.new(base + Vector3.new(x, 0, if north then 13 else -13)) * CFrame.Angles(0, if north then math.rad(180) else 0, 0)
-        Decor.Stall(parent, string.format("%s_Stall%d", name, index), frame, index * 7 + position.X)
+        if north or column ~= 2 then
+            local frame = CFrame.new(base + Vector3.new(x, 0, if north then 13 else -13)) * CFrame.Angles(0, if north then math.rad(180) else 0, 0)
+            Decor.Stall(parent, string.format("%s_Stall%d", name, index), frame, index * 7 + position.X)
+        end
     end
 
     Decor.Rug(parent, name .. "_RugA", CFrame.new(base + Vector3.new(-30, 0, 0)), 6, 9, 3)
@@ -421,11 +424,12 @@ local function siteBuild(parent: Instance, site: HistoricalSites.Site)
     end
 
     local arrival = HistoricalSites.ArrivalPoint(site)
-    sign(folder, "Sign", arrival + Vector3.new(0, 0, -12), site.DisplayName, "Historical reconstruction. " .. site.Description, 180)
+    -- Beside the walk in from the travel point, not across it.
+    sign(folder, "Sign", arrival + Vector3.new(-16, 0, -12), site.DisplayName, "Historical reconstruction. " .. site.Description, 180)
 
     -- Two fire bowls beside the sign, so every site is lit and easy to find at night.
     for _, side in ipairs({ -1, 1 }) do
-        Decor.Brazier(folder, if side < 0 then "BrazierWest" else "BrazierEast", arrival + Vector3.new(side * 9, 0, -16))
+        Decor.Brazier(folder, if side < 0 then "BrazierWest" else "BrazierEast", arrival + Vector3.new(side * 6, 0, -24))
     end
 
     -- A soft ring marks where chapters begin; the campaign HUD points players to it.

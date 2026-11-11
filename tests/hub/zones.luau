@@ -134,6 +134,14 @@ if historical then
         probe(site.Id .. " arrival", arrival)
         if site.Kind ~= "Mountain" then
             probe(site.Id .. " travel point", arrival + Vector3.new(0, 0, -42))
+            -- The 42-stud walk from the travel point to the chapter ring is open all the way.
+            for step = 1, 13 do
+                local before = #blocked
+                probe(site.Id .. " walk from travel point", arrival + Vector3.new(0, 0, -42 + step * 3))
+                if #blocked > before then
+                    break
+                end
+            end
         end
     end
 
