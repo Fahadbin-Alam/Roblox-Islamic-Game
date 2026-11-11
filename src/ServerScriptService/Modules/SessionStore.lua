@@ -53,16 +53,6 @@ Session.__index = Session
 
 SessionStore.LockField = "SessionLock"
 
-local function shallowCopy(source: { [any]: any }): { [any]: any }
-    local copy = {}
-
-    for key, value in pairs(source) do
-        copy[key] = value
-    end
-
-    return copy
-end
-
 function SessionStore.new(store: StoreLike, options: Options)
     local self = setmetatable({}, SessionStore) :: any
     self.Store = store
@@ -152,9 +142,9 @@ function SessionStore.Open(self: any, key: string, userIds: { number }?): (any, 
 
                 verdict = if self:IsHeldElsewhere(lock, now) then "taken" else "acquired"
 
-                local record = if type(old) == "table" then shallowCopy(old) else {}
+                local record = if type(old) == "table" then table.clone(old) else {}
                 record[SessionStore.LockField] = nil
-                loaded = if type(old) == "table" then shallowCopy(record) else nil
+                loaded = if type(old) == "table" then table.clone(record) else nil
                 record[SessionStore.LockField] = {
                     JobId = self.JobId,
                     SessionId = sessionId,
@@ -214,7 +204,7 @@ function Session.Save(self: any, data: { [any]: any }, release: boolean?): boole
     end
 
     self.Busy = true
-    local record = shallowCopy(data)
+    local record = table.clone(data)
     local lostLock = false
 
     local ok = owner:Retry(string.format("Save %s", self.Key), function()

@@ -1,0 +1,8 @@
+# Lint config for selene (https://kampfkarren.github.io/selene/). CI runs
+# `selene --allow-warnings src`: errors fail the build, warnings are reported.
+std = "roblox"
+
+[lints]
+# The code deliberately repeats a branch body when that reads more clearly than a merged
+# condition (for example, one branch per unlock type in ShopService).
+if_same_then_else = "allow"
