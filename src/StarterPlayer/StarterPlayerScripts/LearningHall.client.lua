@@ -394,7 +394,8 @@ local function shuffledIndexes(count: number): { number }
         order[index] = index
     end
 
-    -- Shuffle until the steps are out of order, so the puzzle never starts solved.
+    -- Shuffle until the buttons differ from the listed order. The steps are listed
+    -- alphabetically and only the server knows the right order.
     for _ = 1, 10 do
         for index = count, 2, -1 do
             local swap = math.random(1, index)
@@ -527,14 +528,15 @@ local function showOrderResult(result: any)
     autoLabel(list, summary, 16, Enum.Font.GothamMedium, COLORS.Ink, 2)
 
     if result.Solved then
+        -- The player's order is the right one; the client never had the answer beforehand.
         local lines = {}
 
-        for position, step in ipairs(puzzle.Steps) do
-            table.insert(lines, string.format("%d. %s", position, step))
+        for position, stepIndex in ipairs(lastPlaced) do
+            table.insert(lines, string.format("%d. %s", position, puzzle.Steps[stepIndex] or ""))
         end
 
         autoLabel(list, table.concat(lines, "\n"), 16, Enum.Font.Gotham, COLORS.Ink, 3)
-        autoLabel(list, puzzle.Explanation, 15, Enum.Font.Gotham, COLORS.SoftInk, 4)
+        autoLabel(list, if typeof(result.Explanation) == "string" then result.Explanation else "", 15, Enum.Font.Gotham, COLORS.SoftInk, 4)
     else
         local lines = {}
 

@@ -19,6 +19,8 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Daily = require(Shared.Modules.Daily)
 local Progression = require(Shared.Modules.Progression)
 local ShopCatalog = require(Shared.Data.ShopCatalog)
+local LessonGrading = require(script.Parent.LessonGrading)
+local LessonIndex = require(script.Parent.LessonIndex)
 local SessionStore = require(script.Parent.SessionStore)
 
 type Profile = Progression.Profile
@@ -332,7 +334,8 @@ function PlayerProgress.RecordDailyVisit(player: Player)
     PlayerProgress.AddXP(player, Daily.VisitReward(streak), label)
 end
 
--- Grades today's review question. Returns nil when it was already answered today.
+-- Grades today's review question against the server-only answer key. Returns nil when it
+-- was already answered today or the choice is not one of the question's options.
 function PlayerProgress.AnswerDailyQuestion(player: Player, answerIndex: number): { Correct: boolean, CorrectIndex: number, Explanation: string, XPAwarded: number }?
     local profile = profiles[player]
     local day = Daily.DayNumber(os.time())
@@ -342,7 +345,12 @@ function PlayerProgress.AnswerDailyQuestion(player: Player, answerIndex: number)
     end
 
     local entry = Daily.GetQuestion(day)
-    local correct = answerIndex == entry.Question.CorrectIndex
+
+    if LessonGrading.Choice(answerIndex, #entry.Question.Options) == nil then
+        return nil
+    end
+
+    local correct, key = LessonGrading.Question(LessonIndex[entry.LessonId], entry.QuestionIndex, answerIndex)
     profile.Stats.DailyQuestionDay = day
     local awarded = 0
 
@@ -355,8 +363,8 @@ function PlayerProgress.AnswerDailyQuestion(player: Player, answerIndex: number)
 
     return {
         Correct = correct,
-        CorrectIndex = entry.Question.CorrectIndex,
-        Explanation = entry.Question.Explanation,
+        CorrectIndex = key.CorrectIndex,
+        Explanation = key.Explanation,
         XPAwarded = awarded,
     }
 end

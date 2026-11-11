@@ -2,6 +2,8 @@
 
 -- Loads and saves player progress, and runs the Islamic Studies hall: the client reads a
 -- lesson, submits quiz answers here, and the server grades them before awarding anything.
+-- The answer keys (Modules/LessonAnswers.lua) stay on the server; the client only learns
+-- the right answers from the result it gets back after submitting.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -11,6 +13,8 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local IslamicStudies = require(Shared.Data.IslamicStudies)
 local Progression = require(Shared.Modules.Progression)
 local TravelRoute = require(Shared.Data.TravelRoute)
+local LessonGrading = require(script.Parent.Modules.LessonGrading)
+local LessonIndex = require(script.Parent.Modules.LessonIndex)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
@@ -31,51 +35,9 @@ local SUBMIT_COOLDOWN_SECONDS = 1
 local PROFILE_REQUESTS_PER_WINDOW = 6
 local PROFILE_REQUEST_WINDOW_SECONDS = 10
 
-local lessonById = {}
-
-for _, unit in ipairs(IslamicStudies.Units) do
-    for _, lesson in ipairs(unit.Lessons) do
-        assert(lessonById[lesson.Id] == nil, string.format("Duplicate Islamic Studies lesson id %s", lesson.Id))
-        lessonById[lesson.Id] = lesson
-    end
-end
-
 local lastSubmitAt: { [Player]: number } = {}
 local profileRequests: { [Player]: { WindowStart: number, Count: number } } = {}
 local promptConnections: { [ProximityPrompt]: RBXScriptConnection } = {}
-
-local function gradeQuiz(lesson: IslamicStudies.Lesson, answers: { any })
-    local results = {}
-    local correctCount = 0
-
-    for index, question in ipairs(lesson.Quiz) do
-        local answer = answers[index]
-        local correct = type(answer) == "number" and answer == question.CorrectIndex
-
-        if correct then
-            correctCount += 1
-        end
-
-        table.insert(results, {
-            Correct = correct,
-            CorrectIndex = question.CorrectIndex,
-            Explanation = question.Explanation,
-        })
-    end
-
-    local required = math.ceil(#lesson.Quiz * IslamicStudies.PassRatio)
-
-    return {
-        LessonId = lesson.Id,
-        Correct = correctCount,
-        Total = #lesson.Quiz,
-        Required = required,
-        Passed = correctCount >= required,
-        Results = results,
-        FirstTime = false,
-        XPAwarded = 0,
-    }
-end
 
 submitQuiz.OnServerEvent:Connect(function(player: Player, lessonId: any, answers: any)
     if typeof(lessonId) ~= "string" or typeof(answers) ~= "table" then
@@ -90,13 +52,14 @@ submitQuiz.OnServerEvent:Connect(function(player: Player, lessonId: any, answers
 
     lastSubmitAt[player] = now
 
-    local lesson = lessonById[lessonId]
+    local entry = LessonIndex[lessonId]
 
-    if not lesson then
+    if not entry then
         return
     end
 
-    local result = gradeQuiz(lesson, answers)
+    local lesson = entry.Lesson
+    local result = LessonGrading.Quiz(entry, answers, IslamicStudies.PassRatio)
 
     if result.Passed then
         local firstTime, awarded = PlayerProgress.RecordCompletion(player, Progression.Categories.Lesson, lesson.Id, lesson.DisplayName)
@@ -107,8 +70,8 @@ submitQuiz.OnServerEvent:Connect(function(player: Player, lessonId: any, answers
     quizResult:FireClient(player, result)
 end)
 
--- Grades a lesson's order puzzle. The client sends step numbers (indexes into
--- lesson.Order.Steps) in the order the player placed them.
+-- Grades a lesson's order puzzle. The client sends step numbers (indexes into the
+-- alphabetical lesson.Order.Steps) in the order the player placed them.
 submitOrder.OnServerEvent:Connect(function(player: Player, lessonId: any, placed: any)
     if typeof(lessonId) ~= "string" or typeof(placed) ~= "table" then
         return
@@ -122,26 +85,14 @@ submitOrder.OnServerEvent:Connect(function(player: Player, lessonId: any, placed
 
     lastSubmitAt[player] = now
 
-    local lesson = lessonById[lessonId]
-    local puzzle = lesson and lesson.Order
+    local entry = LessonIndex[lessonId]
 
-    if not lesson or not puzzle then
+    if not entry or not entry.OrderSequence then
         return
     end
 
-    local inPlace = {}
-    local correctCount = 0
-
-    for index = 1, #puzzle.Steps do
-        local right = placed[index] == index
-        inPlace[index] = right
-
-        if right then
-            correctCount += 1
-        end
-    end
-
-    local solved = correctCount == #puzzle.Steps
+    local lesson = entry.Lesson
+    local inPlace, correctCount, solved = LessonGrading.Order(entry, placed)
     local xpAwarded = 0
 
     if solved then
@@ -154,13 +105,16 @@ submitOrder.OnServerEvent:Connect(function(player: Player, lessonId: any, placed
         Solved = solved,
         InPlace = inPlace,
         CorrectCount = correctCount,
-        Total = #puzzle.Steps,
+        Total = #inPlace,
         XPAwarded = xpAwarded,
+        -- Only revealed once solved; until then the player only learns which places are right.
+        Explanation = if solved then entry.Key.Order.Explanation else nil,
     })
 end)
 
 submitDailyAnswer.OnServerEvent:Connect(function(player: Player, answerIndex: any)
-    if typeof(answerIndex) ~= "number" then
+    -- PlayerProgress checks the range against today's question; this rejects junk early.
+    if LessonGrading.Choice(answerIndex, math.huge) == nil then
         return
     end
 

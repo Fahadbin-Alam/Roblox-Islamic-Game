@@ -5,20 +5,22 @@
 -- Prophets are taught through narration only and are never shown as characters.
 -- Rulings that differ between schools of thought are kept general on purpose, and the
 -- lessons point players to a trusted teacher for the details of their own madhhab.
+--
+-- This file replicates to every client, so it holds no answers. The correct option and
+-- explanation for each quiz question, and the correct order of each puzzle, are in
+-- ServerScriptService/Modules/LessonAnswers.lua, which only the server can read.
 
 export type QuizQuestion = {
     Prompt: string,
     Options: { string },
-    CorrectIndex: number,
-    Explanation: string,
 }
 
 -- An optional bonus puzzle: put the steps back in the right order.
 export type OrderPuzzle = {
     Prompt: string,
-    -- Listed in the correct order. The hall shuffles them for the player.
+    -- Listed alphabetically so the order gives nothing away; the hall shuffles them for
+    -- the player, and the server checks the order against LessonAnswers.
     Steps: { string },
-    Explanation: string,
 }
 
 export type Lesson = {
@@ -61,20 +63,14 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "How many pillars of Islam are there?",
                             Options = { "Three", "Five", "Six", "Seven" },
-                            CorrectIndex = 2,
-                            Explanation = "Islam is built on five pillars, as taught in Sahih al-Bukhari 8.",
                         },
                         {
                             Prompt = "Which of these is NOT one of the five pillars?",
                             Options = { "Salah", "Zakah", "Reading every night", "Hajj" },
-                            CorrectIndex = 3,
-                            Explanation = "Reading is a great habit, but the pillars are Shahadah, Salah, Zakah, Sawm, and Hajj.",
                         },
                         {
                             Prompt = "Why are they called pillars?",
                             Options = { "They are made of stone", "They hold up a Muslim's faith and practice", "They are only for scholars", "They are optional" },
-                            CorrectIndex = 2,
-                            Explanation = "Like pillars holding up a building, these five acts hold up a Muslim's religion.",
                         },
                     },
                 },
@@ -92,20 +88,14 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "What does 'la ilaha illa Allah' mean?",
                             Options = { "Allah is great", "There is no god worthy of worship except Allah", "All praise is for Allah", "In the name of Allah" },
-                            CorrectIndex = 2,
-                            Explanation = "It is the declaration of tawhid: worship belongs to Allah alone.",
                         },
                         {
                             Prompt = "What is the belief that Allah is One with no partner called?",
                             Options = { "Tawhid", "Sadaqah", "Hijrah", "Sunnah" },
-                            CorrectIndex = 1,
-                            Explanation = "Tawhid means the Oneness of Allah.",
                         },
                         {
                             Prompt = "Which pillar comes first?",
                             Options = { "Hajj", "Sawm", "Shahadah", "Zakah" },
-                            CorrectIndex = 3,
-                            Explanation = "The Shahadah is the first pillar and the foundation for the rest.",
                         },
                     },
                 },
@@ -123,26 +113,18 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "How many obligatory prayers are there each day?",
                             Options = { "Three", "Four", "Five", "Seven" },
-                            CorrectIndex = 3,
-                            Explanation = "Fajr, Dhuhr, Asr, Maghrib, and Isha.",
                         },
                         {
                             Prompt = "Which prayer is prayed just after sunset?",
                             Options = { "Fajr", "Maghrib", "Dhuhr", "Isha" },
-                            CorrectIndex = 2,
-                            Explanation = "Maghrib begins right after the sun sets and has 3 rak'ahs.",
                         },
                         {
                             Prompt = "What is the direction Muslims face in prayer called?",
                             Options = { "Qiblah", "Minbar", "Mihrab", "Adhan" },
-                            CorrectIndex = 1,
-                            Explanation = "The qiblah is the direction of the Kaaba in Makkah.",
                         },
                         {
                             Prompt = "How many rak'ahs does Fajr have?",
                             Options = { "2", "3", "4", "5" },
-                            CorrectIndex = 1,
-                            Explanation = "The obligatory Fajr prayer has 2 rak'ahs.",
                         },
                     },
                 },
@@ -160,20 +142,14 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "What does the word Zakah mean?",
                             Options = { "Fasting", "Purification and growth", "Journey", "Prayer" },
-                            CorrectIndex = 2,
-                            Explanation = "Zakah purifies wealth and makes it grow in blessing.",
                         },
                         {
                             Prompt = "What portion of qualifying savings is given as Zakah?",
                             Options = { "1%", "2.5%", "10%", "50%" },
-                            CorrectIndex = 2,
-                            Explanation = "Zakah on savings is 2.5% once they have stayed above the nisab for a lunar year.",
                         },
                         {
                             Prompt = "What is voluntary charity called?",
                             Options = { "Sadaqah", "Sawm", "Qiblah", "Tawaf" },
-                            CorrectIndex = 1,
-                            Explanation = "Sadaqah is any voluntary charity, even a kind smile.",
                         },
                     },
                 },
@@ -191,20 +167,14 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "In which month do Muslims fast?",
                             Options = { "Muharram", "Ramadan", "Shawwal", "Dhul-Hijjah" },
-                            CorrectIndex = 2,
-                            Explanation = "The obligatory fast is in Ramadan, the ninth month of the Islamic calendar.",
                         },
                         {
                             Prompt = "What is the meal before dawn called?",
                             Options = { "Iftar", "Suhur", "Walimah", "Eid" },
-                            CorrectIndex = 2,
-                            Explanation = "Suhur is eaten before dawn; iftar breaks the fast at sunset.",
                         },
                         {
                             Prompt = "According to Qur'an 2:183, fasting helps us gain what?",
                             Options = { "Taqwa", "Wealth", "Fame", "Strength in battle" },
-                            CorrectIndex = 1,
-                            Explanation = "Fasting was prescribed so that believers may gain taqwa, mindfulness of Allah.",
                         },
                     },
                 },
@@ -222,20 +192,14 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "How often must an able Muslim perform Hajj?",
                             Options = { "Every year", "Once in a lifetime", "Every Ramadan", "Twice" },
-                            CorrectIndex = 2,
-                            Explanation = "Hajj is obligatory once in a lifetime for those who are able.",
                         },
                         {
                             Prompt = "What is walking around the Kaaba seven times called?",
                             Options = { "Sa'i", "Tawaf", "Ruku'", "Wudu" },
-                            CorrectIndex = 2,
-                            Explanation = "Tawaf is circling the Kaaba seven times. Sa'i is walking between Safa and Marwah.",
                         },
                         {
                             Prompt = "Who raised the foundations of the Kaaba?",
                             Options = { "Nuh and his sons", "Ibrahim and Isma'il", "Musa and Harun", "Dawud and Sulayman" },
-                            CorrectIndex = 2,
-                            Explanation = "Qur'an 2:127 tells of Ibrahim and Isma'il, peace be upon them, raising the House.",
                         },
                     },
                 },
@@ -262,40 +226,31 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         Prompt = "Put the steps of wudu in order.",
                         Steps = {
                             "Intention and Bismillah",
-                            "Wash the hands",
                             "Rinse the mouth",
                             "Rinse the nose",
-                            "Wash the face",
                             "Wash the arms to the elbows, right first",
-                            "Wipe the head and ears",
+                            "Wash the face",
                             "Wash the feet to the ankles, right first",
+                            "Wash the hands",
+                            "Wipe the head and ears",
                         },
-                        Explanation = "This is the order taught in the lesson, following Qur'an 5:6 and the Sunnah.",
                     },
                     Quiz = {
                         {
                             Prompt = "What do you say when beginning wudu?",
                             Options = { "Ameen", "Bismillah", "Subhanallah", "Allahu Akbar" },
-                            CorrectIndex = 2,
-                            Explanation = "Begin wudu with the intention and Bismillah, in the name of Allah.",
                         },
                         {
                             Prompt = "How far are the arms washed in wudu?",
                             Options = { "Only the hands", "To the elbows", "To the shoulders", "They are only wiped" },
-                            CorrectIndex = 2,
-                            Explanation = "Qur'an 5:6 says to wash the arms up to the elbows.",
                         },
                         {
                             Prompt = "Which side do you wash first for arms and feet?",
                             Options = { "Left", "Right", "Either, it never matters", "Both together only" },
-                            CorrectIndex = 2,
-                            Explanation = "The Sunnah is to begin with the right side.",
                         },
                         {
                             Prompt = "What is done to the head in wudu?",
                             Options = { "It is wiped with wet hands", "It is washed three times", "Nothing", "It is covered" },
-                            CorrectIndex = 1,
-                            Explanation = "The head is wiped with wet hands, not washed.",
                         },
                     },
                 },
@@ -316,47 +271,36 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                     Order = {
                         Prompt = "Put the steps of one rak'ah and the end of the prayer in order.",
                         Steps = {
+                            "Bow in ruku'",
+                            "End with salam, right then left",
                             "Face the qiblah with the intention",
                             "Opening takbir: Allahu Akbar",
-                            "Stand and recite Al-Fatihah",
-                            "Bow in ruku'",
-                            "Rise: Sami'a Allahu liman hamidah",
                             "Prostrate in sujud twice",
+                            "Rise: Sami'a Allahu liman hamidah",
                             "Sit for the tashahhud",
-                            "End with salam, right then left",
+                            "Stand and recite Al-Fatihah",
                         },
-                        Explanation = "Each rak'ah repeats standing, ruku', rising, and two sujud. The tashahhud and salam come at the end.",
                     },
                     Quiz = {
                         {
                             Prompt = "What words begin the prayer?",
                             Options = { "As-salamu 'alaykum", "Allahu Akbar", "Ameen", "Alhamdulillah" },
-                            CorrectIndex = 2,
-                            Explanation = "The opening takbir, 'Allahu Akbar', begins the prayer.",
                         },
                         {
                             Prompt = "Which surah is recited in every rak'ah?",
                             Options = { "Al-Ikhlas", "Al-Fatihah", "Al-Baqarah", "An-Nas" },
-                            CorrectIndex = 2,
-                            Explanation = "Surah Al-Fatihah is recited while standing in every rak'ah.",
                         },
                         {
                             Prompt = "What is the bowing position called?",
                             Options = { "Sujud", "Qiyam", "Ruku'", "Tashahhud" },
-                            CorrectIndex = 3,
-                            Explanation = "Ruku' is bowing; sujud is prostrating with the forehead on the ground.",
                         },
                         {
                             Prompt = "What do you say in sujud?",
                             Options = { "Subhana Rabbiyal-A'la", "Subhana Rabbiyal-'Adhim", "Bismillah", "Ameen" },
-                            CorrectIndex = 1,
-                            Explanation = "In sujud: Glory be to my Lord, the Most High. In ruku': the Most Great.",
                         },
                         {
                             Prompt = "How does the prayer end?",
                             Options = { "Standing up", "Saying salam to the right then left", "Clapping", "Saying Allahu Akbar" },
-                            CorrectIndex = 2,
-                            Explanation = "The prayer ends with 'As-salamu 'alaykum wa rahmatullah', right then left.",
                         },
                     },
                 },
@@ -381,20 +325,14 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "What do you say before eating?",
                             Options = { "Bismillah", "Ameen", "Ghufranak", "Yarhamukallah" },
-                            CorrectIndex = 1,
-                            Explanation = "Begin every meal with Bismillah.",
                         },
                         {
                             Prompt = "If you forgot Bismillah at the start of a meal, what do you say?",
                             Options = { "Nothing, it is too late", "Bismillahi awwalahu wa akhirahu", "Allahu Akbar", "As-salamu 'alaykum" },
-                            CorrectIndex = 2,
-                            Explanation = "In the name of Allah, at its beginning and its end.",
                         },
                         {
                             Prompt = "Which hand is the Sunnah for eating?",
                             Options = { "Left", "Right", "Either", "Both" },
-                            CorrectIndex = 2,
-                            Explanation = "The Prophet, peace be upon him, taught: eat with your right hand.",
                         },
                     },
                 },
@@ -411,14 +349,10 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "What does 'Bismika Allahumma amutu wa ahya' mean?",
                             Options = { "In Your name, O Allah, I die and I live", "Allah is the Greatest", "Praise be to Allah", "O Allah, forgive me" },
-                            CorrectIndex = 1,
-                            Explanation = "It is the dua before sleeping.",
                         },
                         {
                             Prompt = "When do you say 'Alhamdu lillahil-ladhi ahyana...'?",
                             Options = { "Before eating", "When waking up", "When sneezing", "Entering the masjid" },
-                            CorrectIndex = 2,
-                            Explanation = "It thanks Allah for giving us life again after sleep.",
                         },
                     },
                 },
@@ -435,20 +369,14 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "Which foot do you enter the masjid with?",
                             Options = { "Left", "Right", "Either", "Jump with both" },
-                            CorrectIndex = 2,
-                            Explanation = "Enter with the right foot and leave with the left.",
                         },
                         {
                             Prompt = "Entering the masjid, you ask Allah to open the doors of His...",
                             Options = { "Mercy", "Treasure", "Kingdom", "Gardens" },
-                            CorrectIndex = 1,
-                            Explanation = "'Allahummaf-tah li abwaba rahmatik': O Allah, open for me the doors of Your mercy.",
                         },
                         {
                             Prompt = "What does 'tawakkaltu 'alallah' mean?",
                             Options = { "I trust in Allah", "Allah is One", "I seek forgiveness", "Peace be upon you" },
-                            CorrectIndex = 1,
-                            Explanation = "It is said when leaving home, placing your trust in Allah.",
                         },
                     },
                 },
@@ -466,20 +394,14 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "Someone sneezes and says Alhamdulillah. What do you reply?",
                             Options = { "Ameen", "Yarhamukallah", "Bismillah", "Ghufranak" },
-                            CorrectIndex = 2,
-                            Explanation = "Reply 'Yarhamukallah', may Allah have mercy on you.",
                         },
                         {
                             Prompt = "'Rabbi zidni 'ilma' asks Allah for more...",
                             Options = { "Wealth", "Knowledge", "Friends", "Time" },
-                            CorrectIndex = 2,
-                            Explanation = "My Lord, increase me in knowledge (Qur'an 20:114).",
                         },
                         {
                             Prompt = "Which dua is for your parents?",
                             Options = { "Rabbir-hamhuma kama rabbayani saghira", "Subhana Rabbiyal-A'la", "Allahumma inni as'aluka min fadlik", "Bismika Allahumma amutu wa ahya" },
-                            CorrectIndex = 1,
-                            Explanation = "My Lord, have mercy on them as they raised me when I was small (Qur'an 17:24).",
                         },
                     },
                 },
@@ -505,20 +427,14 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "How many articles of iman are there?",
                             Options = { "Four", "Five", "Six", "Ten" },
-                            CorrectIndex = 3,
-                            Explanation = "Allah, angels, books, messengers, the Last Day, and qadr.",
                         },
                         {
                             Prompt = "Which angel brought revelation to the prophets?",
                             Options = { "Jibril", "Mika'il", "Israfil", "Malik" },
-                            CorrectIndex = 1,
-                            Explanation = "Jibril, peace be upon him, brought Allah's revelation.",
                         },
                         {
                             Prompt = "Which book was given to Prophet Musa?",
                             Options = { "Zabur", "Injil", "Tawrah", "Qur'an" },
-                            CorrectIndex = 3,
-                            Explanation = "The Tawrah was revealed to Musa, peace be upon him.",
                         },
                     },
                 },
@@ -544,14 +460,10 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "What did Allah command Nuh to build?",
                             Options = { "A tower", "An ark", "A wall", "A city" },
-                            CorrectIndex = 2,
-                            Explanation = "Qur'an 11:37: build the ark under Our eyes and Our inspiration.",
                         },
                         {
                             Prompt = "What is the main lesson from Nuh's story?",
                             Options = { "Give up when people mock you", "Stay patient and keep doing right", "Only work alone", "Build big ships" },
-                            CorrectIndex = 2,
-                            Explanation = "Nuh stayed patient and faithful for centuries.",
                         },
                     },
                 },
@@ -569,14 +481,10 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "What did Allah command the fire to be for Ibrahim?",
                             Options = { "Hotter", "Coolness and safety", "Brighter", "Gone forever" },
-                            CorrectIndex = 2,
-                            Explanation = "Qur'an 21:69: be coolness and safety upon Ibrahim.",
                         },
                         {
                             Prompt = "Who helped Ibrahim build the Kaaba?",
                             Options = { "Ishaq", "Isma'il", "Lut", "Yusuf" },
-                            CorrectIndex = 2,
-                            Explanation = "Ibrahim and Isma'il raised its foundations together (Qur'an 2:127).",
                         },
                     },
                 },
@@ -594,14 +502,10 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "What did Yusuf say to his brothers at the end?",
                             Options = { "You will be punished", "No blame upon you today", "Go away", "I never knew you" },
-                            CorrectIndex = 2,
-                            Explanation = "He forgave them completely (Qur'an 12:92).",
                         },
                         {
                             Prompt = "What does Allah call Yusuf's story?",
                             Options = { "The best of stories", "The oldest story", "A secret", "A short tale" },
-                            CorrectIndex = 1,
-                            Explanation = "Qur'an 12:3 calls it the best of stories.",
                         },
                     },
                 },
@@ -619,14 +523,10 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "What did Musa say when the army was behind them?",
                             Options = { "We are lost", "My Lord is with me; He will guide me", "Let us surrender", "Run back" },
-                            CorrectIndex = 2,
-                            Explanation = "Qur'an 26:62 records his complete trust in Allah.",
                         },
                         {
                             Prompt = "What happened when Musa struck the sea?",
                             Options = { "It froze", "It parted", "It dried up slowly", "Nothing" },
-                            CorrectIndex = 2,
-                            Explanation = "By Allah's command, the sea parted (Qur'an 26:63).",
                         },
                     },
                 },
@@ -644,14 +544,10 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "Where was Yunus when he made his famous dua?",
                             Options = { "On a mountain", "Inside a great fish", "In a palace", "In the desert" },
-                            CorrectIndex = 2,
-                            Explanation = "He called to Allah from inside the fish (Qur'an 21:87).",
                         },
                         {
                             Prompt = "What is the lesson of Yunus's dua?",
                             Options = { "Hide your mistakes", "Admit mistakes and turn back to Allah", "Blame others", "Never travel" },
-                            CorrectIndex = 2,
-                            Explanation = "He admitted his mistake and Allah saved him.",
                         },
                     },
                 },
@@ -670,14 +566,10 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "What did Allah teach Adam?",
                             Options = { "How to build", "The names of all things", "How to fight", "Nothing" },
-                            CorrectIndex = 2,
-                            Explanation = "Qur'an 2:31: Allah taught Adam the names of all things.",
                         },
                         {
                             Prompt = "What did Adam and his wife do after their mistake?",
                             Options = { "Blamed each other", "Asked Allah for forgiveness", "Ran away", "Stayed silent" },
-                            CorrectIndex = 2,
-                            Explanation = "They repented with the dua in Qur'an 7:23, and Allah forgave them.",
                         },
                     },
                 },
@@ -696,14 +588,10 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "What quality is Ayyub most famous for?",
                             Options = { "Wealth", "Patience", "Strength", "Speed" },
-                            CorrectIndex = 2,
-                            Explanation = "Qur'an 38:44: We found him patient. An excellent servant.",
                         },
                         {
                             Prompt = "How did Ayyub ask Allah for help?",
                             Options = { "He complained angrily", "He called on Allah as the Most Merciful", "He gave up", "He asked people only" },
-                            CorrectIndex = 2,
-                            Explanation = "His dua in Qur'an 21:83 names Allah as the Most Merciful of the merciful.",
                         },
                     },
                 },
@@ -721,14 +609,10 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "Who warned the others about Sulayman's army?",
                             Options = { "A bird", "An ant", "A lion", "A fish" },
-                            CorrectIndex = 2,
-                            Explanation = "An ant warned its colony (Qur'an 27:18).",
                         },
                         {
                             Prompt = "How did Sulayman respond?",
                             Options = { "He was proud", "He thanked Allah and asked to stay grateful", "He ignored it", "He got angry" },
-                            CorrectIndex = 2,
-                            Explanation = "He prayed to be grateful for Allah's favours (Qur'an 27:19).",
                         },
                     },
                 },
@@ -747,33 +631,26 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         Prompt = "Put these Prophets in the order they lived, earliest first.",
                         Steps = {
                             "Adam",
-                            "Nuh",
                             "Ibrahim",
-                            "Yusuf",
-                            "Musa",
-                            "Sulayman",
                             "Isa",
+                            "Musa",
+                            "Nuh",
+                            "Sulayman",
+                            "Yusuf",
                         },
-                        Explanation = "Adam was the first human. Yusuf was Ibrahim's great-grandson, Musa came after Yusuf's family settled in Egypt, Sulayman was the son of Dawud, and Isa came last before Muhammad, peace be upon them all.",
                     },
                     Quiz = {
                         {
                             Prompt = "What did baby Isa say from the cradle?",
                             Options = { "I am a king", "I am the servant of Allah", "I am hungry", "Nothing" },
-                            CorrectIndex = 2,
-                            Explanation = "Qur'an 19:30: I am the servant of Allah; He gave me the Scripture and made me a prophet.",
                         },
                         {
                             Prompt = "Which book was given to Isa?",
                             Options = { "Tawrah", "Zabur", "Injil", "Qur'an" },
-                            CorrectIndex = 3,
-                            Explanation = "The Injil was revealed to Isa, peace be upon him.",
                         },
                         {
                             Prompt = "By whose permission did Isa perform miracles?",
                             Options = { "His own", "Allah's", "The people's", "The angels'" },
-                            CorrectIndex = 2,
-                            Explanation = "Qur'an 5:110 repeats: by My permission.",
                         },
                     },
                 },
@@ -800,20 +677,14 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "What was the Prophet called because of his honesty?",
                             Options = { "Al-Amin", "Al-Faruq", "As-Siddiq", "Saifullah" },
-                            CorrectIndex = 1,
-                            Explanation = "Al-Amin means the trustworthy one.",
                         },
                         {
                             Prompt = "Which surah tells of the army with elephants?",
                             Options = { "Al-Fil", "Al-Kahf", "Yasin", "Al-Mulk" },
-                            CorrectIndex = 1,
-                            Explanation = "Surah Al-Fil (105) describes how Allah protected the Kaaba.",
                         },
                         {
                             Prompt = "Who raised him after his grandfather died?",
                             Options = { "Abu Lahab", "His uncle Abu Talib", "Abu Bakr", "Umar" },
-                            CorrectIndex = 2,
-                            Explanation = "His uncle Abu Talib raised and protected him.",
                         },
                     },
                 },
@@ -832,20 +703,14 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "Where did the first revelation come?",
                             Options = { "Cave of Thawr", "Cave of Hira", "Masjid an-Nabawi", "Mount Uhud" },
-                            CorrectIndex = 2,
-                            Explanation = "The first verses came in the cave of Hira.",
                         },
                         {
                             Prompt = "What was the first word revealed?",
                             Options = { "Pray", "Read", "Fast", "Give" },
-                            CorrectIndex = 2,
-                            Explanation = "Qur'an 96:1 begins 'Read' (Iqra).",
                         },
                         {
                             Prompt = "Who was the first person to believe?",
                             Options = { "Khadijah", "Umar", "Abu Sufyan", "Bilal" },
-                            CorrectIndex = 1,
-                            Explanation = "Khadijah, may Allah be pleased with her, believed first.",
                         },
                     },
                 },
@@ -864,26 +729,18 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "Which city did the Muslims migrate to?",
                             Options = { "Ta'if", "Madinah", "Jerusalem", "Damascus" },
-                            CorrectIndex = 2,
-                            Explanation = "The Hijrah was to Yathrib, which became Madinah.",
                         },
                         {
                             Prompt = "Who travelled with the Prophet on the Hijrah?",
                             Options = { "Abu Bakr", "Umar", "Ali", "Uthman" },
-                            CorrectIndex = 1,
-                            Explanation = "Abu Bakr as-Siddiq was his companion in the cave (Qur'an 9:40).",
                         },
                         {
                             Prompt = "What were the helpers of Madinah called?",
                             Options = { "Muhajirun", "Ansar", "Quraysh", "Sahabah of Badr" },
-                            CorrectIndex = 2,
-                            Explanation = "The Ansar helped the Muhajirun who migrated.",
                         },
                         {
                             Prompt = "What does AH stand for?",
                             Options = { "After Hajj", "After Hijrah", "Arabian History", "After Hira" },
-                            CorrectIndex = 2,
-                            Explanation = "The Islamic calendar counts from the Hijrah.",
                         },
                     },
                 },
@@ -901,14 +758,10 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "What did the Prophet choose at Hudaybiyyah?",
                             Options = { "A battle", "A peace treaty", "Going home angry", "Breaking the Kaaba's door" },
-                            CorrectIndex = 2,
-                            Explanation = "He agreed to a treaty of peace.",
                         },
                         {
                             Prompt = "What did the Qur'an call the treaty?",
                             Options = { "A defeat", "A clear victory", "A mistake", "A delay" },
-                            CorrectIndex = 2,
-                            Explanation = "Qur'an 48:1: We have given you a clear victory.",
                         },
                     },
                 },
@@ -926,14 +779,10 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "What did the Prophet recite while removing the idols?",
                             Options = { "Truth has come and falsehood has vanished", "Allah is the Greatest", "Peace be upon you", "In the name of Allah" },
-                            CorrectIndex = 1,
-                            Explanation = "Qur'an 17:81, as narrated in Sahih al-Bukhari 4287.",
                         },
                         {
                             Prompt = "How did the Prophet treat the people of Makkah?",
                             Options = { "He took revenge", "He forgave many of them", "He expelled everyone", "He ignored them" },
-                            CorrectIndex = 2,
-                            Explanation = "His forgiveness led many to embrace Islam.",
                         },
                     },
                 },
@@ -953,33 +802,26 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         Steps = {
                             "Birth in Makkah, in the Year of the Elephant",
                             "First revelation in the cave of Hira",
-                            "The Hijrah to Madinah",
                             "The Battle of Badr",
                             "The Battle of Uhud",
-                            "The Treaty of Hudaybiyyah",
                             "The Conquest of Makkah",
                             "The Farewell Hajj",
+                            "The Hijrah to Madinah",
+                            "The Treaty of Hudaybiyyah",
                         },
-                        Explanation = "Birth around 570 CE, first revelation at age 40, Hijrah in 1 AH, Badr in 2 AH, Uhud in 3 AH, Hudaybiyyah in 6 AH, the Conquest in 8 AH, and the Farewell Hajj in 10 AH.",
                     },
                     Quiz = {
                         {
                             Prompt = "How many times did the Prophet perform Hajj?",
                             Options = { "Once", "Twice", "Every year", "Never" },
-                            CorrectIndex = 1,
-                            Explanation = "His only Hajj was the Farewell Hajj in 10 AH.",
                         },
                         {
                             Prompt = "Which verse was revealed at Arafah during the Farewell Hajj?",
                             Options = { "This day I have perfected for you your religion", "Read in the name of your Lord", "Indeed, with hardship comes ease", "Say, He is Allah, the One" },
-                            CorrectIndex = 1,
-                            Explanation = "Qur'an 5:3, as Sahih al-Bukhari 45 reports.",
                         },
                         {
                             Prompt = "Where did the Prophet pass away?",
                             Options = { "Makkah", "Madinah", "Ta'if", "Jerusalem" },
-                            CorrectIndex = 2,
-                            Explanation = "He passed away in Madinah in 11 AH.",
                         },
                     },
                 },
@@ -1005,20 +847,14 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "Which Eid comes right after Ramadan?",
                             Options = { "Eid al-Adha", "Eid al-Fitr", "Mawlid", "Ashura" },
-                            CorrectIndex = 2,
-                            Explanation = "Eid al-Fitr is on 1 Shawwal, ending Ramadan.",
                         },
                         {
                             Prompt = "Which Prophet's story is remembered on Eid al-Adha?",
                             Options = { "Musa", "Ibrahim", "Yusuf", "Nuh" },
-                            CorrectIndex = 2,
-                            Explanation = "Ibrahim's readiness to sacrifice, and Allah's mercy (Qur'an 37:102-107).",
                         },
                         {
                             Prompt = "What charity is given before the Eid al-Fitr prayer?",
                             Options = { "Zakat al-Fitr", "Hajj fee", "Waqf", "Jizyah" },
-                            CorrectIndex = 1,
-                            Explanation = "Zakat al-Fitr helps everyone enjoy Eid.",
                         },
                     },
                 },
@@ -1036,20 +872,14 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                         {
                             Prompt = "What is the weekly gathering prayer called?",
                             Options = { "Jumu'ah", "Tarawih", "Eid", "Witr" },
-                            CorrectIndex = 1,
-                            Explanation = "The Friday prayer is Jumu'ah (Qur'an 62:9).",
                         },
                         {
                             Prompt = "Laylat al-Qadr is better than how many months?",
                             Options = { "Ten", "One hundred", "One thousand", "Twelve" },
-                            CorrectIndex = 3,
-                            Explanation = "Qur'an 97:3: better than a thousand months.",
                         },
                         {
                             Prompt = "On which date is the Day of Arafah?",
                             Options = { "1 Shawwal", "9 Dhul-Hijjah", "27 Ramadan", "10 Muharram" },
-                            CorrectIndex = 2,
-                            Explanation = "Arafah is on 9 Dhul-Hijjah.",
                         },
                     },
                 },
