@@ -109,6 +109,7 @@ Content added to `IslamicStudies.lua` should cite its Qur'an or hadith source, s
 - `tests/luau/run.sh <luau>` runs unit tests for the shared data and progression rules outside Studio.
 - `tests/analyze.sh <luau-lsp> <rojo> <globalTypes.d.luau>` type-checks every script against the Roblox API and fails on syntax errors, unknown globals, and broken requires.
 - `tests/world/run.sh <luau>` builds the battle arenas against a mock Roblox engine and checks that every mission point has ground, every enemy lane and player route can be walked, and no spawn is inside rock.
+- `tests/sim/run.sh <luau>` runs the real server scripts with simulated players in virtual time: a two-player PvP match and rematch, saving and loading progress (and a DataStore outage), chat and voice mute, friends-only joining, the co-op course, a parkour climb, all 30 Seerah chapters, and a two-player mystery room.
 - `tests/hub/run.sh <luau>` also builds the activity zones (historical towns, mystery wing, co-op trials, training grounds) and checks they are kept apart from the hub and from each other, every Seerah site has its marker, and every collect chapter and mystery room has its items.
 - `tests/hub/run.sh <luau>` builds the whole hub in a mock Roblox engine and checks it: part and light budgets, the 2048-stud part limit, clear spawn and tawaf areas, walkable gates and ramps, the 13 minarets, the clock and night lighting, tawaf pilgrims that never walk through a landmark, and that no other district leaks into Masjid al-Haram.
 

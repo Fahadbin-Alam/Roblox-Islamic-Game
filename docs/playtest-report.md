@@ -12,27 +12,71 @@ the automated checks below. Everything that needs a live server is listed under 
 | Unit tests (rules and data) | `tests/luau/run.sh <luau>` | 46 passed, 0 failed |
 | Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 55 checks passed (about 80 s) |
 | Battle arenas in a mock engine | `tests/world/run.sh <luau>` | 181 passed, 0 failed |
+| Multiplayer simulation (real server scripts, simulated players) | `tests/sim/run.sh <luau>` | 40 passed, 0 failed |
 | Static analysis against the Roblox API | `tests/analyze.sh ...` | no syntax errors, unknown globals or broken requires |
 | Place file builds | `rojo build default.project.json -o build.rbxlx` | builds |
 
-All four test commands run in CI on every pull request (`.github/workflows/checks.yml`).
+All five test commands run in CI on every pull request (`.github/workflows/checks.yml`).
 luau-lsp still reports non-fatal strict-mode type warnings (mostly `x and y` narrowing); they do
 not change behaviour.
+
+## The multiplayer simulation
+
+`tests/sim/run.sh` runs the game's real server scripts (GameBootstrap, ProgressionService,
+PvpArenaService, SocialService, CoopTrialsService, ParkourService, HistoricalWorldBuilder,
+SeerahCampaignService, MysteryService) on top of the mock engine, with simulated players who
+have characters and humanoids, a virtual clock, and a DataStore that serializes like Roblox's.
+The players send the same remote events the clients send, use the same sword tool, and
+trigger the same prompts. It checks:
+
+- **PvP (2 players):** join, countdown, both armed on different teams, every sword hit does
+  32 damage on the server, knockout ends the round, out-of-range swings miss, a ring-out is a
+  knockout, first to 3 wins the match, both players receive the same results, the win is saved,
+  both vote to play again, and a player who leaves hands the round to the other.
+- **Saves:** progress (XP, Seerah and mystery completions, co-op count, parkour best) is saved
+  on leave and comes back the next day; a next-day return counts as D1 retention; during a
+  DataStore outage the player can still play, is warned, and the saved data is not overwritten.
+- **Social:** mute hides chat only for the player who muted, also denies voice from the muted
+  player's microphone, resets when a player leaves; jump-to only works for friends and has a
+  cooldown; friends get a join notice; the voice list reports only eligible players.
+- **Co-op (2 players):** one player alone cannot keep the gate open; the plates, lift and
+  stairway work as a pair; one player on both pads does not count; two players finish together
+  and both get credit once.
+- **Parkour:** start pad, skipping ahead rejected, climbing every platform in order hits each
+  checkpoint, a fall returns to the last checkpoint, the summit saves the best time.
+- **Seerah campaign:** a locked chapter cannot start; **all 30 chapters were played in order**
+  (travel, walk to the site, story, items from close range only, battle result, wrong then right
+  answer, explanation, saved); the checklist shows 30/30; replaying does not pay out twice.
+- **Mystery (2 players):** shared room, clues found by either player count for both, shared
+  hint, wrong lock answer, episode locked until the door opens, steps in order, both credited
+  with stars, room resets for the next group.
+
+Bugs the simulation found and fixed:
+
+1. The chat mute filter gave up if the chat channels took more than 30 seconds to appear, so
+   mute could silently stop working. It now waits for them.
+2. Co-op finishes could be farmed by standing on the finish pads (one extra finish every 8
+   seconds), and a finish in the first 8 seconds after a server started was ignored. A finish now
+   counts once per arrival.
+
+What the simulation does **not** prove: real network replication between two Roblox clients,
+physics (walking, jumping, collisions), animation, and how the controls feel. Those still need
+a Studio or live test.
 
 ## What each requirement was tested with
 
 | # | Requirement | Verified by tests | Not verified (needs Studio or a live server) |
 |---|---|---|---|
 | 1 | Badr and Uhud battles | Arena ground, lanes and spawns (world tests); stars, steadfast goal, reflection grading and replay rules (missions.spec); story summary now says how each battle ended | Control feel, combat pacing and fun |
-| 2 | Multiplayer PvP | Full match with 2 and 3 players: rounds, knockouts, timeouts, draws, leavers, rematch (activities.spec) | **Two separate clients joining, fighting and seeing the same damage** |
-| 3 | Seerah campaign | 30 chapters in order, all sourced, unlock order, every stage of the run, sites inside their zone, items and markers built | Walking through every chapter in game |
-| 4 | Sahabi mysteries | Clues, hints, lock, ordered and unordered episodes, star rating (mysteries.spec); every room built with its clues and door | Playing a room with friends |
-| 5 | Parkour and co-op | Every parkour jump possible with default movement, checkpoints in order, too-fast runs rejected; co-op course built | Control feel; two players solving the co-op course |
+| 2 | Multiplayer PvP | Match rules with 2 and 3 players (activities.spec); two simulated players play a full match and rematch through the real server scripts and sword tool (sim/pvp.spec) | **Two real Roblox clients over the network** |
+| 3 | Seerah campaign | 30 chapters in order, all sourced, unlock order; all 30 played end to end through the real service (sim/campaign.spec) | Reading and walking it as a person |
+| 4 | Sahabi mysteries | Rules (mysteries.spec); two simulated players solve Bilal's room through the real service (sim/mystery.spec) | The other four rooms played by people |
+| 5 | Parkour and co-op | Every jump possible with default movement; simulated climb and two-player co-op run through the real services (sim/parkour, sim/coop) | Control feel and physics |
 | 6 | Respectful storytelling | Every mention of the Prophet carries ﷺ and no model or voice exists for him; faces stripped from guides and townspeople; each chapter separates gameplay from history | Scholar review of the content (see `docs/sources.md`) |
 | 7 | Present-day vs historical | Every activity zone is more than 2,600 studs from the hub and no two zones overlap | Visual review in Studio |
-| 8 | Social | Static checks only (the services use `SocialService`, `TextChatService`, `VoiceChatService`) | Invites, join, mute and voice on real accounts |
+| 8 | Social | Mute (chat and voice), friends-only join, friend notices, voice status through the real service (sim/social.spec) | Invite prompts, blocking and voice on real accounts |
 | 9 | Ads and tracking | Retention rules (new, returning, D1/D7/D30) unit tested; hidden ad product cannot be bought from the shop | **Real ads, revenue and retention numbers** |
-| 10 | Saves and proof | New progress categories survive the save sanitizer (progression and activities specs) | DataStore saves on a published place |
+| 10 | Saves and proof | Save on leave, load next day, outage safety, serialization rules (sim/saves.spec) | DataStore saves on a published place |
 
 ## Performance (part counts from the mock build)
 
@@ -54,7 +98,8 @@ Developer Console before release, especially on phones.
 
 These stay **incomplete** until someone with the Roblox account does them:
 
-1. **Two-client PvP test.** Needs Roblox Studio (Test > Clients and Servers, 2 players) or two
+1. **Two-client PvP test.** The match runs correctly with two simulated players through the real
+   server code, but real network play still needs Roblox Studio (Test > Clients and Servers, 2 players) or two
    accounts on a published place. Steps: both players open Journeys > Activities > Training
    Grounds > Join match, fight three rounds, check both screens show the same health, then press
    Play again.

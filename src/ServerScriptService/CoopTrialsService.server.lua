@@ -121,7 +121,10 @@ end
 
 local liftUp = false
 local liftTween: Tween? = nil
-local finishedAt = 0
+local finishedAt = -math.huge
+-- A finish counts once per arrival: players must step off the pads before it can count again,
+-- so standing still on them never farms finishes.
+local wasTogether = false
 
 local function moveLift(up: boolean)
     if up == liftUp then
@@ -180,7 +183,11 @@ task.spawn(function()
             distinct += 1
         end
 
-        if #left > 0 and #right > 0 and distinct >= 2 and os.clock() - finishedAt > 8 then
+        local isTogether = #left > 0 and #right > 0 and distinct >= 2
+        local arrived = isTogether and not wasTogether
+        wasTogether = isTogether
+
+        if arrived and os.clock() - finishedAt > 8 then
             finishedAt = os.clock()
 
             for _, player in ipairs(Players:GetPlayers()) do

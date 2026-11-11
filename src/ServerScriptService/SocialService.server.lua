@@ -37,7 +37,7 @@ local function hookChannel(channel: Instance)
 end
 
 task.spawn(function()
-    local channels = TextChatService:WaitForChild("TextChannels", 30)
+    local channels = TextChatService:WaitForChild("TextChannels")
 
     if channels then
         for _, channel in ipairs(channels:GetChildren()) do

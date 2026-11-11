@@ -2,7 +2,7 @@
 -- It models Vector3/CFrame math exactly (so part placement can be checked) and a plain
 -- instance tree with Name/Parent/attributes. Rendering, physics and lighting are not modelled.
 
-mock = { oversized = {} }
+mock = { oversized = {}, setHooks = {} }
 
 local function fmt(n)
     return string.format("%.3f", n)
@@ -308,16 +308,52 @@ Enum = setmetatable({}, {
 })
 
 ---------------------------------------------------------------- Signals
+-- Handlers are kept so the live simulation (tests/sim) can fire signals with `_fire`. The hub
+-- build never fires them, so connecting does nothing there.
 local function signal()
-    return {
-        Connect = function()
-            return { Disconnect = function() end }
-        end,
-        Once = function()
-            return { Disconnect = function() end }
-        end,
-        Wait = function() end,
-    }
+    local handlers = {}
+    local sig = {}
+
+    function sig.Connect(_, fn)
+        local entry = { Fn = fn, Connected = true }
+        table.insert(handlers, entry)
+        return {
+            Disconnect = function()
+                entry.Connected = false
+            end,
+        }
+    end
+
+    function sig.Once(self, fn)
+        local connection
+        connection = sig.Connect(self, function(...)
+            connection.Disconnect()
+            fn(...)
+        end)
+        return connection
+    end
+
+    function sig.Wait()
+        local waiter = mock.signalWait
+        if waiter then
+            return waiter()
+        end
+    end
+
+    function sig._fire(...)
+        for _, entry in ipairs(table.clone(handlers)) do
+            if entry.Connected then
+                local spawner = mock.spawnHandler
+                if spawner then
+                    spawner(entry.Fn, ...)
+                else
+                    entry.Fn(...)
+                end
+            end
+        end
+    end
+
+    return sig
 end
 
 ---------------------------------------------------------------- Instances
@@ -381,7 +417,7 @@ local function newInstance(className)
             if method then
                 return method
             end
-            if key:match("^[A-Z]") and (key:match("Changed$") or key:match("Added$") or key:match("Removed$") or key:match("Removing$") or key == "Destroying" or key == "Touched" or key == "TouchEnded" or key == "Triggered" or key == "Event" or key == "OnServerEvent" or key == "OnClientEvent" or key == "Heartbeat" or key == "Stepped" or key == "RenderStepped" or key == "PromptTriggered") then
+            if key:match("^[A-Z]") and (key:match("Changed$") or key:match("Added$") or key:match("Removed$") or key:match("Removing$") or key == "Destroying" or key == "Touched" or key == "TouchEnded" or key == "Triggered" or key == "Event" or key == "OnServerEvent" or key == "OnClientEvent" or key == "Heartbeat" or key == "Stepped" or key == "RenderStepped" or key == "PromptTriggered" or key == "Died" or key == "Activated" or key == "Deactivated" or key == "Equipped" or key == "Unequipped" or key == "HealthChanged" or key == "Chatted") then
                 signals[key] = signals[key] or signal()
                 return signals[key]
             end
@@ -408,6 +444,10 @@ local function newInstance(className)
                 props.Parent = value
                 if value then
                     table.insert(value.Children, self)
+                    local onParented = mock.onParented
+                    if onParented then
+                        onParented(self, value)
+                    end
                 end
                 return
             elseif key == "Position" then
@@ -429,6 +469,10 @@ local function newInstance(className)
                 assert(value.px == value.px and value.py == value.py and value.pz == value.pz, "NaN CFrame on " .. tostring(props.Name))
             end
             props[key] = value
+            local hook = mock.setHooks[className]
+            if hook then
+                hook(self, key, value)
+            end
         end,
         __tostring = function()
             return props.Name
@@ -722,6 +766,9 @@ function scriptAt(path)
 end
 
 mock.allInstances = allInstances
+mock.Instance_ = Instance_
+mock.newInstance = newInstance
+mock.signal = signal
 mock.isV3 = isV3
 mock.pointToWorld = pointToWorld
 mock.service = service
