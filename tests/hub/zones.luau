@@ -36,7 +36,7 @@ local zones = {
     { Name = HistoricalSites.FolderName, Budget = 15000 },
     { Name = "MysteryWing", Budget = 2500 },
     { Name = "CoopTrials", Budget = 400 },
-    { Name = "TrainingGrounds", Budget = 600 },
+    { Name = "TrainingGrounds", Budget = 1000 },
 }
 local boxes = {}
 

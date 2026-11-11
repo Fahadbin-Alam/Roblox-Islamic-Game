@@ -18,6 +18,7 @@ local PvpMatch = require(Shared.Modules.PvpMatch)
 local Progression = require(Shared.Modules.Progression)
 local TravelRoute = require(Shared.Data.TravelRoute)
 local BuildUtils = require(script.Parent.Modules.BuildUtils)
+local Decor = require(script.Parent.Modules.Decor)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 local Analytics = require(script.Parent.Modules.Analytics)
@@ -49,13 +50,130 @@ local arena = BuildUtils.CreateFolder(Workspace, "TrainingGrounds")
 
 BuildUtils.CreatePart(arena, "SafetyPlate", Vector3.new(400, 10, 400), CFrame.new(CENTER + Vector3.new(0, -8, 0)), Color3.new(1, 1, 1), Enum.Material.SmoothPlastic, nil, 1)
 BuildUtils.CreatePart(arena, "Ground", Vector3.new(300, G, 300), CFrame.new(CENTER + Vector3.new(0, G / 2, 0)), Color3.fromRGB(190, 176, 150), Enum.Material.Sandstone, nil, nil)
+
+local STONE = Color3.fromRGB(206, 190, 160)
+local STONE_DARK = Color3.fromRGB(168, 150, 120)
+local RED = Color3.fromRGB(128, 70, 62)
+local SAND_CLOTH = Color3.fromRGB(222, 204, 160)
+
+-- Paving: a lighter stone court around the ring with a darker band.
+Decor.Deco(arena, "Court", Vector3.new(220, 0.1, 220), CFrame.new(CENTER + Vector3.new(0, G + 0.05, 0)), Color3.fromRGB(214, 200, 172), Enum.Material.Limestone)
+BuildUtils.CreateVerticalCylinder(arena, "CourtBand", 0.12, RING_RADIUS + 14, CENTER + Vector3.new(0, G + 0.1, 0), STONE_DARK, Enum.Material.Slate, nil).CanCollide = false
+
 BuildUtils.CreateVerticalCylinder(arena, "Ring", 0.6, RING_RADIUS + 4, CENTER + Vector3.new(0, G + 0.3, 0), Color3.fromRGB(176, 134, 92), Enum.Material.Sand, nil)
-BuildUtils.CreateVerticalCylinder(arena, "RingEdge", 0.7, RING_RADIUS + 6, CENTER + Vector3.new(0, G + 0.25, 0), Color3.fromRGB(128, 70, 62), Enum.Material.Fabric, nil)
+BuildUtils.CreateVerticalCylinder(arena, "RingEdge", 0.7, RING_RADIUS + 6, CENTER + Vector3.new(0, G + 0.25, 0), RED, Enum.Material.Fabric, nil)
+-- A painted eight-point star in the centre of the ring.
+for index = 0, 1 do
+    Decor.Deco(arena, "CentreStar" .. index, Vector3.new(14, 0.08, 14), CFrame.new(CENTER + Vector3.new(0, G + 0.64, 0)) * CFrame.Angles(0, math.rad(index * 45), 0), Color3.fromRGB(150, 104, 70), Enum.Material.Sand)
+end
+BuildUtils.CreateVerticalCylinder(arena, "StartLine", 0.07, RING_RADIUS - 10, CENTER + Vector3.new(0, G + 0.62, 0), Color3.fromRGB(190, 150, 104), Enum.Material.Sand, nil).CanCollide = false
+BuildUtils.CreateVerticalCylinder(arena, "StartLineInner", 0.08, RING_RADIUS - 11, CENTER + Vector3.new(0, G + 0.63, 0), Color3.fromRGB(176, 134, 92), Enum.Material.Sand, nil).CanCollide = false
+
+-- Posts with ropes between them. The ropes do not collide, so a ring-out is still possible.
+local postTops = {}
 
 for index = 1, 16 do
     local angle = math.rad(index * 22.5)
     local position = CENTER + Vector3.new(math.cos(angle) * (RING_RADIUS + 8), G + 2, math.sin(angle) * (RING_RADIUS + 8))
     BuildUtils.CreatePart(arena, "RingPost" .. index, Vector3.new(1.4, 4, 1.4), CFrame.new(position), Color3.fromRGB(96, 72, 50), Enum.Material.Wood, nil, nil)
+    Decor.Deco(arena, "RingPostCap" .. index, Vector3.new(1.8, 0.5, 1.8), CFrame.new(position + Vector3.new(0, 2.2, 0)), Color3.fromRGB(193, 162, 86), Enum.Material.Metal)
+    postTops[index] = position + Vector3.new(0, 1.4, 0)
+end
+
+for index = 1, 16 do
+    Decor.Rod(arena, "Rope" .. index, postTops[index], postTops[(index % 16) + 1], 0.16, RED, Enum.Material.Fabric, false)
+end
+
+-- Braziers between the ring and the stands.
+for index = 1, 8 do
+    local angle = math.rad(index * 45 + 22.5)
+    Decor.Brazier(arena, "Brazier" .. index, CENTER + Vector3.new(math.cos(angle) * (RING_RADIUS + 16), G, math.sin(angle) * (RING_RADIUS + 16)))
+end
+
+-- Stepped stone stands to the east and west, with cloth shades. North (the arrival path)
+-- and south (benches and the join pad) stay open.
+local stands = BuildUtils.CreateFolder(arena, "Stands")
+
+for _, side in ipairs({ 0, 180 }) do
+    for segment = -5, 5 do
+        local angle = math.rad(side + segment * 8)
+        local outward = Vector3.new(math.cos(angle), 0, math.sin(angle))
+        local yaw = -math.deg(angle) + 90
+
+        for tier = 1, 3 do
+            local reach = RING_RADIUS + 26 + tier * 6
+            local height = tier * 2.2
+            local at = CENTER + outward * reach + Vector3.new(0, G + height / 2, 0)
+            BuildUtils.CreatePart(stands, string.format("Tier%d_%d_%d", side, segment + 6, tier), Vector3.new(reach * 0.15, height, 6.2), CFrame.new(at) * CFrame.Angles(0, math.rad(yaw), 0), if tier % 2 == 0 then STONE_DARK else STONE, Enum.Material.Sandstone, nil, nil)
+            -- Cushions along the seats.
+            if (segment + tier) % 2 == 0 then
+                Decor.Deco(stands, "Cushion", Vector3.new(reach * 0.12, 0.4, 2.6), CFrame.new(CENTER + outward * (reach - 1.2) + Vector3.new(0, G + height + 0.2, 0)) * CFrame.Angles(0, math.rad(yaw), 0), Decor.Colors.Cloths[(segment % 5) + 1], Enum.Material.Fabric)
+            end
+        end
+
+        local back = CENTER + outward * (RING_RADIUS + 48) + Vector3.new(0, G + 6, 0)
+        BuildUtils.CreatePart(stands, "BackWall", Vector3.new((RING_RADIUS + 48) * 0.15, 12, 2), CFrame.new(back) * CFrame.Angles(0, math.rad(yaw), 0), STONE, Enum.Material.Sandstone, nil, nil)
+
+        if segment % 2 == 0 then
+            -- Shade sail from the back wall out over the seats, on a pole.
+            local poleBase = CENTER + outward * (RING_RADIUS + 47) + Vector3.new(0, G, 0)
+            Decor.Rod(stands, "ShadePole", poleBase, poleBase + Vector3.new(0, 22, 0), 0.35, Color3.fromRGB(96, 72, 50), Enum.Material.Wood, true)
+            Decor.Blade(stands, "ShadeSail", poleBase + Vector3.new(0, 21, 0), CENTER + outward * (RING_RADIUS + 28) + Vector3.new(0, G + 15, 0), 15, 0.25, if segment % 4 == 0 then RED else SAND_CLOTH, Enum.Material.Fabric)
+            Decor.Banner(stands, "Banner", poleBase + outward * 1.5, if segment % 4 == 0 then SAND_CLOTH else RED, 26)
+        end
+    end
+end
+
+-- An outer wall with corner towers and gates north and south.
+local wallColor = Color3.fromRGB(196, 170, 128)
+
+for index, run in ipairs({
+    { Vector3.new(-140, 0, 140), Vector3.new(-18, 0, 140) }, { Vector3.new(18, 0, 140), Vector3.new(140, 0, 140) },
+    { Vector3.new(-140, 0, -140), Vector3.new(-18, 0, -140) }, { Vector3.new(18, 0, -140), Vector3.new(140, 0, -140) },
+    { Vector3.new(140, 0, -140), Vector3.new(140, 0, 140) }, { Vector3.new(-140, 0, -140), Vector3.new(-140, 0, 140) },
+}) do
+    local a, b = CENTER + run[1] + Vector3.new(0, G, 0), CENTER + run[2] + Vector3.new(0, G, 0)
+    local mid, length = (a + b) / 2, (b - a).Magnitude
+    local frame = CFrame.lookAt(mid, b)
+    BuildUtils.CreatePart(arena, "OuterWall" .. index, Vector3.new(3, 14, length), frame * CFrame.new(0, 7, 0), wallColor, Enum.Material.Sandstone, nil, nil)
+    Decor.Deco(arena, "OuterWallCap" .. index, Vector3.new(4, 1, length), frame * CFrame.new(0, 14.5, 0), Decor.Shade(wallColor, 0.85), Enum.Material.Sandstone)
+
+    for merlon = 1, math.floor(length / 12) do
+        Decor.Deco(arena, "Merlon", Vector3.new(3, 2.4, 3), frame * CFrame.new(0, 16, -length / 2 + (merlon - 0.5) * (length / math.floor(length / 12))), wallColor, Enum.Material.Sandstone)
+    end
+end
+
+for _, corner in ipairs({ Vector3.new(-140, 0, -140), Vector3.new(140, 0, -140), Vector3.new(-140, 0, 140), Vector3.new(140, 0, 140) }) do
+    local at = CENTER + corner + Vector3.new(0, G, 0)
+    BuildUtils.CreatePart(arena, "Tower", Vector3.new(12, 24, 12), CFrame.new(at + Vector3.new(0, 12, 0)), Decor.Shade(wallColor, 0.95), Enum.Material.Sandstone, nil, nil)
+    Decor.Deco(arena, "TowerCap", Vector3.new(14, 1.4, 14), CFrame.new(at + Vector3.new(0, 24.7, 0)), Decor.Shade(wallColor, 0.8), Enum.Material.Sandstone)
+    Decor.Deco(arena, "TowerWindow", Vector3.new(12.2, 4, 2), CFrame.new(at + Vector3.new(0, 18, 0)), Color3.fromRGB(46, 36, 30), Enum.Material.Wood)
+end
+
+for _, z in ipairs({ 140, -140 }) do
+    local gate = CENTER + Vector3.new(0, G, z)
+    for _, x in ipairs({ -18, 18 }) do
+        BuildUtils.CreatePart(arena, "GatePier", Vector3.new(6, 22, 6), CFrame.new(gate + Vector3.new(x, 11, 0)), Decor.Shade(wallColor, 0.92), Enum.Material.Sandstone, nil, nil)
+    end
+    BuildUtils.CreatePart(arena, "GateArch", Vector3.new(3, 36, 36), CFrame.new(gate + Vector3.new(0, 18, 0)) * CFrame.Angles(0, math.rad(90), 0), Decor.Shade(wallColor, 0.92), Enum.Material.Sandstone, Enum.PartType.Cylinder, nil).CanCollide = false
+    BuildUtils.CreatePart(arena, "GateLintel", Vector3.new(42, 6, 6), CFrame.new(gate + Vector3.new(0, 25, 0)), Decor.Shade(wallColor, 0.85), Enum.Material.Sandstone, nil, nil)
+    Decor.Deco(arena, "GateTile", Vector3.new(24, 3, 0.4), CFrame.new(gate + Vector3.new(0, 25, if z > 0 then 3.2 else -3.2)), Color3.fromRGB(44, 96, 120), Enum.Material.Glass)
+end
+
+-- Palms outside the walls, and practice racks by the benches.
+for index = 1, 12 do
+    local angle = index * 0.52
+    local reach = 165 + (index % 3) * 8
+    Decor.Palm(arena, "Palm" .. index, CENTER + Vector3.new(math.cos(angle) * reach, G, math.sin(angle) * reach), 18 + (index % 4) * 2, index * 9, true)
+end
+
+for _, x in ipairs({ -40, 40 }) do
+    local rack = CENTER + Vector3.new(x, G, -RING_RADIUS - 34)
+    Decor.Rod(arena, "RackBar", rack + Vector3.new(-5, 4, 0), rack + Vector3.new(5, 4, 0), 0.2, Color3.fromRGB(96, 72, 50), Enum.Material.Wood, false)
+
+    for slot = -2, 2 do
+        Decor.Rod(arena, "PracticeSword", rack + Vector3.new(slot * 2, 0.2, 0.4), rack + Vector3.new(slot * 2 + 0.4, 5.2, -0.3), 0.14, Color3.fromRGB(150, 116, 76), Enum.Material.Wood, false)
+    end
 end
 
 -- Benches where knocked-out players wait for the next round.
