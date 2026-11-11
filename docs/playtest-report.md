@@ -97,10 +97,10 @@ a Studio or live test.
 
 | Area | Parts |
 |---|---|
-| Whole hub (present-day Makkah, Madinah, districts) | 8,905 (154 lights) |
+| Whole hub (present-day Makkah, Madinah, districts) | 8,893 (154 lights) |
 | Masjid al-Haram alone | 5,325 (2,332 SurfaceGui frames) |
-| Historical Makkah and Madinah | 14,633 |
-| Mystery wing (5 rooms) | 2,113 |
+| Historical Makkah and Madinah | 14,639 |
+| Mystery wing (5 rooms) | 2,083 |
 | Training grounds | 526 |
 | Co-op trials | 256 |
 
