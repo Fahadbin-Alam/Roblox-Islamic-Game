@@ -135,36 +135,79 @@ local function market(parent: Instance, name: string, position: Vector3)
     end
 end
 
--- The early mosque: mud walls, palm-trunk pillars, and a palm-frond roof over the north side.
+-- The early mosque: a stone footing under mud-brick walls, palm-trunk pillars and a
+-- palm-frond roof over the north side, an open courtyard, and doors in the side walls.
+-- The large version (Madinah) also has the chambers of the Prophet's ﷺ household on the
+-- east side, and bricks and trunks from the building work. No people are shown.
 local function earlyMosque(parent: Instance, name: string, position: Vector3, width: number, depth: number)
     local wallHeight = 9
+    local large = width >= 80
     local base = position + Vector3.new(0, GROUND_TOP, 0)
+    local door = if large then 8 else 6
     BuildUtils.CreatePart(parent, name .. "_Floor", Vector3.new(width, 0.4, depth), CFrame.new(base + Vector3.new(0, 0.2, 0)), Color3.fromRGB(196, 170, 128), Enum.Material.Sand, nil, nil)
 
+    -- Walls with a door in the middle of the south, west and east sides.
+    local sideHalf = (depth - door) / 2
     for _, wall in ipairs({
         { Name = "North", Size = Vector3.new(width, wallHeight, 2), Offset = Vector3.new(0, wallHeight / 2, depth / 2) },
-        { Name = "West", Size = Vector3.new(2, wallHeight, depth), Offset = Vector3.new(-width / 2, wallHeight / 2, 0) },
-        { Name = "East", Size = Vector3.new(2, wallHeight, depth), Offset = Vector3.new(width / 2, wallHeight / 2, 0) },
+        { Name = "WestNorth", Size = Vector3.new(2, wallHeight, sideHalf), Offset = Vector3.new(-width / 2, wallHeight / 2, depth / 2 - sideHalf / 2) },
+        { Name = "WestSouth", Size = Vector3.new(2, wallHeight, sideHalf), Offset = Vector3.new(-width / 2, wallHeight / 2, -depth / 2 + sideHalf / 2) },
+        { Name = "EastNorth", Size = Vector3.new(2, wallHeight, sideHalf), Offset = Vector3.new(width / 2, wallHeight / 2, depth / 2 - sideHalf / 2) },
+        { Name = "EastSouth", Size = Vector3.new(2, wallHeight, sideHalf), Offset = Vector3.new(width / 2, wallHeight / 2, -depth / 2 + sideHalf / 2) },
         { Name = "SouthWest", Size = Vector3.new(width / 2 - 8, wallHeight, 2), Offset = Vector3.new(-width / 4 - 4, wallHeight / 2, -depth / 2) },
         { Name = "SouthEast", Size = Vector3.new(width / 2 - 8, wallHeight, 2), Offset = Vector3.new(width / 4 + 4, wallHeight / 2, -depth / 2) },
     }) do
         BuildUtils.CreatePart(parent, name .. "_Wall" .. wall.Name, wall.Size, CFrame.new(base + wall.Offset), MUD, Enum.Material.Sandstone, nil, nil)
+        -- Stone footing, a darker plaster band and a rounded coping on top (all decoration).
+        local footing = Vector3.new(wall.Size.X + 0.6, 2, wall.Size.Z + 0.6)
+        Decor.Deco(parent, name .. "_Footing" .. wall.Name, footing, CFrame.new(base + Vector3.new(wall.Offset.X, 1, wall.Offset.Z)), ROCK, Enum.Material.Cobblestone)
+        Decor.Deco(parent, name .. "_Coping" .. wall.Name, Vector3.new(wall.Size.X + 0.4, 0.6, wall.Size.Z + 0.4), CFrame.new(base + Vector3.new(wall.Offset.X, wallHeight + 0.2, wall.Offset.Z)), MUD_DARK, Enum.Material.Sandstone)
     end
 
+    -- Door frames: palm-trunk posts and a lintel at each opening.
+    for index, opening in ipairs({
+        { Center = Vector3.new(0, 0, -depth / 2), Along = Vector3.new(1, 0, 0), Span = 16 },
+        { Center = Vector3.new(-width / 2, 0, 0), Along = Vector3.new(0, 0, 1), Span = door },
+        { Center = Vector3.new(width / 2, 0, 0), Along = Vector3.new(0, 0, 1), Span = door },
+    }) do
+        for _, side in ipairs({ -1, 1 }) do
+            local post = base + opening.Center + opening.Along * (side * (opening.Span / 2 - 0.4))
+            Decor.Rod(parent, string.format("%s_DoorPost%d_%d", name, index, side), post, post + Vector3.new(0, wallHeight - 1, 0), 0.45, PALM_WOOD, Enum.Material.Wood, false)
+        end
+        local a = base + opening.Center - opening.Along * (opening.Span / 2) + Vector3.new(0, wallHeight - 1, 0)
+        Decor.Rod(parent, string.format("%s_Lintel%d", name, index), a, a + opening.Along * opening.Span, 0.5, Decor.Colors.TrunkDark, Enum.Material.Wood, false)
+    end
+
+    -- The roofed prayer area: rows of palm-trunk pillars with ring marks.
     local roofDepth = depth * 0.35
     local columns = math.floor(width / 14)
+    local rows = if large then 3 else 2
 
-    for row = 1, 2 do
+    for row = 1, rows do
         for column = 1, columns do
             local x = -width / 2 + (column - 0.5) * (width / columns)
-            local z = depth / 2 - roofDepth * (row / 2.2)
-            BuildUtils.CreateVerticalCylinder(parent, string.format("%s_Pillar%d_%d", name, row, column), wallHeight, 0.8, base + Vector3.new(x, wallHeight / 2, z), PALM_WOOD, Enum.Material.Wood, nil)
+            local z = depth / 2 - roofDepth * (row / (rows + 0.2))
+            local foot = base + Vector3.new(x, 0, z)
+            BuildUtils.CreateVerticalCylinder(parent, string.format("%s_Pillar%d_%d", name, row, column), wallHeight, 0.8, foot + Vector3.new(0, wallHeight / 2, 0), PALM_WOOD, Enum.Material.Wood, nil)
+            for ring = 1, 2 do
+                Decor.Deco(parent, string.format("%s_PillarRing%d_%d_%d", name, row, column, ring), Vector3.new(0.35, 1.75, 1.75), CFrame.new(foot + Vector3.new(0, ring * 3.1, 0)) * CFrame.Angles(0, 0, math.rad(90)), Decor.Colors.TrunkDark, Enum.Material.Wood, Enum.PartType.Cylinder)
+            end
         end
     end
 
-    BuildUtils.CreatePart(parent, name .. "_FrondRoof", Vector3.new(width, 0.8, roofDepth), CFrame.new(base + Vector3.new(0, wallHeight + 0.4, depth / 2 - roofDepth / 2)), FROND, Enum.Material.Grass, nil, nil)
+    -- Frond roof: a base layer, uneven bundles on top, and a ragged edge facing the courtyard.
+    local roofCenter = base + Vector3.new(0, wallHeight + 0.4, depth / 2 - roofDepth / 2)
+    BuildUtils.CreatePart(parent, name .. "_FrondRoof", Vector3.new(width, 0.8, roofDepth), CFrame.new(roofCenter), FROND, Enum.Material.Grass, nil, nil)
+    local r = Decor.Rng(math.floor(width * 7 + depth))
+    local bundles = if large then 22 else 8
 
-    -- Palm-trunk rafters under the roof, and a ragged frond edge.
+    for index = 1, bundles do
+        local x = r(-width / 2 + 3, width / 2 - 3)
+        local z = r(-roofDepth / 2 + 2, roofDepth / 2 - 2)
+        local tint = if index % 3 == 0 then Decor.Colors.FrondDry elseif index % 3 == 1 then Decor.Shade(FROND, 0.82) else Decor.Shade(FROND, 1.12)
+        Decor.Deco(parent, string.format("%s_FrondBundle%d", name, index), Vector3.new(r(5, 9), 0.4, r(2, 3.5)), CFrame.new(roofCenter + Vector3.new(x, 0.55, z)) * CFrame.Angles(0, r(-0.6, 0.6), r(-0.06, 0.06)), tint, Enum.Material.Grass)
+    end
+
     local rafters = math.floor(width / 7)
 
     for index = 1, rafters do
@@ -173,9 +216,47 @@ local function earlyMosque(parent: Instance, name: string, position: Vector3, wi
         Decor.Deco(parent, string.format("%s_FrondEdge%d", name, index), Vector3.new(width / rafters + 1, 0.3, 2.4), CFrame.new(base + Vector3.new(x, wallHeight + 0.1, depth / 2 - roofDepth - 0.6)) * CFrame.Angles(math.rad(-25), (index % 3 - 1) * 0.08, 0), if index % 2 == 0 then Decor.Colors.FrondDry else FROND, Enum.Material.Grass)
     end
 
-    -- Wall capping and a few water jars by the gate.
+    -- Palm-fibre mats under the roof, and water jars by the south door.
+    local mats = if large then 6 else 2
+    for index = 1, mats do
+        local x = -width / 2 + (index - 0.5) * (width / mats)
+        Decor.Deco(parent, string.format("%s_Mat%d", name, index), Vector3.new(width / mats - 2, 0.12, roofDepth - 4), CFrame.new(base + Vector3.new(x, 0.46, depth / 2 - roofDepth / 2 - 0.5)), if index % 2 == 0 then Color3.fromRGB(184, 156, 104) else Color3.fromRGB(168, 140, 92), Enum.Material.Fabric)
+    end
+
     for _, side in ipairs({ -1, 1 }) do
         Decor.Jar(parent, string.format("%s_GateJar%d", name, side), base + Vector3.new(side * 12, 0, -depth / 2 - 3), 0.9, nil)
+    end
+
+    -- Pebble patches in the open courtyard.
+    for index = 1, (if large then 14 else 5) do
+        Decor.Deco(parent, string.format("%s_Pebbles%d", name, index), Vector3.new(r(4, 8), 0.1, r(3, 6)), CFrame.new(base + Vector3.new(r(-width / 2 + 6, width / 2 - 6), 0.42, r(-depth / 2 + 6, depth / 2 - roofDepth - 4))) * CFrame.Angles(0, r(0, 3), 0), Color3.fromRGB(172, 150, 116), Enum.Material.Pebble)
+    end
+
+    if large then
+        -- The household chambers along the outside of the east wall, with hanging
+        -- curtains of dark hair cloth for doors.
+        local roomDepth = 14
+        -- They sit back to back with the wall (doors facing out), clear of the east door.
+        for index, z in ipairs({ depth / 2 - 10, depth / 2 - 25, -depth / 2 + 20 }) do
+            local roomBase = CFrame.new(base + Vector3.new(width / 2 + 1 + 6, 0, z)) * CFrame.Angles(0, math.rad(-90), 0)
+            Decor.MudHouse(parent, string.format("%s_Chamber%d", name, index), roomBase, roomDepth, 12, 8, 900 + index, { Color = MUD })
+            Decor.Deco(parent, string.format("%s_Curtain%d", name, index), Vector3.new(0.2, 5.5, 3.2), CFrame.new(base + Vector3.new(width / 2 - 1.15, 3.2, z)), Color3.fromRGB(46, 38, 32), Enum.Material.Fabric)
+        end
+
+        -- Building work: stacks of mud bricks, brick moulds and spare palm trunks by the west wall.
+        for stack = 1, 3 do
+            local corner = base + Vector3.new(-width / 2 + 8 + stack * 6, 0, -depth / 2 + 8)
+            for layer = 1, 3 do
+                for brick = 1, 3 - math.floor(layer / 2) do
+                    Decor.Deco(parent, string.format("%s_Bricks%d_%d_%d", name, stack, layer, brick), Vector3.new(1.6, 0.7, 1), CFrame.new(corner + Vector3.new((brick - 2) * 1.7, 0.4 + layer * 0.7, (layer % 2) * 0.4)), Decor.Shade(MUD, 0.92 + (brick % 2) * 0.1), Enum.Material.Sandstone)
+                end
+            end
+        end
+        Decor.Deco(parent, name .. "_BrickMould", Vector3.new(2.2, 0.5, 1.4), CFrame.new(base + Vector3.new(-width / 2 + 34, 0.65, -depth / 2 + 8)), PALM_WOOD, Enum.Material.WoodPlanks)
+        for trunk = 1, 3 do
+            local a = base + Vector3.new(-width / 2 + 6, 0.9 + (trunk == 3 and 1.4 or 0), -depth / 2 + 16 + trunk * 1.6 - (trunk == 3 and 2.4 or 0))
+            Decor.Rod(parent, string.format("%s_SpareTrunk%d", name, trunk), a, a + Vector3.new(14, 0, 0), 0.75, PALM_WOOD, Enum.Material.Wood, false)
+        end
     end
 
     Decor.Deco(parent, name .. "_WallCap", Vector3.new(width + 1, 0.5, 2.6), CFrame.new(base + Vector3.new(0, wallHeight + 0.2, depth / 2)), MUD_DARK, Enum.Material.Sandstone)
