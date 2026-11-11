@@ -72,8 +72,9 @@ BuildUtils.CreateVerticalCylinder(arena, "StartLineInner", 0.08, RING_RADIUS - 1
 -- Posts with ropes between them. The ropes do not collide, so a ring-out is still possible.
 local postTops = {}
 
+-- Offset by half a step so no post stands on the straight path in from the gates.
 for index = 1, 16 do
-    local angle = math.rad(index * 22.5)
+    local angle = math.rad((index - 0.5) * 22.5)
     local position = CENTER + Vector3.new(math.cos(angle) * (RING_RADIUS + 8), G + 2, math.sin(angle) * (RING_RADIUS + 8))
     BuildUtils.CreatePart(arena, "RingPost" .. index, Vector3.new(1.4, 4, 1.4), CFrame.new(position), Color3.fromRGB(96, 72, 50), Enum.Material.Wood, nil, nil)
     Decor.Deco(arena, "RingPostCap" .. index, Vector3.new(1.8, 0.5, 1.8), CFrame.new(position + Vector3.new(0, 2.2, 0)), Color3.fromRGB(193, 162, 86), Enum.Material.Metal)

@@ -10,7 +10,7 @@ the automated checks below. Everything that needs a live server is listed under 
 | Check | Command | Result |
 |---|---|---|
 | Unit tests (rules and data) | `tests/luau/run.sh <luau>` | 46 passed, 0 failed |
-| Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 78 checks passed (about 80 s) |
+| Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 85 checks passed (about 80 s) |
 | Battle arenas in a mock engine | `tests/world/run.sh <luau>` | 181 passed, 0 failed |
 | Multiplayer simulation (real server scripts, simulated players) | `tests/sim/run.sh <luau>` | 44 passed, 0 failed |
 | Client scripts against the real server | `tests/client/run.sh <luau>` | 6 passed: all 22 client scripts load, 160+ button presses and real campaign/PvP/mystery state raise no errors |
@@ -68,6 +68,7 @@ Bugs the visual pass (docs/visual-benchmark.md) found with new checks and fixed:
 5. A tent cushion was built without a colour, which errors on a real server.
 6. Most arrival points and Seerah sites had no light at all, so night arrivals were dark.
 7. The Badr and Uhud gates and the Journey road sat inside decorative rock ridges, so a player arriving there saw only rock.
+8. Walking routes: a ring post stood on the path in from the Training Grounds gate, a palm trunk in front of the mystery landing, and every mystery room sign directly in front of its doorway.
 
 What the simulation does **not** prove: real network replication between two Roblox clients,
 physics (walking, jumping, collisions), animation, and how the controls feel. Those still need

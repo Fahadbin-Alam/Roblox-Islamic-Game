@@ -234,6 +234,69 @@ for _, part in ipairs(Workspace:GetDescendants()) do
 end
 zcheck(#uncoloured == 0, "every part has a colour" .. (#uncoloured > 0 and (": " .. table.concat(uncoloured, ", ")) or ""))
 
+-- Walking routes inside the activity zones: from each landing point to where the activity
+-- happens, a body-sized column (2 to 5 studs above the floor, so small steps are allowed) stays
+-- clear of colliding parts the whole way.
+do
+    local TravelRoute = require(game:GetService("ReplicatedStorage").Shared.Data.TravelRoute)
+    local SahabiMysteries = require(game:GetService("ReplicatedStorage").Shared.Data.SahabiMysteries)
+    local solids = {}
+    for _, name in ipairs({ "MysteryWing", "TrainingGrounds", "CoopTrials" }) do
+        local zone = game:GetService("Workspace"):FindFirstChild(name)
+        if zone then
+            for _, part in ipairs(zone:GetDescendants()) do
+                if part:IsA("BasePart") and part.CanCollide and part.Transparency < 1 then
+                    table.insert(solids, part)
+                end
+            end
+        end
+    end
+    local function blocker(point)
+        for _, part in ipairs(solids) do
+            local l = part.CFrame:PointToObjectSpace(point)
+            local h = part.Size / 2
+            if math.abs(l.X) < h.X + 0.8 and math.abs(l.Y) < h.Y and math.abs(l.Z) < h.Z + 0.8 then
+                return part
+            end
+        end
+        return nil
+    end
+    local function walk(points, label)
+        for leg = 1, #points - 1 do
+            local a, b = points[leg], points[leg + 1]
+            local steps = math.ceil((b - a).Magnitude / 2)
+            for i = 0, steps do
+                local p = a:Lerp(b, i / steps)
+                for dy = 2, 5 do
+                    local hit = blocker(p + Vector3.new(0, dy, 0))
+                    if hit then
+                        zcheck(false, string.format("%s is walkable (blocked by %s near %s)", label, hit:GetFullName(), tostring(p)))
+                        return
+                    end
+                end
+            end
+        end
+        zcheck(true, label .. " is walkable")
+    end
+    local function landing(id)
+        local d = TravelRoute.GetDestinationById(id)
+        local at = d.TeleportPosition or d.Position
+        return Vector3.new(at.X, 4, at.Z)
+    end
+
+    local arena = landing("training_grounds")
+    walk({ arena, Vector3.new(4000, 4, -1900) }, "Training Grounds landing to the centre of the ring")
+
+    local wing = landing("mystery_wing")
+    for index, mystery in ipairs(SahabiMysteries.Mysteries) do
+        local x = -4000 + (index - (#SahabiMysteries.Mysteries + 1) / 2) * 260
+        walk({ wing, Vector3.new(wing.X, 4, -110), Vector3.new(x, 4, -110), Vector3.new(x, 4, -52) }, "mystery lobby through the door of " .. mystery.Id .. "'s room")
+    end
+
+    local coop = landing("coop_trials")
+    walk({ coop, Vector3.new(-4000, 4, 1490 + 6) }, "Co-op landing to the start rugs")
+end
+
 if zoneFailures > 0 then
     error(string.format("%d zone check(s) failed", zoneFailures))
 end

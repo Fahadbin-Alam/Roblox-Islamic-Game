@@ -283,7 +283,16 @@ local function buildWing()
 
     for index = -15, 15 do
         local x = index * 40
-        Decor.Palm(lobby, "LobbyPalm", CENTER + Vector3.new(x, FLOOR_TOP, lobbyZ - 30), 17 + (index % 3) * 2, index + 50, true)
+        -- Leave the walk from the landing point and up to each room door free of trunks.
+        local inTheWay = math.abs(x) < 12
+        for room = 1, #SahabiMysteries.Mysteries do
+            if math.abs(x - (room - (#SahabiMysteries.Mysteries + 1) / 2) * SPACING) < 12 then
+                inTheWay = true
+            end
+        end
+        if not inTheWay then
+            Decor.Palm(lobby, "LobbyPalm", CENTER + Vector3.new(x, FLOOR_TOP, lobbyZ - 30), 17 + (index % 3) * 2, index + 50, true)
+        end
 
         if index % 2 == 0 then
             local post = CENTER + Vector3.new(x + 20, FLOOR_TOP, lobbyZ + 30)
@@ -313,7 +322,8 @@ local function buildWing()
         dressRoom(folder, center, index * 17)
         dressYard(folder, yardCenter, index * 23)
 
-        local board = BuildUtils.CreateBoardSign(folder, "RoomSign", center + Vector3.new(0, FLOOR_TOP, -ROOM / 2 - 14), mystery.Title, mystery.Tagline, Color3.fromRGB(96, 76, 112), nil)
+        -- Beside the doorway, not in front of it.
+        local board = BuildUtils.CreateBoardSign(folder, "RoomSign", center + Vector3.new(-26, FLOOR_TOP, -ROOM / 2 - 14), mystery.Title, mystery.Tagline, Color3.fromRGB(96, 76, 112), nil)
         board.Orientation = Vector3.new(0, 0, 0)
 
         local room: Room = {
