@@ -63,7 +63,7 @@ New tests found and fixed real bugs during this pass:
 | Zone | Parts |
 |---|---|
 | Hub, including Masjid al-Haram and present-day Madinah | 8,893 (budget 9,000) |
-| Historical Makkah and Madinah | 14,649 (budget 15,000) |
+| Historical Makkah and Madinah | 14,567 (budget 15,000) |
 | Mystery wing | 2,083 (budget 2,500) |
 | Training grounds | 573 (budget 1,000) |
 | Co-op trials | 256 (budget 400) |
