@@ -10,7 +10,7 @@ the automated checks below. Everything that needs a live server is listed under 
 | Check | Command | Result |
 |---|---|---|
 | Unit tests (rules and data) | `tests/luau/run.sh <luau>` | 46 passed, 0 failed |
-| Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 96 checks passed (about 2 minutes) |
+| Hub and activity zones in a mock engine | `tests/hub/run.sh <luau>` | 97 checks passed (about 2 minutes) |
 | Battle arenas in a mock engine | `tests/world/run.sh <luau>` | 181 passed, 0 failed |
 | Multiplayer simulation (real server scripts, simulated players) | `tests/sim/run.sh <luau>` | 44 passed, 0 failed |
 | Client scripts against the real server | `tests/client/run.sh <luau>` | 9 passed: all 22 client scripts load, 160+ button presses and real campaign/PvP/mystery state raise no errors, and buttons fit and can be tapped on a 667 x 375 phone screen |
@@ -71,7 +71,7 @@ Bugs the visual pass (docs/visual-benchmark.md) found with new checks and fixed:
 8. Walking routes: a ring post stood on the path in from the Training Grounds gate, a palm trunk in front of the mystery landing, and every mystery room sign directly in front of its doorway.
 9. Every Seerah site sign stood across the walk from the travel point to the chapter ring, and a stall blocked the way into both markets.
 10. The battle arenas share the Workspace with the hub, and the hub had built into them: the Uhud gate, a hotel tower and the edge of the Haram deck stood inside the Badr battlefield, and a backdrop mountain and a ridge inside Uhud. The Uhud gate now stands south of the Badr gate, and a check keeps hub scenery out of both arenas.
-11. Walking the hub promenades on the floor found a hotel podium across the Badr gate promenade, and a drop to the sand followed by a 4 to 8 stud ledge at the end of the story, manners and parkour promenades (too high to step, and the parkour one higher than a jump). The promenades now run onto the floors and the hotel stands clear.
+11. Walking the hub promenades on the floor found a hotel podium across the Badr gate promenade, and a drop to the sand followed by a 4 to 8 stud ledge at the end of the story, manners and parkour promenades (too high to step, and the parkour one higher than a jump). The promenades now run onto the floors and the hotel stands clear. The same walk along the Journey road found two 70-stud-wide signs standing across it at the desert camp; they now stand beside the road.
 12. On a small phone screen (667 x 375) the Journeys book ran off the top and right of the screen, so its close button could not be reached. Large panels (Journeys, main menu, shop, trivia, manners, mission results, story dialogue, battle summary) now shrink to fit the screen, and their close buttons are bigger so they stay tappable when shrunk.
 
 What the simulation does **not** prove: real network replication between two Roblox clients,

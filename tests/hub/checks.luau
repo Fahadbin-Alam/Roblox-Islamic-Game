@@ -271,6 +271,7 @@ walkOnFloor({ v(714, 220), v(920, 220) }, "promenade into the story court")
 walkOnFloor({ v(714, -240), v(920, -240) }, "promenade into the trivia court")
 walkOnFloor({ v(-714, -240), v(-920, -240) }, "promenade into the manners court")
 walkOnFloor({ v(-714, 220), v(-846, 220) }, "promenade to the parkour tower deck")
+walkOnFloor({ v(0, 714), v(0, 980), v(0, 1400) }, "Journey road from the Haram terrace past the camp toward Madinah")
 for _, gate in ipairs({ { "badr", -560 }, { "uhud", -860 } }) do
     local z = gate[2]
     walkOnFloor({ v(-714, z), v(-978, z), v(-978, z + 70), v(-1090, z + 70), v(-1090, z - 24) }, "promenade around to the " .. gate[1] .. " gate queue")
