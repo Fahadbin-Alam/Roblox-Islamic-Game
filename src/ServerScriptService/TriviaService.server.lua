@@ -6,9 +6,12 @@ local Workspace = game:GetService("Workspace")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local TravelRoute = require(Shared.Data.TravelRoute)
-local TriviaQuestions = require(Shared.Data.TriviaQuestions)
 local Progression = require(Shared.Modules.Progression)
+local LessonGrading = require(script.Parent.Modules.LessonGrading)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
+-- Server-only: clients get each question's prompt and options when its round starts, and
+-- the answer only after the round.
+local TriviaQuestions = require(script.Parent.Modules.TriviaQuestions)
 
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local triviaFolder = remotesFolder:WaitForChild("Trivia")
@@ -108,8 +111,20 @@ local function resetScores()
     end
 end
 
+-- The round's question with its options shuffled, so the answer is not always in the same
+-- place (in the data it is usually the first option).
 local function getRoundQuestion(roundIndex: number)
-    return TriviaQuestions.Questions[roundIndex]
+    local question = TriviaQuestions.Questions[roundIndex]
+    local options, correctIndex = LessonGrading.ShuffleOptions(question.Options, question.CorrectIndex, math.random)
+
+    return {
+        Difficulty = question.Difficulty,
+        Points = question.Points,
+        Prompt = question.Prompt,
+        Options = options,
+        CorrectIndex = correctIndex,
+        Explanation = question.Explanation,
+    }
 end
 
 local function sendCurrentQuestionTo(player: Player)
@@ -234,13 +249,9 @@ submitTriviaAnswer.OnServerEvent:Connect(function(player: Player, answerIndex)
         return
     end
 
-    if typeof(answerIndex) ~= "number" then
-        return
-    end
+    local choice = LessonGrading.Choice(answerIndex, #currentQuestion.Options)
 
-    answerIndex = math.floor(answerIndex)
-
-    if answerIndex < 1 or answerIndex > #currentQuestion.Options then
+    if choice == nil then
         return
     end
 
@@ -251,7 +262,7 @@ submitTriviaAnswer.OnServerEvent:Connect(function(player: Player, answerIndex)
     answeredPlayers[player.UserId] = true
 
     local score = ensureScore(player)
-    local correct = answerIndex == currentQuestion.CorrectIndex
+    local correct = choice == currentQuestion.CorrectIndex
 
     if correct then
         score.Streak += 1
@@ -268,7 +279,7 @@ submitTriviaAnswer.OnServerEvent:Connect(function(player: Player, answerIndex)
         Round = currentRound,
         TotalRounds = MAX_ROUNDS,
         Correct = correct,
-        SelectedIndex = answerIndex,
+        SelectedIndex = choice,
         CorrectIndex = currentQuestion.CorrectIndex,
         CorrectText = currentQuestion.Options[currentQuestion.CorrectIndex],
         Explanation = currentQuestion.Explanation,

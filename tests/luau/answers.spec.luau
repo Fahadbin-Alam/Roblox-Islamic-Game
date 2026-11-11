@@ -177,3 +177,38 @@ test("answers: single questions (daily, study circle) use the same key", functio
     expectEqual((LessonGrading.Question(entry, 1, 99)), false, "out of range is wrong")
     expectEqual((LessonGrading.Question(entry, 1, nil)), false, "no answer is wrong")
 end)
+
+test("answers: trivia shuffles options and tracks where the answer went", function()
+    local options = { "Ramadan", "Shawwal", "Rajab", "Muharram" }
+    local seenPositions = {}
+    local seed = 0
+
+    -- A small deterministic generator, so the test is repeatable.
+    local function randomInteger(low, high)
+        seed = (seed * 1103515245 + 12345) % 2147483648
+        return low + math.floor(seed / 65536) % (high - low + 1)
+    end
+
+    for _ = 1, 40 do
+        local shuffled, correctIndex = LessonGrading.ShuffleOptions(options, 1, randomInteger)
+        expectEqual(#shuffled, #options, "same number of options")
+        expectEqual(shuffled[correctIndex], "Ramadan", "correct index follows the answer")
+        seenPositions[correctIndex] = true
+
+        local seen = {}
+
+        for _, option in ipairs(shuffled) do
+            assert(not seen[option], "option repeated")
+            seen[option] = true
+        end
+    end
+
+    local positions = 0
+
+    for _ in pairs(seenPositions) do
+        positions += 1
+    end
+
+    assert(positions >= 3, "the answer should land in different positions")
+    expectEqual(options[1], "Ramadan", "the source list is not modified")
+end)

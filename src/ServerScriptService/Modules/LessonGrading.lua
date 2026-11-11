@@ -1,6 +1,7 @@
 --!strict
 
--- Server-side grading for the Islamic Studies quizzes and order puzzles. The lessons the
+-- Server-side grading for the Islamic Studies quizzes and order puzzles (and the shared
+-- choice validation and option shuffling the trivia rounds use). The lessons the
 -- client sees (Shared/Data/IslamicStudies.lua) carry no answers; the keys are in
 -- LessonAnswers.lua next to this file, which never leaves the server. Pure functions with
 -- no Roblox services, so tests/luau/answers.spec.luau can run them.
@@ -158,6 +159,35 @@ function LessonGrading.Order(entry: Entry, placed: any): ({ boolean }, number, b
     end
 
     return inPlace, correctCount, #sequence > 0 and correctCount == #sequence
+end
+
+-- Returns the options in a random order and where the correct one moved to. Trivia uses it
+-- each round so the answer's position is never something a player can memorise.
+-- `randomInteger(low, high)` is injected so tests can make it deterministic.
+function LessonGrading.ShuffleOptions(options: { string }, correctIndex: number, randomInteger: (number, number) -> number): ({ string }, number)
+    local order = {}
+
+    for index = 1, #options do
+        order[index] = index
+    end
+
+    for index = #order, 2, -1 do
+        local swap = randomInteger(1, index)
+        order[index], order[swap] = order[swap], order[index]
+    end
+
+    local shuffled = {}
+    local newCorrect = 1
+
+    for position, original in ipairs(order) do
+        shuffled[position] = options[original]
+
+        if original == correctIndex then
+            newCorrect = position
+        end
+    end
+
+    return shuffled, newCorrect
 end
 
 -- Checks one question on its own (the daily question and the study circle).

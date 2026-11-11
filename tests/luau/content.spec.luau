@@ -1,5 +1,5 @@
 local IslamicStudies = load("Data/IslamicStudies")
-local TriviaQuestions = load("Data/TriviaQuestions")
+local TriviaQuestions = load("Server/TriviaQuestions")
 
 test("every Islamic Studies lesson is well formed", function()
     local seen = {}

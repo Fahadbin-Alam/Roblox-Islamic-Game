@@ -8,7 +8,6 @@ local IslamicStudies = require(script.Parent.Parent.Data.IslamicStudies)
 local MannersLessons = require(script.Parent.Parent.Data.MannersLessons)
 local ShopCatalog = require(script.Parent.Parent.Data.ShopCatalog)
 local TravelRoute = require(script.Parent.Parent.Data.TravelRoute)
-local TriviaQuestions = require(script.Parent.Parent.Data.TriviaQuestions)
 
 local ContentIndex = {}
 
@@ -22,7 +21,6 @@ function ContentIndex.GetStartupPayload()
         Manners = MannersLessons,
         Shop = ShopCatalog,
         TravelRoute = TravelRoute,
-        Trivia = TriviaQuestions,
     }
 end
 
