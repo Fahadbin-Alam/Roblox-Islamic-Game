@@ -73,6 +73,7 @@ Bugs the visual pass (docs/visual-benchmark.md) found with new checks and fixed:
 10. The battle arenas share the Workspace with the hub, and the hub had built into them: the Uhud gate, a hotel tower and the edge of the Haram deck stood inside the Badr battlefield, and a backdrop mountain and a ridge inside Uhud. The Uhud gate now stands south of the Badr gate, and a check keeps hub scenery out of both arenas.
 11. Walking the hub promenades on the floor found a hotel podium across the Badr gate promenade, and a drop to the sand followed by a 4 to 8 stud ledge at the end of the story, manners and parkour promenades (too high to step, and the parkour one higher than a jump). The promenades now run onto the floors and the hotel stands clear. The same walk along the Journey road found two 70-stud-wide signs standing across it at the desert camp; they now stand beside the road.
 12. On a small phone screen (667 x 375) the Journeys book ran off the top and right of the screen, so its close button could not be reached. Large panels (Journeys, main menu, shop, trivia, manners, mission results, story dialogue, battle summary) now shrink to fit the screen, and their close buttons are bigger so they stay tappable when shrunk.
+13. A new check looks for flickering surfaces (z-fighting): two visible blocks whose tops sit at the same height, overlap, and differ in colour or material, which shimmer in Roblox as the camera moves. It found 31: the Badr and Uhud floors where they meet, the Uhud briefing ground, the desert road under the present-day Madinah courtyard, the oasis planter at the desert camp, the gallery floors and facade bands of Masjid al-Haram, the mystery wing ground under every room, and two overlapping houses in historical Madinah. All are fixed and the check runs in CI.
 
 What the simulation does **not** prove: real network replication between two Roblox clients,
 physics (walking, jumping, collisions), animation, and how the controls feel. Those still need
@@ -99,7 +100,7 @@ a Studio or live test.
 |---|---|
 | Whole hub (present-day Makkah, Madinah, districts) | 8,893 (154 lights) |
 | Masjid al-Haram alone | 5,325 (2,332 SurfaceGui frames) |
-| Historical Makkah and Madinah | 14,639 |
+| Historical Makkah and Madinah | 14,649 |
 | Mystery wing (5 rooms) | 2,083 |
 | Training grounds | 526 |
 | Co-op trials | 256 |

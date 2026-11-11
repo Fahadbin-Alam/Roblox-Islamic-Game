@@ -447,6 +447,73 @@ do
     end
 end
 
+-- Z-fighting: two visible, upright blocks whose tops sit at the same height, overlap, and look
+-- different (colour or material) flicker in Roblox as the camera moves. Covers the whole world.
+do
+    local byTop = {}
+    for _, item in ipairs(Workspace:GetDescendants()) do
+        if item.ClassName == "Part" and (item.Shape == nil or item.Shape.Name == "Block") and (item.Transparency or 0) < 0.9 then
+            local cf = item.CFrame
+            local up = cf.UpVector
+            local right = cf.RightVector
+            if math.abs(up.Y) > 0.999 and (math.abs(right.X) > 0.999 or math.abs(right.Z) > 0.999) then
+                local size = item.Size
+                local sx, sz = size.X, size.Z
+                if math.abs(right.Z) > 0.999 then
+                    sx, sz = sz, sx
+                end
+                if sx * sz > 16 then
+                    local p = cf.Position
+                    local key = math.floor((p.Y + size.Y / 2) * 100 + 0.5)
+                    byTop[key] = byTop[key] or {}
+                    table.insert(byTop[key], { item, p.X - sx / 2, p.X + sx / 2, p.Z - sz / 2, p.Z + sz / 2 })
+                end
+            end
+        end
+    end
+    local found, seen = {}, {}
+    for key, list in pairs(byTop) do
+        -- Bucket on a 64-stud grid so each pair is compared only when near.
+        local cells = {}
+        for index, entry in ipairs(list) do
+            for cx = math.floor(entry[2] / 64), math.floor(entry[3] / 64) do
+                for cz = math.floor(entry[4] / 64), math.floor(entry[5] / 64) do
+                    local cell = cx .. ":" .. cz
+                    cells[cell] = cells[cell] or {}
+                    table.insert(cells[cell], index)
+                end
+            end
+        end
+        for _, members in pairs(cells) do
+            for i = 1, #members do
+                for j = i + 1, #members do
+                    local a, b = list[members[i]], list[members[j]]
+                    local ix = math.min(a[3], b[3]) - math.max(a[2], b[2])
+                    local iz = math.min(a[5], b[5]) - math.max(a[4], b[4])
+                    if ix > 0 and iz > 0 and ix * iz > 16 then
+                        local pa, pb = a[1], b[1]
+                        local ca, cb = pa.Color, pb.Color
+                        local tint = math.abs(ca.R - cb.R) + math.abs(ca.G - cb.G) + math.abs(ca.B - cb.B)
+                        if tint > 0.01 or tostring(pa.Material and pa.Material.Name) ~= tostring(pb.Material and pb.Material.Name) then
+                            local label = string.format("%s / %s at y=%.2f (%.0f sq studs)", (string.gsub(pa:GetFullName(), "^game%.Workspace%.", "")), pb.Name, key / 100, ix * iz)
+                            if not seen[label] then
+                                seen[label] = true
+                                table.insert(found, label)
+                            end
+                        end
+                    end
+                end
+            end
+        end
+    end
+    table.sort(found)
+    local shown = {}
+    for i = 1, math.min(#found, 40) do
+        shown[i] = found[i]
+    end
+    zcheck(#found == 0, string.format("no coplanar overlapping surfaces flicker (%d found)", #found) .. (#found > 0 and (": " .. table.concat(shown, "; ")) or ""))
+end
+
 if zoneFailures > 0 then
     error(string.format("%d zone check(s) failed", zoneFailures))
 end

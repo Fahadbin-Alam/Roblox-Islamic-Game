@@ -298,7 +298,10 @@ local function createArenaBase(parent: Instance, scenarioId: string, center: Vec
     local spawns = BuildUtils.CreateFolder(arenaFolder, "Spawns")
     local dummies = BuildUtils.CreateFolder(arenaFolder, "DummySpawns")
 
-    BuildUtils.CreatePart(geometry, "BaseFloor", size, CFrame.new(center + Vector3.new(0, 1, 0)), color, Enum.Material.Sand, nil, nil)
+    -- The Badr and Uhud floors share a strip at their edges; lifting Uhud's a hair keeps the
+    -- two coplanar tops from flickering (z-fighting) where they meet.
+    local lift = if scenarioId == "uhud" then 0.03 else 0
+    BuildUtils.CreatePart(geometry, "BaseFloor", size, CFrame.new(center + Vector3.new(0, 1 + lift, 0)), color, Enum.Material.Sand, nil, nil)
     createSafetyBounds(geometry, center, size)
 
     return arenaFolder, geometry, spawns, dummies
@@ -439,7 +442,7 @@ local function createBriefingSection(arenaFolder: Folder, center: Vector3, scena
     local actors = BuildUtils.CreateFolder(briefing, "Actors")
 
     if scenarioId == "uhud" then
-        BuildUtils.CreatePart(geometry, "BriefingGround", Vector3.new(176, 2, 128), CFrame.new(center + Vector3.new(0, 1, 0)), Color3.fromRGB(188, 160, 120), Enum.Material.Sand, nil, nil)
+        BuildUtils.CreatePart(geometry, "BriefingGround", Vector3.new(176, 2, 128), CFrame.new(center + Vector3.new(0, 1.06, 0)), Color3.fromRGB(188, 160, 120), Enum.Material.Sand, nil, nil)
         createStoneShelf(geometry, "BriefingFrontRise", CFrame.new(center + Vector3.new(0, 6, 48)) * CFrame.Angles(0, math.rad(-4), 0), Vector3.new(170, 12, 58), Color3.fromRGB(198, 170, 126))
         createStoneShelf(geometry, "BriefingRearSlope", CFrame.new(center + Vector3.new(0, 5, -38)) * CFrame.Angles(0, math.rad(6), 0), Vector3.new(152, 10, 46), Color3.fromRGB(186, 156, 118))
         createMesaMass(geometry, "BriefingUhudMass", center + Vector3.new(8, 0, -40), -4, 254, 126, 104, Color3.fromRGB(145, 116, 83))

@@ -541,7 +541,7 @@ local function buildDesertRoute(parent: Instance, startPosition: Vector3, stopPo
     local routeLength = math.abs(endPosition.Z - routeEntryPosition.Z) + 220
 
     BuildUtils.CreatePart(district, "SafetyPlate", Vector3.new(1020, 10, routeLength + 260), CFrame.new(routeCenter + Vector3.new(0, -9, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
-    BuildUtils.CreatePart(district, "DesertBase", Vector3.new(860, 4, routeLength), CFrame.new(routeCenter + Vector3.new(0, 2, 0)), DESERT_SAND, Enum.Material.Sand, nil, nil)
+    BuildUtils.CreatePart(district, "DesertBase", Vector3.new(860, 3.94, routeLength), CFrame.new(routeCenter + Vector3.new(0, 1.97, 0)), DESERT_SAND, Enum.Material.Sand, nil, nil)
     BuildUtils.CreateDune(district, "RouteLongWestDune", routeCenter + Vector3.new(-220, 0, -120), Vector3.new(420, 62, routeLength * 0.42), Color3.fromRGB(204, 179, 132))
     BuildUtils.CreateDune(district, "RouteLongEastDune", routeCenter + Vector3.new(226, 0, 160), Vector3.new(440, 66, routeLength * 0.45), Color3.fromRGB(199, 175, 129))
     BuildUtils.CreatePart(district, "TravelPath", Vector3.new(102, 1, routeLength - 140), CFrame.new(routeCenter + Vector3.new(0, 4.55, 0)), Color3.fromRGB(182, 154, 110), Enum.Material.Sandstone, nil, nil)
@@ -595,7 +595,7 @@ local function buildDesertRoute(parent: Instance, startPosition: Vector3, stopPo
     BuildUtils.CreatePart(district, "CampPath", Vector3.new(82, 1, 120), CFrame.new(stopPosition + Vector3.new(0, 3.55, -6)), Color3.fromRGB(222, 212, 190), Enum.Material.Sandstone, nil, nil)
     createTent(district, "CampTentWest", stopPosition + Vector3.new(-56, 0, 28), Color3.fromRGB(120, 88, 54))
     createTent(district, "CampTentEast", stopPosition + Vector3.new(56, 0, 28), Color3.fromRGB(135, 98, 59))
-    BuildUtils.CreatePlanter(district, "OasisPlanter", stopPosition + Vector3.new(0, 0, -42), Vector3.new(56, 3, 46))
+    BuildUtils.CreatePlanter(district, "OasisPlanter", stopPosition + Vector3.new(0, 0.05, -42), Vector3.new(56, 3, 46))
     BuildUtils.CreatePalmTree(district, "OasisPalmWest", stopPosition + Vector3.new(-18, 0, -44))
     BuildUtils.CreatePalmTree(district, "OasisPalmEast", stopPosition + Vector3.new(18, 0, -40))
     createLightPost(district, "CampLightWest", stopPosition + Vector3.new(-78, 0, -28))

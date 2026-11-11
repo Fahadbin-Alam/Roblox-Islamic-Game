@@ -271,7 +271,7 @@ end
 
 local function buildWing()
     part(wing, "SafetyPlate", Vector3.new(1500, 10, 700), CENTER + Vector3.new(0, -8, 40), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, 1)
-    part(wing, "Ground", Vector3.new(1400, 4, 600), CENTER + Vector3.new(0, 2, 40), Color3.fromRGB(196, 172, 132), Enum.Material.Sand)
+    part(wing, "Ground", Vector3.new(1400, 3.9, 600), CENTER + Vector3.new(0, 1.95, 40), Color3.fromRGB(196, 172, 132), Enum.Material.Sand)
     part(wing, "LobbyFloor", Vector3.new(1260, 0.4, 70), CENTER + Vector3.new(0, FLOOR_TOP + 0.2, -ROOM / 2 - 45), Color3.fromRGB(226, 214, 192), Enum.Material.Marble)
 
     local entrance = BuildUtils.CreateBoardSign(wing, "WingSign", CENTER + Vector3.new(0, FLOOR_TOP, -ROOM / 2 - 100), "Sahabi Mystery Rooms", "Each room hides a companion's story. Find the clues, open the lock, then play their episode. Clues are game props; the stories are documented.", Color3.fromRGB(96, 76, 112), nil)

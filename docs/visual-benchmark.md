@@ -52,6 +52,7 @@ New tests found and fixed real bugs during this pass:
 - **Players arriving in the dark.** A new check found that 11 of the 15 travel destinations had no light within 70 studs, and most Seerah sites had none within 30. All are now lit, and both checks run in CI.
 - **Battle gates buried in rock.** A new check found that the Badr and Uhud gates and the Journey road sat inside the hub's decorative rock ridges, which do not collide, so players walked through them and saw only rock. Those ridges are removed or moved, and the gates are dressed with battlements, banners, fire bowls and palms.
 - **Hub scenery inside the battlefields.** The Uhud gate, a hotel tower and the Haram deck edge stood inside the Badr arena, and a backdrop mountain inside Uhud. The Uhud gate moved south of the Badr gate and a check now keeps the arenas clear.
+- **Flickering floors.** A new check found 31 places where two different-looking surfaces sit at exactly the same height and overlap, which shimmer as the camera moves: the arena floors, the desert road under the Madinah courtyard, the Haram gallery floors, the mystery wing ground and two Madinah houses. All are fixed and the check runs in CI.
 - **Present-day Madinah arrival and route.** Arriving players landed inside the solid portico, and the visitation route was blocked. New checks: every travel destination lands in open space, players can walk from the Madinah arrival into the hall, and the route from Bab as-Salam is open.
 
 ## Cost
@@ -59,7 +60,7 @@ New tests found and fixed real bugs during this pass:
 | Zone | Parts |
 |---|---|
 | Hub, including Masjid al-Haram and present-day Madinah | 8,893 (budget 9,000) |
-| Historical Makkah and Madinah | 14,639 (budget 15,000) |
+| Historical Makkah and Madinah | 14,649 (budget 15,000) |
 | Mystery wing | 2,083 (budget 2,500) |
 | Training grounds | 526 (budget 1,000) |
 | Co-op trials | 256 (budget 400) |

@@ -545,7 +545,8 @@ end
 
 -- Outlying houses on a jittered grid between `inner` and `radius`, thinning out towards the
 -- edge. Two main streets cross at the centre and every house faces the nearest one.
-local function buildTown(parent: Instance, zone: HistoricalSites.Zone, clearings: { Clearing }, inner: number, radius: number, cell: number, seed: number): number
+-- `occupied` holds the footprints of the block houses, so the two never overlap.
+local function buildTown(parent: Instance, zone: HistoricalSites.Zone, clearings: { Clearing }, occupied: { Clearing }, inner: number, radius: number, cell: number, seed: number): number
     local c = zone.Center
     local r = Decor.Rng(seed)
     local houses = 0
@@ -565,7 +566,7 @@ local function buildTown(parent: Instance, zone: HistoricalSites.Zone, clearings
                 local width, depth, height = r(14, 22), r(12, 18), r(10, 15)
                 local at = c + offset + Vector3.new(0, GROUND_TOP, 0)
 
-                if isClear(clearings, at, math.max(width, depth) * 0.75) then
+                if isClear(clearings, at, math.max(width, depth) * 0.75) and isClear(occupied, at, math.max(width, depth) * 0.6) then
                     local street = if math.abs(offset.X) < math.abs(offset.Z) then c + Vector3.new(0, 0, offset.Z) else c + Vector3.new(offset.X, 0, 0)
                     local yaw = math.floor(yawToward(at, street + Vector3.new(0, GROUND_TOP, 0)) / 90 + 0.5) * 90 + r(-4, 4)
                     houses += 1
@@ -673,7 +674,7 @@ end
 
 -- Packed town blocks: a grid of streets, each block lined on all four sides with attached
 -- houses facing outwards, around a shared inner yard.
-local function buildBlocks(parent: Instance, zone: HistoricalSites.Zone, clearings: { Clearing }, radius: number, spacing: number, seed: number): number
+local function buildBlocks(parent: Instance, zone: HistoricalSites.Zone, clearings: { Clearing }, occupied: { Clearing }, radius: number, spacing: number, seed: number): number
     local c = zone.Center
     local r = Decor.Rng(seed)
     local street = 12
@@ -719,6 +720,7 @@ local function buildBlocks(parent: Instance, zone: HistoricalSites.Zone, clearin
                             local yaw = math.deg(math.atan2(-outward.X, -outward.Z))
                             houses += 1
                             mudHouse(parent, string.format("Block_%d_%d_%d_%d", bx, bz, side, houses), at, Vector3.new(width - 0.4, r(10, 17), depth), yaw, { Lite = true })
+                            table.insert(occupied, { At = Vector3.new(at.X, 0, at.Z), Radius = math.max(width, depth) * 0.6 })
                         end
                     end
                 end
@@ -807,8 +809,9 @@ for zoneIndex, zone in ipairs(HistoricalSites.Zones) do
     -- Makkah is a tight town of houses in a dry valley; Madinah is a looser settlement among
     -- palm groves.
     local town = BuildUtils.CreateFolder(zoneFolder, "Town")
-    local blockHouses = buildBlocks(town, zone, clearings, if isMakkah then 250 else 200, 70, zoneIndex * 19)
-    townStats[zone.Id] = blockHouses + buildTown(town, zone, clearings, if isMakkah then 250 else 170, if isMakkah then 380 else 330, 46, zoneIndex * 13)
+    local occupied: { Clearing } = {}
+    local blockHouses = buildBlocks(town, zone, clearings, occupied, if isMakkah then 250 else 200, 70, zoneIndex * 19)
+    townStats[zone.Id] = blockHouses + buildTown(town, zone, clearings, occupied, if isMakkah then 250 else 170, if isMakkah then 380 else 330, 46, zoneIndex * 13)
     scatter(BuildUtils.CreateFolder(zoneFolder, "Scrub"), zone, clearings, 50, zoneIndex * 23)
     buildGroves(BuildUtils.CreateFolder(zoneFolder, "Groves"), zone, clearings, if isMakkah then 8 else 64, if isMakkah then 380 else 190, 570, if isMakkah then 3 else 10, zoneIndex * 17)
 
