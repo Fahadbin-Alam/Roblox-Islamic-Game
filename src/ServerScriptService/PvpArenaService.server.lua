@@ -22,6 +22,7 @@ local Decor = require(script.Parent.Modules.Decor)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 local Analytics = require(script.Parent.Modules.Analytics)
+local Streaming = require(script.Parent.Modules.Streaming)
 
 local remotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Pvp")
 local request = remotes:WaitForChild("Request") :: RemoteEvent
@@ -558,7 +559,9 @@ request.OnServerEvent:Connect(function(player: Player, action: any)
         local character = player.Character
 
         if character and player:GetAttribute("InBattle") ~= true and player:GetAttribute("InStory") ~= true then
-            character:PivotTo(CFrame.new(CENTER + Vector3.new(0, G + 4, -RING_RADIUS - 50)))
+            local arrival = CENTER + Vector3.new(0, G + 4, -RING_RADIUS - 50)
+            Streaming.PrepareArrival(player, arrival)
+            character:PivotTo(CFrame.new(arrival))
         end
     end
 end)

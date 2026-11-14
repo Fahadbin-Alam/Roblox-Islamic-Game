@@ -9,6 +9,7 @@ local Shared = ReplicatedStorage:WaitForChild("Shared")
 local CompanionStories = require(Shared.Data.CompanionStories)
 local TravelRoute = require(Shared.Data.TravelRoute)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
+local Streaming = require(script.Parent.Modules.Streaming)
 
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local shopFolder = remotesFolder:WaitForChild("Shop")
@@ -144,6 +145,7 @@ local function teleportPlayerToAnchor(player: Player, anchor: BasePart)
     local character = getCharacter(player)
 
     if character then
+        Streaming.PrepareArrival(player, anchor.Position)
         character:PivotTo(anchor.CFrame * CFrame.new(0, 4, 0))
     end
 end

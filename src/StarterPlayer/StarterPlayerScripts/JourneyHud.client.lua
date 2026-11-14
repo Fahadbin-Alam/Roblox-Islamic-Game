@@ -443,6 +443,21 @@ local function renderCampaign(data: any)
     end
 end
 
+-- With StreamingEnabled, chapter items reach this client only when the player comes near, so
+-- apply the current run to each item as it arrives.
+task.spawn(function()
+    local world = Workspace:WaitForChild(HistoricalSites.FolderName, 120)
+    local items = world and world:WaitForChild("CampaignItems", 120)
+
+    if items then
+        items.DescendantAdded:Connect(function(descendant)
+            if descendant:IsA("BasePart") then
+                updateItems(campaign.Run)
+            end
+        end)
+    end
+end)
+
 campaignState.OnClientEvent:Connect(function(data)
     local ok, err = pcall(renderCampaign, data)
 

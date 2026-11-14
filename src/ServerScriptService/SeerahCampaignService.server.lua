@@ -16,6 +16,7 @@ local SeerahCampaign = require(Shared.Data.SeerahCampaign)
 local TravelRoute = require(Shared.Data.TravelRoute)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 local Analytics = require(script.Parent.Modules.Analytics)
+local Streaming = require(script.Parent.Modules.Streaming)
 
 local remotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Campaign")
 local request = remotes:WaitForChild("Request") :: RemoteEvent
@@ -74,6 +75,7 @@ local function teleport(player: Player, position: Vector3, lookAt: Vector3?)
     end
 
     local target = if lookAt then CFrame.lookAt(position, Vector3.new(lookAt.X, position.Y, lookAt.Z)) else CFrame.new(position)
+    Streaming.PrepareArrival(player, position)
     character:PivotTo(target)
 end
 

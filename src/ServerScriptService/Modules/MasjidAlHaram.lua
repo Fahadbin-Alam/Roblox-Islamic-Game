@@ -1126,7 +1126,13 @@ local function buildTawafPilgrims(parent: Instance, center: Vector3)
     for ringIndex, radius in ipairs(PILGRIM_RINGS) do
         for slot = 1, 4 do
             index += 1
-            local pilgrim = BuildUtils.CreateFolder(folder, string.format("Pilgrim_%02d", index))
+            -- A model kept loaded on every client (streaming), since TawafAmbience moves it.
+            local pilgrim = Instance.new("Model")
+            pilgrim.Name = string.format("Pilgrim_%02d", index)
+            pcall(function()
+                (pilgrim :: any).ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+            end)
+            pilgrim.Parent = folder
             local startAngle = (slot - 1) * math.pi * 0.5 + ringIndex * 0.7 + random(-0.3, 0.3)
             local speed = random(4.2, 5.6) / radius
             pilgrim:SetAttribute("Radius", radius + random(-2, 2))

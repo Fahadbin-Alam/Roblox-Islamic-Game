@@ -6,6 +6,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local TravelRoute = require(Shared.Data.TravelRoute)
+local Streaming = require(script.Parent.Modules.Streaming)
 
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local hubFolder = remotesFolder:WaitForChild("Hub")
@@ -75,6 +76,7 @@ local function teleportPlayerToDestination(player: Player, destinationId: string
     end
 
     cooldowns[player] = now
+    Streaming.PrepareArrival(player, anchor.Position)
     character:PivotTo(anchor.CFrame * CFrame.new(0, 4, 0))
 end
 

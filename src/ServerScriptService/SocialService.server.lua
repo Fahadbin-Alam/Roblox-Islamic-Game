@@ -13,6 +13,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TextChatService = game:GetService("TextChatService")
 local VoiceChatService = game:GetService("VoiceChatService")
+local Streaming = require(script.Parent.Modules.Streaming)
 
 local remotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Social")
 local request = remotes:WaitForChild("Request") :: RemoteEvent
@@ -144,6 +145,7 @@ local function jumpTo(player: Player, targetUserId: any)
 
     if character and targetRoot and targetRoot:IsA("BasePart") then
         lastJump[player] = now
+        Streaming.PrepareArrival(player, targetRoot.Position)
         character:PivotTo(targetRoot.CFrame * CFrame.new(3, 0, 3))
         stateEvent:FireClient(player, { Message = string.format("You joined %s.", target.DisplayName) })
         stateEvent:FireClient(target, { Message = string.format("%s joined you.", player.DisplayName) })

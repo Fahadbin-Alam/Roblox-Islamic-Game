@@ -16,6 +16,7 @@ local Progression = require(Shared.Modules.Progression)
 local BattleLoadout = require(script.Parent.Modules.BattleLoadout)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 local MissionDirector = require(script.Parent.Modules.MissionDirector)
+local Streaming = require(script.Parent.Modules.Streaming)
 local remotesFolder = ReplicatedStorage:WaitForChild("Remotes")
 local battleFolder = remotesFolder:WaitForChild("Battle")
 local shopFolder = remotesFolder:WaitForChild("Shop")
@@ -263,6 +264,7 @@ local function getReadyCharacter(player: Player, timeoutSeconds: number): Model?
 end
 
 local function teleportCharacterToAnchor(character: Model, anchor: BasePart)
+    Streaming.PrepareArrival(character, anchor.Position)
     character:PivotTo(anchor.CFrame * CFrame.new(0, 4, 0))
 end
 

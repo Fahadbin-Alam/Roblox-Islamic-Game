@@ -28,6 +28,12 @@
       "$properties": {
         "ChatVersion": "TextChatService"
       }
+    },
+    "Workspace": {
+      "$className": "Workspace",
+      "$properties": {
+        "StreamingEnabled": true
+      }
     }
   }
 }

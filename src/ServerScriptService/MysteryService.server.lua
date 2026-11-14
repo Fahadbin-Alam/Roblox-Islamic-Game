@@ -20,6 +20,7 @@ local BuildUtils = require(script.Parent.Modules.BuildUtils)
 local Decor = require(script.Parent.Modules.Decor)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 local Analytics = require(script.Parent.Modules.Analytics)
+local Streaming = require(script.Parent.Modules.Streaming)
 
 local remotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Mystery")
 local request = remotes:WaitForChild("Request") :: RemoteEvent
@@ -518,7 +519,9 @@ function actions.Teleport(player: Player, mysteryId: any)
     local character = player.Character
 
     if room and character and player:GetAttribute("InBattle") ~= true and player:GetAttribute("InStory") ~= true then
-        character:PivotTo(CFrame.new(room.Center + Vector3.new(0, FLOOR_TOP + 4, -ROOM / 2 - 22)))
+        local arrival = room.Center + Vector3.new(0, FLOOR_TOP + 4, -ROOM / 2 - 22)
+        Streaming.PrepareArrival(player, arrival)
+        character:PivotTo(CFrame.new(arrival))
     end
 end
 

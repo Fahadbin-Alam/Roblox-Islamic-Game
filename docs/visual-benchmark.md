@@ -68,7 +68,7 @@ New tests found and fixed real bugs during this pass:
 | Training grounds | 573 (budget 1,000) |
 | Co-op trials | 256 (budget 400) |
 
-The whole place is now about 26,000 parts, most of them anchored, and the decoration does not collide. The zones are about 4,000 studs apart, so turning on `Workspace.StreamingEnabled` would mean a phone only loads the zone the player is in. It is not turned on yet: client scripts that wait for world parts first need to be checked in Studio. Measure frame rate and memory on a phone before release.
+The whole place is now about 26,000 parts, most of them anchored, and the decoration does not collide. The zones are about 4,000 studs apart, so turning on `Workspace.StreamingEnabled` would mean a phone only loads the zone the player is in. It is now turned on, with teleports that load the destination first and the client scripts that touch world parts made ready for it (see docs/playtest-report.md). It still needs a check in Studio, and frame rate and memory need measuring on a phone before release.
 
 ## Still not done
 

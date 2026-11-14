@@ -111,7 +111,15 @@ About 26,000 parts and 270 point lights in total after the visual passes, mostly
 not collide. Server loops poll every 0.1 to 0.5 seconds and only read character positions.
 Frame rate, memory and network use could not be measured without a Roblox client. Check them
 in Studio with the MicroProfiler and the Developer Console before release, especially on
-phones. Consider StreamingEnabled (see docs/visual-benchmark.md).
+phones.
+
+`Workspace.StreamingEnabled` is now on (`default.project.json`), so a phone holds only the parts
+near the player instead of all zones. The code was made ready for it: every long teleport
+(travel, stories, battles, mysteries, Seerah chapters, joining a friend, the arena) first asks
+Roblox to send the parts around the destination (`Modules/Streaming.lua`); the Tawaf figures
+that the client animates are kept loaded everywhere; and Seerah chapter items update as they
+stream in. Only two client scripts touch world parts at all, and both were changed. Not yet
+verified in Studio or on a phone; if anything misbehaves, set `StreamingEnabled` back to false.
 
 ## Blockers
 
