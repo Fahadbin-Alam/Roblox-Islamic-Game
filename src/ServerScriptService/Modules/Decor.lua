@@ -547,10 +547,14 @@ function Decor.LanternPost(parent: Instance, name: string, ground: Vector3, heig
 end
 
 -- A pair of lantern posts either side of a landing point, so arrivals are lit at night.
-function Decor.ArrivalLanterns(parent: Instance, name: string, landing: Vector3, ground: number?)
+-- `facing` is the way arriving players look; the posts stand either side of them, never in
+-- front or behind (default: facing along Z).
+function Decor.ArrivalLanterns(parent: Instance, name: string, landing: Vector3, ground: number?, facing: Vector3?)
     local base = Vector3.new(landing.X, ground or landing.Y, landing.Z)
-    Decor.LanternPost(parent, name .. "_West", base + Vector3.new(-11, 0, 0), nil)
-    Decor.LanternPost(parent, name .. "_East", base + Vector3.new(11, 0, 0), nil)
+    local flat = if facing then Vector3.new(facing.X, 0, facing.Z) else Vector3.zero
+    local side = if flat.Magnitude > 0.01 then Vector3.new(-flat.Z, 0, flat.X).Unit else Vector3.new(1, 0, 0)
+    Decor.LanternPost(parent, name .. "_West", base - side * 11, nil)
+    Decor.LanternPost(parent, name .. "_East", base + side * 11, nil)
 end
 
 -- A brazier: an iron bowl on legs with a glowing fire.

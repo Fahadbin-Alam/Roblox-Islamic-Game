@@ -526,7 +526,7 @@ do
     for _, part in ipairs(Workspace:GetDescendants()) do
         if part:IsA("BasePart") and (part.Transparency or 0) < 0.5 then
             local size = part.Size
-            if size.X * size.Y * size.Z > 4 and size.X < 600 and size.Z < 600 then
+            if (size.X * size.Y * size.Z > 4 or math.max(size.X, size.Y, size.Z) > 3) and size.X < 600 and size.Z < 600 then
                 table.insert(opaque, part)
             end
             if string.sub(part.Name, -6) == "_Board" then
@@ -553,7 +553,9 @@ do
                 end
             end
             local blocked = nil
-            for back = 4, 14, 2 do
+            -- From 8 studs in front of the player (posts and signs that would stand in the way)
+            -- to 14 behind (where the camera sits).
+            for back = -8, 14, 1 do
                 for _, dy in ipairs({ 7, 10 }) do
                     local point = Vector3.new(at.X, ground + dy, at.Z) - dir * back
                     for _, part in ipairs(opaque) do
@@ -583,7 +585,7 @@ do
             end
         end
     end
-    zcheck(#hidden == 0, "the camera has room behind every travel landing" .. (#hidden > 0 and (": " .. table.concat(hidden, "; ")) or ""))
+    zcheck(#hidden == 0, "the view ahead of and behind every travel landing is clear" .. (#hidden > 0 and (": " .. table.concat(hidden, "; ")) or ""))
     zcheck(#unreadable == 0, "signs near travel landings face the arriving player" .. (#unreadable > 0 and (": " .. table.concat(unreadable, "; ")) or ""))
 end
 

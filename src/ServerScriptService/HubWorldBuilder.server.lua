@@ -1490,7 +1490,7 @@ for _, destination in ipairs(TravelRoute.Destinations) do
     local landing = destination.TeleportPosition or destination.Position
     if math.abs(landing.X) < 2000 and math.abs(landing.Z) < 2400 and destination.Id ~= "kaaba_courtyard" then
         local ground = if destination.Id == "medina_courtyard" then landing.Y + 4 else landing.Y
-        Decor.ArrivalLanterns(arrivalLights, destination.Id, landing, ground)
+        Decor.ArrivalLanterns(arrivalLights, destination.Id, landing, ground, destination.Position - landing)
     end
 end
 

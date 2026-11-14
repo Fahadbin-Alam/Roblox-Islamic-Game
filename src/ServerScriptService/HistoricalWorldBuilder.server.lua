@@ -325,6 +325,11 @@ local function siteBuild(parent: Instance, site: HistoricalSites.Site)
 
         Decor.Well(folder, "Zamzam", p + Vector3.new(26, GROUND_TOP, 24))
 
+        -- Fire bowls at the corners of the open ground, so the Kaaba is not dark at night.
+        for _, corner in ipairs({ Vector3.new(-40, 0, 6), Vector3.new(40, 0, 6), Vector3.new(-40, 0, 76), Vector3.new(40, 0, 76) }) do
+            Decor.Brazier(folder, "PlazaBrazier", p + corner + Vector3.new(0, GROUND_TOP, 0))
+        end
+
         for index = 1, 14 do
             local angle = math.rad(index * (360 / 14) + 10)
             local houseAt = p + Vector3.new(math.cos(angle) * 80, GROUND_TOP, 40 + math.sin(angle) * 80)
@@ -873,7 +878,7 @@ for _, id in ipairs({ "seerah_campaign", "seerah_madinah" }) do
     local destination = TravelRoute.GetDestinationById(id)
     if destination then
         local landing = destination.TeleportPosition or destination.Position
-        Decor.ArrivalLanterns(arrivalLights, id, landing, GROUND_TOP)
+        Decor.ArrivalLanterns(arrivalLights, id, landing, GROUND_TOP, destination.Position - landing)
     end
 end
 
