@@ -2,7 +2,7 @@
 -- It models Vector3/CFrame math exactly (so part placement can be checked) and a plain
 -- instance tree with Name/Parent/attributes. Rendering, physics and lighting are not modelled.
 
-mock = { oversized = {} }
+mock = { oversized = {}, setHooks = {} }
 
 local function fmt(n)
     return string.format("%.3f", n)
@@ -308,16 +308,52 @@ Enum = setmetatable({}, {
 })
 
 ---------------------------------------------------------------- Signals
+-- Handlers are kept so the live simulation (tests/sim) can fire signals with `_fire`. The hub
+-- build never fires them, so connecting does nothing there.
 local function signal()
-    return {
-        Connect = function()
-            return { Disconnect = function() end }
-        end,
-        Once = function()
-            return { Disconnect = function() end }
-        end,
-        Wait = function() end,
-    }
+    local handlers = {}
+    local sig = {}
+
+    function sig.Connect(_, fn)
+        local entry = { Fn = fn, Connected = true }
+        table.insert(handlers, entry)
+        return {
+            Disconnect = function()
+                entry.Connected = false
+            end,
+        }
+    end
+
+    function sig.Once(self, fn)
+        local connection
+        connection = sig.Connect(self, function(...)
+            connection.Disconnect()
+            fn(...)
+        end)
+        return connection
+    end
+
+    function sig.Wait()
+        local waiter = mock.signalWait
+        if waiter then
+            return waiter()
+        end
+    end
+
+    function sig._fire(...)
+        for _, entry in ipairs(table.clone(handlers)) do
+            if entry.Connected then
+                local spawner = mock.spawnHandler
+                if spawner then
+                    spawner(entry.Fn, ...)
+                else
+                    entry.Fn(...)
+                end
+            end
+        end
+    end
+
+    return sig
 end
 
 ---------------------------------------------------------------- Instances
@@ -333,6 +369,12 @@ local isAMap = {
     GuiObject = { Frame = true, TextLabel = true, ImageLabel = true, TextButton = true },
     LayerCollector = { SurfaceGui = true, BillboardGui = true, ScreenGui = true },
 }
+
+-- More event names (GUI and input events) that index as signals.
+mock.extraSignals = {}
+for _, name in ipairs({ "MouseButton1Click", "MouseButton1Down", "MouseButton1Up", "MouseButton2Click", "MouseEnter", "MouseLeave", "InputBegan", "InputEnded", "InputChanged", "FocusLost", "Focused", "TouchTap", "TriggerEnded", "PromptShown", "PromptHidden", "CharacterAppearanceLoaded", "MoveToFinished", "Running", "Jumping", "StateChanged", "OnClientInvoke", "JumpRequest", "LastInputTypeChanged", "Idled", "AncestryChanged", "MessageReceived", "IncomingMessage" }) do
+    mock.extraSignals[name] = true
+end
 
 local Instance_ = {}
 local allInstances = {}
@@ -381,7 +423,7 @@ local function newInstance(className)
             if method then
                 return method
             end
-            if key:match("^[A-Z]") and (key:match("Changed$") or key:match("Added$") or key:match("Removed$") or key:match("Removing$") or key == "Destroying" or key == "Touched" or key == "TouchEnded" or key == "Triggered" or key == "Event" or key == "OnServerEvent" or key == "OnClientEvent" or key == "Heartbeat" or key == "Stepped" or key == "RenderStepped" or key == "PromptTriggered") then
+            if key:match("^[A-Z]") and (key:match("Changed$") or key:match("Added$") or key:match("Removed$") or key:match("Removing$") or key == "Destroying" or key == "Touched" or key == "TouchEnded" or key == "Triggered" or key == "Event" or key == "OnServerEvent" or key == "OnClientEvent" or key == "Heartbeat" or key == "Stepped" or key == "RenderStepped" or key == "PromptTriggered" or key == "Died" or key == "Activated" or key == "Deactivated" or key == "Equipped" or key == "Unequipped" or key == "HealthChanged" or key == "Chatted" or mock.extraSignals[key]) then
                 signals[key] = signals[key] or signal()
                 return signals[key]
             end
@@ -408,7 +450,18 @@ local function newInstance(className)
                 props.Parent = value
                 if value then
                     table.insert(value.Children, self)
+                    local onParented = mock.onParented
+                    if onParented then
+                        onParented(self, value)
+                    end
                 end
+                return
+            elseif key == "Orientation" and props.CFrame then
+                -- Rotate in place, as Roblox does (degrees, Y then X then Z).
+                local c = props.CFrame
+                local r = CFrame.fromOrientation(math.rad(value.X), math.rad(value.Y), math.rad(value.Z))
+                props.CFrame = cf(c.px, c.py, c.pz, r.r00, r.r01, r.r02, r.r10, r.r11, r.r12, r.r20, r.r21, r.r22)
+                props.Orientation = value
                 return
             elseif key == "Position" then
                 local c = props.CFrame or identityAt(0, 0, 0)
@@ -429,6 +482,10 @@ local function newInstance(className)
                 assert(value.px == value.px and value.py == value.py and value.pz == value.pz, "NaN CFrame on " .. tostring(props.Name))
             end
             props[key] = value
+            local hook = mock.setHooks[className]
+            if hook then
+                hook(self, key, value)
+            end
         end,
         __tostring = function()
             return props.Name
@@ -559,6 +616,22 @@ end
 -- Terrain-only calls are accepted and ignored.
 for _, name in ipairs({ "FillBall", "FillBlock", "FillCylinder", "FillWedge", "Clear", "SetMaterialColor", "ScaleTo", "Play", "Stop", "Fire", "FireAllClients", "FireClient", "BreakJoints", "SetPrimaryPartCFrame" }) do
     Instance_[name] = function() end
+end
+
+-- Terrain fills are recorded so checks can see them and dump.luau can draw them.
+mock.terrain = {}
+function Instance_.FillBall(_, center, radius, material)
+    table.insert(mock.terrain, { Kind = "Ball", CFrame = identityAt(center.X, center.Y, center.Z), Size = v3(radius * 2, radius * 2, radius * 2), Material = material })
+end
+function Instance_.FillBlock(_, cframe, size, material)
+    table.insert(mock.terrain, { Kind = "Block", CFrame = cframe, Size = size, Material = material })
+end
+function Instance_.FillWedge(_, cframe, size, material)
+    table.insert(mock.terrain, { Kind = "Wedge", CFrame = cframe, Size = size, Material = material })
+end
+function Instance_.FillCylinder(_, cframe, height, radius, material)
+    -- Roblox terrain cylinders stand along Y; the renderer's cylinders lie along X.
+    table.insert(mock.terrain, { Kind = "Cylinder", CFrame = cframe * CFrame.Angles(0, 0, math.rad(90)), Size = v3(height, radius * 2, radius * 2), Material = material })
 end
 
 Instance = {
@@ -722,6 +795,9 @@ function scriptAt(path)
 end
 
 mock.allInstances = allInstances
+mock.Instance_ = Instance_
+mock.newInstance = newInstance
+mock.signal = signal
 mock.isV3 = isV3
 mock.pointToWorld = pointToWorld
 mock.service = service

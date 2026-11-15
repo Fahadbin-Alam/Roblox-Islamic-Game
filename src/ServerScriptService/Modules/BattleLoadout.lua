@@ -2,6 +2,7 @@
 
 local CollectionService = game:GetService("CollectionService")
 local Debris = game:GetService("Debris")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local Workspace = game:GetService("Workspace")
@@ -215,6 +216,13 @@ local function applyDamage(attackerCharacter: Model, targetHumanoid: Humanoid?, 
 
     if blocked then
         finalDamage = math.max(3, math.floor(damage * BLOCK_DAMAGE_MULTIPLIER))
+    end
+
+    -- Remember who landed the hit so story missions can credit the player who drove a soldier back.
+    local attackerPlayer = Players:GetPlayerFromCharacter(attackerCharacter)
+
+    if attackerPlayer then
+        targetHumanoid:SetAttribute("LastAttackerUserId", attackerPlayer.UserId)
     end
 
     targetHumanoid:TakeDamage(finalDamage)
@@ -866,7 +874,7 @@ requestBlock.OnServerEvent:Connect(function(player: Player)
     setBlocking(player)
 end)
 
-game:GetService("Players").PlayerRemoving:Connect(function(player: Player)
+Players.PlayerRemoving:Connect(function(player: Player)
     blockCooldowns[player] = nil
 end)
 

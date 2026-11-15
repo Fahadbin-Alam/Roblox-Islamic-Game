@@ -1,6 +1,7 @@
 --!strict
 
 local Players = game:GetService("Players")
+local UiKit = require(script.Parent:WaitForChild("UiKit"))
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local mannersFolder = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Manners")
@@ -21,6 +22,7 @@ panel.Size = UDim2.fromOffset(700, 460)
 panel.BackgroundColor3 = Color3.fromRGB(248, 240, 220)
 panel.Visible = false
 panel.Parent = screenGui
+UiKit.FitToScreen(panel)
 
 local corner = Instance.new("UICorner")
 corner.CornerRadius = UDim.new(0, 20)

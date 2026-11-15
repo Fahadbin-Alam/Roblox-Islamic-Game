@@ -75,11 +75,12 @@ local function createButton(name: string, text: string, yOffset: number, color: 
     return button
 end
 
+local journeysButton = createButton("JourneysButton", "Journeys", -256, Color3.fromRGB(96, 76, 112))
 local learnButton = createButton("LearnButton", "Learn", -200, Color3.fromRGB(121, 94, 63))
 local itemShopButton = createButton("ItemShopButton", "Item Shop", -144, Color3.fromRGB(73, 97, 61))
 local menuButton = createButton("MenuButton", "Menu", -88, Color3.fromRGB(31, 46, 38))
 local watchedPanels: { [Frame]: RBXScriptConnection } = {}
-local PANEL_GUIS = { "MainMenu", "ShopMenu", "LearningHall" }
+local PANEL_GUIS = { "MainMenu", "ShopMenu", "LearningHall", "JourneyBook" }
 local updateAvailability
 
 local function getPanel(guiName: string): Frame?
@@ -181,6 +182,7 @@ updateAvailability = function()
 
     local blocked = player:GetAttribute("InBattle") == true or player:GetAttribute("InStory") == true
     local panelOpen = anyPanelOpen()
+    journeysButton.Visible = not blocked and not panelOpen
     learnButton.Visible = not blocked and not panelOpen
     itemShopButton.Visible = not blocked and not panelOpen
     menuButton.Visible = not blocked and not panelOpen
@@ -195,6 +197,10 @@ updateAvailability = function()
         end
     end
 end
+
+connectButton(journeysButton, function()
+    openPanel("JourneyBook", journeysButton)
+end)
 
 connectButton(learnButton, function()
     openPanel("LearningHall", learnButton)

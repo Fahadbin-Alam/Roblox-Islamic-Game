@@ -10,6 +10,7 @@ local Workspace = game:GetService("Workspace")
 local Shared = ReplicatedStorage:WaitForChild("Shared")
 local Guides = require(Shared.Data.Guides)
 local TravelRoute = require(Shared.Data.TravelRoute)
+local Figures = require(script.Parent.Modules.Figures)
 
 local worldFolder = Workspace:WaitForChild(TravelRoute.WorldFolderName)
 
@@ -94,6 +95,8 @@ local function buildGuide(parent: Instance, guide: Guides.Guide)
 
     local anchor = destination.TeleportPosition or destination.Position
     local model = buildAvatar(guide)
+    -- Every figure in the game has a blank face (see Modules/Figures).
+    Figures.StripFaces(model)
     model.Name = guide.Id
 
     local humanoid = model:FindFirstChildOfClass("Humanoid")

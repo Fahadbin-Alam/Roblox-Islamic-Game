@@ -209,17 +209,53 @@ function BuildUtils.CreateLantern(parent: Instance, name: string, position: Vect
     BuildUtils.AddPointLight(glow, Color3.fromRGB(255, 224, 167), 1.5, 20)
 end
 
+-- A date palm with a gently curved trunk and drooping fronds. The lean and frond angles come
+-- from the position, so the same spot always grows the same tree.
 function BuildUtils.CreatePalmTree(parent: Instance, name: string, position: Vector3)
-    BuildUtils.CreatePart(parent, string.format("%s_Trunk", name), Vector3.new(3, 18, 3), CFrame.new(position + Vector3.new(0, 9, 0)), Color3.fromRGB(126, 87, 55), Enum.Material.Wood, nil, nil)
+    local seed = math.abs(position.X * 0.37 + position.Z * 0.61)
+    local leanAngle = (seed * 1.7) % (math.pi * 2)
+    local lean = Vector3.new(math.cos(leanAngle), 0, math.sin(leanAngle))
+    local point = position
+    local segment = 6.6
 
-    for _, offset in ipairs({
-        Vector3.new(0, 19, -5),
-        Vector3.new(0, 19, 5),
-        Vector3.new(5, 19, 0),
-        Vector3.new(-5, 19, 0),
-        Vector3.new(0, 21, 0),
-    }) do
-        BuildUtils.CreatePart(parent, string.format("%s_Leaf_%d_%d", name, offset.X, offset.Z), Vector3.new(18, 1.6, 6), CFrame.new(position + offset), Color3.fromRGB(71, 132, 73), Enum.Material.Grass, nil, nil)
+    for index = 1, 3 do
+        local direction = (Vector3.new(0, 1, 0) + lean * (0.08 * index)).Unit
+        local nextPoint = point + direction * segment
+        local mid = (point + nextPoint) / 2
+        local trunk = BuildUtils.CreatePart(
+            parent,
+            if index == 1 then string.format("%s_Trunk", name) else string.format("%s_Trunk%d", name, index),
+            Vector3.new(segment + 0.4, 2.2 - index * 0.25, 2.2 - index * 0.25),
+            CFrame.lookAt(mid, nextPoint) * CFrame.Angles(0, math.rad(90), 0),
+            if index % 2 == 0 then Color3.fromRGB(104, 78, 52) else Color3.fromRGB(126, 94, 62),
+            Enum.Material.Wood,
+            Enum.PartType.Cylinder,
+            nil
+        )
+        trunk.CanCollide = index == 1
+        point = nextPoint
+    end
+
+    local top = point
+    local crown = BuildUtils.CreatePart(parent, string.format("%s_Crown", name), Vector3.new(2.6, 2.6, 2.6), CFrame.new(top), Color3.fromRGB(70, 104, 54), Enum.Material.Grass, Enum.PartType.Ball, nil)
+    crown.CanCollide = false
+
+    for index = 1, 7 do
+        local angle = seed + index * (math.pi * 2 / 7)
+        local tip = top + Vector3.new(math.cos(angle) * 8, -2.4 - (index % 3) * 0.6, math.sin(angle) * 8)
+        local mid = (top + tip) / 2 + Vector3.new(0, 0.9, 0)
+        local frond = BuildUtils.CreatePart(
+            parent,
+            string.format("%s_Leaf_%d", name, index),
+            Vector3.new(2.4, 0.25, (tip - top).Magnitude),
+            CFrame.lookAt(mid, tip + Vector3.new(0, 0.9, 0)),
+            if index % 2 == 0 then Color3.fromRGB(92, 130, 66) else Color3.fromRGB(72, 108, 52),
+            Enum.Material.Grass,
+            nil,
+            nil
+        )
+        frond.CanCollide = false
+        frond.CanQuery = false
     end
 end
 
@@ -283,6 +319,12 @@ local function fillTerrainBlock(cframe: CFrame, size: Vector3, material: Enum.Ma
     end)
 end
 
+local function fillTerrainWedge(cframe: CFrame, size: Vector3, material: Enum.Material)
+    pcall(function()
+        Workspace.Terrain:FillWedge(cframe, size, material)
+    end)
+end
+
 function BuildUtils.CreateMountain(
     parent: Instance,
     name: string,
@@ -340,6 +382,31 @@ function BuildUtils.CreateMountain(
             Vector3.new(baseWidth * (0.22 + alpha * 0.05), math.max(9, height * 0.08), depth * 0.08),
             index % 2 == 0 and Enum.Material.Rock or Enum.Material.Sandstone
         )
+    end
+end
+
+-- A rock ridge in Roblox Terrain, standing on `base` (ground level, yawed along its length):
+-- a sandstone foot, a triangular rock body from two wedges back to back, and a broken crest
+-- of rounded crags. It stays inside the length x depth footprint, so it can replace a part
+-- ridge of the same size. Terrain smooths and textures itself and costs no parts.
+function BuildUtils.TerrainRidge(base: CFrame, length: number, height: number, depth: number, seed: number)
+    local state = math.floor(math.abs(seed) * 7919 + 17) % 2147483647
+    local function rand(a: number, b: number): number
+        state = (state * 16807) % 2147483647
+        return a + (b - a) * (state / 2147483647)
+    end
+
+    fillTerrainBlock(base * CFrame.new(0, height * 0.12, 0), Vector3.new(length * 0.96, height * 0.24, depth * 0.94), Enum.Material.Sandstone)
+    fillTerrainWedge(base * CFrame.new(0, height * 0.42, -depth * 0.22), Vector3.new(length * 0.9, height * 0.84, depth * 0.44), Enum.Material.Rock)
+    fillTerrainWedge(base * CFrame.new(0, height * 0.42, depth * 0.22) * CFrame.Angles(0, math.pi, 0), Vector3.new(length * 0.9, height * 0.84, depth * 0.44), Enum.Material.Rock)
+
+    local crags = math.clamp(math.floor(length / math.max(depth * 0.5, 20)), 2, 6)
+    for index = 1, crags do
+        local alpha = (index - 0.5) / crags - 0.5
+        local radius = math.min(depth * rand(0.18, 0.28), height * 0.3)
+        local x = alpha * (length * 0.9 - radius * 2)
+        local y = height * rand(0.62, 0.86) - radius * 0.5
+        fillTerrainBall((base * CFrame.new(x, y, rand(-depth, depth) * 0.06)).Position, radius, if index % 3 == 0 then Enum.Material.Sandstone else Enum.Material.Rock)
     end
 end
 

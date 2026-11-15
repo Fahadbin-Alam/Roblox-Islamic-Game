@@ -8,6 +8,7 @@
 
 local BadgeService = game:GetService("BadgeService")
 local DataStoreService = game:GetService("DataStoreService")
+local BusinessMetrics = require(script.Parent.BusinessMetrics)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local Shared = ReplicatedStorage:WaitForChild("Shared")
@@ -237,6 +238,49 @@ end
 
 -- Counts today's visit toward the streak and pays the visit reward the first time each day.
 -- Players who stay in a server past midnight UTC get it when ProgressionService checks again.
+-- Raises a stat to `value` if it is higher than what is saved (best scores). Returns the
+-- previous value, or nil when the profile is not loaded.
+function PlayerProgress.SetStatMax(player: Player, stat: string, value: number): number?
+    local profile = profiles[player]
+
+    if not profile then
+        return nil
+    end
+
+    local previous = profile.Stats[stat] or 0
+
+    if value > previous then
+        profile.Stats[stat] = value
+        changed(player, profile)
+    end
+
+    return previous
+end
+
+-- Keeps the lowest positive value of a stat (best times). Returns the stored value.
+function PlayerProgress.SetStatMin(player: Player, stat: string, value: number): number?
+    local profile = profiles[player]
+
+    if not profile or value <= 0 then
+        return nil
+    end
+
+    local previous = profile.Stats[stat]
+
+    if previous == nil or previous <= 0 or value < previous then
+        profile.Stats[stat] = value
+        changed(player, profile)
+    end
+
+    return profile.Stats[stat]
+end
+
+function PlayerProgress.GetStat(player: Player, stat: string): number
+    local profile = profiles[player]
+
+    return profile and profile.Stats[stat] or 0
+end
+
 function PlayerProgress.RecordDailyVisit(player: Player)
     local profile = profiles[player]
 
@@ -316,6 +360,12 @@ function PlayerProgress.Load(player: Player)
 
     if not loaded then
         toast(player, "warning", "Progress could not load", "You can keep playing, but progress from this visit will not be saved.")
+    end
+
+    -- Retention numbers (first visit, day-1 and day-7 returns) for the business ledger.
+    if loaded and store ~= nil then
+        BusinessMetrics.RecordJoin(profile.Stats)
+        dirty[player] = true
     end
 
     -- Badges added in an update are granted to players who already qualify.

@@ -215,7 +215,7 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                     Pages = {
                         "Hajj is the fifth pillar. Every adult Muslim who is physically and financially able must perform it once in their life (Qur'an 3:97).",
                         "Hajj takes place in the month of Dhul-Hijjah. Pilgrims wear simple clothing called ihram, so rich and poor stand together as equals.",
-                        "Rites include tawaf (walking around the Kaaba seven times), walking between Safa and Marwah, and standing in prayer at Arafah.",
+                        "Rites include tawaf (walking around the Kaaba seven times), walking between Safa and Marwah, and spending the Day of Arafah in dua and remembrance of Allah.",
                         "The Kaaba's foundations were raised by Prophet Ibrahim and his son Isma'il, peace be upon them (Qur'an 2:127). You can see the Kaaba in the hub courtyard.",
                     },
                     Quiz = {
@@ -338,7 +338,7 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                             Prompt = "Which surah is recited in every rak'ah?",
                             Options = { "Al-Ikhlas", "Al-Fatihah", "Al-Baqarah", "An-Nas" },
                             CorrectIndex = 2,
-                            Explanation = "Surah Al-Fatihah is recited while standing in every rak'ah.",
+                            Explanation = "Surah Al-Fatihah is recited while standing in every rak'ah. In the Hanafi school, someone praying behind an imam listens instead.",
                         },
                         {
                             Prompt = "What is the bowing position called?",
@@ -356,7 +356,7 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                             Prompt = "How does the prayer end?",
                             Options = { "Standing up", "Saying salam to the right then left", "Clapping", "Saying Allahu Akbar" },
                             CorrectIndex = 2,
-                            Explanation = "The prayer ends with 'As-salamu 'alaykum wa rahmatullah', right then left.",
+                            Explanation = "The prayer ends with 'As-salamu 'alaykum wa rahmatullah', right then left. The Maliki school holds that one salam to the right is enough.",
                         },
                     },
                 },
@@ -428,8 +428,8 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                     Summary = "Leaving the house and entering the masjid.",
                     Pages = {
                         "Leaving home, say: 'Bismillah, tawakkaltu 'alallah, wa la hawla wa la quwwata illa billah' (In the name of Allah, I trust in Allah, and there is no power or strength except with Allah) (Sunan Abi Dawud 5095).",
-                        "Entering the masjid, step in with the right foot and say: 'Allahummaf-tah li abwaba rahmatik' (O Allah, open for me the doors of Your mercy) (Sahih Muslim 713).",
-                        "Leaving the masjid, step out with the left foot and say: 'Allahumma inni as'aluka min fadlik' (O Allah, I ask You from Your bounty) (Sahih Muslim 713).",
+                        "Entering the masjid, step in with the right foot and say: 'Allahummaf-tah li abwaba rahmatik' (O Allah, open for me the doors of Your mercy). The dua is in Sahih Muslim 713.",
+                        "Leaving the masjid, step out with the left foot and say: 'Allahumma inni as'aluka min fadlik' (O Allah, I ask You from Your bounty). The dua is in Sahih Muslim 713.",
                     },
                     Quiz = {
                         {
@@ -798,7 +798,7 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                     },
                     Quiz = {
                         {
-                            Prompt = "What was the Prophet called because of his honesty?",
+                            Prompt = "What was the Prophet ﷺ called because of his honesty?",
                             Options = { "Al-Amin", "Al-Faruq", "As-Siddiq", "Saifullah" },
                             CorrectIndex = 1,
                             Explanation = "Al-Amin means the trustworthy one.",
@@ -856,7 +856,7 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                     Pages = {
                         "For thirteen years in Makkah, the Muslims were mocked and persecuted for their faith.",
                         "In 622 CE, the Prophet, peace be upon him, migrated to Yathrib, later called Madinah, with Abu Bakr. This journey is the Hijrah.",
-                        "They hid for three days in the cave of Thawr. When Abu Bakr worried, the Prophet said: 'Do not grieve; indeed Allah is with us' (Qur'an 9:40).",
+                        "They hid for three days in the cave of Thawr. When Abu Bakr worried, the Prophet ﷺ said: 'Do not grieve; indeed Allah is with us' (Qur'an 9:40).",
                         "In Madinah, the Muslims who migrated (the Muhajirun) were joined as brothers with the Muslims of Madinah who helped them (the Ansar).",
                         "The Islamic calendar counts its years from the Hijrah. That is why years are written as AH, after Hijrah.",
                     },
@@ -868,7 +868,7 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                             Explanation = "The Hijrah was to Yathrib, which became Madinah.",
                         },
                         {
-                            Prompt = "Who travelled with the Prophet on the Hijrah?",
+                            Prompt = "Who travelled with the Prophet ﷺ on the Hijrah?",
                             Options = { "Abu Bakr", "Umar", "Ali", "Uthman" },
                             CorrectIndex = 1,
                             Explanation = "Abu Bakr as-Siddiq was his companion in the cave (Qur'an 9:40).",
@@ -899,7 +899,7 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                     },
                     Quiz = {
                         {
-                            Prompt = "What did the Prophet choose at Hudaybiyyah?",
+                            Prompt = "What did the Prophet ﷺ choose at Hudaybiyyah?",
                             Options = { "A battle", "A peace treaty", "Going home angry", "Breaking the Kaaba's door" },
                             CorrectIndex = 2,
                             Explanation = "He agreed to a treaty of peace.",
@@ -924,13 +924,13 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                     },
                     Quiz = {
                         {
-                            Prompt = "What did the Prophet recite while removing the idols?",
+                            Prompt = "What did the Prophet ﷺ recite while removing the idols?",
                             Options = { "Truth has come and falsehood has vanished", "Allah is the Greatest", "Peace be upon you", "In the name of Allah" },
                             CorrectIndex = 1,
                             Explanation = "Qur'an 17:81, as narrated in Sahih al-Bukhari 4287.",
                         },
                         {
-                            Prompt = "How did the Prophet treat the people of Makkah?",
+                            Prompt = "How did the Prophet ﷺ treat the people of Makkah?",
                             Options = { "He took revenge", "He forgave many of them", "He expelled everyone", "He ignored them" },
                             CorrectIndex = 2,
                             Explanation = "His forgiveness led many to embrace Islam.",
@@ -942,7 +942,7 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                     DisplayName = "The Farewell Hajj",
                     Summary = "The final message to the ummah.",
                     Pages = {
-                        "In 10 AH, the Prophet, peace be upon him, performed his only Hajj, with a huge number of Muslims. It is called the Farewell Hajj.",
+                        "In 10 AH, the Prophet, peace be upon him, performed his only Hajj after the Hijrah, with a huge number of Muslims. It is called the Farewell Hajj.",
                         "At Arafah, Allah revealed: 'This day I have perfected for you your religion' (Qur'an 5:3; Sahih al-Bukhari 45).",
                         "In his sermon he reminded the people that their lives, property, and honour are sacred, told them to treat women kindly, and asked them to convey the message to those who were absent.",
                         "He passed away in Madinah in 11 AH (632 CE). His message lives on in the Qur'an and his Sunnah.",
@@ -964,10 +964,10 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                     },
                     Quiz = {
                         {
-                            Prompt = "How many times did the Prophet perform Hajj?",
+                            Prompt = "How many times did the Prophet ﷺ perform Hajj after the Hijrah?",
                             Options = { "Once", "Twice", "Every year", "Never" },
                             CorrectIndex = 1,
-                            Explanation = "His only Hajj was the Farewell Hajj in 10 AH.",
+                            Explanation = "His only Hajj after the Hijrah was the Farewell Hajj in 10 AH.",
                         },
                         {
                             Prompt = "Which verse was revealed at Arafah during the Farewell Hajj?",
@@ -976,7 +976,7 @@ local IslamicStudies: { Units: { Unit }, PassRatio: number } = {
                             Explanation = "Qur'an 5:3, as Sahih al-Bukhari 45 reports.",
                         },
                         {
-                            Prompt = "Where did the Prophet pass away?",
+                            Prompt = "Where did the Prophet ﷺ pass away?",
                             Options = { "Makkah", "Madinah", "Ta'if", "Jerusalem" },
                             CorrectIndex = 2,
                             Explanation = "He passed away in Madinah in 11 AH.",

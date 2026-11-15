@@ -4,10 +4,13 @@
 -- client (which only displays it). Nothing here touches Roblox services, so the rules
 -- can be unit tested outside Studio.
 
+local BattleMissions = require(script.Parent.Parent.Data.BattleMissions)
 local BattleScenarios = require(script.Parent.Parent.Data.BattleScenarios)
 local CompanionStories = require(script.Parent.Parent.Data.CompanionStories)
 local IslamicStudies = require(script.Parent.Parent.Data.IslamicStudies)
 local MannersLessons = require(script.Parent.Parent.Data.MannersLessons)
+local SahabiMysteries = require(script.Parent.Parent.Data.SahabiMysteries)
+local SeerahCampaign = require(script.Parent.Parent.Data.SeerahCampaign)
 
 export type Profile = {
     Version: number,
@@ -39,6 +42,11 @@ Progression.Categories = {
     Manners = "manners",
     Path = "path",
     Order = "order",
+    Reflection = "reflection",
+    Seerah = "seerah",
+    Mystery = "mystery",
+    Parkour = "parkour",
+    Coop = "coop",
 }
 
 -- XP for the first completion of each kind of activity. Repeats give RepeatMultiplier of it,
@@ -53,6 +61,13 @@ Progression.Rewards = {
     StudyCircle = 40,
     path = 25,
     order = 30,
+    reflection = 15,
+    seerah = 80,
+    mystery = 140,
+    parkour = 70,
+    coop = 90,
+    PvpRoundWin = 10,
+    PvpMatchWin = 40,
     RepeatMultiplier = 0.25,
 }
 
@@ -292,6 +307,132 @@ local function buildBadges(): { Badge }
     end
 
     table.insert(badges, {
+        Id = "badr_three_stars",
+        DisplayName = "Defender Of The Wells",
+        Description = "Earn all three stars in the Battle of Badr story mission.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.BestStars_badr or 0) >= 3
+        end,
+    })
+
+    table.insert(badges, {
+        Id = "uhud_kept_post",
+        DisplayName = "Kept The Post",
+        Description = "Stay on the Archers' Hill through the test of the spoils at Uhud.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.UhudPostKept or 0) >= 1
+        end,
+    })
+
+    table.insert(badges, {
+        Id = "uhud_three_stars",
+        DisplayName = "Steadfast At Uhud",
+        Description = "Earn all three stars in the Battle of Uhud story mission.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.BestStars_uhud or 0) >= 3
+        end,
+    })
+
+    local reflectionIds = {}
+
+    for _, missionId in ipairs(BattleMissions.Order) do
+        for _, question in ipairs(BattleMissions.Get(missionId).Reflection) do
+            table.insert(reflectionIds, question.Id)
+        end
+    end
+
+    table.insert(badges, {
+        Id = "battle_lessons",
+        DisplayName = "Lessons Of The Battles",
+        Description = "Answer every after-battle reflection question correctly.",
+        RobloxBadgeId = 0,
+        IsEarned = allCompleted(Progression.Categories.Reflection, reflectionIds),
+    })
+
+    table.insert(badges, {
+        Id = "battle_veteran",
+        DisplayName = "Steady In Every Step",
+        Description = "Complete 40 battle mission objectives.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.BattleObjectives or 0) >= 40
+        end,
+    })
+
+    local makkahChapters, allChapters = {}, {}
+
+    for _, chapter in ipairs(SeerahCampaign.Chapters) do
+        table.insert(allChapters, chapter.Id)
+
+        if chapter.Era == "Makkah" then
+            table.insert(makkahChapters, chapter.Id)
+        end
+    end
+
+    table.insert(badges, {
+        Id = "seerah_makkah",
+        DisplayName = "The Makkan Years",
+        Description = "Finish every Makkah chapter of the Seerah campaign.",
+        RobloxBadgeId = 0,
+        IsEarned = allCompleted(Progression.Categories.Seerah, makkahChapters),
+    })
+
+    table.insert(badges, {
+        Id = "seerah_complete",
+        DisplayName = "Walked The Seerah",
+        Description = "Finish all 30 chapters of the Seerah campaign.",
+        RobloxBadgeId = 0,
+        IsEarned = allCompleted(Progression.Categories.Seerah, allChapters),
+    })
+
+    table.insert(badges, {
+        Id = "mystery_first",
+        DisplayName = "Clue Finder",
+        Description = "Solve your first Sahabi mystery.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return totalCompleted(profile, Progression.Categories.Mystery) >= 1
+        end,
+    })
+
+    table.insert(badges, {
+        Id = "mystery_all",
+        DisplayName = "Companion Detective",
+        Description = "Solve every Sahabi mystery.",
+        RobloxBadgeId = 0,
+        IsEarned = allCompleted(Progression.Categories.Mystery, idsOf(SahabiMysteries.Mysteries)),
+    })
+
+    table.insert(badges, {
+        Id = "parkour_tower",
+        DisplayName = "Top Of The Tower",
+        Description = "Finish a timed run of the Lobby Parkour Tower.",
+        RobloxBadgeId = 0,
+        IsEarned = allCompleted(Progression.Categories.Parkour, { "lobby_tower" }),
+    })
+
+    table.insert(badges, {
+        Id = "coop_trials",
+        DisplayName = "Stronger Together",
+        Description = "Finish the co-op Trials of Brotherhood with a partner.",
+        RobloxBadgeId = 0,
+        IsEarned = allCompleted(Progression.Categories.Coop, { "brotherhood_trials" }),
+    })
+
+    table.insert(badges, {
+        Id = "pvp_match",
+        DisplayName = "Fair Sparring",
+        Description = "Win a Training Grounds sparring match.",
+        RobloxBadgeId = 0,
+        IsEarned = function(profile)
+            return (profile.Stats.PvpMatchWins or 0) >= 1
+        end,
+    })
+
+    table.insert(badges, {
         Id = "study_circle",
         DisplayName = "Halaqah Member",
         Description = "Pass a study circle with other players.",
@@ -424,6 +565,24 @@ Progression.Path = {
         Hint = "Stand by the Islamic Studies podium in the Trivia Court with a friend and start a circle.",
         IsDone = function(profile)
             return (profile.Stats.StudyCircles or 0) >= 1
+        end,
+    },
+    {
+        Id = "seerah_start",
+        Destination = "seerah_campaign",
+        Title = "Begin the Seerah campaign",
+        Hint = "Press Journeys and start chapter 1, The Year of the Elephant.",
+        IsDone = function(profile)
+            return totalCompleted(profile, Progression.Categories.Seerah) >= 1
+        end,
+    },
+    {
+        Id = "mystery_start",
+        Destination = "mystery_wing",
+        Title = "Solve a Sahabi mystery",
+        Hint = "Press Journeys, open Mysteries, and pick a locked room.",
+        IsDone = function(profile)
+            return totalCompleted(profile, Progression.Categories.Mystery) >= 1
         end,
     },
     {

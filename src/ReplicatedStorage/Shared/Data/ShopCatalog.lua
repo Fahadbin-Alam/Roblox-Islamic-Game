@@ -1,6 +1,8 @@
 --!strict
 
 -- Replace placeholder ProductId values after creating the real Roblox products.
+local MonetizationConfig = require(script.Parent.Parent.Config.MonetizationConfig)
+
 local ShopCatalog = {
     GamePasses = {
         {
@@ -35,6 +37,19 @@ local ShopCatalog = {
         },
     },
     DeveloperProducts = {
+        {
+            -- Reward for watching a rewarded video ad (SupportService). Hidden from the shop:
+            -- it is granted by the ad, never bought.
+            Key = "ad_reward_tokens",
+            DisplayName = "Ad Reward: Knowledge Tokens",
+            ProductId = MonetizationConfig.RewardedAd.DevProductId,
+            Type = "AdReward",
+            Hidden = true,
+            Benefit = "Granted after a rewarded video ad.",
+            Grants = {
+                KnowledgeTokens = MonetizationConfig.RewardedAd.RewardTokens,
+            },
+        },
         {
             Key = "support_tip_small",
             DisplayName = "Small Support Tip",
