@@ -186,7 +186,7 @@ BattleMissions.Missions = {
                 AllyPoint = "Wells",
                 Narration = {
                     Title = "Taking The Wells",
-                    Body = "The sirah reports that the companion al-Hubab ibn al-Mundhir advised camping by the nearest well, so the army would hold the water.",
+                    Body = "The sirah reports that the companion al-Hubab ibn al-Mundhir advised camping by the well nearest the enemy and stopping up the wells behind it, so the army would hold the water.",
                     Reference = "Sirat Ibn Hisham",
                 },
                 Waves = {
@@ -464,8 +464,8 @@ BattleMissions.Missions = {
                 Radius = 24,
                 AllyPoint = "Rally",
                 Narration = {
-                    Title = "Up The Mountain",
-                    Body = "You were climbing and not looking back at anyone, while the Messenger was calling you from behind.",
+                    Title = "Remember The Flight",
+                    Body = "Qur'an 3:153 recalls believers who fled up this slope without looking back while the Messenger ﷺ called them from behind. Regroup calmly and stay together.",
                     Reference = "Qur'an 3:153",
                 },
             },
@@ -511,7 +511,7 @@ BattleMissions.Missions = {
                 AllyPoint = "Rally",
                 Narration = {
                     Title = "Do Not Weaken",
-                    Body = "Do not weaken and do not grieve, for you will be superior if you are believers. Those who answered Allah and the Messenger after being wounded have a great reward.",
+                    Body = "Do not weaken and do not grieve, for you will be superior if you are believers. Those who answered Allah and the Messenger ﷺ after being wounded have a great reward.",
                     Reference = "Qur'an 3:139 · Qur'an 3:172",
                 },
             },

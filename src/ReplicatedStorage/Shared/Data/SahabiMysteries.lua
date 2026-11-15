@@ -114,7 +114,7 @@ local mysteries: { Mystery } = {
             { Id = "lamp", Object = "Cold fire-temple lamp", Text = "From near Isfahan in Persia. A note: \"My father made me keeper of the fire that must never go out.\"", Offset = Vector3.new(-40, 0, -38) },
             { Id = "bell", Object = "Small church bell", Text = "\"I heard Christians praying and loved their worship more than ours. I left home to learn from their monks: in Syria, Mosul, Nusaybin, then Amuriyah.\"", Offset = Vector3.new(38, 0, -36) },
             { Id = "prophecy", Object = "Monk's parchment", Text = "\"A prophet will appear in a land of palm trees between two lava fields. He accepts gifts but not charity, and between his shoulders is the seal of prophethood.\"", Offset = Vector3.new(-44, 0, 20) },
-            { Id = "contract", Object = "Contract of sale", Text = "\"Sold by travelling merchants of the Banu Kalb, who betrayed him, to a man of Yathrib.\"", Offset = Vector3.new(42, 0, 24) },
+            { Id = "contract", Object = "Contract of sale", Text = "\"Sold by travelling merchants of the Banu Kalb, who betrayed him, to a man of Wadi al-Qura, who later sold him on to Yathrib.\"", Offset = Vector3.new(42, 0, 24) },
             { Id = "sapling", Object = "Date-palm sapling", Text = "\"His freedom was agreed for three hundred palm trees planted and forty measures of gold. The Prophet ﷺ planted the saplings with his own hands.\"", Offset = Vector3.new(0, 0, -44) },
         },
         Hints = {
@@ -140,7 +140,7 @@ local mysteries: { Mystery } = {
         },
         Conclusion = {
             "Salman al-Farisi grew up in Persia as keeper of a sacred fire. Searching for the truth, he left home and studied under a chain of Christian monks.",
-            "The last one told him of a prophet who would appear in a land of palm trees. On the way there he was betrayed and sold into slavery in Yathrib, which became Madinah.",
+            "The last one told him of a prophet who would appear in a land of palm trees. On the way there he was betrayed and sold into slavery, and later taken to Yathrib, which became Madinah.",
             "He met the Prophet ﷺ there and accepted Islam. His freedom was bought with palm trees planted and gold, with the Prophet's ﷺ help. At the Battle of the Trench, his idea helped save Madinah.",
         },
         Sources = { "Musnad Ahmad, Salman's own account of his search", IBN_HISHAM, DHAHABI },
@@ -188,7 +188,7 @@ local mysteries: { Mystery } = {
             "He bought the well of Rumah and made its water free, equipped a large part of the army of Tabuk, and married two daughters of the Prophet ﷺ, earning the title Dhu al-Nurayn.",
             "As the third caliph he had the Qur'an copied to one standard and sent to the main cities, so Muslims everywhere read the same text.",
         },
-        Sources = { "Jami' al-Tirmidhi, Book of Virtues (Uthman and the well of Rumah)", "Sahih al-Bukhari 4987 (the copying of the Qur'an)", DHAHABI },
+        Sources = { "Jami' al-Tirmidhi 3703 (Uthman and the well of Rumah)", "Sahih al-Bukhari 4987 (the copying of the Qur'an)", DHAHABI },
         FictionNote = "Invented for the game: the counting room, ledger, and carrying water house to house.",
     },
     {

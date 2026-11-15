@@ -98,7 +98,7 @@ local chapters: { Chapter } = {
         Story = {
             "Families of Makkah sent babies to be nursed in the open desert, where the air was clean and the Arabic was pure. The Prophet ﷺ was nursed by Halimah of the Banu Sa'd, and her household found blessing in their animals and milk while he was with them.",
             "He returned to his mother, Aminah. When he was about six, she died at al-Abwa on the way back from visiting Yathrib.",
-            "His grandfather Abd al-Muttalib cared for him until he died, when the boy was about eight. Then his uncle Abu Talib took him in and cared for him for the rest of his life.",
+            "His grandfather Abd al-Muttalib cared for him until he died, when the boy was about eight. Then his uncle Abu Talib took him in and cared for him for the rest of Abu Talib's life.",
         },
         Activity = { Kind = "Collect", Item = "water skin", Count = 3 },
         Decision = {
@@ -336,7 +336,7 @@ local chapters: { Chapter } = {
         },
         Consequence = "The emigrants lived safely in Abyssinia for years, many returning later to Madinah.",
         Lesson = "Speak clearly and truthfully about your faith. Justice can be found among people of other faiths too.",
-        Sources = { "Qur'an 19:16-36 (Surah Maryam)", "Musnad Ahmad, narration of Umm Salamah", IBN_HISHAM },
+        Sources = { "Qur'an 19:1-36 (Surah Maryam)", "Musnad Ahmad, narration of Umm Salamah", IBN_HISHAM },
         GameplayNote = "Fictional: the hall standing for the royal court sits beside a Makkah-side harbour so the scene fits in one zone.",
     },
     {
@@ -565,7 +565,7 @@ local chapters: { Chapter } = {
             Explanation = "He let the camel choose so no family would feel passed over, and paid the orphans for their land.",
         },
         Consequence = "The Muslims now had a home where they could worship freely and build a community.",
-        Lesson = "Fairness matters, even to orphans who could not have argued for a better price.",
+        Lesson = "He insisted on paying the orphans for their land, even though they offered it as a gift. Be fair to the weak, even when they would let it go.",
         Sources = { "Qur'an 9:108", "Sahih al-Bukhari 3906 (the arrival at Quba and Madinah)", IBN_HISHAM },
         GameplayNote = "The camel and crowd are not shown. Quba is a historical reconstruction, not today's Quba Mosque.",
     },
@@ -664,7 +664,7 @@ local chapters: { Chapter } = {
         },
         Story = {
             "The Muslims set out to meet a Qurayshi caravan, but the caravan escaped and an army of about a thousand came out instead. About 313 Muslims stood against them.",
-            "Al-Hubab ibn al-Mundhir advised taking position at the last well so the Muslims had water and Quraysh did not. The advice was accepted.",
+            "Al-Hubab ibn al-Mundhir advised taking position at the well nearest the enemy so the Muslims had water and Quraysh did not. The advice was accepted.",
             "Rain fell the night before, firming the sand under the believers. The next day Quraysh were defeated and many of their leaders, including Abu Jahl, were killed.",
             "Captives were treated well. Some who could read were ransomed by teaching ten Muslim children to read.",
         },
@@ -851,7 +851,7 @@ local chapters: { Chapter } = {
             CorrectIndex = 2,
             Explanation = "He chose honesty though it was hard, and Allah accepted his repentance.",
         },
-        Consequence = "In the following year, tribes from all over Arabia sent delegations to Madinah to accept Islam.",
+        Consequence = "After Tabuk, tribes from all over Arabia sent delegations to Madinah to accept Islam.",
         Lesson = "Tell the truth even when it costs you. Honesty leads to good.",
         Sources = { "Qur'an 9:117-119", "Sahih al-Bukhari 4418 (narrated by Ka'b ibn Malik)", IBN_HISHAM },
         GameplayNote = "Fictional: filling water skins for the march.",
@@ -869,7 +869,7 @@ local chapters: { Chapter } = {
         Story = {
             "The Prophet ﷺ performed Hajj with a huge gathering. On the Day of Arafah he gave a sermon.",
             "He taught that lives and property are sacred, that people must be just and fear Allah in how they treat women, that the debts of usury were cancelled, and that he left them the Book of Allah, which would keep them from going astray if they held to it.",
-            "In a related narration he taught that no Arab is better than a non-Arab, and no white person better than a black person, except by piety.",
+            "In a related narration he taught that no Arab is better than a non-Arab, and no light-skinned person better than a dark-skinned person, except by piety.",
             "The verse was revealed: \"This day I have perfected your religion for you.\"",
         },
         Decision = {

@@ -28,7 +28,7 @@ local CompanionStories = {
                 LocationName = "Trust Courtyard",
                 Dialogue = {
                     { Speaker = "Guide", Text = "Abu Bakr is remembered with the title as-Siddiq, meaning the truthful one or the one who strongly confirms the truth." },
-                    { Speaker = "Guide", Text = "A famous reason connected to this title is that he believed the Prophet's account of the Night Journey without hesitation, showing immediate trust in revelation." },
+                    { Speaker = "Guide", Text = "A famous reason connected to this title is that he believed the Prophet's ﷺ account of the Night Journey without hesitation, showing immediate trust in revelation." },
                     { Speaker = "Reference", Text = "Related Hadith: Sahih Muslim 2607c says truth leads to righteousness and a person who keeps telling the truth is recorded with Allah as truthful." },
                     { Speaker = "Narrator", Text = "This stop teaches that trust and truthfulness were central to Abu Bakr's character." },
                 },
@@ -43,7 +43,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Guide", Text = "Abu Bakr was among the earliest Muslims and used his position, wealth, and courage to support the community." },
                     { Speaker = "Guide", Text = "He is remembered for helping free persecuted believers, including Bilal ibn Rabah." },
-                    { Speaker = "Reference", Text = "Related Hadith: Sahih al-Bukhari 3656 describes Abu Bakr as the Prophet's close companion, showing how near he was in loyalty and support." },
+                    { Speaker = "Reference", Text = "Related Hadith: Sahih al-Bukhari 3656 describes Abu Bakr as the Prophet's ﷺ close companion, showing how near he was in loyalty and support." },
                     { Speaker = "Narrator", Text = "His story shows that leadership starts with service and sacrifice." },
                 },
             },
@@ -55,7 +55,7 @@ local CompanionStories = {
                 PromptText = "Listen",
                 LocationName = "Hijrah Path",
                 Dialogue = {
-                    { Speaker = "Guide", Text = "Abu Bakr accompanied the Prophet during the Hijrah from Makkah to Medina." },
+                    { Speaker = "Guide", Text = "Abu Bakr accompanied the Prophet ﷺ during the Hijrah from Makkah to Medina." },
                     { Speaker = "Guide", Text = "He is remembered as the companion who stayed close during one of the most important journeys in Islamic history." },
                     { Speaker = "Reference", Text = "Qur'an: Surah At-Tawbah 9:40 mentions the two in the cave. Hadith: Sahih al-Bukhari 3653 records Abu Bakr saying that if the pursuers looked down they would see them." },
                     { Speaker = "Narrator", Text = "This moment teaches loyalty, courage, and trust during danger." },
@@ -69,9 +69,9 @@ local CompanionStories = {
                 PromptText = "Reflect",
                 LocationName = "Leadership Hall",
                 Dialogue = {
-                    { Speaker = "Guide", Text = "After the Prophet's death in 632 CE, the Muslim community needed leadership and unity." },
-                    { Speaker = "Guide", Text = "Abu Bakr became the first caliph, known as the successor to the Messenger of Allah, and served from 632 to 634 CE." },
-                    { Speaker = "Reference", Text = "Related Hadith: Sahih Muslim 418a records the Prophet ordering Abu Bakr to lead the people in prayer, and Sahih al-Bukhari 4986 records Abu Bakr overseeing the collection of the Qur'an after Yamamah." },
+                    { Speaker = "Guide", Text = "After the Prophet's ﷺ death in 632 CE, the Muslim community needed leadership and unity." },
+                    { Speaker = "Guide", Text = "Abu Bakr became the first caliph, known as the successor to the Messenger of Allah ﷺ, and served from 632 to 634 CE." },
+                    { Speaker = "Reference", Text = "Related Hadith: Sahih Muslim 418a records the Prophet ﷺ ordering Abu Bakr to lead the people in prayer, and Sahih al-Bukhari 4986 records Abu Bakr overseeing the collection of the Qur'an after Yamamah." },
                     { Speaker = "Reflection", Text = "His final lesson in this route is steady leadership after grief and confusion." },
                 },
             },
@@ -131,7 +131,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Elder", Text = "Bilal is remembered for repeating words of tawhid while enduring severe hardship." },
                     { Speaker = "Elder", Text = "His story teaches players that dignity and faith are not taken away by pressure." },
-                    { Speaker = "Reference", Text = "Related Hadith: Jami` at-Tirmidhi 3689 later praises Bilal by mentioning the Prophet hearing Bilal's footsteps in Paradise." },
+                    { Speaker = "Reference", Text = "Related Hadith: Jami` at-Tirmidhi 3689 later praises Bilal by mentioning the Prophet ﷺ hearing Bilal's footsteps in Paradise." },
                     { Speaker = "Narrator", Text = "Steadfast hearts often change the future of a community." },
                 },
             },
@@ -319,7 +319,7 @@ local CompanionStories = {
                 PromptText = "Stand Firm",
                 LocationName = "Defense Line",
                 Dialogue = {
-                    { Speaker = "Defense Guide", Text = "At Uhud, Nusaybah became famous for defending the Messenger's side during a difficult moment." },
+                    { Speaker = "Defense Guide", Text = "At Uhud, Nusaybah became famous for defending the Messenger's ﷺ side during a difficult moment." },
                     { Speaker = "Defense Guide", Text = "Her courage made her one of the most memorable figures of that battle." },
                     { Speaker = "Reference", Text = "Related Qur'an reflection: Surah Al-Ahzab 33:23 is often used to reflect on believers who stayed firm when the test became severe." },
                     { Speaker = "Narrator", Text = "Players are meant to feel the urgency of protection and commitment here." },
@@ -395,7 +395,7 @@ local CompanionStories = {
                 Dialogue = {
                     { Speaker = "Elder", Text = "Umar became known for visible strength and confidence once he embraced Islam." },
                     { Speaker = "Elder", Text = "Players learn here that strong personalities can become forces for good when guided by principle." },
-                    { Speaker = "Reference", Text = "Related Qur'an: Surah Al-Ma'idah 8 commands believers not to let emotion pull them away from justice." },
+                    { Speaker = "Reference", Text = "Related Qur'an: Surah Al-Ma'idah (5:8) commands believers not to let emotion pull them away from justice." },
                     { Speaker = "Narrator", Text = "Public courage can help protect a growing community." },
                 },
             },

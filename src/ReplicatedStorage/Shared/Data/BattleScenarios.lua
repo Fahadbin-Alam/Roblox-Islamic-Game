@@ -154,7 +154,7 @@ local BattleScenarios = {
             Lines = {
                 "Badr took place on 17 Ramadan, 2 AH / 624 CE and became a major victory for the early Muslim community.",
                 "The battle strengthened morale and marked a turning point in the public standing of the community.",
-                "How it ended: the Quraysh line broke and they fled back to Makkah. About 70 of them were killed, including Abu Jahl, and about 70 were taken captive; 14 Muslims were martyred (Ibn Hisham; Sahih al-Bukhari 3976).",
+                "How it ended: the Quraysh line broke and they fled back to Makkah. About 70 of them were killed, including Abu Jahl, and about 70 were taken captive; 14 Muslims were martyred (Sahih al-Bukhari 3986; the 14 martyrs from Ibn Hisham).",
                 "The lessons: preparation, standing firm, unity, gratitude after victory, and mercy toward captives.",
             },
         },
@@ -289,7 +289,7 @@ local BattleScenarios = {
                 {
                     CameraName = "Scene1",
                     Title = "A Mountain With Meaning",
-                    Body = "Sahih al-Bukhari 4422 preserves the line that Uhud is a mountain that loves us and is loved by us. The place itself became part of the memory of the battle.",
+                    Body = "Returning from Tabuk years later, the Prophet ﷺ said that Uhud is a mountain that loves us and that we love (Sahih al-Bukhari 4422). The place itself became part of the memory of the battle.",
                     DurationSeconds = 8,
                     FieldOfView = 61,
                     CameraDrift = Vector3.new(12, 1, -8),
@@ -316,7 +316,7 @@ local BattleScenarios = {
                 {
                     CameraName = "Scene4",
                     Title = "Confusion And The Uphill Flight",
-                    Body = "Qur'an 3:153 describes the believers climbing and not looking back while the Messenger called from behind. Sahih Muslim 1789 remembers how fiercely the pressure closed in during the late battle.",
+                    Body = "Qur'an 3:153 describes the believers climbing and not looking back while the Messenger ﷺ called from behind. Sahih Muslim 1789 remembers how fiercely the pressure closed in during the late battle.",
                     DurationSeconds = 9,
                     FieldOfView = 58,
                     CameraDrift = Vector3.new(-8, 3, -12),

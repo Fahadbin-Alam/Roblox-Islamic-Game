@@ -27,6 +27,7 @@
 - Al-Dhahabi, *Siyar A'lam al-Nubala'* (for companion biographies).
 
 The full per-chapter and per-mystery list is in [seerah-checklist.md](seerah-checklist.md).
+The pre-publish citation audit and its open questions are in [content-audit.md](content-audit.md).
 
 ## Review still needed
 
