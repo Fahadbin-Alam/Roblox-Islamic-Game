@@ -631,18 +631,10 @@ end
 -- A mountain ridge: two wedges back to back make a triangular profile, with a tilted rock
 -- on the crest so the skyline is not a straight line.
 local function ridge(parent: Instance, name: string, ground: Vector3, length: number, height: number, depth: number, yaw: number, seed: number)
-    local r = Decor.Rng(seed)
-    local frame = CFrame.new(ground) * CFrame.Angles(0, math.rad(yaw), 0)
-    local colors = { ROCK, Decor.Colors.RockDark, Decor.Colors.RockLight }
-    local tint = colors[math.floor(r(1, 3.999))]
-    BuildUtils.CreateWedge(parent, name .. "_Front", Vector3.new(length, height, depth / 2), frame * CFrame.new(0, height / 2, -depth / 4), tint, Enum.Material.Slate, nil)
-    BuildUtils.CreateWedge(parent, name .. "_Back", Vector3.new(length, height, depth / 2), frame * CFrame.new(0, height / 2, depth / 4) * CFrame.Angles(0, math.pi, 0), Decor.Shade(tint, 0.88), Enum.Material.Slate, nil)
-    -- A shorter spur across the ridge breaks up the long crest.
-    local spur = r(0.45, 0.75)
-    local spurFrame = frame * CFrame.new(r(-length * 0.3, length * 0.3), 0, 0) * CFrame.Angles(0, math.rad(90 + r(-20, 20)), 0)
-    BuildUtils.CreateWedge(parent, name .. "_SpurA", Vector3.new(depth * 0.7, height * spur, depth * 0.45), spurFrame * CFrame.new(0, height * spur / 2, -depth * 0.225), Decor.Shade(tint, 1.06), Enum.Material.Slate, nil)
-    BuildUtils.CreateWedge(parent, name .. "_SpurB", Vector3.new(depth * 0.7, height * spur, depth * 0.45), spurFrame * CFrame.new(0, height * spur / 2, depth * 0.225) * CFrame.Angles(0, math.pi, 0), Decor.Shade(tint, 0.94), Enum.Material.Slate, nil)
-    BuildUtils.CreatePart(parent, name .. "_Crag", Vector3.new(r(10, 18), r(8, 14), r(8, 14)), frame * CFrame.new(r(-length * 0.25, length * 0.25), height - 3, 0) * CFrame.Angles(r(-0.4, 0.4), r(0, 3), r(-0.4, 0.4)), Decor.Colors.RockDark, Enum.Material.Slate, nil, nil)
+    -- Roblox Terrain rock (it used to be part wedges): same footprint, no part cost.
+    local folder = BuildUtils.CreateFolder(parent, name)
+    folder:SetAttribute("TerrainRidge", true)
+    BuildUtils.TerrainRidge(CFrame.new(ground) * CFrame.Angles(0, math.rad(yaw), 0), length, height, depth, seed)
 end
 
 -- A ring of bare mountains around the valley: high ridges at the edge and lower hills

@@ -127,6 +127,10 @@ end
 local function pointInside(part, point)
     local localPoint = part.CFrame:PointToObjectSpace(point)
     local s = part.Size * 0.5
+    if part.ClassName == "WedgePart" then
+        -- Rises from the front (-Z) edge to full height at the back (+Z).
+        return math.abs(localPoint.X) <= s.X and math.abs(localPoint.Z) <= s.Z and localPoint.Y >= -s.Y and localPoint.Y <= -s.Y + part.Size.Y * (localPoint.Z + s.Z) / part.Size.Z
+    end
     if part.Shape and part.Shape.Name == "Cylinder" then
         local r = math.min(s.Y, s.Z)
         return math.abs(localPoint.X) <= s.X and (localPoint.Y ^ 2 + localPoint.Z ^ 2) <= r * r
@@ -149,6 +153,11 @@ for _, item in ipairs(battles and battles:GetDescendants() or {}) do
     if item:IsA("BasePart") and item.CanCollide then
         table.insert(collidable, item)
     end
+end
+
+-- Terrain made by the world builders is solid too.
+for _, fill in ipairs(builtTerrain or {}) do
+    table.insert(collidable, fill)
 end
 
 -- Body-sized column of space a player needs (feet slightly above the floor).

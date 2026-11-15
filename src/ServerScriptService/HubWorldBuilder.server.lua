@@ -42,67 +42,15 @@ local function makeDecorativePart(part: BasePart): BasePart
     return part
 end
 
+-- A rock ridge in Roblox Terrain (it used to be stacked brown blocks). Same footprint as
+-- before; terrain smooths itself, is textured, and costs no parts. Terrain is solid, so the
+-- hub walk checks treat it as a wall.
 local function createStylizedRidge(parent: Instance, name: string, center: Vector3, yawDegrees: number, length: number, height: number, depth: number, color: Color3)
     local ridge = BuildUtils.CreateFolder(parent, name)
+    ridge:SetAttribute("TerrainRidge", true)
+    ridge:SetAttribute("ColorPreview", color)
     local baseCFrame = CFrame.new(center) * CFrame.Angles(0, math.rad(yawDegrees), 0)
-
-    makeDecorativePart(BuildUtils.CreatePart(
-        ridge,
-        "MassCore",
-        Vector3.new(length * 0.94, height * 0.34, depth * 0.82),
-        baseCFrame * CFrame.new(0, height * 0.17, 0),
-        scaleColor(color, 0.9),
-        Enum.Material.Rock,
-        nil,
-        nil
-    ))
-
-    makeDecorativePart(BuildUtils.CreatePart(
-        ridge,
-        "MesaShelf",
-        Vector3.new(length * 0.72, height * 0.18, depth * 0.58),
-        baseCFrame * CFrame.new(0, height * 0.38, -depth * 0.02),
-        scaleColor(color, 1.03),
-        Enum.Material.Slate,
-        nil,
-        nil
-    ))
-
-    for segment = 1, 7 do
-        local alpha = (segment - 4) / 3
-        local widthFactor = 1 - math.abs(alpha) * 0.3
-        local segmentLength = length * (0.13 + widthFactor * 0.035)
-        local segmentHeight = height * (0.62 + widthFactor * 0.22)
-        local segmentDepth = depth * (0.52 + widthFactor * 0.16)
-        local x = alpha * length * 0.37
-        local z = math.sin(segment * 1.11) * depth * 0.06
-        local cframe = baseCFrame
-            * CFrame.new(x, segmentHeight * 0.38, z)
-            * CFrame.Angles(math.rad((segment % 3 - 1) * 3), math.rad((segment % 2 == 0) and -5 or 6), math.rad((segment % 4 - 1.5) * 2))
-
-        makeDecorativePart(BuildUtils.CreateWedge(
-            ridge,
-            string.format("Face_%d", segment),
-            Vector3.new(segmentLength, segmentHeight, segmentDepth),
-            cframe,
-            scaleColor(color, 0.8 + widthFactor * 0.18),
-            Enum.Material.Rock,
-            nil
-        ))
-    end
-
-    for layer = 1, 3 do
-        makeDecorativePart(BuildUtils.CreatePart(
-            ridge,
-            string.format("Strata_%d", layer),
-            Vector3.new(length * (0.82 - layer * 0.12), 0.3, 1.4),
-            baseCFrame * CFrame.new(0, height * (0.2 + layer * 0.17), depth * (-0.26 + layer * 0.14)) * CFrame.Angles(0, math.rad((layer % 2 == 0) and -4 or 5), 0),
-            scaleColor(color, 0.6 + layer * 0.08),
-            Enum.Material.Slate,
-            nil,
-            0.04
-        ))
-    end
+    BuildUtils.TerrainRidge(baseCFrame, length * 0.94, height, depth * 0.82, center.X * 0.13 + center.Z * 0.07)
 
     return ridge
 end
@@ -542,8 +490,10 @@ local function buildDesertRoute(parent: Instance, startPosition: Vector3, stopPo
 
     BuildUtils.CreatePart(district, "SafetyPlate", Vector3.new(1020, 10, routeLength + 260), CFrame.new(routeCenter + Vector3.new(0, -9, 0)), Color3.fromRGB(255, 255, 255), Enum.Material.SmoothPlastic, nil, 1)
     BuildUtils.CreatePart(district, "DesertBase", Vector3.new(860, 3.94, routeLength), CFrame.new(routeCenter + Vector3.new(0, 1.97, 0)), DESERT_SAND, Enum.Material.Sand, nil, nil)
-    BuildUtils.CreateDune(district, "RouteLongWestDune", routeCenter + Vector3.new(-220, 0, -120), Vector3.new(420, 62, routeLength * 0.42), Color3.fromRGB(204, 179, 132))
-    BuildUtils.CreateDune(district, "RouteLongEastDune", routeCenter + Vector3.new(226, 0, 160), Vector3.new(440, 66, routeLength * 0.45), Color3.fromRGB(199, 175, 129))
+    -- Long dunes either side of the road. Terrain is solid: they stay clear of the road (and its
+    -- edges) and end before the Madinah courtyard.
+    BuildUtils.CreateDune(district, "RouteLongWestDune", routeCenter + Vector3.new(-280, 0, -120), Vector3.new(250, 62, routeLength * 0.42), Color3.fromRGB(204, 179, 132))
+    BuildUtils.CreateDune(district, "RouteLongEastDune", routeCenter + Vector3.new(284, 0, -60), Vector3.new(250, 66, routeLength * 0.4), Color3.fromRGB(199, 175, 129))
     BuildUtils.CreatePart(district, "TravelPath", Vector3.new(102, 1, routeLength - 140), CFrame.new(routeCenter + Vector3.new(0, 4.55, 0)), Color3.fromRGB(182, 154, 110), Enum.Material.Sandstone, nil, nil)
     BuildUtils.CreatePart(district, "TravelPathCenterInlay", Vector3.new(7, 0.24, routeLength - 180), CFrame.new(routeCenter + Vector3.new(0, 5.16, 0)), Color3.fromRGB(232, 212, 168), Enum.Material.Marble, nil, nil).CanCollide = false
     BuildUtils.CreatePart(district, "TravelPathWestEdge", Vector3.new(3, 0.24, routeLength - 180), CFrame.new(routeCenter + Vector3.new(-51, 5.18, 0)), Color3.fromRGB(133, 108, 76), Enum.Material.Slate, nil, nil).CanCollide = false

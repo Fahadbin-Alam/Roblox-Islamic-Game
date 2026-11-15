@@ -242,7 +242,8 @@ def render(parts, eye, at, width, height, fov, night, out, lights=()):
             continue
         kind = -1 if part["glow"] else kind_index[MATERIAL_KIND.get(part["material"], "plain")]
         for face in faces_for(part):
-            normal = np.cross(face[1] - face[0], face[2] - face[0])
+            # Newell's normal: works for faces with a repeated corner (the poles of a ball).
+            normal = np.cross(face, np.roll(face, -1, axis=0)).sum(axis=0)
             norm = np.linalg.norm(normal)
             if norm < 1e-9:
                 continue

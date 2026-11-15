@@ -106,12 +106,16 @@ if historical then
             table.insert(solids, part)
         end
     end
+    -- Terrain (the ridges around the towns) is solid too.
+    for _, fill in ipairs(builtTerrain or {}) do
+        if fill.Position.X > 3000 then
+            table.insert(solids, fill)
+        end
+    end
 
     local function blockedBy(point)
         for _, part in ipairs(solids) do
-            local localPoint = part.CFrame:PointToObjectSpace(point)
-            local h = part.Size / 2
-            if math.abs(localPoint.X) < h.X + 1 and math.abs(localPoint.Y) < h.Y and math.abs(localPoint.Z) < h.Z + 1 then
+            if solidAt(part, point, 1) then
                 return part
             end
         end
@@ -325,7 +329,16 @@ if historical then
         local function key(i, j)
             return i * (n + 1) + j
         end
+        local candidates = {}
         for _, part in ipairs(folder and folder:GetDescendants() or {}) do
+            table.insert(candidates, part)
+        end
+        for _, fill in ipairs(builtTerrain or {}) do
+            if math.abs(fill.Position.X - zone.Center.X) < half + 200 and math.abs(fill.Position.Z - zone.Center.Z) < half + 200 then
+                table.insert(candidates, fill)
+            end
+        end
+        for _, part in ipairs(candidates) do
             if part:IsA("BasePart") and part.CanCollide and part.Transparency < 1 and part.Name ~= "Ground" then
                 local cf, size = part.CFrame, part.Size
                 local r = cf.RightVector * size.X / 2
@@ -348,8 +361,7 @@ if historical then
                             if not blocked[k] then
                                 local hits = false
                                 for _, dy in ipairs({ 2, 3.5, 4.8 }) do
-                                    local l = cf:PointToObjectSpace(Vector3.new(origin.X + i * CELL, GT + dy, origin.Z + j * CELL))
-                                    if math.abs(l.X) < size.X / 2 + 1 and math.abs(l.Y) < size.Y / 2 and math.abs(l.Z) < size.Z / 2 + 1 then
+                                    if solidAt(part, Vector3.new(origin.X + i * CELL, GT + dy, origin.Z + j * CELL), 1) then
                                         hits = true
                                         break
                                     end
@@ -553,12 +565,22 @@ do
                 end
             end
             local blocked = nil
+            -- Only parts that could reach the sampled line (within 20 studs plus their size).
+            local nearby = {}
+            for _, part in ipairs(opaque) do
+                local size = part.Size
+                local reach = 20 + math.max(size.X, size.Y, size.Z)
+                local p = part.Position
+                if math.abs(p.X - at.X) < reach and math.abs(p.Z - at.Z) < reach then
+                    table.insert(nearby, part)
+                end
+            end
             -- From 8 studs in front of the player (posts and signs that would stand in the way)
             -- to 14 behind (where the camera sits).
             for back = -8, 14, 1 do
                 for _, dy in ipairs({ 7, 10 }) do
                     local point = Vector3.new(at.X, ground + dy, at.Z) - dir * back
-                    for _, part in ipairs(opaque) do
+                    for _, part in ipairs(nearby) do
                         local l = part.CFrame:PointToObjectSpace(point)
                         local h = part.Size / 2
                         if math.abs(l.X) < h.X and math.abs(l.Y) < h.Y and math.abs(l.Z) < h.Z then
@@ -587,6 +609,58 @@ do
     end
     zcheck(#hidden == 0, "the view ahead of and behind every travel landing is clear" .. (#hidden > 0 and (": " .. table.concat(hidden, "; ")) or ""))
     zcheck(#unreadable == 0, "signs near travel landings face the arriving player" .. (#unreadable > 0 and (": " .. table.concat(unreadable, "; ")) or ""))
+end
+
+-- The land around the play areas (WorldTerrain): it exists, and nowhere inside a play area
+-- does it rise above that area's floor (it would bury floors, paths and arrivals). Play areas
+-- are the large flat ground parts of each zone.
+do
+    local from = mock.worldTerrainFrom or (#mock.terrain + 1)
+    local fills = #mock.terrain - from + 1
+    zcheck(fills > 500, string.format("the world has terrain dunes and mountains around the play areas (%d terrain fills)", fills))
+    local areas = {}
+    for _, part in ipairs(Workspace:GetDescendants()) do
+        if part:IsA("BasePart") and part.Transparency < 0.5 then
+            local size = part.Size
+            local top = part.Position.Y + size.Y / 2
+            if size.X * size.Z > 20000 and top > -1 and top < 10 and size.Y < 40 then
+                table.insert(areas, { part, part.Position.X - size.X / 2, part.Position.X + size.X / 2, part.Position.Z - size.Z / 2, part.Position.Z + size.Z / 2, top })
+            end
+        end
+    end
+    local buried = {}
+    for index = from, #mock.terrain do
+        local fill = mock.terrain[index]
+        if fill.Material and fill.Material.Name == "Air" then
+            continue
+        end
+        local c = fill.CFrame.Position
+        local half = fill.Size / 2
+        for _, area in ipairs(areas) do
+            local dx = math.max(area[2] - c.X, 0, c.X - area[3])
+            local dz = math.max(area[4] - c.Z, 0, c.Z - area[5])
+            local peak = nil
+            if fill.Kind == "Ball" then
+                local d = math.sqrt(dx * dx + dz * dz)
+                if d < half.X then
+                    peak = c.Y + math.sqrt(half.X * half.X - d * d)
+                end
+            else
+                -- A turned block or wedge: its extent along the world axes.
+                local cf = fill.CFrame
+                local hx = math.abs(cf.r00) * half.X + math.abs(cf.r01) * half.Y + math.abs(cf.r02) * half.Z
+                local hz = math.abs(cf.r20) * half.X + math.abs(cf.r21) * half.Y + math.abs(cf.r22) * half.Z
+                if c.X - hx < area[3] and c.X + hx > area[2] and c.Z - hz < area[5] and c.Z + hz > area[4] then
+                    -- A cylinder's height lies along its (turned) local X.
+                    peak = c.Y + (if fill.Kind == "Cylinder" then half.X else half.Y)
+                end
+            end
+            if peak and peak > area[6] + 0.05 and #buried < 10 then
+                table.insert(buried, string.format("terrain fill %d rises to %.1f inside %s (floor %.1f)", index, peak, area[1]:GetFullName(), area[6]))
+            end
+        end
+    end
+    zcheck(#buried == 0, "no terrain rises above the floor of a play area" .. (#buried > 0 and (": " .. table.concat(buried, "; ")) or ""))
 end
 
 if zoneFailures > 0 then

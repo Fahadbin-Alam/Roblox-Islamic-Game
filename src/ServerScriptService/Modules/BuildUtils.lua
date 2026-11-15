@@ -319,6 +319,12 @@ local function fillTerrainBlock(cframe: CFrame, size: Vector3, material: Enum.Ma
     end)
 end
 
+local function fillTerrainWedge(cframe: CFrame, size: Vector3, material: Enum.Material)
+    pcall(function()
+        Workspace.Terrain:FillWedge(cframe, size, material)
+    end)
+end
+
 function BuildUtils.CreateMountain(
     parent: Instance,
     name: string,
@@ -376,6 +382,31 @@ function BuildUtils.CreateMountain(
             Vector3.new(baseWidth * (0.22 + alpha * 0.05), math.max(9, height * 0.08), depth * 0.08),
             index % 2 == 0 and Enum.Material.Rock or Enum.Material.Sandstone
         )
+    end
+end
+
+-- A rock ridge in Roblox Terrain, standing on `base` (ground level, yawed along its length):
+-- a sandstone foot, a triangular rock body from two wedges back to back, and a broken crest
+-- of rounded crags. It stays inside the length x depth footprint, so it can replace a part
+-- ridge of the same size. Terrain smooths and textures itself and costs no parts.
+function BuildUtils.TerrainRidge(base: CFrame, length: number, height: number, depth: number, seed: number)
+    local state = math.floor(math.abs(seed) * 7919 + 17) % 2147483647
+    local function rand(a: number, b: number): number
+        state = (state * 16807) % 2147483647
+        return a + (b - a) * (state / 2147483647)
+    end
+
+    fillTerrainBlock(base * CFrame.new(0, height * 0.12, 0), Vector3.new(length * 0.96, height * 0.24, depth * 0.94), Enum.Material.Sandstone)
+    fillTerrainWedge(base * CFrame.new(0, height * 0.42, -depth * 0.22), Vector3.new(length * 0.9, height * 0.84, depth * 0.44), Enum.Material.Rock)
+    fillTerrainWedge(base * CFrame.new(0, height * 0.42, depth * 0.22) * CFrame.Angles(0, math.pi, 0), Vector3.new(length * 0.9, height * 0.84, depth * 0.44), Enum.Material.Rock)
+
+    local crags = math.clamp(math.floor(length / math.max(depth * 0.5, 20)), 2, 6)
+    for index = 1, crags do
+        local alpha = (index - 0.5) / crags - 0.5
+        local radius = math.min(depth * rand(0.18, 0.28), height * 0.3)
+        local x = alpha * (length * 0.9 - radius * 2)
+        local y = height * rand(0.62, 0.86) - radius * 0.5
+        fillTerrainBall((base * CFrame.new(x, y, rand(-depth, depth) * 0.06)).Position, radius, if index % 3 == 0 then Enum.Material.Sandstone else Enum.Material.Rock)
     end
 end
 

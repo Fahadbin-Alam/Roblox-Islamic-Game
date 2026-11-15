@@ -618,6 +618,22 @@ for _, name in ipairs({ "FillBall", "FillBlock", "FillCylinder", "FillWedge", "C
     Instance_[name] = function() end
 end
 
+-- Terrain fills are recorded so checks can see them and dump.luau can draw them.
+mock.terrain = {}
+function Instance_.FillBall(_, center, radius, material)
+    table.insert(mock.terrain, { Kind = "Ball", CFrame = identityAt(center.X, center.Y, center.Z), Size = v3(radius * 2, radius * 2, radius * 2), Material = material })
+end
+function Instance_.FillBlock(_, cframe, size, material)
+    table.insert(mock.terrain, { Kind = "Block", CFrame = cframe, Size = size, Material = material })
+end
+function Instance_.FillWedge(_, cframe, size, material)
+    table.insert(mock.terrain, { Kind = "Wedge", CFrame = cframe, Size = size, Material = material })
+end
+function Instance_.FillCylinder(_, cframe, height, radius, material)
+    -- Roblox terrain cylinders stand along Y; the renderer's cylinders lie along X.
+    table.insert(mock.terrain, { Kind = "Cylinder", CFrame = cframe * CFrame.Angles(0, 0, math.rad(90)), Size = v3(height, radius * 2, radius * 2), Material = material })
+end
+
 Instance = {
     new = function(cls, parent)
         local object = newInstance(cls)

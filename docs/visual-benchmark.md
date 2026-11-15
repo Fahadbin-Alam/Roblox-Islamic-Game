@@ -57,13 +57,15 @@ New tests found and fixed real bugs during this pass:
 - **Signs on the arrival spot.** The mystery wing and co-op entrance signs stood where players arrive, and the arena rules sign stood in a gateway. They now stand aside.
 - **Arriving in the Seerah towns.** In historical Makkah the camera started inside one of the houses around the Kaaba, and in historical Madinah the town sign filled the view. A new check keeps the space behind every arrival open and signs facing the player (`game-previews/v2/seerah-makkah-arrival-before-after.png`).
 - **Present-day Madinah arrival and route.** Arriving players landed inside the solid portico, and the visitation route was blocked. New checks: every travel destination lands in open space, players can walk from the Madinah arrival into the hall, and the route from Bab as-Salam is open.
+- **Land around the play areas (terrain).** Before, every area was a flat slab floating in empty sky, ringed by flat brown block "mountains". Leading Islamic Roblox games set their towns in a continuous landscape, so the whole map now sits on Roblox Terrain: a sand floor under everything, crescent dunes that grow from low near the areas to large further out, rock and sandstone mountain ranges past 650 studs that hide the areas from each other, smooth sand ramps where raised floors meet the desert, and nine oases with water, grass, date palms and shrubs. The old ridge blocks in the hub and the Seerah towns are now terrain rock too. Terrain costs no parts and smooths itself in Roblox. Checks keep every terrain fill below the floor of every play area and treat terrain as solid in the walk checks, which caught two hub dunes blocking the Journey road and the Madinah visitation route (both fixed). Before/after: `game-previews/v2/scenery-*-before-after.png` and `scenery-oasis.png`. Our renderer draws terrain as the raw balls and wedges it is built from, so dunes look lumpier in the previews than Roblox's smoothed terrain will.
 
 ## Cost
 
 | Zone | Parts |
 |---|---|
-| Hub, including Masjid al-Haram and present-day Madinah | 8,893 (budget 9,000) |
-| Historical Makkah and Madinah | 14,587 (budget 15,000) |
+| Hub, including Masjid al-Haram and present-day Madinah | 8,665 (budget 9,000) |
+| Historical Makkah and Madinah | 14,277 (budget 15,000) |
+| Oases between the areas (palms and shrubs) | about 800 |
 | Mystery wing | 2,083 (budget 2,500) |
 | Training grounds | 573 (budget 1,000) |
 | Co-op trials | 256 (budget 400) |

@@ -35,9 +35,10 @@ register() {
     # Run the day/night service at 22:00 so the checks can see night mode.
     echo 'game:GetService("Lighting").ClockTime = 22'
 
-    for name in GameBootstrap HubWorldBuilder HaramTimeService HistoricalWorldBuilder MysteryService CoopTrialsService PvpArenaService BattleArenaBuilder; do
+    for name in GameBootstrap HubWorldBuilder HaramTimeService HistoricalWorldBuilder MysteryService CoopTrialsService PvpArenaService BattleArenaBuilder WorldTerrain; do
         file="$root/src/ServerScriptService/$name.server.lua"
         [ -f "$file" ] || continue
+        [ "$name" = "WorldTerrain" ] && echo "mock.worldTerrainFrom = #mock.terrain + 1"
         echo "do"
         echo "local script = scriptAt(\"ServerScriptService/$name\")"
         echo "local ok, err = pcall(function()"
@@ -51,6 +52,7 @@ register() {
         [ "$mode" = "--dump-all" ] && echo "DUMP_ALL = true"
         cat "$root/tests/hub/dump.luau"
     else
+        cat "$root/tests/hub/terrain.luau"
         cat "$root/tests/hub/checks.luau"
         cat "$root/tests/hub/zones.luau"
     fi
