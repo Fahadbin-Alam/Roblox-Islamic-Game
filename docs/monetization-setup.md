@@ -71,7 +71,9 @@ Two layers of tracking:
   events. View them in Creator Hub > Analytics. Revenue, DAU and D1/D7/D30 retention are also
   there once the game has traffic.
 - **The in-game business ledger** (`Modules/BusinessMetrics.lua`). One DataStore row per UTC
-  day (`BusinessLedger_v1`), updated with `UpdateAsync` so all servers add to the same totals:
+  day (`BusinessLedger_v1`), updated with `UpdateAsync` so all servers add to the same totals.
+  Each server adds its counts up in memory and writes them once every 90 seconds and at
+  shutdown, so the shared daily key is not written on every join, leave and purchase. It holds
   joins, new players, returning players, D1/D7/D30 returns, purchases, Robux spent per product,
   ad rewards, sessions and play minutes. The retention rules are unit tested
   (`Modules/Retention.lua`). The creator sees the last 14 days under **Journeys > Support >

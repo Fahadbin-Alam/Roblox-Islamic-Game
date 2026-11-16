@@ -6,7 +6,11 @@ local MonetizationConfig = require(game:GetService("ReplicatedStorage").Shared.C
 local USER = 9101
 local KEY = "player_" .. USER
 
+local BusinessMetrics = require(game:GetService("ServerScriptService").Modules.BusinessMetrics)
+
+-- The ledger is written in batches; flush this server's pending counts before reading it.
 local function ledgerToday()
+    BusinessMetrics.Flush()
     local ledger = sim.stores[MonetizationConfig.LedgerStore]
     return ledger and ledger.Data[string.format("day_%d", math.floor(os.time() / 86400))] or {}
 end
@@ -71,4 +75,34 @@ test("a DataStore outage never overwrites saved progress", function()
     sim.removePlayer(player)
     sim.advance(0.5)
     expectEqual(sim.stores.PlayerProgress_v1.Data[KEY].XP, good.XP, "saved XP is untouched")
+end)
+
+test("the business ledger is written in batches, not on every join and leave", function()
+    BusinessMetrics.Flush()
+    local ledger = sim.stores[MonetizationConfig.LedgerStore]
+    local writesBefore = ledger.Writes
+    local joinsBefore = (ledger.Data[string.format("day_%d", math.floor(os.time() / 86400))] or {}).Joins or 0
+    for index = 1, 5 do
+        local visitor = sim.addPlayer(9150 + index, "Visitor" .. index)
+        sim.advance(0.5)
+        sim.removePlayer(visitor)
+        sim.advance(0.5)
+    end
+    expectEqual(ledger.Writes, writesBefore, "ten joins and leaves wrote nothing to the shared key yet")
+    expectEqual(BusinessMetrics.Pending().Joins, 5, "the joins are held in memory")
+    sim.advance(91)
+    expectEqual(ledger.Writes, writesBefore + 1, "one batched write after the flush interval")
+    expectEqual(ledgerToday().Joins, joinsBefore + 5, "every join reached the ledger")
+end)
+
+test("a failed ledger write keeps its counts for the next flush", function()
+    local visitor = sim.addPlayer(9160, "Visitor")
+    sim.advance(0.5)
+    local joinsBefore = (sim.stores[MonetizationConfig.LedgerStore].Data[string.format("day_%d", math.floor(os.time() / 86400))] or {}).Joins or 0
+    sim.dataStoreDown = true
+    BusinessMetrics.Flush()
+    sim.dataStoreDown = false
+    expectEqual(ledgerToday().Joins, joinsBefore + 1, "the join was written once the store came back")
+    sim.removePlayer(visitor)
+    sim.advance(0.5)
 end)
