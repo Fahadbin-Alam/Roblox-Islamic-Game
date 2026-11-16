@@ -1,6 +1,7 @@
 local SeerahCampaign = load("Data/SeerahCampaign")
 local HistoricalSites = load("Data/HistoricalSites")
 local CampaignRules = load("Modules/CampaignRules")
+local SeerahAnswers = load("Server/SeerahAnswers")
 local BattleScenarios = load("Data/BattleScenarios")
 local TravelRoute = load("Data/TravelRoute")
 
@@ -78,8 +79,8 @@ test("every chapter is complete, sourced, and separates gameplay from history", 
 
         local decision = chapter.Decision
         assert(#decision.Options >= 3, where .. " decision needs options")
-        assert(decision.CorrectIndex >= 1 and decision.CorrectIndex <= #decision.Options, where .. " decision answer out of range")
-        assert(decision.Explanation ~= "", where .. " decision needs an explanation")
+        expectEqual(decision.CorrectIndex, nil, where .. " answer must not be in the shared (client) data")
+        expectEqual(decision.Explanation, nil, where .. " explanation must not be in the shared (client) data")
 
         local activity = chapter.Activity
 
@@ -104,6 +105,8 @@ test("the Prophet is always named with salutation and never given a model or voi
     eachString(SeerahCampaign.Chapters, "SeerahCampaign", checkReverence)
     eachString(HistoricalSites.Sites, "HistoricalSites", checkReverence)
     eachString(load("Data/SahabiMysteries").Mysteries, "SahabiMysteries", checkReverence)
+    -- The decision explanations moved to the server with the answer keys; check them too.
+    eachString(SeerahAnswers, "SeerahAnswers", checkReverence)
 end)
 
 test("historical sites sit inside their zone and far from the present-day hub", function()
@@ -151,10 +154,11 @@ test("a collect chapter runs travel, story, activity, decision", function()
     expectEqual(run.Stage, "Activity", "still collecting")
     CampaignRules.Collect(run, 4)
     expectEqual(run.Stage, "Decision", "decision after collecting all")
-    local ok = CampaignRules.Answer(run, 1)
+    local key = SeerahAnswers.black_stone
+    local ok = CampaignRules.Answer(run, if key.CorrectIndex == 1 then 2 else 1, key)
     assert(not ok, "wrong answer")
     expectEqual(run.WrongAnswers, 1, "wrong counted")
-    local right, explanation = CampaignRules.Answer(run, CampaignRules.GetChapter("black_stone").Decision.CorrectIndex)
+    local right, explanation = CampaignRules.Answer(run, key.CorrectIndex, key)
     assert(right and explanation, "right answer explains")
     expectEqual(run.Stage, "Done", "done")
 end)

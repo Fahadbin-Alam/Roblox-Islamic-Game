@@ -4,6 +4,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Workspace = game:GetService("Workspace")
 local SahabiMysteries = require(ReplicatedStorage.Shared.Data.SahabiMysteries)
 local PlayerProgress = require(game:GetService("ServerScriptService").Modules.PlayerProgress)
+-- The lock answers are server-only; the test reads them where the server does.
+local MysteryAnswers = require(game:GetService("ServerScriptService").Modules.MysteryAnswers)
 
 local mystery = SahabiMysteries.Mysteries[1]
 local room = Workspace:WaitForChild("MysteryWing"):WaitForChild(mystery.Id)
@@ -59,12 +61,22 @@ test("a hint is shared and a wrong lock answer keeps the door shut", function()
     use(idris, prompts("MysteryHint")[1])
     expectEqual(state(hana).HintsUsed, 1, "the hint counts for the room")
     local wrong = {}
-    for index, question in ipairs(mystery.Lock) do
-        wrong[index] = if question.CorrectIndex == 1 then 2 else 1
+    for index in ipairs(mystery.Lock) do
+        wrong[index] = if MysteryAnswers[mystery.Id][index] == 1 then 2 else 1
     end
     sim.fireServer(hana, "Mystery/Request", "Lock", wrong)
     expectEqual(state(idris).LockOpen, false, "the lock stays shut")
     expectEqual(room:FindFirstChild("LockDoor", true).CanCollide, true, "the door is solid")
+    expectEqual(state(idris).WrongTries, 1, "the wrong try is counted")
+end)
+
+test("the lock cannot be hammered: a second try within two seconds is refused", function()
+    local right = table.clone(MysteryAnswers[mystery.Id])
+    sim.fireServer(hana, "Mystery/Request", "Lock", right)
+    expectEqual(state(hana).LockOpen, false, "an instant retry does not open the lock")
+    expectTrue(string.find(tostring(state(hana).Toast), "moment", 1, true) ~= nil, "Hana is asked to wait")
+    expectEqual(state(idris).WrongTries, 1, "the refused try is not counted")
+    sim.advance(2.5)
 end)
 
 test("the episode cannot start before the lock opens", function()
@@ -73,10 +85,7 @@ test("the episode cannot start before the lock opens", function()
 end)
 
 test("the right answers open the door for everyone", function()
-    local right = {}
-    for index, question in ipairs(mystery.Lock) do
-        right[index] = question.CorrectIndex
-    end
+    local right = table.clone(MysteryAnswers[mystery.Id])
     sim.fireServer(idris, "Mystery/Request", "Lock", right)
     expectEqual(state(hana).LockOpen, true, "Hana sees the lock open")
     expectEqual(room:FindFirstChild("LockDoor", true).CanCollide, false, "the door can be walked through")
@@ -153,10 +162,7 @@ for number = 2, #SahabiMysteries.Mysteries do
         end
         expectEqual(#sim.last(b, "Mystery/State").Found, #other.Clues, "every clue is found")
 
-        local right = {}
-        for index, question in ipairs(other.Lock) do
-            right[index] = question.CorrectIndex
-        end
+        local right = table.clone(MysteryAnswers[other.Id])
         sim.fireServer(a, "Mystery/Request", "Lock", right)
         expectEqual(sim.last(b, "Mystery/State").LockOpen, true, "the lock opens")
 

@@ -25,11 +25,11 @@ export type Activity = {
     ScenarioId: string?,
 }
 
+-- The answer and its explanation are not here: this file replicates to every client, so the
+-- key lives on the server in ServerScriptService/Modules/SeerahAnswers.lua.
 export type Decision = {
     Prompt: string,
     Options: { string },
-    CorrectIndex: number,
-    Explanation: string,
 }
 
 export type Chapter = {
@@ -75,8 +75,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "What did Abd al-Muttalib ask Abrahah for?",
             Options = { "To spare the Kaaba", "The return of his camels", "Gold for Quraysh", "A seat in Abrahah's army" },
-            CorrectIndex = 2,
-            Explanation = "He asked for his camels and trusted that the House had a Lord who would protect it.",
         },
         Consequence = "The Arabs called it the Year of the Elephant and dated events from it. Quraysh gained great respect as the people of the protected House.",
         Lesson = "Allah protects what He wills. Trust in Allah while doing what is in your own hands.",
@@ -104,8 +102,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "Who looked after him after his grandfather died?",
             Options = { "Halimah al-Sa'diyyah", "Abu Lahab", "His uncle Abu Talib", "Waraqah ibn Nawfal" },
-            CorrectIndex = 3,
-            Explanation = "Abu Talib took him in when he was about eight and protected him for decades.",
         },
         Consequence = "Growing up an orphan, he knew loss early. The Qur'an later reminded him: \"Did He not find you an orphan and give you shelter?\"",
         Lesson = "Care for orphans and people who have lost family. Allah sees and shelters them.",
@@ -130,8 +126,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "What was Hilf al-Fudul?",
             Options = { "A trade caravan to Syria", "A pact to defend anyone who was wronged", "A war between two clans", "A poetry contest" },
-            CorrectIndex = 2,
-            Explanation = "Quraysh leaders swore to support the oppressed until justice was done, whoever they were.",
         },
         Consequence = "His honesty was so well known that even people who later opposed him still trusted him with their belongings.",
         Lesson = "Be honest in small things, and stand up for people who are treated unfairly.",
@@ -158,8 +152,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "Why did Khadijah first choose him to lead her caravan?",
             Options = { "He was her cousin", "He was the richest man in Makkah", "He was known for his honesty", "He had been to Syria many times" },
-            CorrectIndex = 3,
-            Explanation = "His reputation for honesty led her to trust him with her goods.",
         },
         Consequence = "Khadijah became his closest support. She was the first person to believe in his message.",
         Lesson = "Good character opens doors. Khadijah valued honesty above everything else.",
@@ -185,8 +177,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "How did he settle the argument over the Black Stone?",
             Options = { "He gave the honour to his own clan", "He told them to draw lots", "Every clan carried it together on a cloak", "He left it for another year" },
-            CorrectIndex = 3,
-            Explanation = "Every clan shared the honour, so no one was left out and no blood was shed.",
         },
         Consequence = "A fight that could have lasted years was ended in minutes. His fairness was respected by all of Quraysh.",
         Lesson = "Look for solutions that let everyone share the good, instead of winners and losers.",
@@ -214,8 +204,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "What did Khadijah do when he came home trembling?",
             Options = { "She told him to keep it secret from everyone", "She comforted him, named his good deeds, and took him to Waraqah", "She sent him back to the cave", "She called the leaders of Quraysh" },
-            CorrectIndex = 2,
-            Explanation = "She reassured him by naming his good character and sought advice from a wise relative.",
         },
         Consequence = "Khadijah became the first believer. The revelation of the Qur'an continued for about twenty-three years.",
         Lesson = "Islam begins with learning: the first word revealed was \"Read\". And a good friend comforts you with the truth.",
@@ -244,8 +232,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "Why did the first Muslims meet quietly at Dar al-Arqam?",
             Options = { "To protect a small, vulnerable community while it learned", "Because praying was only allowed indoors", "To plan a war", "Because the Kaaba was closed" },
-            CorrectIndex = 1,
-            Explanation = "The community was small and could be harmed, so they learned in a safe place first.",
         },
         Consequence = "A strong core of believers formed who would carry the message through the hard years ahead.",
         Lesson = "Good friends lead each other to good. Abu Bakr's friendship brought many to Islam.",
@@ -271,8 +257,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "What did Quraysh answer when he asked if they would believe him?",
             Options = { "We never believe anyone", "Yes, we have never known you to lie", "Only if you bring proof", "Ask the chiefs first" },
-            CorrectIndex = 2,
-            Explanation = "Even the people who rejected his message admitted they had never known him to lie.",
         },
         Consequence = "The message was now public. Opposition from Quraysh grew from mockery into persecution.",
         Lesson = "A lifetime of honesty gave his words weight. Build trust before you need it.",
@@ -301,8 +285,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "What did Abu Bakr do for Bilal?",
             Options = { "He hid him in a cave", "He paid Umayyah to stop for a day", "He bought him and set him free", "He sent him to Abyssinia" },
-            CorrectIndex = 3,
-            Explanation = "Abu Bakr spent his own wealth to free Bilal and other enslaved believers.",
         },
         Consequence = "Bilal later became the first mu'adhdhin, calling the adhan in Madinah. The steadfastness of these believers is remembered to this day.",
         Lesson = "Belief can be stronger than any pressure. Use what you have to free and help others.",
@@ -331,8 +313,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "What did the Najashi decide after hearing Ja'far?",
             Options = { "He handed the Muslims to Quraysh", "He refused to hand them over and protected them", "He sent them back to Makkah with gifts", "He asked them to leave his land" },
-            CorrectIndex = 2,
-            Explanation = "Moved by what he heard, the just king protected the emigrants.",
         },
         Consequence = "The emigrants lived safely in Abyssinia for years, many returning later to Madinah.",
         Lesson = "Speak clearly and truthfully about your faith. Justice can be found among people of other faiths too.",
@@ -360,8 +340,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "What was Fatimah's household reading when Umar arrived?",
             Options = { "Surah al-Fatihah", "Surah Ta-Ha", "Surah Yasin", "Surah al-Mulk" },
-            CorrectIndex = 2,
-            Explanation = "The opening verses of Surah Ta-Ha softened Umar's heart.",
         },
         Consequence = "With Hamzah and Umar, the Muslims gained confidence and began to pray openly at the Kaaba.",
         Lesson = "No one is beyond guidance. The Qur'an can change even a hard heart.",
@@ -390,8 +368,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "How did the boycott come to an end?",
             Options = { "Banu Hashim gave in", "Fair-minded men of Quraysh worked to cancel it, and the pact was found eaten away", "An army broke the siege", "The Prophet ﷺ left Makkah" },
-            CorrectIndex = 2,
-            Explanation = "Some of Quraysh themselves campaigned against the injustice, and the document was found destroyed.",
         },
         Consequence = "The clan returned to Makkah, but the hardship had weakened Abu Talib and Khadijah.",
         Lesson = "Standing with family and against injustice, even at a cost, is honourable.",
@@ -417,8 +393,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "Why is this year called the Year of Sorrow?",
             Options = { "A drought hit Makkah", "Abu Talib and Khadijah both died", "The Kaaba was damaged", "The Muslims lost a battle" },
-            CorrectIndex = 2,
-            Explanation = "He lost both his protector and his closest support in the same year.",
         },
         Consequence = "He looked beyond Makkah for people who would accept the message, first in Ta'if.",
         Lesson = "Grief is part of life. He remembered Khadijah with love for the rest of his life.",
@@ -446,8 +420,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "What did he answer when offered the destruction of Ta'if?",
             Options = { "He accepted", "He asked for a storm instead", "He refused, hoping their descendants would worship Allah", "He asked for time to decide" },
-            CorrectIndex = 3,
-            Explanation = "Even after being hurt, he chose mercy and hoped for their future guidance.",
         },
         Consequence = "Years later the people of Ta'if accepted Islam.",
         Lesson = "Answer harm with mercy, and do not lose hope in people.",
@@ -472,8 +444,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "Which act of worship was made obligatory during the Mi'raj?",
             Options = { "Fasting in Ramadan", "The five daily prayers", "Zakah", "Hajj" },
-            CorrectIndex = 2,
-            Explanation = "The five daily prayers were given on that night, which shows how central salah is.",
         },
         Consequence = "Salah became the daily link between every Muslim and Allah.",
         Lesson = "Prayer is a gift. Abu Bakr's trust earned him the title al-Siddiq.",
@@ -500,8 +470,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "Who was sent to teach Islam in Yathrib after the first pledge?",
             Options = { "Mus'ab ibn Umayr", "Khalid ibn al-Walid", "Abu Sufyan", "Bilal ibn Rabah" },
-            CorrectIndex = 1,
-            Explanation = "Mus'ab ibn Umayr taught the Qur'an in Yathrib, and many families accepted Islam through him.",
         },
         Consequence = "Yathrib was ready to welcome the believers. The Hijrah could begin.",
         Lesson = "One sincere teacher can change a whole city.",
@@ -533,8 +501,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "Who slept in the Prophet's ﷺ bed on the night of the Hijrah?",
             Options = { "Abu Bakr al-Siddiq", "Ali ibn Abi Talib", "Zayd ibn Harithah", "Umar ibn al-Khattab" },
-            CorrectIndex = 2,
-            Explanation = "Ali took his place so he could leave safely, and then returned the trusts to their owners.",
         },
         Consequence = "The Hijrah to Madinah marks year 1 of the Islamic calendar.",
         Lesson = "Plan carefully, then trust Allah. Every member of Abu Bakr's family had a role.",
@@ -561,8 +527,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "How was the land for the mosque chosen?",
             Options = { "The richest family gave their house", "Where his camel knelt, on land bought from two orphans", "It was taken from the Jewish tribes", "The Ansar drew lots" },
-            CorrectIndex = 2,
-            Explanation = "He let the camel choose so no family would feel passed over, and paid the orphans for their land.",
         },
         Consequence = "The Muslims now had a home where they could worship freely and build a community.",
         Lesson = "He insisted on paying the orphans for their land, even though they offered it as a gift. Be fair to the weak, even when they would let it go.",
@@ -591,8 +555,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "What did Abd al-Rahman ibn Awf ask of his Ansari brother?",
             Options = { "Half of his wealth", "A house of his own", "To be shown the way to the market", "A position of leadership" },
-            CorrectIndex = 3,
-            Explanation = "He thanked Sa'd for his generosity but chose to earn his own living.",
         },
         Consequence = "The brotherhood turned two groups of strangers into one community.",
         Lesson = "Be generous like Sa'd, and self-reliant like Abd al-Rahman.",
@@ -617,8 +579,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "What did the Charter of Madinah do?",
             Options = { "Forced everyone to become Muslim", "Set rights and duties so the city's communities could live and defend together", "Declared war on Makkah", "Banned trade with outsiders" },
-            CorrectIndex = 2,
-            Explanation = "It was an agreement of rights, duties, and shared defence among Madinah's communities.",
         },
         Consequence = "Madinah gained order and peace inside its walls. Later, some parties broke their commitments, which led to serious conflicts.",
         Lesson = "Written agreements and fairness help different people live together.",
@@ -642,8 +602,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "Which direction did the Muslims face after this verse?",
             Options = { "Jerusalem", "The Kaaba in Makkah", "East", "Whatever direction they liked" },
-            CorrectIndex = 2,
-            Explanation = "Since then, Muslims everywhere face the Kaaba in prayer.",
         },
         Consequence = "The qiblah gave the Muslim community a shared direction, pointing back to the House built by Ibrahim.",
         Lesson = "When guidance is clear, follow it at once, as those worshippers did mid-prayer.",
@@ -672,8 +630,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "How were some literate captives allowed to earn their freedom after Badr?",
             Options = { "By fighting for the Muslims", "By teaching ten children to read", "By paying with horses", "By leaving Arabia" },
-            CorrectIndex = 2,
-            Explanation = "Teaching children to read shows how much Islam valued learning, even from former enemies.",
         },
         Consequence = "Badr showed that a small, steadfast group could prevail with Allah's help. Quraysh vowed revenge, leading to Uhud.",
         Lesson = "Victory comes from Allah. Consult others, as advice from al-Hubab was taken.",
@@ -702,8 +658,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "What turned the battle against the Muslims?",
             Options = { "They ran out of water", "Most archers left their post against orders", "The army was too small", "The weather changed" },
-            CorrectIndex = 2,
-            Explanation = "Leaving the post opened the way for the cavalry attack from behind.",
         },
         Consequence = "Surah Al Imran drew the lessons: obedience, patience, and that worldly gain must not override duty.",
         Lesson = "Keep your post and your promises, even when others leave theirs.",
@@ -732,8 +686,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "Whose idea was the trench?",
             Options = { "Umar ibn al-Khattab", "Salman al-Farisi", "Khalid ibn al-Walid", "Abu Sufyan" },
-            CorrectIndex = 2,
-            Explanation = "Salman knew the defence from Persia, and his advice was taken.",
         },
         Consequence = "It was the last time Quraysh marched on Madinah. The balance had shifted.",
         Lesson = "Good ideas can come from anyone. Salman was a newcomer from Persia.",
@@ -761,8 +713,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "Why did Surah al-Fath call this treaty a clear victory?",
             Options = { "The Muslims won a battle", "The peace let people meet Islam freely and many accepted it", "Quraysh gave up Makkah", "The Muslims got rich" },
-            CorrectIndex = 2,
-            Explanation = "In the two years of peace, more people entered Islam than in all the years before.",
         },
         Consequence = "The truce opened Arabia to the message. When Quraysh's allies broke it, the way to Makkah was open.",
         Lesson = "Patience and peace can achieve more than force. What looks like a loss may be a victory.",
@@ -791,8 +741,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "What did Abu Sufyan admit to Heraclius?",
             Options = { "That he had never known the Prophet ﷺ to lie", "That the Muslims were weak", "That he wanted war", "That he had become Muslim" },
-            CorrectIndex = 1,
-            Explanation = "Even an opponent, questioned by an emperor, could not accuse him of lying.",
         },
         Consequence = "The message reached far beyond Arabia.",
         Lesson = "Share good words with wisdom and respect, even with the powerful.",
@@ -820,8 +768,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "How were the people of Makkah treated after the conquest?",
             Options = { "They were punished for the years of persecution", "They were forgiven and set free", "They were sent away from Arabia", "They had to pay a heavy tax" },
-            CorrectIndex = 2,
-            Explanation = "A general amnesty was given. Mercy, not revenge, marked the return to Makkah.",
         },
         Consequence = "Makkah and most of Arabia entered Islam, and the Kaaba was again a house for the worship of Allah alone.",
         Lesson = "Forgive when you are strong. That is the mercy that changes hearts.",
@@ -848,8 +794,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "What did Ka'b ibn Malik do when the army returned?",
             Options = { "He invented a good excuse", "He told the truth that he had no excuse", "He left Madinah", "He blamed others" },
-            CorrectIndex = 2,
-            Explanation = "He chose honesty though it was hard, and Allah accepted his repentance.",
         },
         Consequence = "After Tabuk, tribes from all over Arabia sent delegations to Madinah to accept Islam.",
         Lesson = "Tell the truth even when it costs you. Honesty leads to good.",
@@ -875,8 +819,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "According to the sermon, what makes one person better than another?",
             Options = { "Their tribe", "Their wealth", "Their piety (taqwa)", "Their language" },
-            CorrectIndex = 3,
-            Explanation = "Only piety, which Allah alone can fully judge, makes one person better than another.",
         },
         Consequence = "The sermon summed up the message: justice, equality, and holding to the Qur'an.",
         Lesson = "All people are equal before Allah. Treat everyone with justice.",
@@ -904,8 +846,6 @@ local chapters: { Chapter } = {
         Decision = {
             Prompt = "What did Abu Bakr remind the people of?",
             Options = { "That the Prophet ﷺ would return soon", "That Allah is Ever-Living and the message continues", "That they should leave Madinah", "That the Qur'an was now complete, so nothing else mattered" },
-            CorrectIndex = 2,
-            Explanation = "Abu Bakr steadied the community by pointing them to Allah, who never dies, and to Qur'an 3:144.",
         },
         Consequence = "The Qur'an and the Sunnah were carried by the companions to the whole world.",
         Lesson = "Our worship is for Allah alone. We honour the Prophet ﷺ by following his example.",

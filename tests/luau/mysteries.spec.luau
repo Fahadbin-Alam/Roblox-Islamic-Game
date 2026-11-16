@@ -1,5 +1,6 @@
 local SahabiMysteries = load("Data/SahabiMysteries")
 local MysteryRules = load("Modules/MysteryRules")
+local MysteryAnswers = load("Server/MysteryAnswers")
 
 test("every mystery has clues, hints, a lock, an episode, and sources", function()
     assert(#SahabiMysteries.Mysteries >= 5, "at least five mysteries")
@@ -31,11 +32,11 @@ test("every mystery has clues, hints, a lock, an episode, and sources", function
         end
 
         for index, question in ipairs(mystery.Lock) do
-            assert(question.CorrectIndex >= 1 and question.CorrectIndex <= #question.Options, where .. " lock " .. index .. " answer out of range")
+            expectEqual(question.CorrectIndex, nil, where .. " lock " .. index .. " answer must not be in the shared (client) data")
         end
 
         -- The first lock question always asks who the companion is.
-        expectEqual(mystery.Lock[1].Options[mystery.Lock[1].CorrectIndex], mystery.Companion, where .. " first lock answer")
+        expectEqual(mystery.Lock[1].Options[MysteryAnswers[where][1]], mystery.Companion, where .. " first lock answer")
     end
 end)
 
@@ -56,9 +57,9 @@ test("a shared run goes clue, hint, lock, episode, done", function()
     local counted = MysteryRules.VisitStation(run, 1)
     assert(not counted, "stations stay closed until the lock opens")
 
-    assert(not MysteryRules.TryLock(run, { 1, 1 }), "wrong lock")
-    assert(not MysteryRules.TryLock(run, "bad"), "bad input")
-    assert(MysteryRules.TryLock(run, { 2, 1 }), "right lock")
+    assert(not MysteryRules.TryLock(run, { 1, 1 }, MysteryAnswers.bilal), "wrong lock")
+    assert(not MysteryRules.TryLock(run, "bad" :: any, MysteryAnswers.bilal), "bad input")
+    assert(MysteryRules.TryLock(run, { 2, 1 }, MysteryAnswers.bilal), "right lock")
 
     assert(not (MysteryRules.VisitStation(run, 2)), "ordered episode refuses station 2 first")
     for index = 1, #mystery.Episode.Stations do
@@ -74,7 +75,7 @@ end)
 
 test("unordered episodes accept stations in any order", function()
     local run = MysteryRules.NewRun("salman")
-    MysteryRules.TryLock(run, { 2, 3 })
+    MysteryRules.TryLock(run, { 2, 3 }, MysteryAnswers.salman)
     assert(run.LockOpen, "lock open")
     assert(MysteryRules.VisitStation(run, 4), "last first")
     assert(MysteryRules.VisitStation(run, 2), "then second")
