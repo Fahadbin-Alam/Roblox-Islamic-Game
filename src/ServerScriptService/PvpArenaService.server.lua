@@ -411,7 +411,9 @@ local function startRound()
         local player = byId(userId)
 
         if player then
-            local ok, err = pcall(ensureAlive, player)
+            local ok, err = pcall(function()
+                ensureAlive(player)
+            end)
 
             if not ok then
                 warn(string.format("[PvpArena] could not respawn %s: %s", player.Name, tostring(err)))
