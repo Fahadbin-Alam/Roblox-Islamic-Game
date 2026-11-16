@@ -38,14 +38,21 @@ local ShopCatalog = {
     },
     DeveloperProducts = {
         {
-            -- Reward for watching a rewarded video ad (SupportService). Hidden from the shop:
-            -- it is granted by the ad, never bought.
+            -- A small token pack sold in the shop for Robux like any other pack. The same
+            -- developer product is also the reward for an optional rewarded video ad
+            -- (SupportService). Roblox requires an ad reward to "be a developer product which
+            -- would normally be available to purchase with Robux inside an in-game shop", so
+            -- this item must never be hidden from the shop:
+            -- https://create.roblox.com/docs/production/promotion/rewarded-video-ads
             Key = "ad_reward_tokens",
-            DisplayName = "Ad Reward: Knowledge Tokens",
+            DisplayName = "Knowledge Token Pouch",
             ProductId = MonetizationConfig.RewardedAd.DevProductId,
-            Type = "AdReward",
-            Hidden = true,
-            Benefit = "Granted after a rewarded video ad.",
+            Type = "Progression",
+            RewardedAdReward = true,
+            Benefit = string.format(
+                "Adds %d Knowledge Tokens. You can also get it free by watching an optional video in Journeys > Support.",
+                MonetizationConfig.RewardedAd.RewardTokens
+            ),
             Grants = {
                 KnowledgeTokens = MonetizationConfig.RewardedAd.RewardTokens,
             },
@@ -94,9 +101,12 @@ local ShopCatalog = {
     RewardedAds = {
         Enabled = true,
         PlacementId = 0,
-        RewardProductKey = "ultimate_charge_single",
+        RewardProductKey = "ad_reward_tokens",
         DisplayName = "Rewarded Video Kiosk",
-        Benefit = "Watch a short ad to earn 1 free ultimate charge.",
+        Benefit = string.format(
+            "Watch a short optional video in Journeys > Support to get the Knowledge Token Pouch (%d tokens) free.",
+            MonetizationConfig.RewardedAd.RewardTokens
+        ),
         Disclosure = "Rewards must be developer products. Players do not receive Robux from ads.",
     },
     SkinDefinitions = {

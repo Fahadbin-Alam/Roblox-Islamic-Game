@@ -322,7 +322,7 @@ end
 local function promptProduct(player: Player, key: string)
     local item = developerProductByKey[key]
 
-    if not item or (item :: any).Hidden then
+    if not item then
         sendFeedback(player, "That product is not configured.", "warning")
         return
     end
@@ -540,11 +540,13 @@ MarketplaceService.ProcessReceipt = function(receiptInfo)
     local granted = grantDeveloperProduct(player, item)
 
     if granted then
-        -- Real revenue and ad numbers for the business ledger (docs/monetization-setup.md).
-        BusinessMetrics.RecordPurchase(tonumber(receiptInfo.CurrencySpent) or 0, item.Key)
+        -- Real revenue for the business ledger (docs/monetization-setup.md). A rewarded video
+        -- grants its product through this same receipt with no Robux spent; SupportService
+        -- counts those as ad rewards, so only paid receipts count as purchases here.
+        local robuxSpent = tonumber(receiptInfo.CurrencySpent) or 0
 
-        if item.Type == "AdReward" then
-            BusinessMetrics.RecordAdReward()
+        if robuxSpent > 0 then
+            BusinessMetrics.RecordPurchase(robuxSpent, item.Key)
         end
 
         return Enum.ProductPurchaseDecision.PurchaseGranted

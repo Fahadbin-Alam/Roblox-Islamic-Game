@@ -94,7 +94,7 @@ a Studio or live test.
 | 6 | Respectful storytelling | Every mention of the Prophet carries ﷺ and no model or voice exists for him; faces stripped from guides and townspeople; each chapter separates gameplay from history | Scholar review of the content (see `docs/sources.md`) |
 | 7 | Present-day vs historical | Every activity zone is more than 2,600 studs from the hub and no two zones overlap | Visual review in Studio |
 | 8 | Social | Mute (chat and voice), friends-only join, friend notices, voice status through the real service (sim/social.spec) | Invite prompts, blocking and voice on real accounts |
-| 9 | Ads and tracking | Retention rules (new, returning, D1/D7/D30) unit tested; hidden ad product cannot be bought from the shop | **Real ads, revenue and retention numbers** |
+| 9 | Ads and tracking | Retention rules (new, returning, D1/D7/D30) unit tested; the ad reward is a normal shop product, and ads never start in a battle, sparring match or story | **Real ads, revenue and retention numbers** |
 | 10 | Saves and proof | Save on leave, load next day, outage safety, serialization rules (sim/saves.spec) | DataStore saves on a published place |
 
 ## Performance (part counts from the mock build)
