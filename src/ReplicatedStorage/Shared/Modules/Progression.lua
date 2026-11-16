@@ -68,6 +68,10 @@ Progression.Rewards = {
     coop = 90,
     PvpRoundWin = 10,
     PvpMatchWin = 40,
+    -- Sparring can be repeated without end (two friends trading ring-outs), and the Top
+    -- Learners board ranks by XP, so PvP pays at most this much XP per UTC day: two full
+    -- matches. Matches still count in Stats after that, they just stop paying XP.
+    PvpDailyXpCap = 140,
     RepeatMultiplier = 0.25,
 }
 
@@ -188,6 +192,13 @@ function Progression.GetCompletionReward(category: string, firstTime: boolean): 
     end
 
     return math.floor(base * Progression.Rewards.RepeatMultiplier)
+end
+
+-- How much of `reward` sparring may still pay today, given `earnedToday` PvP XP so far.
+function Progression.PvpXpAllowed(earnedToday: number, reward: number): number
+    local left = Progression.Rewards.PvpDailyXpCap - math.max(0, earnedToday)
+
+    return math.clamp(math.floor(reward), 0, math.max(0, left))
 end
 
 local function countCompleted(profile: Profile, category: string, ids: { string }): number

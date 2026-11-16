@@ -34,6 +34,9 @@ local G = 4
 local RING_RADIUS = 52
 local COUNTDOWN = 5
 local INTERMISSION = 6
+-- A round won faster than this (for example a friend stepping straight out of the ring)
+-- pays no XP. A real knockout means crossing the ring and landing four sword hits.
+local MIN_PAID_ROUND_SECONDS = 4
 
 local match = PvpMatch.New()
 local roundToken = 0
@@ -293,16 +296,44 @@ end
 local function ensureAlive(player: Player)
     local humanoid = getHumanoid(player)
 
-    if not humanoid or humanoid.Health <= 0 then
+    if (not humanoid or humanoid.Health <= 0) and player.Parent ~= nil then
         player:LoadCharacter()
-        local character = player.Character or player.CharacterAdded:Wait()
-        character:WaitForChild("HumanoidRootPart", 5)
+        local character = player.Character
+
+        if character then
+            character:WaitForChild("HumanoidRootPart", 5)
+        end
     end
 end
 
 -- Rounds ------------------------------------------------------------------------------------
 
 local startRoundSoon
+local roundStartedAt = 0
+
+-- All sparring XP goes through here so it respects the daily cap (Progression.PvpXpAllowed).
+-- The day's total is kept in the saved Stats, so rejoining does not reset it.
+local function payPvpXp(player: Player, reward: number, reason: string)
+    local profile = PlayerProgress.Get(player)
+
+    if not profile then
+        return
+    end
+
+    local day = math.floor(os.time() / 86400)
+
+    if profile.Stats.PvpXpDay ~= day then
+        profile.Stats.PvpXpDay = day
+        profile.Stats.PvpXpToday = 0
+    end
+
+    local pay = Progression.PvpXpAllowed(profile.Stats.PvpXpToday or 0, reward)
+
+    if pay > 0 then
+        PlayerProgress.IncrementStat(player, "PvpXpToday", pay)
+        PlayerProgress.AddXP(player, pay, reason)
+    end
+end
 
 local function endRound()
     roundToken += 1
@@ -317,15 +348,15 @@ local function endRound()
 
     local winner = match.RoundWinner and byId(match.RoundWinner)
 
-    if winner then
-        PlayerProgress.AddXP(winner, Progression.Rewards.PvpRoundWin, "Won a sparring round")
+    if winner and os.clock() - roundStartedAt >= MIN_PAID_ROUND_SECONDS then
+        payPvpXp(winner, Progression.Rewards.PvpRoundWin, "Won a sparring round")
     end
 
     if match.Phase == "Over" then
         local champion = match.MatchWinner and byId(match.MatchWinner)
 
         if champion then
-            PlayerProgress.AddXP(champion, Progression.Rewards.PvpMatchWin, "Won a sparring match")
+            payPvpXp(champion, Progression.Rewards.PvpMatchWin, "Won a sparring match")
             PlayerProgress.IncrementStat(champion, "PvpMatchWins", 1)
         end
 
@@ -355,26 +386,10 @@ local function startRound()
     roundToken += 1
     local token = roundToken
     local fighters = table.clone(match.Players)
+    roundStartedAt = os.clock()
 
-    for index, userId in ipairs(fighters) do
-        local player = byId(userId)
-
-        if player then
-            ensureAlive(player)
-            local character = player.Character
-            local humanoid = getHumanoid(player)
-
-            if character and humanoid then
-                humanoid.Health = humanoid.MaxHealth
-                humanoid:SetAttribute("LastAttackerUserId", nil)
-                character:PivotTo(ringSpawn(index, #fighters))
-                setFighter(player, true)
-            end
-        end
-    end
-
-    broadcast({ Banner = string.format("Round %d: fight fair!", match.Round), RoundEndsAt = Workspace:GetServerTimeNow() + match.Config.RoundSeconds })
-
+    -- Schedule the round's end first: respawning a fighter below yields, and if a player
+    -- leaves meanwhile the round must still time out instead of staying stuck in "Round".
     task.delay(match.Config.RoundSeconds, function()
         if token ~= roundToken or match.Phase ~= "Round" then
             return
@@ -391,6 +406,32 @@ local function startRound()
         PvpMatch.Timeout(match, health)
         endRound()
     end)
+
+    for index, userId in ipairs(fighters) do
+        local player = byId(userId)
+
+        if player then
+            local ok, err = pcall(ensureAlive, player)
+
+            if not ok then
+                warn(string.format("[PvpArena] could not respawn %s: %s", player.Name, tostring(err)))
+            end
+
+            local character = player.Character
+            local humanoid = getHumanoid(player)
+
+            if token == roundToken and player.Parent ~= nil and character and humanoid then
+                humanoid.Health = humanoid.MaxHealth
+                humanoid:SetAttribute("LastAttackerUserId", nil)
+                character:PivotTo(ringSpawn(index, #fighters))
+                setFighter(player, true)
+            end
+        end
+    end
+
+    if token == roundToken then
+        broadcast({ Banner = string.format("Round %d: fight fair!", match.Round), RoundEndsAt = Workspace:GetServerTimeNow() + match.Config.RoundSeconds })
+    end
 end
 
 startRoundSoon = function(delaySeconds: number)

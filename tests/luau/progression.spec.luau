@@ -153,3 +153,13 @@ test("guides stand at real destinations", function()
         assert(#guide.Sayings > 0, "guide has sayings")
     end
 end)
+
+test("sparring XP stops at the daily cap", function()
+    local cap = Progression.Rewards.PvpDailyXpCap
+    expectEqual(Progression.PvpXpAllowed(0, 40), 40, "full reward under the cap")
+    expectEqual(Progression.PvpXpAllowed(cap - 15, 40), 15, "only what is left of the cap")
+    expectEqual(Progression.PvpXpAllowed(cap, 10), 0, "nothing at the cap")
+    expectEqual(Progression.PvpXpAllowed(cap + 50, 10), 0, "nothing past the cap")
+    expectEqual(Progression.PvpXpAllowed(0, -5), 0, "never negative")
+    assert(cap < Progression.Rewards.seerah * 2, "a day of sparring is worth less than two Seerah chapters")
+end)
