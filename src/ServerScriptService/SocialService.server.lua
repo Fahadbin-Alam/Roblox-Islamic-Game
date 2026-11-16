@@ -158,10 +158,20 @@ request.OnServerEvent:Connect(function(player: Player, action: any, argument: an
     elseif action == "Mute" and type(argument) == "table" then
         setMute(player, argument.UserId, argument.Muted)
     elseif action == "Voice" then
-        local list = {}
+        -- Only your own status and your friends'. Voice chat needs a verified 13+ account, so
+        -- a stranger's voice status says something about their age that is not ours to share.
+        local list = { [tostring(player.UserId)] = voiceEnabled(player.UserId) }
 
         for _, other in ipairs(Players:GetPlayers()) do
-            list[tostring(other.UserId)] = voiceEnabled(other.UserId)
+            if other ~= player then
+                local ok, isFriend = pcall(function()
+                    return player:IsFriendsWith(other.UserId)
+                end)
+
+                if ok and isFriend then
+                    list[tostring(other.UserId)] = voiceEnabled(other.UserId)
+                end
+            end
         end
 
         stateEvent:FireClient(player, { Voice = list })

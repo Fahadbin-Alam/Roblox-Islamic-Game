@@ -74,10 +74,13 @@ test("friends already in the server are told when a friend arrives", function()
     expectTrue(string.find(lastMessage(zaid), "Your friend Layla joined") ~= nil, "Zaid gets a friend notice")
 end)
 
-test("voice status reports only eligible players", function()
+test("voice status reports only eligible players, and only your own and your friends'", function()
     sim.voiceUsers[omar.UserId] = true
     sim.fireServer(zaid, "Social/Request", "Voice")
     local voice = sim.last(zaid, "Social/State").Voice
-    expectEqual(voice[tostring(omar.UserId)], true, "Omar can use voice")
     expectEqual(voice[tostring(zaid.UserId)], false, "Zaid cannot")
+    expectEqual(voice[tostring(omar.UserId)], nil, "a stranger's voice status is not shared")
+    sim.fireServer(sara, "Social/Request", "Voice")
+    voice = sim.last(sara, "Social/State").Voice
+    expectEqual(voice[tostring(omar.UserId)], true, "Sara's friend Omar can use voice")
 end)
