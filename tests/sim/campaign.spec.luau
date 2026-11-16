@@ -5,6 +5,8 @@ local Workspace = game:GetService("Workspace")
 local SeerahCampaign = require(ReplicatedStorage.Shared.Data.SeerahCampaign)
 local HistoricalSites = require(ReplicatedStorage.Shared.Data.HistoricalSites)
 local PlayerProgress = require(game:GetService("ServerScriptService").Modules.PlayerProgress)
+-- The decision answers are server-only; the test reads them where the server does.
+local SeerahAnswers = require(game:GetService("ServerScriptService").Modules.SeerahAnswers)
 
 local student = sim.addPlayer(9501, "Maryam")
 sim.advance(0.5)
@@ -76,10 +78,11 @@ test("all 30 chapters can be played in order to the end", function()
             expectEqual(stage(), "Decision", chapter.Id .. " goes straight to the decision")
         end
 
-        local wrong = if chapter.Decision.CorrectIndex == 1 then 2 else 1
+        local correctIndex = SeerahAnswers[chapter.Id].CorrectIndex
+        local wrong = if correctIndex == 1 then 2 else 1
         act("Answer", wrong)
         expectEqual(state().Feedback.Kind, "retry", chapter.Id .. ": a wrong answer asks to try again")
-        act("Answer", chapter.Decision.CorrectIndex)
+        act("Answer", correctIndex)
         expectEqual(state().Feedback.Kind, "success", chapter.Id .. ": the right answer finishes the chapter")
         expectTrue(#(state().Feedback.Text or "") > 20, chapter.Id .. ": the explanation is shown")
         expectTrue(PlayerProgress.HasCompleted(student, "seerah", chapter.Id), chapter.Id .. " is saved as completed")

@@ -5,9 +5,15 @@
 -- with UpdateAsync so every server adds to the same totals. The creator can read the last two
 -- weeks in game (Journeys > Support > Creator numbers); Creator Hub has the official figures.
 --
+-- Counts are added up in memory and written once every FLUSH_SECONDS per server (and once at
+-- shutdown), not on every join, leave and purchase. That keeps the shared daily key from
+-- being hammered by every server and leaves the DataStore budget for player saves. A failed
+-- write keeps its counts for the next flush.
+--
 -- Retention is measured from each profile's first-visit day (Stats.FirstDay).
 
 local DataStoreService = game:GetService("DataStoreService")
+local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local MonetizationConfig = require(ReplicatedStorage:WaitForChild("Shared").Config.MonetizationConfig)
@@ -23,14 +29,39 @@ local function today(): number
     return math.floor(os.time() / 86400)
 end
 
+-- Seconds between writes from one server. Each server writes its own totals at most this often.
+local FLUSH_SECONDS = 90
+-- Shutdown waits up to this long for leaving players' session minutes before the last write.
+local SHUTDOWN_WAIT_SECONDS = 5
+
+-- Counts not yet written, per UTC day.
+local pending: { [number]: { [string]: number } } = {}
+
+local function merge(day: number, fields: { [string]: number })
+    local row = pending[day] or {}
+    pending[day] = row
+
+    for key, amount in pairs(fields) do
+        row[key] = (row[key] or 0) + amount
+    end
+end
+
 local function add(fields: { [string]: number })
+    merge(today(), fields)
+end
+
+-- Writes every pending count with one UpdateAsync per day. Yields.
+function BusinessMetrics.Flush()
     if not storeOk or not store then
         return
     end
 
-    task.spawn(function()
+    local batch = pending
+    pending = {}
+
+    for day, fields in pairs(batch) do
         local ok, err = pcall(function()
-            (store :: DataStore):UpdateAsync(string.format("day_%d", today()), function(row)
+            (store :: DataStore):UpdateAsync(string.format("day_%d", day), function(row)
                 local data = if type(row) == "table" then row else {}
 
                 for key, amount in pairs(fields) do
@@ -42,10 +73,35 @@ local function add(fields: { [string]: number })
         end)
 
         if not ok then
+            -- Keep the counts and try again at the next flush.
+            merge(day, fields)
             warn("[BusinessMetrics] " .. tostring(err))
         end
-    end)
+    end
 end
+
+-- Pending counts for today, not yet written. Exposed for tests.
+function BusinessMetrics.Pending(): { [string]: number }
+    return pending[today()] or {}
+end
+
+task.spawn(function()
+    while true do
+        task.wait(FLUSH_SECONDS)
+        BusinessMetrics.Flush()
+    end
+end)
+
+game:BindToClose(function()
+    -- PlayerRemoving (and its session minutes) still runs for everyone during shutdown.
+    local deadline = os.clock() + SHUTDOWN_WAIT_SECONDS
+
+    while #Players:GetPlayers() > 0 and os.clock() < deadline do
+        task.wait(0.25)
+    end
+
+    BusinessMetrics.Flush()
+end)
 
 -- Pure: which retention counters a visit adds to. Exposed for tests.
 BusinessMetrics.RetentionFields = Retention.Fields
@@ -70,13 +126,16 @@ function BusinessMetrics.RecordSessionMinutes(minutes: number)
     add({ SessionMinutes = math.floor(minutes), Sessions = 1 })
 end
 
--- The last `days` rows, newest first. Yields.
+-- The last `days` rows, newest first. Writes this server's pending counts first, so they show.
+-- Yields.
 function BusinessMetrics.ReadRecent(days: number): { { Day: number, Data: { [string]: number } } }
     local rows = {}
 
     if not storeOk or not store then
         return rows
     end
+
+    BusinessMetrics.Flush()
 
     for offset = 0, days - 1 do
         local day = today() - offset

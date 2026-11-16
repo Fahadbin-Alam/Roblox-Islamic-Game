@@ -17,10 +17,11 @@ export type Clue = {
     Offset: Vector3,
 }
 
+-- The answers are not here: this file replicates to every client, so the lock keys live on
+-- the server in ServerScriptService/Modules/MysteryAnswers.lua.
 export type LockQuestion = {
     Prompt: string,
     Options: { string },
-    CorrectIndex: number,
 }
 
 export type Station = {
@@ -78,8 +79,8 @@ local mysteries: { Mystery } = {
             "He was the first mu'adhdhin of Islam. His name begins with B.",
         },
         Lock = {
-            { Prompt = "Whose story do these objects tell?", Options = { "Ammar ibn Yasir", "Bilal ibn Rabah", "Zayd ibn Harithah", "Salman al-Farisi" }, CorrectIndex = 2 },
-            { Prompt = "Which word did he repeat while he was tortured?", Options = { "Ahad (One)", "Sabr (Patience)", "Salam (Peace)", "Haqq (Truth)" }, CorrectIndex = 1 },
+            { Prompt = "Whose story do these objects tell?", Options = { "Ammar ibn Yasir", "Bilal ibn Rabah", "Zayd ibn Harithah", "Salman al-Farisi" } },
+            { Prompt = "Which word did he repeat while he was tortured?", Options = { "Ahad (One)", "Sabr (Patience)", "Salam (Peace)", "Haqq (Truth)" } },
         },
         Episode = {
             Title = "Up to the Rooftop",
@@ -123,8 +124,8 @@ local mysteries: { Mystery } = {
             "His freedom was paid for in palm trees.",
         },
         Lock = {
-            { Prompt = "Whose journey is this?", Options = { "Suhayb al-Rumi", "Salman al-Farisi", "Bilal ibn Rabah", "Abu Dharr al-Ghifari" }, CorrectIndex = 2 },
-            { Prompt = "What was part of the price of his freedom?", Options = { "A hundred camels", "A house in Makkah", "Three hundred palm trees", "A year of service" }, CorrectIndex = 3 },
+            { Prompt = "Whose journey is this?", Options = { "Suhayb al-Rumi", "Salman al-Farisi", "Bilal ibn Rabah", "Abu Dharr al-Ghifari" } },
+            { Prompt = "What was part of the price of his freedom?", Options = { "A hundred camels", "A house in Makkah", "Three hundred palm trees", "A year of service" } },
         },
         Episode = {
             Title = "Dig the Trench",
@@ -168,8 +169,8 @@ local mysteries: { Mystery } = {
             "His title, Dhu al-Nurayn, is written on the rings' note.",
         },
         Lock = {
-            { Prompt = "Who bought the well of Rumah?", Options = { "Abd al-Rahman ibn Awf", "Abu Bakr al-Siddiq", "Uthman ibn Affan", "Talhah ibn Ubaydullah" }, CorrectIndex = 3 },
-            { Prompt = "What did he do with the well's water?", Options = { "Sold it at a fair price", "Made it free for everyone", "Kept it for his family", "Gave it to the army only" }, CorrectIndex = 2 },
+            { Prompt = "Who bought the well of Rumah?", Options = { "Abd al-Rahman ibn Awf", "Abu Bakr al-Siddiq", "Uthman ibn Affan", "Talhah ibn Ubaydullah" } },
+            { Prompt = "What did he do with the well's water?", Options = { "Sold it at a fair price", "Made it free for everyone", "Kept it for his family", "Gave it to the army only" } },
         },
         Episode = {
             Title = "Water for Madinah",
@@ -213,8 +214,8 @@ local mysteries: { Mystery } = {
             "She tore her belt in two, so she was called \"She of the Two Belts\".",
         },
         Lock = {
-            { Prompt = "Who is the owner of the torn belt?", Options = { "Aisha bint Abi Bakr", "Asma bint Abi Bakr", "Fatimah bint Muhammad", "Umm Salamah" }, CorrectIndex = 2 },
-            { Prompt = "What would she not tell Abu Jahl?", Options = { "Where her father was", "Her own name", "Where the Kaaba key was", "Who her husband was" }, CorrectIndex = 1 },
+            { Prompt = "Who is the owner of the torn belt?", Options = { "Aisha bint Abi Bakr", "Asma bint Abi Bakr", "Fatimah bint Muhammad", "Umm Salamah" } },
+            { Prompt = "What would she not tell Abu Jahl?", Options = { "Where her father was", "Her own name", "Where the Kaaba key was", "Who her husband was" } },
         },
         Episode = {
             Title = "Night Run to Thawr",
@@ -258,8 +259,8 @@ local mysteries: { Mystery } = {
             "His name begins with M and he carried the banner at Uhud.",
         },
         Lock = {
-            { Prompt = "Who was this young man?", Options = { "Mus'ab ibn Umayr", "Sa'd ibn Abi Waqqas", "Usayd ibn Hudayr", "Khalid ibn al-Walid" }, CorrectIndex = 1 },
-            { Prompt = "What was he sent to Yathrib to do?", Options = { "Trade", "Lead an army", "Teach the Qur'an", "Collect taxes" }, CorrectIndex = 3 },
+            { Prompt = "Who was this young man?", Options = { "Mus'ab ibn Umayr", "Sa'd ibn Abi Waqqas", "Usayd ibn Hudayr", "Khalid ibn al-Walid" } },
+            { Prompt = "What was he sent to Yathrib to do?", Options = { "Trade", "Lead an army", "Teach the Qur'an", "Collect taxes" } },
         },
         Episode = {
             Title = "Teach Yathrib",

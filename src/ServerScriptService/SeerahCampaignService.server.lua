@@ -17,6 +17,11 @@ local TravelRoute = require(Shared.Data.TravelRoute)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 local Analytics = require(script.Parent.Modules.Analytics)
 local Streaming = require(script.Parent.Modules.Streaming)
+local SeerahAnswers = require(script.Parent.Modules.SeerahAnswers)
+local JourneyGrading = require(script.Parent.Modules.JourneyGrading)
+
+-- The answer keys stay on the server. Stop here if they ever drift from the chapters.
+JourneyGrading.CheckSeerahKeys(SeerahCampaign.Chapters, SeerahAnswers)
 
 local remotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Campaign")
 local request = remotes:WaitForChild("Request") :: RemoteEvent
@@ -190,16 +195,24 @@ end
 function actions.Answer(player: Player, optionIndex: any)
     local run = runs[player]
 
-    if not run or type(optionIndex) ~= "number" then
+    -- Outside the decision stage there is nothing to grade; saying "Not quite" would mislead.
+    if not run or run.Stage ~= "Decision" then
         return
     end
 
     local chapter = CampaignRules.GetChapter(run.ChapterId)
-    local correct, explanation = CampaignRules.Answer(run, optionIndex)
 
     if not chapter then
         return
     end
+
+    local choice = JourneyGrading.Choice(optionIndex, #chapter.Decision.Options)
+
+    if not choice then
+        return
+    end
+
+    local correct, explanation = CampaignRules.Answer(run, choice, SeerahAnswers[chapter.Id])
 
     if not correct then
         sendState(player, { Kind = "retry", Text = "Not quite. Look back at the story and try again." })

@@ -712,6 +712,8 @@ end)
 rawset(Instance_, "GetPlayers", function()
     return {}
 end)
+-- game:BindToClose (BusinessMetrics flushes the ledger at shutdown). Nothing shuts down here.
+rawset(Instance_, "BindToClose", function() end)
 
 game = game_
 workspace = Workspace

@@ -4,8 +4,11 @@
 --
 -- A player presses "Watch a video" in Journeys > Support. If Roblox has an ad for them (ads are
 -- only offered to eligible players; Roblox decides eligibility by age, region, and device), the
--- server shows it. When it completes, Roblox grants the hidden "ad_reward_tokens" developer
--- product, which ShopService turns into Knowledge Tokens and records in the business ledger.
+-- server shows it. When it completes, Roblox grants the "ad_reward_tokens" developer product,
+-- which ShopService turns into Knowledge Tokens. That product is also sold in the shop, as
+-- Roblox requires, and ads only play outside battles, sparring and stories, so a video can
+-- never leave a player defenceless:
+-- https://create.roblox.com/docs/production/promotion/rewarded-video-ads
 -- Nothing in the game is locked behind ads.
 
 local Players = game:GetService("Players")
@@ -50,8 +53,20 @@ local function send(player: Player, extra: { [string]: any })
     stateEvent:FireClient(player, extra)
 end
 
+-- Roblox: "Video ads shouldn't negatively impact the user's character during gameplay. You
+-- can pause damage while an ad plays or only show ads in safe zones." Battles, sparring and
+-- stories are where a character can be hurt, so no ad starts there.
+local function inDangerZone(player: Player): boolean
+    return player:GetAttribute("InBattle") == true or player:GetAttribute("InSparring") == true or player:GetAttribute("InStory") == true
+end
+
 local function watchAd(player: Player)
     if busy[player] then
+        return
+    end
+
+    if inDangerZone(player) then
+        send(player, { Message = "Videos can't play during a battle, sparring match or story. Try again when you're done." })
         return
     end
 
@@ -77,6 +92,12 @@ local function watchAd(player: Player)
         return
     end
 
+    -- Availability can take a moment; re-check the player did not walk into a fight meanwhile.
+    if inDangerZone(player) or player.Parent == nil then
+        busy[player] = nil
+        return
+    end
+
     local okShow, result = pcall(function()
         local reward = AdService:CreateAdRewardFromDevProductId(config.DevProductId)
         return AdService:ShowRewardedVideoAdAsync(player, reward, config.PlacementId)
@@ -97,6 +118,7 @@ local function watchAd(player: Player)
         end
 
         Analytics.Custom(player, "RewardedAdCompleted", 1)
+        BusinessMetrics.RecordAdReward()
         send(player, { Message = string.format("Thanks for watching! +%d Knowledge Tokens are on the way.", config.RewardTokens) })
     else
         Analytics.Custom(player, "RewardedAdNotCompleted", 1)

@@ -21,6 +21,11 @@ local Decor = require(script.Parent.Modules.Decor)
 local PlayerProgress = require(script.Parent.Modules.PlayerProgress)
 local Analytics = require(script.Parent.Modules.Analytics)
 local Streaming = require(script.Parent.Modules.Streaming)
+local MysteryAnswers = require(script.Parent.Modules.MysteryAnswers)
+local JourneyGrading = require(script.Parent.Modules.JourneyGrading)
+
+-- The lock answers stay on the server. Stop here if they ever drift from the mysteries.
+JourneyGrading.CheckMysteryKeys(SahabiMysteries.Mysteries, MysteryAnswers)
 
 local remotes = ReplicatedStorage:WaitForChild("Remotes"):WaitForChild("Mystery")
 local request = remotes:WaitForChild("Request") :: RemoteEvent
@@ -34,6 +39,9 @@ local YARD_Z = 150
 local WALL_HEIGHT = 24
 local RESET_AFTER_DONE = 40
 local RESET_WHEN_EMPTY = 150
+-- A player can try the lock at most once per this many seconds, so its few combinations
+-- cannot be brute-forced and wrong tries cannot flood the room with toasts.
+local LOCK_TRY_COOLDOWN = 2
 
 local STONE = Color3.fromRGB(196, 176, 146)
 local DARK = Color3.fromRGB(88, 70, 52)
@@ -53,6 +61,7 @@ type Room = {
 local rooms: { [string]: Room } = {}
 local roomOrder: { Room } = {}
 local playerRoom: { [Player]: string } = {}
+local lastLockTry: { [Player]: number } = {}
 
 local existing = Workspace:FindFirstChild("MysteryWing")
 
@@ -490,13 +499,22 @@ function actions.Lock(player: Player, answers: any)
         return
     end
 
-    local clean = {}
+    local now = os.clock()
 
-    for index = 1, #room.Mystery.Lock do
-        clean[index] = if type(answers[index]) == "number" then answers[index] else 0
+    if lastLockTry[player] and now - lastLockTry[player] < LOCK_TRY_COOLDOWN then
+        stateEvent:FireClient(player, payload(room, { Toast = "Take a moment to check the clues before trying again." }))
+        return
     end
 
-    if MysteryRules.TryLock(room.Run, clean) then
+    lastLockTry[player] = now
+
+    local clean = {}
+
+    for index, question in ipairs(room.Mystery.Lock) do
+        clean[index] = JourneyGrading.Choice(answers[index], #question.Options) or 0
+    end
+
+    if MysteryRules.TryLock(room.Run, clean, MysteryAnswers[room.Mystery.Id]) then
         setDoor(room, true)
         broadcast(room, { Toast = "The lock clicks open. Go through the door to play the episode." })
     else
@@ -644,6 +662,7 @@ end)
 Players.PlayerRemoving:Connect(function(player: Player)
     local id = playerRoom[player]
     playerRoom[player] = nil
+    lastLockTry[player] = nil
 
     if id and rooms[id] then
         broadcast(rooms[id])

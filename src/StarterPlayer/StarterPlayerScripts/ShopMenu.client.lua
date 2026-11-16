@@ -318,14 +318,12 @@ local function rebuildCatalog()
         end)
     end
 
-    createSectionTitle("Battle Products")
+    createSectionTitle("Products")
 
     for _, item in ipairs(shopCatalog.DeveloperProducts) do
-        if not (item :: any).Hidden then
-            createCard(item.DisplayName, item.Benefit, "Buy", Color3.fromRGB(96, 84, 133), function()
-                promptDeveloperProductPurchase:FireServer(item.Key)
-            end)
-        end
+        createCard(item.DisplayName, item.Benefit, "Buy", Color3.fromRGB(96, 84, 133), function()
+            promptDeveloperProductPurchase:FireServer(item.Key)
+        end)
     end
 
     createSectionTitle("Skins")

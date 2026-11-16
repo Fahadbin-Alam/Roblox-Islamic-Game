@@ -78,6 +78,10 @@ test("a single player on both pads does not count", function()
 end)
 
 test("two players on the twin pads finish together and both get credit", function()
+    -- A third player is in the course but not on a pad.
+    local bystander = sim.addPlayer(9303, "Watcher")
+    sim.advance(0.5)
+    stand(bystander, Vector3.new(0, G + LEDGE, 90))
     stand(emigrant, Vector3.new(14, G + LEDGE, 104))
     sim.advance(0.3)
     for _, player in ipairs({ helper, emigrant }) do
@@ -91,8 +95,18 @@ test("two players on the twin pads finish together and both get credit", functio
         end
         expectTrue(finish, player.Name .. " saw the finish")
     end
+    expectTrue(not PlayerProgress.HasCompleted(bystander, "coop", "brotherhood_trials"), "a bystander off the pads gets no credit")
+    expectEqual(PlayerProgress.GetStat(bystander, "CoopFinishes"), 0, "a bystander's finish count is unchanged")
+    sim.removePlayer(bystander)
     sim.advance(30)
     expectEqual(PlayerProgress.GetStat(helper, "CoopFinishes"), 1, "standing on the pads for 30 seconds does not farm finishes")
+    -- Stepping off and back on after the 8-second room cooldown still does not count again.
+    stand(helper, Vector3.new(0, G + LEDGE, 90))
+    sim.advance(0.5)
+    stand(helper, Vector3.new(-14, G + LEDGE, 104))
+    sim.advance(0.5)
+    expectEqual(PlayerProgress.GetStat(helper, "CoopFinishes"), 1, "stepping off and on does not farm finishes")
+    expectEqual(PlayerProgress.GetStat(emigrant, "CoopFinishes"), 1, "nor for the partner")
     stand(helper, Vector3.new(0, G + LEDGE, 90))
     stand(emigrant, Vector3.new(4, G + LEDGE, 90))
     sim.advance(1)

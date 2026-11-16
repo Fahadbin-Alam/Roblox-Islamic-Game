@@ -4,6 +4,7 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TravelRoute = require(ReplicatedStorage.Shared.Data.TravelRoute)
 local PlayerProgress = require(game:GetService("ServerScriptService").Modules.PlayerProgress)
+local Progression = require(ReplicatedStorage.Shared.Modules.Progression)
 local center = TravelRoute.GetDestinationById("training_grounds").Position - Vector3.new(0, 4, 0)
 
 local amina = sim.addPlayer(9001, "Amina")
@@ -95,10 +96,12 @@ test("the other player can win a round, and leaving the ring is a knockout", fun
     sim.advance(6.5)
     expectEqual(state(yusuf).Round, 3, "round 3 is on")
     -- Yusuf steps out of the ring.
+    local xpBefore = PlayerProgress.Get(amina).XP
     sim.place(yusuf, center + Vector3.new(80, 6, 0), center)
     sim.advance(1)
     expectEqual(sim.humanoid(yusuf).Health, 0, "ring-out knocks the player out")
     expectEqual(state(amina).RoundWinner, amina.UserId, "Amina wins round 3")
+    expectEqual(PlayerProgress.Get(amina).XP, xpBefore, "a round handed over in the first second pays no XP")
 end)
 
 test("first to three round wins takes the match and both see the result", function()
@@ -111,6 +114,9 @@ test("first to three round wins takes the match and both see the result", functi
     expectTrue(string.find(a.Banner or "", "Amina wins the match") ~= nil, "winner banner")
     expectEqual(PlayerProgress.GetStat(amina, "PvpMatchWins"), 1, "match win is saved to Amina's stats")
     expectEqual(PlayerProgress.GetStat(yusuf, "PvpMatches"), 1, "match played is counted for Yusuf")
+    local paid = PlayerProgress.GetStat(amina, "PvpXpToday")
+    expectTrue(paid >= Progression.Rewards.PvpMatchWin, "the match win paid XP and was counted toward today's cap")
+    expectTrue(paid <= Progression.Rewards.PvpDailyXpCap, "sparring XP stays under the daily cap")
 end)
 
 test("both players vote to play again and a fresh match starts", function()
@@ -126,6 +132,26 @@ test("both players vote to play again and a fresh match starts", function()
     end
 end)
 
+test("a real round win pays XP until today's sparring cap is reached", function()
+    sim.advance(4.5)
+    local xp = PlayerProgress.Get(amina).XP
+    fightUntilDown(amina, yusuf, 6)
+    expectEqual(state(amina).RoundWinner, amina.UserId, "Amina wins rematch round 1")
+    expectEqual(PlayerProgress.Get(amina).XP, xp + Progression.Rewards.PvpRoundWin, "a fought round pays round XP")
+
+    sim.advance(6.5)
+    expectEqual(state(amina).Phase, "Round", "rematch round 2 is on")
+    local stats = PlayerProgress.Get(amina).Stats
+    stats.PvpXpToday = Progression.Rewards.PvpDailyXpCap
+    sim.advance(4.5)
+    xp = PlayerProgress.Get(amina).XP
+    fightUntilDown(amina, yusuf, 6)
+    expectEqual(state(amina).RoundWinner, amina.UserId, "Amina wins rematch round 2")
+    expectEqual(PlayerProgress.Get(amina).XP, xp, "no more sparring XP once the daily cap is reached")
+    expectEqual(PlayerProgress.GetStat(amina, "PvpXpToday"), Progression.Rewards.PvpDailyXpCap, "the day's total stays at the cap")
+    sim.advance(6.5)
+end)
+
 test("a player who leaves mid-round hands the round to the other", function()
     sim.fireServer(yusuf, "Pvp/Request", "Leave")
     expectEqual(state(yusuf).InMatch, false, "Yusuf is out of the match")
@@ -135,4 +161,19 @@ end)
 
 test("match results reach Roblox Analytics", function()
     expectTrue(#sim.analyticsFor(amina, "LogCustomEvent", "PvpMatchDone") >= 1, "a PvpMatchDone event was logged for Amina")
+end)
+
+test("a round still ends on time when a fighter cannot be respawned at the start", function()
+    sim.advance(7)
+    local load = mock.Instance_.LoadCharacter
+    mock.Instance_.LoadCharacter = function()
+        error("Player is not in the game")
+    end
+    sim.humanoid(yusuf).Health = 0
+    sim.fireServer(yusuf, "Pvp/Request", "Join")
+    sim.advance(5.5)
+    mock.Instance_.LoadCharacter = load
+    expectEqual(state(amina).Phase, "Round", "the round started despite the failed respawn")
+    sim.advance(require(ReplicatedStorage.Shared.Modules.PvpMatch).DefaultConfig.RoundSeconds + 1)
+    expectTrue(state(amina).Phase ~= "Round", "the round timed out instead of staying stuck")
 end)

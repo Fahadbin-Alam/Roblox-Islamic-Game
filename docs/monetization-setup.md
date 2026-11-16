@@ -38,18 +38,26 @@ Watch a video** and receive Knowledge Tokens after a completed view. The flow is
 1. The button only works when `MonetizationConfig.RewardedAd.DevProductId` is set.
 2. The server checks the daily limit (`DailyLimit`, 3 by default) and
    `AdService:GetAdAvailabilityNowAsync(Enum.AdFormat.RewardedVideo)`.
-3. It builds the reward with `AdService:CreateAdRewardFromDevProductId` and calls
-   `ShowRewardedVideoAdAsync`. Roblox then grants the hidden developer product
-   `ad_reward_tokens`, which goes through the normal `ProcessReceipt` and is logged as an ad
-   reward.
+3. It refuses while the player is in a battle, a sparring match or a story (`InBattle`,
+   `InSparring`, `InStory`), so a video never leaves a character open to damage.
+4. It builds the reward with `AdService:CreateAdRewardFromDevProductId` and calls
+   `ShowRewardedVideoAdAsync`. Roblox then grants the developer product `ad_reward_tokens`
+   ("Knowledge Token Pouch"), which goes through the normal `ProcessReceipt`. A completed
+   video is logged as an ad reward; only receipts with Robux spent count as purchases.
+
+Roblox's rules for the reward ([Rewarded video ads](https://create.roblox.com/docs/production/promotion/rewarded-video-ads)):
+it must be a developer product "which would normally be available to purchase with Robux
+inside an in-game shop", not randomized, and must not inflate the economy. So the Knowledge
+Token Pouch is **sold in the shop** like any other pack (it must never be hidden), and its 40
+tokens are well below the paid 250-token bundle. `tests/luau/shop.spec.luau` checks both.
 
 To turn it on:
 
 1. Publish the experience and complete the Maturity and Compliance Questionnaire.
 2. Check ad eligibility in Creator Hub. Roblox does not show ads to users under 13, so a large
    part of a 9-17 audience will never see the button work. That is a platform rule, not a bug.
-3. In Creator Hub, create a developer product for the ad reward (price does not matter) and
-   enable Rewarded Video Ads for the experience.
+3. In Creator Hub, create the "Knowledge Token Pouch" developer product with a real Robux
+   price (players can buy it in the shop), and enable Rewarded Video Ads for the experience.
 4. Put the product ID in `src/ReplicatedStorage/Shared/Config/MonetizationConfig.lua`
    (`RewardedAd.DevProductId`) and, if you made one, the placement ID (`PlacementId`).
 5. Test in a live server with an eligible account. Studio cannot show real ads.
@@ -63,7 +71,9 @@ Two layers of tracking:
   events. View them in Creator Hub > Analytics. Revenue, DAU and D1/D7/D30 retention are also
   there once the game has traffic.
 - **The in-game business ledger** (`Modules/BusinessMetrics.lua`). One DataStore row per UTC
-  day (`BusinessLedger_v1`), updated with `UpdateAsync` so all servers add to the same totals:
+  day (`BusinessLedger_v1`), updated with `UpdateAsync` so all servers add to the same totals.
+  Each server adds its counts up in memory and writes them once every 90 seconds and at
+  shutdown, so the shared daily key is not written on every join, leave and purchase. It holds
   joins, new players, returning players, D1/D7/D30 returns, purchases, Robux spent per product,
   ad rewards, sessions and play minutes. The retention rules are unit tested
   (`Modules/Retention.lua`). The creator sees the last 14 days under **Journeys > Support >

@@ -86,8 +86,9 @@ function MysteryRules.TakeHint(run: Run): string?
     return hints[run.HintsUsed]
 end
 
--- `answers` holds one option index per lock question. All must be right to open the door.
-function MysteryRules.TryLock(run: Run, answers: { number }): boolean
+-- `answers` holds one option index per lock question; `key` the right ones, which only the
+-- server has (ServerScriptService/Modules/MysteryAnswers.lua). All must match to open the door.
+function MysteryRules.TryLock(run: Run, answers: { number }, key: { number }): boolean
     if run.LockOpen then
         return true
     end
@@ -96,8 +97,8 @@ function MysteryRules.TryLock(run: Run, answers: { number }): boolean
         return false
     end
 
-    for index, question in ipairs(byId[run.MysteryId].Lock) do
-        if answers[index] ~= question.CorrectIndex then
+    for index in ipairs(byId[run.MysteryId].Lock) do
+        if answers[index] ~= key[index] then
             run.WrongTries += 1
             return false
         end

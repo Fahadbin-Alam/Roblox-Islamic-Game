@@ -175,18 +175,18 @@ function CampaignRules.BattleDone(run: Run, battleCompleted: boolean): boolean
     return true
 end
 
--- Grades the decision. A wrong answer explains nothing yet and lets the player try again.
-function CampaignRules.Answer(run: Run, optionIndex: number): (boolean, string?)
+-- Grades the decision against `key`, the chapter's answer key. Keys never leave the server
+-- (ServerScriptService/Modules/SeerahAnswers.lua), so only the server can call this usefully.
+-- A wrong answer explains nothing yet and lets the player try again.
+function CampaignRules.Answer(run: Run, optionIndex: number, key: { CorrectIndex: number, Explanation: string }): (boolean, string?)
     if run.Stage ~= "Decision" then
         return false, nil
     end
 
-    local decision = chapterById[run.ChapterId].Chapter.Decision
-
-    if optionIndex == decision.CorrectIndex then
+    if optionIndex == key.CorrectIndex then
         run.Stage = "Done"
 
-        return true, decision.Explanation
+        return true, key.Explanation
     end
 
     run.WrongAnswers += 1

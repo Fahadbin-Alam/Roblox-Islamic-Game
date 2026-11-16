@@ -170,6 +170,14 @@ local finishedAt = -math.huge
 -- A finish counts once per arrival: players must step off the pads before it can count again,
 -- so standing still on them never farms finishes.
 local wasTogether = false
+-- A player's finishes count at most once per this many seconds, so stepping off and back on
+-- the pads cannot farm the CoopFinishes stat.
+local PLAYER_FINISH_COOLDOWN = 120
+local lastCredited: { [Player]: number } = {}
+
+Players.PlayerRemoving:Connect(function(player: Player)
+    lastCredited[player] = nil
+end)
 
 local function moveLift(up: boolean)
     if up == liftUp then
@@ -235,13 +243,19 @@ task.spawn(function()
         if arrived and os.clock() - finishedAt > 8 then
             finishedAt = os.clock()
 
-            for _, player in ipairs(Players:GetPlayers()) do
-                if inCourse(player) then
+            -- Only the players standing on the pads finished; bystanders in the course did not.
+            for player in pairs(together) do
+                local now = os.clock()
+                local last = lastCredited[player]
+
+                if inCourse(player) and (last == nil or now - last >= PLAYER_FINISH_COOLDOWN) then
+                    lastCredited[player] = now
                     PlayerProgress.RecordCompletion(player, "coop", "brotherhood_trials", "Trials of Brotherhood")
                     PlayerProgress.IncrementStat(player, "CoopFinishes", 1)
                     Analytics.Custom(player, "CoopFinish", distinct)
-                    stateEvent:FireClient(player, { Event = "finish", Players = distinct })
                 end
+
+                stateEvent:FireClient(player, { Event = "finish", Players = distinct })
             end
         end
 
